@@ -1,63 +1,63 @@
 {
   "environment": {
     "hostname": "MacBook-Pro-7.local",
-    "pid": 18921,
+    "pid": 23437,
     "platform_machine": "arm64",
     "platform_system": "Darwin",
     "python_version": "3.13.15",
-    "wall_elapsed_ms": 191.273
+    "wall_elapsed_ms": 188.836
   },
   "files": {
     "decisions.json": {
-      "sha256": "4452fec7446b206079d747e64b51d6995029af3655ab83b1a5e5a51bf4feb4fb",
+      "sha256": "cb42a900e30628ce46eab190145c5f76f2dea97d79bf24f1a43c344774d886cf",
       "size_bytes": 165707
     },
     "junit.xml": {
-      "sha256": "4799a77ee1a1aa27f4555b7677d8cd1ecfd967b4acedc2f034036690c15c3034",
-      "size_bytes": 10047
+      "sha256": "2fc35e6f426fef748fcdf4c40d4a1de5848dab3d7f2e580bf6c44e1eae237036",
+      "size_bytes": 13086
     },
     "junit_ventuno_aarch64.xml": {
-      "sha256": "162c0bd20e00b807809b5720680c31420319142ff8e3e91a8cb872ff5be56157",
-      "size_bytes": 10038
+      "sha256": "745d1c570a1fdb0dd01acd45ed6f353d12966edadc2f2f8f28926c0c1ca2b869",
+      "size_bytes": 13077
     },
     "metrics_summary.json": {
-      "sha256": "ff35c0169b76458e8602eaed137ddc27464023a3bc5370ebf0a39724f509b0d3",
-      "size_bytes": 938
+      "sha256": "17acf6856f19fa79a6414e224b39c723f507a7c99f474792339cdbad0633298f",
+      "size_bytes": 939
     },
     "remote_parity.json": {
-      "sha256": "c77ba2931829bb7bebd2ddb7ddfb7e2869888c5ae9c318f0da2d4870e10eeaf7",
-      "size_bytes": 1080
+      "sha256": "9d2982ee58035f6edaa32fcbed2e7381a918beb0f0226c89c1d9b7a2cff69d26",
+      "size_bytes": 1081
     },
     "replay_timeline.json": {
-      "sha256": "e2984d5ce9937fcbeb7bd1e73052e0527000b15f8fddd5186f9662fa05058107",
-      "size_bytes": 3112228
+      "sha256": "01d96d8105a606d58bd0122b18e6a579a5001c1deee57189f3a19ccddd94e0b5",
+      "size_bytes": 3113872
     },
     "requirements_matrix.csv": {
-      "sha256": "5de0742368cf5fc981e73775d1cd302e9a2716debfb26a56e1eaf5f733c05697",
-      "size_bytes": 18729
+      "sha256": "9f549ec39680cd414da0ea25f5bea81743dfe36e2708e06c62eae60cb302511d",
+      "size_bytes": 21039
     }
   },
-  "generated_at_utc": "2026-10-17T19:08:20Z",
-  "git_commit": "2547e6deeec0699cd516c9d33add50240f8e4739",
+  "generated_at_utc": "2026-10-17T20:57:56Z",
+  "git_commit": "c28d814e489d5303425be5a478dabbc3e1f7a585",
   "junit_summary": {
     "errors": 0,
     "failures": 0,
     "skipped": 0,
-    "tests": 77
+    "tests": 98
   },
   "metrics": {
-    "cooling_limited_semantic_sha256": "f6492d8f2b25cbaaa2b0a6eef0ac27b97d2ffa1085ea4cb59739ab8803ab0081",
+    "cooling_limited_semantic_sha256": "510d212ae57801c7c709a562055438ba64dac20eb1c8aa786c430c38e90e5309",
     "cooling_limited_ticks_count": 91,
     "errata_exceed_10000_kg_count": 3,
-    "max_tick_calc_ms": 0.6422,
-    "min_tick_calc_ms": 0.041,
-    "rescue_primary_semantic_sha256": "51dbf78738321832dc17076e3c6b233a65b18d980be87fb27d1b8db13bccde6b",
+    "max_tick_calc_ms": 0.6029,
+    "min_tick_calc_ms": 0.0409,
+    "rescue_primary_semantic_sha256": "be2977c84fcf9709d34d256c971c78effaffd780dfa0d3f02187eb1b159fca0f",
     "rescue_primary_ticks_count": 91,
-    "survey_primary_semantic_sha256": "efb110bab7d911c2d52693e30130c40ad693f12c6dd7da47e53bfa32aa0397ca",
+    "survey_primary_semantic_sha256": "e3e0bbed04dc6297bce6af303ad7a22ebe5af1292b1b05cd947fd0a76b851f82",
     "survey_primary_ticks_count": 91,
     "total_decisions_count": 15
   },
   "run_id": "final_run",
   "schema_version": "1.0.0",
-  "semantic_sha256": "185ef94ec07c1e3e03ddc5ddfa790c17f3af3df5535350b315709c1da2badae0"
+  "semantic_sha256": "ea79ed14a6580ab817aeb37d6446d6891f43d3052c5022e27a036935ebfb0024"
 }

@@ -18,8 +18,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+validation = [
+  "jsonschema>=4.10.0",
+]
 dev = [
   "pytest>=8.0.0",
+  "jsonschema>=4.10.0",
 ]
 
 [project.scripts]
@@ -37,6 +41,7 @@ include = ["sdv_governor*"]
   "_bundled/**/*",
   "_bundled/*",
   "_bundled/data/**/*",
+  "_bundled/schemas/*",
   "_bundled/ui/**/*",
 ]
 

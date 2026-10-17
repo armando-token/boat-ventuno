@@ -100,7 +100,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_dep = sub.add_parser("deploy-board", help="Sync codebase to remote Linux board and verify semantic parity (B1/B11)")
     p_dep.add_argument("--ssh-target", default="ardu")
 
-    p_ui = sub.add_parser("serve-ui", help="Start single-screen 2D operator console HTTP server (B10)")
+    p_ui = sub.add_parser("serve-ui", aliases=["serve"], help="Start single-screen 2D operator console HTTP server (B10)")
     p_ui.add_argument("--host", default="127.0.0.1")
     p_ui.add_argument("--port", type=int, default=8765)
 
@@ -262,7 +262,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(json.dumps(rep, indent=2, sort_keys=True))
         return 0 if rep.get("parity_verified") or rep.get("status") == "BLOCKED_CONNECTION" else 1
 
-    if args.command == "serve-ui":
+    if args.command in ("serve-ui", "serve"):
         serve_operator_ui(root, host=args.host, port=args.port)
         return 0
 

@@ -24,6 +24,7 @@ v5.1*/
 
 # Internal plans, megaplans, audit logs & historical baselines (kept locally on disk, excluded from GitHub)
 *MEGAPLAN*
+*CIERRE*
 *PLAN_*
 *INFORME*
 informe.md

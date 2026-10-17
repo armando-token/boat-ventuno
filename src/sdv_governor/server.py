@@ -11,6 +11,7 @@ from urllib.parse import parse_qs, urlparse
 import yaml
 
 from .admission import (
+    apply_admission_decision_atomically,
     build_baseline_state_with_installed_guests,
     evaluate_admission,
     evaluate_four_guest_combinations,
@@ -699,28 +700,25 @@ def dispatch_api_request(
             )
 
             verdict = decision["verdict"]
-            should_apply = apply_if_admitted and (
-                verdict == "YES" or (verdict == "YES_IF" and apply_yes_if and decision.get("placement") is not None)
+            app_res = apply_admission_decision_atomically(
+                decision,
+                cand_manifest,
+                trial_state,
+                ship_profile,
+                mission_envelope,
+                sess.session_catalog,
+                at_port=at_port,
+                apply_if_admitted=apply_if_admitted,
+                apply_yes_if=apply_yes_if,
+                hangar_roof_clearance_verified=hangar_roof_verified,
             )
+            should_apply = bool(app_res["applied"])
 
-            if should_apply and decision.get("placement"):
-                p = decision["placement"]
-                for disp_gid in decision.get("displaced_guests", []):
-                    trial_state.installed_guests.pop(disp_gid, None)
-                    trial_state.firm_reserved_loads = [
-                        fl for fl in trial_state.firm_reserved_loads if fl.guest_id != disp_gid
-                    ]
-                trial_state.installed_guests[cand_manifest.guest_id] = InstalledGuestState(
-                    guest_id=cand_manifest.guest_id,
-                    active_mode=p["initial_mode"],
-                    powered_on=True,
-                    placements=p["subcomponent_positions"],
-                    compute_node=p["compute_node"],
-                )
-                # Atomic commit of catalog, manifest registry, live state, and state_version (Phase S2, R8-F02)
+            if should_apply:
+                # Atomic commit of catalog, manifest registry, live state, and state_version (Phase S2, R8-F02, S6-I02)
                 sess.session_catalog[cand_manifest.guest_id] = cand_manifest
                 sess.manifest_registry[cand_manifest.guest_id] = raw_cand
-                sess.live_state = trial_state
+                sess.live_state = app_res["state"]
                 sess.state_version += 1
                 sess.has_live_mutations = True
                 updated_snap = sess._sync_current_executed_tick(
@@ -733,10 +731,11 @@ def dispatch_api_request(
                         "sim_time_s": sess.live_state.sim_time_s,
                         "action": f"ADMIT_LIVE:{cand_manifest.guest_id}->{verdict}",
                         "applied": True,
+                        "applied_plan": app_res["applied_plan"],
                     }
                 )
             else:
-                # Non-mutating rejection / deferral / unapplied YES_IF: preserve active state & catalog intact (Phase S2, R8-F02)
+                # Non-mutating rejection / deferral / unapplied YES_IF: preserve active state & catalog intact (Phase S2, R8-F02, S6-I02)
                 updated_snap = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
                 updated_snap["snapshot_id"] = sess.snapshot_id
                 sess.admission_attempts.append(
@@ -748,6 +747,7 @@ def dispatch_api_request(
                         "candidate_total_mass_kg": cand_manifest.total_mass_kg,
                         "verdict": verdict,
                         "applied": False,
+                        "reason": app_res["reason"],
                     }
                 )
 
@@ -757,6 +757,9 @@ def dispatch_api_request(
                 "state_version": sess.state_version,
                 "snapshot_id": sess.snapshot_id,
                 "applied": should_apply,
+                "application_reason": app_res["reason"],
+                "applied_plan": app_res["applied_plan"],
+                "displaced_guest_ids": app_res["displaced_guest_ids"],
                 "candidate_guest_id": cand_manifest.guest_id,
                 "candidate_total_mass_kg": cand_manifest.total_mass_kg,
                 "installed_before": list(installed_ids),
@@ -797,14 +800,19 @@ def dispatch_api_request(
                     sess.advance_to(req_sim_t, ship_profile, priority_profile)
 
             state = sess.live_state.clone()
-            if perturbation in ("GENERATOR_LOSS_100KW", "COOLING_LOSS_30C_40PCT"):
-                if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
-                    if state.installed_guests["G4"].active_mode == "FLIGHT_PATROL":
-                        state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
 
             if perturbation == "GENERATOR_LOSS_100KW":
                 state.power_reserve_w = require_int(req.get("new_power_reserve_w", 100000), "new_power_reserve_w", min_value=0)
                 state.vessel_mode = "DEGRADED_POWER"
+                if state.power_reserve_w < 35000 and "TOUCHDOWN" not in sess.fired_d3_milestones:
+                    sess.fired_d3_milestones.add("PLAN_INVALIDATED_INSUFFICIENT_POWER")
+                    state.firm_reserved_loads = [
+                        fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
+                    ]
+                    sess.executed_touchdown_time_s = None
+                    if sess.active_arb_decision is not None:
+                        sess.active_arb_decision["executed_touchdown_time_s"] = None
+                        sess.active_arb_decision["plan_status"] = "INVALIDATED_INSUFFICIENT_POWER"
                 res = execute_graceful_degradation(state, ship_profile, priority_profile, sess.session_catalog)
                 sess.live_state = res["resulting_state"]
                 sess.has_live_mutations = True
@@ -951,6 +959,16 @@ def dispatch_api_request(
                     raise StrictValidationError("UNKNOWN_GUEST", f"Guest '{gid}' not installed", "guest_id")
                 res = issue_urgent_command(cmd, gid, state, sess.session_catalog)
                 sess.live_state = res["resulting_state"]
+                if gid == "G4" and not sess.live_state.installed_guests["G4"].powered_on:
+                    sess.fired_d3_milestones.add("PLAN_INVALIDATED_G4_UNAVAILABLE")
+                    sess.live_state.firm_reserved_loads = [
+                        fl for fl in sess.live_state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
+                    ]
+                    if "TOUCHDOWN" not in sess.fired_d3_milestones:
+                        sess.executed_touchdown_time_s = None
+                        if sess.active_arb_decision is not None:
+                            sess.active_arb_decision["executed_touchdown_time_s"] = None
+                            sess.active_arb_decision["plan_status"] = "INVALIDATED_G4_STOPPED_OR_UNAVAILABLE"
                 sess.has_live_mutations = True
                 sess.state_version += 1
                 snap_after = sess._sync_current_executed_tick(
@@ -975,6 +993,7 @@ def dispatch_api_request(
                     "snapshot_id": sess.snapshot_id,
                     "sim_time_s": sess.live_state.sim_time_s,
                     "perturbation": perturbation,
+                    "current_budget_snapshot": snap_after,
                     "result": res_clean,
                 }
 

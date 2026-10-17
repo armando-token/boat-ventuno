@@ -839,6 +839,7 @@ def _apply_due_d3_milestones(
     if (
         "PLAN_INVALIDATED_INSUFFICIENT_POWER" in fired_d3_milestones
         or "PLAN_INVALIDATED_DEADLINE_EXCEEDED" in fired_d3_milestones
+        or "PLAN_INVALIDATED_G4_UNAVAILABLE" in fired_d3_milestones
     ):
         return None
 
@@ -861,6 +862,18 @@ def _apply_due_d3_milestones(
     turn_stabilization_duration_s = max(0, planned_stab_t - planned_turn_t)
     recovery_approach_duration_s = max(0, planned_td_t - planned_stab_t)
     charging_duration_s = max(0, planned_chg_done_t - planned_td_t)
+
+    g4_inst = state.installed_guests.get("G4")
+    if g4_inst is None or not g4_inst.powered_on:
+        fired_d3_milestones.add("PLAN_INVALIDATED_G4_UNAVAILABLE")
+        if "TOUCHDOWN" not in fired_d3_milestones:
+            arb_decision["executed_touchdown_time_s"] = None
+        arb_decision["plan_status"] = "INVALIDATED_G4_STOPPED_OR_UNAVAILABLE"
+        state.firm_reserved_loads = [
+            fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
+        ]
+        events_at_tick.append(f"D3_PLAN_INVALIDATED_G4_UNAVAILABLE@{up_to_time_s}s")
+        return None
 
     # Step 1: Issue ACOUSTIC_HOLD command to G3 and register pending command expectation
     if up_to_time_s >= hold_cmd_t and "HOLD_CMD" not in fired_d3_milestones:
@@ -918,13 +931,14 @@ def _apply_due_d3_milestones(
         td_t = planned_td_t
         chg_done_t = planned_chg_done_t
 
+    g3_ack_ok = (
+        "HOLD_ACK" in fired_d3_milestones
+        and confirmed_ack_t is not None
+        and ("G3" not in state.installed_guests or state.installed_guests["G3"].active_mode == "HOLD_ACOUSTIC")
+    )
+
     # Step 3: Turn vessel into wind ONLY if G3 acoustic HOLD ACK is confirmed and power/deck/deadline preconditions hold
     if up_to_time_s >= turn_t and "TURN_INTO_WIND" not in fired_d3_milestones:
-        g3_ack_ok = (
-            "HOLD_ACK" in fired_d3_milestones
-            and confirmed_ack_t is not None
-            and ("G3" not in state.installed_guests or state.installed_guests["G3"].active_mode == "HOLD_ACOUSTIC")
-        )
         if not g3_ack_ok:
             if "BLOCKED_TURN_NO_HOLD_ACK" not in fired_d3_milestones:
                 fired_d3_milestones.add("BLOCKED_TURN_NO_HOLD_ACK")
@@ -961,9 +975,9 @@ def _apply_due_d3_milestones(
         state.ship_speed_kn = 7.0
         events_at_tick.append(f"VESSEL_TURNED_INTO_WIND_FOR_G4_RECOVERY@{turn_t}s")
 
-    # Step 4: Start 35 kW G4 recovery approach ONLY if vessel turned into wind and >= 35 kW reserve + deck_clear hold
+    # Step 4: Start 35 kW G4 recovery approach ONLY if vessel turned into wind, G3 HOLD ACK holds, and >= 35 kW reserve + deck_clear hold
     if up_to_time_s >= stab_t and "RECOVERY_APPROACH" not in fired_d3_milestones:
-        if "TURN_INTO_WIND" not in fired_d3_milestones:
+        if "TURN_INTO_WIND" not in fired_d3_milestones or not g3_ack_ok:
             return None
         if state.power_reserve_w < 35000 or not state.deck_clear:
             fired_d3_milestones.add("PLAN_INVALIDATED_INSUFFICIENT_POWER")
@@ -977,14 +991,13 @@ def _apply_due_d3_milestones(
 
         fired_d3_milestones.add("RECOVERY_APPROACH")
         arb_decision["executed_stabilized_time_s"] = stab_t
-        if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
-            state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
-            state.installed_guests["G4"].mode_elapsed_s = 0
+        state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
+        state.installed_guests["G4"].mode_elapsed_s = 0
         events_at_tick.append(f"G4_STARTED_35KW_RECOVERY_APPROACH@{stab_t}s")
 
-    # Step 5: Touchdown and hangar charge ONLY if recovery approach succeeded, power >= 35 kW, deck_clear, and <= deadline
+    # Step 5: Touchdown and hangar charge ONLY if recovery approach succeeded, G3 HOLD ACK holds, power >= 35 kW, deck_clear, and <= deadline
     if up_to_time_s >= td_t and "TOUCHDOWN" not in fired_d3_milestones:
-        if "RECOVERY_APPROACH" not in fired_d3_milestones:
+        if "RECOVERY_APPROACH" not in fired_d3_milestones or not g3_ack_ok:
             return None
         if state.power_reserve_w < 35000 or not state.deck_clear or td_t > dl_t:
             fired_d3_milestones.add("PLAN_INVALIDATED_INSUFFICIENT_POWER")
@@ -999,11 +1012,10 @@ def _apply_due_d3_milestones(
         fired_d3_milestones.add("TOUCHDOWN")
         touchdown_recorded = td_t
         arb_decision["executed_touchdown_time_s"] = td_t
-        if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
-            state.installed_guests["G4"].placements["G4_DRONE_VEHICLE"] = "hangar"
-            state.installed_guests["G4"].battery_pct = 20.0
-            state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
-            state.installed_guests["G4"].mode_elapsed_s = 0
+        state.installed_guests["G4"].placements["G4_DRONE_VEHICLE"] = "hangar"
+        state.installed_guests["G4"].battery_pct = 20.0
+        state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
+        state.installed_guests["G4"].mode_elapsed_s = 0
         events_at_tick.append(f"G4_TOUCHDOWN_AND_SECURED_IN_HANGAR@{td_t}s")
         events_at_tick.append(f"G4_STARTED_20MIN_35KW_HANGAR_CHARGE@{td_t}s")
 
@@ -1013,10 +1025,9 @@ def _apply_due_d3_milestones(
             return touchdown_recorded
         fired_d3_milestones.add("CHARGE_COMPLETE")
         arb_decision["executed_charging_complete_time_s"] = chg_done_t
-        if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
-            state.installed_guests["G4"].active_mode = "STANDBY"
-            state.installed_guests["G4"].battery_pct = 100.0
-            state.installed_guests["G4"].mode_elapsed_s = 0
+        state.installed_guests["G4"].active_mode = "STANDBY"
+        state.installed_guests["G4"].battery_pct = 100.0
+        state.installed_guests["G4"].mode_elapsed_s = 0
         state.firm_reserved_loads = [
             fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
         ]

@@ -187,6 +187,7 @@ class ShipOperationalState:
     thermal_inertia: ThermalInertiaState = field(default_factory=ThermalInertiaState)
     feeds: Dict[str, FeedReading] = field(default_factory=dict)
     pending_commands: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    hangar_roof_clearance_verified: bool = False
 
     def __post_init__(self) -> None:
         if self.speed_kn is not None:

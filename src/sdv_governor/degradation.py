@@ -411,6 +411,12 @@ def issue_urgent_command(
             ginst.powered_on = False
         new_state_label = ginst.active_mode if ginst.powered_on else "SECURED_OFF"
 
+    if not ginst.powered_on:
+        work_state.firm_reserved_loads = [
+            fl for fl in work_state.firm_reserved_loads if fl.guest_id != target_guest_id
+        ]
+        work_state.pending_commands.pop(target_guest_id, None)
+
     ginst.last_transition_time_s = work_state.sim_time_s
     ginst.mode_elapsed_s = 0
     elapsed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 4)

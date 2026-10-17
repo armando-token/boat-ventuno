@@ -528,7 +528,7 @@ def test_r8_t17_documented_g7_card_admitted_and_invalid_inputs_rejected() -> Non
 
 
 def test_r8_t18_all_seven_schemas_and_bundled_assets_consistent() -> None:
-    """T18 (R8-F05): All 7 JSON schemas in schemas/ validate against project files/outputs, and _bundled assets match."""
+    """T18 (R8-F05, S6-I03A): All 7 JSON schemas in schemas/ validate against project files/outputs, and _bundled assets match byte-for-byte."""
     def _assert_valid(schema_name: str, instance: Any) -> None:
         schema = json.loads((REPO_ROOT / "schemas" / schema_name).read_text(encoding="utf-8"))
         errs = list(jsonschema.Draft202012Validator(schema).iter_errors(instance))
@@ -551,31 +551,62 @@ def test_r8_t18_all_seven_schemas_and_bundled_assets_consistent() -> None:
     res_b = run_scenario_b_replay(SC_B, SHIP, PS, CAT)
     _assert_valid("budget_snapshot.schema.json", res_b["timeline_ticks"][0]["budget_snapshot"])
 
+    # Byte-for-byte parity between repo root assets and src/sdv_governor/_bundled/ (S6-I03A)
+    bundled_root = REPO_ROOT / "src" / "sdv_governor" / "_bundled"
+    for subdir in ("ui", "schemas", "data"):
+        src_files = {
+            p.relative_to(REPO_ROOT / subdir): p.read_bytes()
+            for p in (REPO_ROOT / subdir).rglob("*")
+            if p.is_file() and p.name != ".DS_Store"
+        }
+        bnd_files = {
+            p.relative_to(bundled_root / subdir): p.read_bytes()
+            for p in (bundled_root / subdir).rglob("*")
+            if p.is_file() and p.name != ".DS_Store"
+        }
+        assert set(src_files.keys()) == set(bnd_files.keys()), f"File list mismatch in _bundled/{subdir}"
+        for rel_path, content in src_files.items():
+            assert bnd_files[rel_path] == content, f"Byte mismatch in _bundled/{subdir}/{rel_path}"
+
+    for top_file in ("requirements_matrix.csv", "ASSUMPTIONS.yaml"):
+        assert (bundled_root / top_file).read_bytes() == (REPO_ROOT / top_file).read_bytes()
+
+    bundled_js = (bundled_root / "ui" / "app.js").read_text(encoding="utf-8")
+    assert "/api/advance" in bundled_js
+    assert "/api/profile" in bundled_js
+    assert "is_prediction" in bundled_js
+
 
 def test_r8_t19_final_status_matrix_and_release_s6_manifest_coherent() -> None:
-    """T19 (R8-F06): FINAL_STATUS.md, CLOSURE_STATUS_V2.json, requirements_matrix.csv, and release_s6 are 100% coherent."""
+    """T19 (R8-F06): FINAL_STATUS.md, CLOSURE_STATUS_V2.json, requirements_matrix.csv, and release_s6/release_s6_patch1 are 100% coherent."""
     final_status = (REPO_ROOT / "FINAL_STATUS.md").read_text(encoding="utf-8")
     closure_doc = json.loads((REPO_ROOT / "CLOSURE_STATUS_V2.json").read_text(encoding="utf-8"))
     s6_dir = REPO_ROOT / "artifacts" / "release_s6"
-    s6_manifest = json.loads((s6_dir / "evidence_manifest.json").read_text(encoding="utf-8"))
+    ok_s6, errs_s6, _ = verify_evidence_bundle(s6_dir)
+    assert ok_s6 is True, f"Historical release_s6 verification failed: {errs_s6}"
 
-    assert closure_doc["release_id"] == "release_s6"
-    assert closure_doc["campaign_semantic_sha256"] == s6_manifest["semantic_sha256"]
+    active_rel_id = closure_doc["release_id"]
+    active_dir = REPO_ROOT / "artifacts" / active_rel_id
+    active_manifest = json.loads((active_dir / "evidence_manifest.json").read_text(encoding="utf-8"))
+
+    assert active_rel_id in ("release_s6", "release_s6_patch1")
+    assert closure_doc["campaign_semantic_sha256"] == active_manifest["semantic_sha256"]
     assert closure_doc["adversarial_mutation_suite"]["total_mutations"] == 28
     assert closure_doc["adversarial_mutation_suite"]["false_accepts"] == 0
-    assert s6_manifest["junit_summary"]["tests"] == 98
-    assert s6_manifest["junit_summary"]["failures"] == 0
-    assert "release_s6" in final_status
-    assert "98 passed" in final_status
+    expected_tests_str = f"{active_manifest['junit_summary']['tests']} passed"
+    assert expected_tests_str in closure_doc["platforms_verified"]["macbook_pro_arm64"]["pytest_result"]
+    assert active_manifest["junit_summary"]["failures"] == 0
+    assert active_rel_id in final_status
+    assert expected_tests_str in final_status
     assert "28 / 28" in final_status
-    assert s6_manifest["semantic_sha256"] in final_status
+    assert active_manifest["semantic_sha256"] in final_status
 
-    ok_s6, errs_s6, _ = verify_evidence_bundle(s6_dir)
-    assert ok_s6 is True, f"release_s6 verification failed: {errs_s6}"
+    ok_active, errs_active, _ = verify_evidence_bundle(active_dir)
+    assert ok_active is True, f"{active_rel_id} verification failed: {errs_active}"
 
     with (REPO_ROOT / "requirements_matrix.csv").open("r", encoding="utf-8", newline="") as f:
         rows = list(csv.reader(f))
-    assert len(rows) == 66
+    assert len(rows) == 69
     for r in rows[1:]:
         assert len(r) == 7
         assert r[6] == "PASS"

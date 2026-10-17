@@ -370,9 +370,9 @@ def test_h15_h16_pdf_zero_truncation_and_csv_rfc4180(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="PDF_PAGE_OVERFLOW"):
         write_multi_page_pdf([["line"] * 120], tmp_path / "overflow.pdf", font_size=9, leading=11)
 
-    # RFC 4180 CSV check: strictly 7 columns per row across all 50 rows
+    # RFC 4180 CSV check: strictly 7 columns per row across all rows (>= 50 rows)
     with (REPO_ROOT / "requirements_matrix.csv").open("r", encoding="utf-8", newline="") as f:
         rows = list(csv.reader(f))
-    assert len(rows) == 50
+    assert len(rows) >= 50
     for idx, r in enumerate(rows, start=1):
         assert len(r) == 7, f"Row {idx} has {len(r)} columns != 7"

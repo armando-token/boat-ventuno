@@ -78,13 +78,13 @@ modes:
     value_origin: "ASSUMED"
 
 installation:
-  port_only: false
+  port_only: true
   min_crew_required: 4
   install_time_min: 40
   remove_time_min: 30
-  sea_install_max_wind_kn: 18
+  sea_install_max_wind_kn: 0
   sea_install_min_speed_kn: 0.0
-  sea_install_max_speed_kn: 6.0
+  sea_install_max_speed_kn: 0.0
 
 vehicle_replacement:
   supported_at_sea: false

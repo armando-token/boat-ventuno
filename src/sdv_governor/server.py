@@ -1,4 +1,4 @@
-"""Stateful HTTP JSON API and static UI server for the single-screen SDV Resource Governor console (B10, DEM-01, DEM-02, H12, H13)."""
+"""Stateful HTTP JSON API and static UI server for the single-screen SDV Resource Governor console (B10, DEM-01, DEM-02, H12, H13, R2, R5)."""
 
 from __future__ import annotations
 
@@ -32,16 +32,18 @@ from .manifest import (
     validate_ship_profile,
 )
 from .models import (
+    GuestManifest,
     StrictValidationError,
     require_bool,
+    require_dict,
     require_finite_number,
     require_int,
+    require_no_unknown_keys,
     require_str,
 )
 from .replay import (
     build_initial_state_from_scenario,
     load_yaml_file,
-    run_full_campaign_suite,
     run_scenario_b_replay,
 )
 from .scheduling import evaluate_crew_regimes_comparison, handle_lost_or_stale_feed
@@ -49,14 +51,17 @@ from .ship_state import InstalledGuestState, ShipOperationalState
 
 
 class GovernorSession:
-    """Persistent operational session state across API calls (H12)."""
+    """Persistent operational session state, guest catalog, and manifest registry across API calls (H12, R2, R5)."""
 
     def __init__(self, repo_root: Path) -> None:
         self.repo_root = repo_root.resolve()
-        self.state_version: int = 1
+        self.state_version: int = 0
         self.priority_profile_id: str = "survey_primary"
         self.scenario_file: str = "scenario_B_arbitration_degradation.yaml"
         self.live_state: Optional[ShipOperationalState] = None
+        self.session_catalog: Dict[str, GuestManifest] = {}
+        self.manifest_registry: Dict[str, Dict[str, Any]] = {}
+        self.has_live_mutations: bool = False
         self.action_history: List[Dict[str, Any]] = []
         self.reset(self.priority_profile_id, self.scenario_file)
 
@@ -65,12 +70,21 @@ class GovernorSession:
         sim_t = self.live_state.sim_time_s if self.live_state is not None else 0
         return f"SNAP_V{self.state_version:04d}_T{sim_t}S"
 
-    def reset(self, priority_profile_id: str = "survey_primary", scenario_file: str = "scenario_B_arbitration_degradation.yaml") -> None:
+    def reset(
+        self,
+        priority_profile_id: str = "survey_primary",
+        scenario_file: str = "scenario_B_arbitration_degradation.yaml",
+    ) -> None:
         data_dir = self.repo_root / "data"
-        catalog = load_guest_catalog(
+        self.session_catalog = load_guest_catalog(
             data_dir / "guests",
             errata_path=data_dir / "overrides" / "brief_errata.yaml",
         )
+        self.manifest_registry = {}
+        for ypath in sorted((data_dir / "guests").glob("*.yaml")):
+            raw_g = yaml.safe_load(ypath.read_text(encoding="utf-8"))
+            self.manifest_registry[raw_g["guest_id"]] = raw_g
+
         scen_path = data_dir / "scenarios" / scenario_file
         if not scen_path.exists():
             scenario_file = "scenario_B_arbitration_degradation.yaml"
@@ -78,7 +92,8 @@ class GovernorSession:
         scen_data = load_yaml_file(scen_path)
         self.priority_profile_id = priority_profile_id
         self.scenario_file = scenario_file
-        self.live_state = build_initial_state_from_scenario(scen_data, catalog)
+        self.live_state = build_initial_state_from_scenario(scen_data, self.session_catalog)
+        self.has_live_mutations = False
         self.state_version += 1
         self.action_history = [
             {
@@ -117,10 +132,6 @@ def dispatch_api_request(
 ) -> Tuple[int, Dict[str, Any]]:
     """Deterministic, stateful API dispatcher testable directly in unit/integration tests and used by HTTPServer."""
     data_dir = repo_root / "data"
-    catalog = load_guest_catalog(
-        data_dir / "guests",
-        errata_path=data_dir / "overrides" / "brief_errata.yaml",
-    )
     ship_profile = validate_ship_profile(load_yaml_file(data_dir / "ship" / "vessel_baseline.yaml"))
     mission_envelope = validate_mission_envelope(load_yaml_file(data_dir / "ship" / "mission_envelope_a10.yaml"))
     profiles = {
@@ -135,14 +146,15 @@ def dispatch_api_request(
 
     try:
         if method == "POST" and route == "/api/reset":
-            req = body or {}
+            req = require_dict(body if body is not None else {}, "request_body")
+            require_no_unknown_keys(req, {"priority_profile_id", "scenario"}, "POST /api/reset")
             prof_id = require_str(req.get("priority_profile_id", "survey_primary"), "priority_profile_id")
             if prof_id not in profiles:
                 raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile_id '{prof_id}'", "priority_profile_id")
             scen_file = require_str(req.get("scenario", "scenario_B_arbitration_degradation.yaml"), "scenario")
             sess.reset(prof_id, scen_file)
             assert sess.live_state is not None
-            snap = evaluate_eight_class_budgets(ship_profile, catalog, sess.live_state)
+            snap = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
             return 200, {
                 "status": "OK",
                 "state_version": sess.state_version,
@@ -177,19 +189,24 @@ def dispatch_api_request(
                 scen_path = data_dir / "scenarios" / "scenario_B_arbitration_degradation.yaml"
 
             scen_data = load_yaml_file(scen_path)
-            replay_res = run_scenario_b_replay(scen_data, ship_profile, profiles[sess.priority_profile_id], catalog)
-            combos_res = evaluate_four_guest_combinations(
-                catalog, ship_profile, mission_envelope, profiles[sess.priority_profile_id]
-            )
             assert sess.live_state is not None
-            current_budget = evaluate_eight_class_budgets(ship_profile, catalog, sess.live_state)
-            crew_comp = evaluate_crew_regimes_comparison(catalog, sess.live_state)
+            replay_res = run_scenario_b_replay(
+                scen_data,
+                ship_profile,
+                profiles[sess.priority_profile_id],
+                sess.session_catalog,
+                initial_state_override=sess.live_state if sess.has_live_mutations else None,
+            )
+            if sess.has_live_mutations and replay_res.get("timeline_ticks"):
+                replay_res["timeline_ticks"][0]["snapshot_id"] = sess.snapshot_id
+                if isinstance(replay_res["timeline_ticks"][0].get("budget_snapshot"), dict):
+                    replay_res["timeline_ticks"][0]["budget_snapshot"]["snapshot_id"] = sess.snapshot_id
+            combos_res = evaluate_four_guest_combinations(
+                sess.session_catalog, ship_profile, mission_envelope, profiles[sess.priority_profile_id]
+            )
+            current_budget = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
+            crew_comp = evaluate_crew_regimes_comparison(sess.session_catalog, sess.live_state)
             doc_info = run_doctor(repo_root, probe_remote=False)
-
-            guest_raw_map: Dict[str, Any] = {}
-            for ypath in sorted((data_dir / "guests").glob("*.yaml")):
-                raw_g = yaml.safe_load(ypath.read_text(encoding="utf-8"))
-                guest_raw_map[raw_g["guest_id"]] = raw_g
 
             return 200, {
                 "status": "OK",
@@ -200,6 +217,7 @@ def dispatch_api_request(
                     "simulated_mission_s": 1800,
                     "acceleration_factor": 20.0,
                     "tick_interval_sim_s": 20,
+                    "tick_interval_wall_ms": 1000,
                 },
                 "doctor": doc_info,
                 "priority_profile_id": sess.priority_profile_id,
@@ -211,17 +229,40 @@ def dispatch_api_request(
                 "scenario_B_replay": replay_res,
                 "scenario_A_combinations": combos_res,
                 "scenario_C_crew_regimes": crew_comp,
-                "guest_manifests_raw": guest_raw_map,
+                "guest_manifests_raw": copy.deepcopy(sess.manifest_registry),
             }
 
         if method == "POST" and route == "/api/admit_live":
-            req = body or {}
+            req = require_dict(body if body is not None else {}, "request_body")
+            require_no_unknown_keys(
+                req,
+                {
+                    "priority_profile_id",
+                    "installed_guest_ids",
+                    "installed_guests",
+                    "at_port",
+                    "allow_displacement",
+                    "defer_if_temporary_operational_block",
+                    "hangar_roof_clearance_verified",
+                    "speed_kn",
+                    "wind_kn",
+                    "sea_state",
+                    "seawater_temp_c",
+                    "power_reserve_w",
+                    "candidate_manifest",
+                    "candidate_guest_id",
+                    "overrides",
+                    "next_window",
+                },
+                "POST /api/admit_live",
+            )
+
             prof_id = require_str(req.get("priority_profile_id", sess.priority_profile_id), "priority_profile_id")
             if prof_id not in profiles:
                 raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile_id '{prof_id}'", "priority_profile_id")
             priority_profile = profiles[prof_id]
 
-            installed_ids = req.get("installed_guest_ids", ["G1", "G2", "G3"])
+            installed_ids = req.get("installed_guest_ids", req.get("installed_guests", ["G1", "G2", "G3"]))
             if not isinstance(installed_ids, list):
                 raise StrictValidationError("TYPE_ERROR", "installed_guest_ids must be a list of guest IDs", "installed_guest_ids")
             for idx, gid in enumerate(installed_ids):
@@ -253,21 +294,38 @@ def dispatch_api_request(
 
             # Never silently drop requested baseline guests (H13)
             state, baseline_conflicts = build_baseline_state_with_installed_guests(
-                installed_ids, base_state, ship_profile, catalog
+                installed_ids, base_state, ship_profile, sess.session_catalog
             )
 
-            if "candidate_manifest" in req and isinstance(req["candidate_manifest"], dict):
-                raw_cand = copy.deepcopy(req["candidate_manifest"])
+            if "candidate_manifest" in req:
+                raw_cand = copy.deepcopy(require_dict(req["candidate_manifest"], "candidate_manifest"))
             else:
                 base_gid = require_str(req.get("candidate_guest_id", "G6"), "candidate_guest_id")
-                matches = list((data_dir / "guests").glob(f"{base_gid}_*.yaml"))
-                if not matches:
-                    raise StrictValidationError("UNKNOWN_GUEST", f"Unknown candidate_guest_id '{base_gid}'", "candidate_guest_id")
-                base_path = matches[0]
-                raw_cand = yaml.safe_load(base_path.read_text(encoding="utf-8"))
+                if base_gid in sess.manifest_registry:
+                    raw_cand = copy.deepcopy(sess.manifest_registry[base_gid])
+                else:
+                    matches = list((data_dir / "guests").glob(f"{base_gid}_*.yaml"))
+                    if not matches:
+                        raise StrictValidationError("UNKNOWN_GUEST", f"Unknown candidate_guest_id '{base_gid}'", "candidate_guest_id")
+                    base_path = matches[0]
+                    raw_cand = yaml.safe_load(base_path.read_text(encoding="utf-8"))
+
                 overrides = req.get("overrides", {})
                 if not isinstance(overrides, dict):
                     raise StrictValidationError("TYPE_ERROR", "overrides must be a JSON object", "overrides")
+                require_no_unknown_keys(
+                    overrides,
+                    {
+                        "mass_kg",
+                        "preferred_position",
+                        "nominal_power_w",
+                        "sustained_power_w",
+                        "peak_power_w",
+                        "cooling_water_w",
+                        "cooling_air_mast_w",
+                    },
+                    "overrides",
+                )
                 if "mass_kg" in overrides and raw_cand.get("subcomponents"):
                     raw_cand["subcomponents"][0]["mass_kg"] = require_int(
                         overrides["mass_kg"], "overrides.mass_kg", min_value=1, allow_zero=False
@@ -296,13 +354,16 @@ def dispatch_api_request(
                         raw_cand["modes"][def_m]["cooling_water_w"] = sust_w - air_w
 
             cand_manifest = validate_and_build_guest_manifest(raw_cand)
+            aug_cat = dict(sess.session_catalog)
+            aug_cat[cand_manifest.guest_id] = cand_manifest
+
             decision = evaluate_admission(
                 cand_manifest,
                 state,
                 ship_profile,
                 mission_envelope,
                 priority_profile,
-                catalog,
+                aug_cat,
                 at_port=at_port,
                 allow_displacement=allow_disp,
                 defer_if_temporary_operational_block=defer_temp,
@@ -310,7 +371,12 @@ def dispatch_api_request(
                 hangar_roof_clearance_verified=hangar_roof_verified,
             )
 
+            # Persist candidate manifest & overrides in session catalog/registry so subsequent GET /api/state stays coherent (R2.1, R2.2, V2-F03)
+            sess.session_catalog[cand_manifest.guest_id] = cand_manifest
+            sess.manifest_registry[cand_manifest.guest_id] = raw_cand
             sess.state_version += 1
+            sess.has_live_mutations = True
+
             if decision["verdict"] == "YES" and decision.get("placement"):
                 p = decision["placement"]
                 state.installed_guests[cand_manifest.guest_id] = InstalledGuestState(
@@ -321,9 +387,7 @@ def dispatch_api_request(
                     compute_node=p["compute_node"],
                 )
             sess.live_state = state
-            aug_cat = dict(catalog)
-            aug_cat[cand_manifest.guest_id] = cand_manifest
-            updated_snap = evaluate_eight_class_budgets(ship_profile, aug_cat, sess.live_state)
+            updated_snap = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
             sess.action_history.append(
                 {
                     "state_version": sess.state_version,
@@ -345,7 +409,21 @@ def dispatch_api_request(
             }
 
         if method == "POST" and route == "/api/perturb":
-            req = body or {}
+            req = require_dict(body if body is not None else {}, "request_body")
+            require_no_unknown_keys(
+                req,
+                {
+                    "perturbation_type",
+                    "priority_profile_id",
+                    "guest_id",
+                    "measured_power_w",
+                    "feed_name",
+                    "age_ms",
+                    "new_power_reserve_w",
+                    "seawater_temp_c",
+                },
+                "POST /api/perturb",
+            )
             perturbation = require_str(req.get("perturbation_type", "GENERATOR_LOSS_100KW"), "perturbation_type")
             prof_id = require_str(req.get("priority_profile_id", sess.priority_profile_id), "priority_profile_id")
             if prof_id not in profiles:
@@ -355,16 +433,17 @@ def dispatch_api_request(
 
             assert sess.live_state is not None
             state = sess.live_state.clone()
-            # Ensure G4 is in active recovery if still in initial patrol state so D4 conflict is exercised
-            if "G4" in state.installed_guests and state.installed_guests["G4"]. powered_on:
-                if state.installed_guests["G4"].active_mode == "FLIGHT_PATROL":
-                    state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
+            if perturbation in ("GENERATOR_LOSS_100KW", "COOLING_LOSS_30C_40PCT"):
+                if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
+                    if state.installed_guests["G4"].active_mode == "FLIGHT_PATROL":
+                        state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
 
             if perturbation == "GENERATOR_LOSS_100KW":
-                state.power_reserve_w = 100000
+                state.power_reserve_w = require_int(req.get("new_power_reserve_w", 100000), "new_power_reserve_w", min_value=0)
                 state.vessel_mode = "DEGRADED_POWER"
-                res = execute_graceful_degradation(state, ship_profile, priority_profile, catalog)
+                res = execute_graceful_degradation(state, ship_profile, priority_profile, sess.session_catalog)
                 sess.live_state = res["resulting_state"]
+                sess.has_live_mutations = True
                 sess.state_version += 1
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
                 sess.action_history.append(
@@ -383,11 +462,12 @@ def dispatch_api_request(
                 }
 
             if perturbation == "COOLING_LOSS_30C_40PCT":
-                state.seawater_temp_c = 30.0
+                state.seawater_temp_c = require_finite_number(req.get("seawater_temp_c", 30.0), "seawater_temp_c", min_value=-5.0, max_value=60.0)
                 state.cooling_loop_degraded = True
                 state.vessel_mode = "DEGRADED_THERMAL"
-                res = execute_graceful_degradation(state, ship_profile, priority_profile, catalog)
+                res = execute_graceful_degradation(state, ship_profile, priority_profile, sess.session_catalog)
                 sess.live_state = res["resulting_state"]
+                sess.has_live_mutations = True
                 sess.state_version += 1
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
                 sess.action_history.append(
@@ -407,12 +487,15 @@ def dispatch_api_request(
 
             if perturbation == "GUEST_OVERCONSUMPTION_20PCT":
                 gid = require_str(req.get("guest_id", "G5"), "guest_id")
+                if gid not in sess.session_catalog or gid not in state.installed_guests:
+                    raise StrictValidationError("UNKNOWN_GUEST", f"Guest '{gid}' not installed", "guest_id")
                 measured_w = require_int(req.get("measured_power_w", 54000), "measured_power_w", min_value=1)
                 res = handle_guest_overconsumption(
-                    state, ship_profile, priority_profile, catalog,
+                    state, ship_profile, priority_profile, sess.session_catalog,
                     offending_guest_id=gid, measured_power_w=measured_w
                 )
                 sess.live_state = res["resulting_state"]
+                sess.has_live_mutations = True
                 sess.state_version += 1
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
                 sess.action_history.append(
@@ -431,10 +514,13 @@ def dispatch_api_request(
                 }
 
             if perturbation == "LOST_SEAWATER_TEMP_FEED":
+                fname = require_str(req.get("feed_name", "seawater_temp_c"), "feed_name")
+                age_ms = require_int(req.get("age_ms", 60000), "age_ms", min_value=0)
                 res = handle_lost_or_stale_feed(
-                    state, ship_profile, catalog, feed_name="seawater_temp_c", age_ms=60000
+                    state, ship_profile, sess.session_catalog, feed_name=fname, age_ms=age_ms
                 )
                 sess.live_state = res["resulting_state"]
+                sess.has_live_mutations = True
                 sess.state_version += 1
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
                 sess.action_history.append(
@@ -455,10 +541,13 @@ def dispatch_api_request(
             if perturbation in ("URGENT_STOP", "URGENT_HOLD", "URGENT_SECURE"):
                 cmd = perturbation.split("_", 1)[1]
                 gid = require_str(req.get("guest_id", "G3"), "guest_id")
-                res = issue_urgent_command(cmd, gid, state, catalog)
+                if gid not in sess.session_catalog or gid not in state.installed_guests:
+                    raise StrictValidationError("UNKNOWN_GUEST", f"Guest '{gid}' not installed", "guest_id")
+                res = issue_urgent_command(cmd, gid, state, sess.session_catalog)
                 sess.live_state = res["resulting_state"]
+                sess.has_live_mutations = True
                 sess.state_version += 1
-                snap_after = evaluate_eight_class_budgets(ship_profile, catalog, sess.live_state)
+                snap_after = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
                 res_clean["budget_snapshot"] = snap_after
                 sess.action_history.append(
@@ -476,7 +565,62 @@ def dispatch_api_request(
                     "result": res_clean,
                 }
 
-            return 400, {"status": "ERROR", "message": f"Unknown perturbation_type '{perturbation}'"}
+            raise StrictValidationError("UNKNOWN_ENUM", f"Unknown perturbation_type '{perturbation}'", "perturbation_type")
+
+        if method == "POST" and route == "/api/arbitrate":
+            req = require_dict(body if body is not None else {}, "request_body")
+            require_no_unknown_keys(
+                req,
+                {
+                    "priority_profile_id",
+                    "uav_battery_pct",
+                    "uav_max_endurance_s",
+                    "uav_approach_margin_s",
+                    "remaining_survey_waypoint_s",
+                    "wind_kn",
+                    "sea_state",
+                },
+                "POST /api/arbitrate",
+            )
+            prof_id = require_str(req.get("priority_profile_id", sess.priority_profile_id), "priority_profile_id")
+            if prof_id not in profiles:
+                raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile_id '{prof_id}'", "priority_profile_id")
+            sess.priority_profile_id = prof_id
+            assert sess.live_state is not None
+            state = sess.live_state.clone()
+            if "wind_kn" in req:
+                state.wind_kn = require_int(req["wind_kn"], "wind_kn", min_value=0)
+            if "sea_state" in req:
+                state.sea_state = require_int(req["sea_state"], "sea_state", min_value=0, max_value=9)
+            bat_pct = require_finite_number(req.get("uav_battery_pct", 18.0), "uav_battery_pct", min_value=0.0, max_value=100.0)
+            max_end_s = require_int(req.get("uav_max_endurance_s", 720), "uav_max_endurance_s", min_value=1)
+            app_m_s = require_int(req.get("uav_approach_margin_s", 360), "uav_approach_margin_s", min_value=0)
+            rem_wp_s = require_int(req.get("remaining_survey_waypoint_s", 240), "remaining_survey_waypoint_s", min_value=0)
+
+            arb = arbitrate_live_conflict(
+                state,
+                ship_profile,
+                profiles[prof_id],
+                sess.session_catalog,
+                uav_battery_pct=bat_pct,
+                uav_max_endurance_s=max_end_s,
+                uav_approach_margin_s=app_m_s,
+                remaining_survey_waypoint_s=rem_wp_s,
+            )
+            sess.state_version += 1
+            sess.action_history.append(
+                {
+                    "state_version": sess.state_version,
+                    "snapshot_id": sess.snapshot_id,
+                    "action": f"ARBITRATE:{prof_id}->{arb['verdict']}",
+                }
+            )
+            return 200, {
+                "status": "OK",
+                "state_version": sess.state_version,
+                "snapshot_id": sess.snapshot_id,
+                "arbitration": arb,
+            }
 
         return 404, {"status": "ERROR", "message": f"Unknown API endpoint {method} {route}"}
 

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/scenario.schema.json",
+  "title": "SDV Simulation Scenario Schema",
+  "type": "object",
+  "required": ["schema_version", "scenario_id", "name", "scenario_class", "seed", "initial_state", "events"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "sdv-scenario/1.0" },
+    "scenario_id": { "type": "string" },
+    "name": { "type": "string" },
+    "scenario_class": { "type": "string", "enum": ["OFFICIAL_CHALLENGE", "DECLARED_VARIANT", "STRESS_TEST"] },
+    "seed": { "type": "integer" },
+    "initial_state": { "type": "object" },
+    "events": { "type": "array" }
+  }
+}

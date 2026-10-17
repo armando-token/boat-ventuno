@@ -7,17 +7,16 @@ async function fetchConsoleState(priorityProfile = "survey_primary") {
   const data = await res.json();
   currentStatePayload = data;
   renderTopBadges(data);
-  renderEightClassBudgets(data.current_budget_snapshot || data.initial_budget_snapshot);
-  render2DShipLayout(data.current_budget_snapshot || data.initial_budget_snapshot);
   renderCombinationsTable(data.scenario_A_combinations);
   renderTimelineTick(currentTickIndex);
 }
 
-function renderTopBadges(data) {
+function renderTopBadges(data, activeSnapshotId = null) {
   const host = data.doctor.local_host;
   const snapEl = document.getElementById("badge-snapshot");
   if (snapEl) {
-    snapEl.textContent = `Snapshot: ${data.snapshot_id || "SNAP_V0001"} (v${data.state_version || 1})`;
+    const sid = activeSnapshotId || data.snapshot_id || "SNAP_V0001";
+    snapEl.textContent = `Snapshot: ${sid} (v${data.state_version || 1})`;
   }
   document.getElementById("badge-host").textContent =
     `Engine: ${host.hostname} (${host.system}/${host.machine}) PID=${host.pid}`;
@@ -67,7 +66,7 @@ function render2DShipLayout(snapshot) {
 
   container.innerHTML = `
     <div class="zone-box">
-      <strong>MAST (x3.0 Stability)</strong>
+      <strong>MAST (x3.0 Stability, 1 Guest Slot / 3 Total)</strong>
       mast_1, mast_2: FIXED SHIP<br/>
       mast_3: ${mast.guest_slot_mast_3.owner || "FREE"} (${mast.guest_slot_mast_3.mass_kg} kg, ${mast.guest_slot_mast_3.air_cooling_w} W air)
     </div>
@@ -104,40 +103,36 @@ function renderTimelineTick(tickIdx) {
   document.getElementById("timeline-label").textContent =
     `Tick ${String(t.tick).padStart(2, "0")}/90 (Sim T=${t.sim_time_s}s, ${compFactor}x)`;
 
+  const tickSnapshotId = t.snapshot_id || currentStatePayload.snapshot_id;
+  renderTopBadges(currentStatePayload, tickSnapshotId);
+
   const guestSummary = Object.entries(t.guest_modes)
-    .map(([gid, g]) => `${gid}: ${g.mode} (${g.powered_on ? "ON" : "OFF"}, ${g.mode_elapsed_s || 0}s)`)
+    .map(([gid, g]) => {
+      const posStr = g.placements ? Object.values(g.placements).join("+") : "";
+      return `${gid}: ${g.mode} (${g.powered_on ? "ON" : "OFF"}, ${g.mode_elapsed_s || 0}s${posStr ? ", @" + posStr : ""})`;
+    })
     .join(" | ");
 
   document.getElementById("tick-status-box").innerHTML = `
-    <div><strong>Snapshot:</strong> ${currentStatePayload.snapshot_id} | <strong>Plan Version:</strong> v${t.plan_version || 0} | <strong>Vessel Mode:</strong> ${t.vessel_mode} | <strong>Feasible:</strong> ${t.feasible ? "YES" : "NO"}</div>
+    <div><strong>Snapshot:</strong> ${tickSnapshotId} | <strong>Plan Version:</strong> v${t.plan_version || 0} | <strong>Vessel Mode:</strong> ${t.vessel_mode} (${t.speed_kn ?? 3} kn, wind ${t.wind_kn ?? 14} kn, SS ${t.sea_state ?? 2}, ${t.seawater_temp_c ?? 24}°C) | <strong>Feasible:</strong> ${t.feasible ? "YES" : "NO"}</div>
     <div><strong>Power:</strong> Actual=${t.power_actual_w} W | Firm Committed=${t.power_committed_w} W | Reserve Cap=${t.power_capacity_w} W</div>
     <div><strong>Chilled Water Cooling:</strong> Actual=${t.cooling_actual_w} W | Effective Cap=${t.cooling_capacity_w} W | <strong>Inertia:</strong> ${t.thermal_inertia_status || "NOMINAL"}</div>
     <div><strong>Active Guests:</strong> ${guestSummary}</div>
     <div><strong>Events at Tick:</strong> ${t.events.length ? t.events.join(", ") : "Nominal 1Hz monitoring"}</div>
   `;
 
-  // Synchronize 8-class power/cooling cards with current replay tick when scrubbing
-  if (currentStatePayload.current_budget_snapshot) {
-    const syncSnap = JSON.parse(JSON.stringify(currentStatePayload.current_budget_snapshot));
-    syncSnap.feasible = t.feasible;
-    syncSnap.classes.power.actual = t.power_actual_w;
-    syncSnap.classes.power.committed = t.power_committed_w;
-    syncSnap.classes.power.degraded_capacity = t.power_capacity_w;
-    syncSnap.classes.power.free = t.power_capacity_w - t.power_committed_w;
-    syncSnap.classes.power.feasible = t.power_committed_w <= t.power_capacity_w;
-    syncSnap.classes.cooling.actual = t.cooling_actual_w;
-    syncSnap.classes.cooling.committed = t.cooling_actual_w;
-    syncSnap.classes.cooling.degraded_capacity = t.cooling_capacity_w;
-    syncSnap.classes.cooling.free = t.cooling_capacity_w - t.cooling_actual_w;
-    syncSnap.classes.cooling.feasible = t.cooling_actual_w <= t.cooling_capacity_w;
-    renderEightClassBudgets(syncSnap);
+  // Render full 8-class budgets AND 2D ship topology from the tick's exact budget_snapshot (R5.2, V2-F07)
+  const tickSnap = t.budget_snapshot || currentStatePayload.current_budget_snapshot || currentStatePayload.initial_budget_snapshot;
+  if (tickSnap) {
+    renderEightClassBudgets(tickSnap);
+    render2DShipLayout(tickSnap);
   }
 
   // Show decisions up to current tick
   const relevantDecisions = replay.decisions.filter((d) => d.tick <= clamped);
   document.getElementById("decision-log-box").textContent = JSON.stringify(
     {
-      snapshot_id: currentStatePayload.snapshot_id,
+      snapshot_id: tickSnapshotId,
       priority_profile_id: replay.priority_profile_id,
       executed_touchdown_time_s: replay.executed_touchdown_time_s,
       semantic_sha256: replay.semantic_sha256,
@@ -187,6 +182,12 @@ document.getElementById("timeline-slider").addEventListener("input", (e) => {
 
 document.getElementById("btn-play").addEventListener("click", () => {
   if (playInterval) clearInterval(playInterval);
+  const wallIntervalMs =
+    currentStatePayload &&
+    currentStatePayload.time_compression &&
+    currentStatePayload.time_compression.tick_interval_wall_ms
+      ? currentStatePayload.time_compression.tick_interval_wall_ms
+      : 1000;
   playInterval = setInterval(() => {
     if (currentTickIndex >= 90) {
       clearInterval(playInterval);
@@ -194,7 +195,7 @@ document.getElementById("btn-play").addEventListener("click", () => {
       return;
     }
     renderTimelineTick(currentTickIndex + 1);
-  }, 250);
+  }, wallIntervalMs);
 });
 
 document.getElementById("btn-pause").addEventListener("click", () => {
@@ -229,21 +230,8 @@ document.querySelectorAll("[data-perturb]").forEach((btn) => {
       body: JSON.stringify({ perturbation_type: pType, priority_profile_id: prof }),
     });
     const payload = await res.json();
+    await fetchConsoleState(prof);
     document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
-    if (payload.snapshot_id && currentStatePayload) {
-      currentStatePayload.snapshot_id = payload.snapshot_id;
-      currentStatePayload.state_version = payload.state_version;
-      renderTopBadges(currentStatePayload);
-    }
-    if (payload.result && payload.result.final_budget_snapshot) {
-      currentStatePayload.current_budget_snapshot = payload.result.final_budget_snapshot;
-      renderEightClassBudgets(payload.result.final_budget_snapshot);
-      render2DShipLayout(payload.result.final_budget_snapshot);
-    } else if (payload.result && payload.result.budget_snapshot) {
-      currentStatePayload.current_budget_snapshot = payload.result.budget_snapshot;
-      renderEightClassBudgets(payload.result.budget_snapshot);
-      render2DShipLayout(payload.result.budget_snapshot);
-    }
   });
 });
 
@@ -279,10 +267,7 @@ document.getElementById("btn-admit-live").addEventListener("click", async () => 
   const payload = await res.json();
   document.getElementById("admission-result-box").textContent = JSON.stringify(payload, null, 2);
   if (payload.current_budget_snapshot) {
-    currentStatePayload.current_budget_snapshot = payload.current_budget_snapshot;
-    currentStatePayload.snapshot_id = payload.snapshot_id;
-    currentStatePayload.state_version = payload.state_version;
-    renderTopBadges(currentStatePayload);
+    await fetchConsoleState(prof);
     renderEightClassBudgets(payload.current_budget_snapshot);
     render2DShipLayout(payload.current_budget_snapshot);
   }

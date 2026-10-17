@@ -753,15 +753,18 @@ def evaluate_eight_class_budgets(
             },
             "mast": {
                 "unit": "slots",
-                "capacity": 3,
+                "capacity": 1,
                 "degraded_capacity": 1,
-                "committed": 2 + len(pos_occupants["mast_3"]),
-                "actual": 2 + len(pos_occupants["mast_3"]),
+                "committed": len(pos_occupants["mast_3"]),
+                "actual": len(pos_occupants["mast_3"]),
                 "free": max(0, 1 - len(pos_occupants["mast_3"])),
                 "feasible": mast_feasible,
                 "provenance": "DERIVED",
                 "source_time_ns": str(source_time_ns),
                 "local_limits": {
+                    "total_physical_slots": 3,
+                    "ship_reserved_slots": 2,
+                    "guest_allocatable_slots": 1,
                     "fixed_occupied": ["mast_1", "mast_2"],
                     "guest_slot_mast_3": {
                         "owner": pos_occupants["mast_3"][0] if pos_occupants["mast_3"] else None,

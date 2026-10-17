@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/decision.schema.json",
+  "title": "SDV Resource Governor Decision Output Schema (D1/D3/D4)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_type",
+    "candidate_guest_id",
+    "verdict",
+    "binding_constraints",
+    "placement",
+    "ranked_displacements",
+    "capability_lost",
+    "required_conditions",
+    "conditioned_availability",
+    "next_window",
+    "rationale",
+    "calculation_elapsed_ms",
+    "within_30s_deadline",
+    "guest_manifest_sha256",
+    "ship_profile_hash",
+    "mission_envelope_hash",
+    "priority_profile_sha256"
+  ],
+  "properties": {
+    "decision_type": { "type": "string", "const": "D1_ADMISSION" },
+    "candidate_guest_id": { "type": "string", "minLength": 1 },
+    "verdict": { "type": "string", "enum": ["YES", "YES_IF", "NO", "NOT_NOW"] },
+    "binding_constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["resource_class", "constraint_id", "state_label", "demand", "capacity", "margin", "unit", "provenance", "detail"],
+        "properties": {
+          "resource_class": { "type": "string" },
+          "constraint_id": { "type": "string" },
+          "state_label": { "type": "string" },
+          "demand": { "type": "number" },
+          "capacity": { "type": "number" },
+          "margin": { "type": "number" },
+          "unit": { "type": "string" },
+          "provenance": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "placement": { "type": "object" },
+    "ranked_displacements": { "type": "array" },
+    "capability_lost": { "type": "array" },
+    "required_conditions": { "type": "array" },
+    "conditioned_availability": { "type": "object" },
+    "next_window": { "type": ["object", "null"] },
+    "rationale": { "type": "string", "minLength": 15 },
+    "calculation_elapsed_ms": { "type": "number", "minimum": 0.0, "maximum": 30000.0 },
+    "within_30s_deadline": { "type": "boolean", "const": true },
+    "guest_manifest_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "ship_profile_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "mission_envelope_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "priority_profile_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

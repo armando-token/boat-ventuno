@@ -1,0 +1,4028 @@
+{
+  "campaign_semantic_sha256": "185ef94ec07c1e3e03ddc5ddfa790c17f3af3df5535350b315709c1da2badae0",
+  "generated_at_utc": "2026-10-17T19:08:17Z",
+  "git_commit": "2547e6deeec0699cd516c9d33add50240f8e4739",
+  "run_id": "release_r8",
+  "scenario_A": {
+    "four_guest_combinations": {
+      "combinations": [
+        {
+          "combination": [
+            "G1",
+            "G2",
+            "G3",
+            "G4"
+          ],
+          "exceeds_10000_kg": true,
+          "fourth_guest_binding_constraints": [
+            {
+              "capacity": 10000,
+              "constraint_id": "max_total_guest_mass_kg",
+              "demand": 10035,
+              "detail": "Total installed mass 10035 kg exceeds 10000 kg limit",
+              "margin": -35,
+              "provenance": "DERIVED",
+              "resource_class": "mass_stability",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "kg"
+            }
+          ],
+          "fourth_guest_id": "G4",
+          "fourth_guest_ranked_displacements": [
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 91.0,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [],
+                "restricted_windows": [
+                  {
+                    "restriction": "Candidate G4 active ops suspended in sea_state=5/wind=28kn (transitions to STANDBY)",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 77333,
+                    "feasible": true,
+                    "power_free_w": 144000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 64000,
+                    "feasible": true,
+                    "power_free_w": 144000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 105889,
+                    "feasible": true,
+                    "power_free_w": 177000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 64000,
+                    "feasible": true,
+                    "power_free_w": 44000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 16000,
+                    "feasible": true,
+                    "power_free_w": 44000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1"
+              ],
+              "displaced_count": 1,
+              "net_capability_delta": -66.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "LAUNCH_RECOVERY_OPTICS",
+                "subcomponent_positions": {
+                  "G4_DRONE_VEHICLE": "flight_deck",
+                  "G4_HANGAR_STATION": "hangar"
+                }
+              },
+              "total_score_lost": 157.0
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 91.0,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [],
+                "restricted_windows": [
+                  {
+                    "restriction": "Candidate G4 active ops suspended in sea_state=5/wind=28kn (transitions to STANDBY)",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G4->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G4->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 78333,
+                    "feasible": true,
+                    "power_free_w": 143500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 65000,
+                    "feasible": true,
+                    "power_free_w": 143500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 106889,
+                    "feasible": true,
+                    "power_free_w": 176500,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 116500,
+                    "feasible": true,
+                    "power_free_w": 96200,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 68500,
+                    "feasible": true,
+                    "power_free_w": 96200,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G3"
+              ],
+              "displaced_count": 1,
+              "net_capability_delta": -92.5,
+              "resulting_placement": {
+                "compute_node": "node_3",
+                "initial_mode": "LAUNCH_RECOVERY_OPTICS",
+                "subcomponent_positions": {
+                  "G4_DRONE_VEHICLE": "flight_deck",
+                  "G4_HANGAR_STATION": "hangar"
+                }
+              },
+              "total_score_lost": 183.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 91.0,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [],
+                "restricted_windows": [
+                  {
+                    "restriction": "Candidate G4 active ops suspended in sea_state=5/wind=28kn (transitions to STANDBY)",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 97333,
+                    "feasible": true,
+                    "power_free_w": 162500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 84000,
+                    "feasible": true,
+                    "power_free_w": 162500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 125889,
+                    "feasible": true,
+                    "power_free_w": 195500,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 84000,
+                    "feasible": true,
+                    "power_free_w": 62500,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 36000,
+                    "feasible": true,
+                    "power_free_w": 62500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G2"
+              ],
+              "displaced_count": 1,
+              "net_capability_delta": -177.5,
+              "resulting_placement": {
+                "compute_node": "node_2",
+                "initial_mode": "LAUNCH_RECOVERY_OPTICS",
+                "subcomponent_positions": {
+                  "G4_DRONE_VEHICLE": "flight_deck",
+                  "G4_HANGAR_STATION": "hangar"
+                }
+              },
+              "total_score_lost": 268.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 91.0,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [],
+                "restricted_windows": [
+                  {
+                    "restriction": "Candidate G4 active ops suspended in sea_state=5/wind=28kn (transitions to STANDBY)",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 78333,
+                    "feasible": true,
+                    "power_free_w": 145000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 65000,
+                    "feasible": true,
+                    "power_free_w": 145000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 106889,
+                    "feasible": true,
+                    "power_free_w": 178000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 65000,
+                    "feasible": true,
+                    "power_free_w": 45000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 17000,
+                    "feasible": true,
+                    "power_free_w": 45000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G3"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -249.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "LAUNCH_RECOVERY_OPTICS",
+                "subcomponent_positions": {
+                  "G4_DRONE_VEHICLE": "flight_deck",
+                  "G4_HANGAR_STATION": "hangar"
+                }
+              },
+              "total_score_lost": 340.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 91.0,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [],
+                "restricted_windows": [
+                  {
+                    "restriction": "Candidate G4 active ops suspended in sea_state=5/wind=28kn (transitions to STANDBY)",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 97333,
+                    "feasible": true,
+                    "power_free_w": 164000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 84000,
+                    "feasible": true,
+                    "power_free_w": 164000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 125889,
+                    "feasible": true,
+                    "power_free_w": 197000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 84000,
+                    "feasible": true,
+                    "power_free_w": 64000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 36000,
+                    "feasible": true,
+                    "power_free_w": 64000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G2"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -334.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "LAUNCH_RECOVERY_OPTICS",
+                "subcomponent_positions": {
+                  "G4_DRONE_VEHICLE": "flight_deck",
+                  "G4_HANGAR_STATION": "hangar"
+                }
+              },
+              "total_score_lost": 425.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 91.0,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [],
+                "restricted_windows": [
+                  {
+                    "restriction": "Candidate G4 active ops suspended in sea_state=5/wind=28kn (transitions to STANDBY)",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 98333,
+                    "feasible": true,
+                    "power_free_w": 163500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 85000,
+                    "feasible": true,
+                    "power_free_w": 163500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 126889,
+                    "feasible": true,
+                    "power_free_w": 196500,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 85000,
+                    "feasible": true,
+                    "power_free_w": 63500,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 37000,
+                    "feasible": true,
+                    "power_free_w": 63500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G2",
+                "G3"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -361.0,
+              "resulting_placement": {
+                "compute_node": "node_2",
+                "initial_mode": "LAUNCH_RECOVERY_OPTICS",
+                "subcomponent_positions": {
+                  "G4_DRONE_VEHICLE": "flight_deck",
+                  "G4_HANGAR_STATION": "hangar"
+                }
+              },
+              "total_score_lost": 452.0
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 91.0,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [],
+                "restricted_windows": [
+                  {
+                    "restriction": "Candidate G4 active ops suspended in sea_state=5/wind=28kn (transitions to STANDBY)",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 98333,
+                    "feasible": true,
+                    "power_free_w": 165000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 85000,
+                    "feasible": true,
+                    "power_free_w": 165000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 126889,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 85000,
+                    "feasible": true,
+                    "power_free_w": 65000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 37000,
+                    "feasible": true,
+                    "power_free_w": 65000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G2",
+                "G3"
+              ],
+              "displaced_count": 3,
+              "net_capability_delta": -518.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "LAUNCH_RECOVERY_OPTICS",
+                "subcomponent_positions": {
+                  "G4_DRONE_VEHICLE": "flight_deck",
+                  "G4_HANGAR_STATION": "hangar"
+                }
+              },
+              "total_score_lost": 609.0
+            }
+          ],
+          "fourth_guest_required_conditions": [],
+          "fourth_guest_verdict": "YES_IF",
+          "mass_margin_kg": -35,
+          "total_mass_kg": 10035
+        },
+        {
+          "combination": [
+            "G1",
+            "G2",
+            "G3",
+            "G5"
+          ],
+          "exceeds_10000_kg": true,
+          "fourth_guest_binding_constraints": [
+            {
+              "capacity": 2000,
+              "constraint_id": "mast_air_cooling_w",
+              "demand": 2700,
+              "detail": "Mast/roof air cooling 2700W > 2000W limit",
+              "margin": -700,
+              "provenance": "DERIVED",
+              "resource_class": "cooling",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "W"
+            },
+            {
+              "capacity": 0,
+              "constraint_id": "bay_or_deck_slot_exclusivity",
+              "demand": 1,
+              "detail": "Position conflict: bay1_split=False, overcrowded=True, deck_ramp=False",
+              "margin": -1,
+              "provenance": "DERIVED",
+              "resource_class": "positions",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "slot"
+            },
+            {
+              "capacity": 4000,
+              "constraint_id": "bay2_local_mass_limit_4000kg",
+              "demand": 6500,
+              "detail": "Bay 2 mass 6500 kg exceeds local limit 4000 kg (Annex A.3)",
+              "margin": -2500,
+              "provenance": "DERIVED",
+              "resource_class": "positions",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "kg"
+            },
+            {
+              "capacity": 1,
+              "constraint_id": "mast_3_slot_limits",
+              "demand": 2,
+              "detail": "mast_3 occupants=['G1:G1_MAST_SENSOR_HEAD', 'G5:G5_MAST_ANTENNA'] (max 1), mass=70/60kg, footprint=0.8/0.6m2",
+              "margin": -1,
+              "provenance": "DERIVED",
+              "resource_class": "mast",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "slot"
+            },
+            {
+              "capacity": 10000,
+              "constraint_id": "max_total_guest_mass_kg",
+              "demand": 12070,
+              "detail": "Total installed mass 12070 kg exceeds 10000 kg limit",
+              "margin": -2070,
+              "provenance": "DERIVED",
+              "resource_class": "mass_stability",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "kg"
+            },
+            {
+              "capacity": 12000.0,
+              "constraint_id": "max_stability_equivalent_kg",
+              "demand": 12210.0,
+              "detail": "Stability equivalent 12210.0 kg-eq exceeds 12000.0 kg-eq limit",
+              "margin": -210.0,
+              "provenance": "DERIVED",
+              "resource_class": "mass_stability",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "kg_eq"
+            }
+          ],
+          "fourth_guest_id": "G5",
+          "fourth_guest_ranked_displacements": [
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 111333,
+                    "feasible": true,
+                    "power_free_w": 178000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 98000,
+                    "feasible": true,
+                    "power_free_w": 178000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 125389,
+                    "feasible": true,
+                    "power_free_w": 196500,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 116500,
+                    "feasible": true,
+                    "power_free_w": 96500,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 68500,
+                    "feasible": true,
+                    "power_free_w": 96500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G3"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -218.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay1_a",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 340.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 88533,
+                    "feasible": true,
+                    "power_free_w": 154000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 117000,
+                    "feasible": true,
+                    "power_free_w": 197000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 125889,
+                    "feasible": true,
+                    "power_free_w": 197000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 117000,
+                    "feasible": true,
+                    "power_free_w": 97000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 69000,
+                    "feasible": true,
+                    "power_free_w": 97000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G2"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -303.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 425.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 89533,
+                    "feasible": true,
+                    "power_free_w": 155000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 118000,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 126889,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 118000,
+                    "feasible": true,
+                    "power_free_w": 98000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 70000,
+                    "feasible": true,
+                    "power_free_w": 98000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G2",
+                "G3"
+              ],
+              "displaced_count": 3,
+              "net_capability_delta": -486.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 609.0
+            }
+          ],
+          "fourth_guest_required_conditions": [],
+          "fourth_guest_verdict": "YES_IF",
+          "mass_margin_kg": -2070,
+          "total_mass_kg": 12070
+        },
+        {
+          "combination": [
+            "G1",
+            "G2",
+            "G4",
+            "G5"
+          ],
+          "exceeds_10000_kg": false,
+          "fourth_guest_binding_constraints": [
+            {
+              "capacity": 2000,
+              "constraint_id": "mast_air_cooling_w",
+              "demand": 2700,
+              "detail": "Mast/roof air cooling 2700W > 2000W limit",
+              "margin": -700,
+              "provenance": "DERIVED",
+              "resource_class": "cooling",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "W"
+            },
+            {
+              "capacity": 1,
+              "constraint_id": "mast_3_slot_limits",
+              "demand": 1,
+              "detail": "mast_3 occupants=['G1:G1_MAST_SENSOR_HEAD'] (max 1), mass=45/60kg, footprint=0.5/0.6m2",
+              "margin": 0,
+              "provenance": "DERIVED",
+              "resource_class": "mast",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "slot"
+            },
+            {
+              "capacity": 8000000,
+              "constraint_id": "satcom_or_emcon_or_lan",
+              "demand": 8200000,
+              "detail": "SATCOM=8200000/8000000 bps, LAN=1075000000/10000000000 bps, emcon_violated=False",
+              "margin": -200000,
+              "provenance": "DERIVED",
+              "resource_class": "data",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "bps"
+            }
+          ],
+          "fourth_guest_id": "G5",
+          "fourth_guest_ranked_displacements": [
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 76333,
+                    "feasible": true,
+                    "power_free_w": 143000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 63000,
+                    "feasible": true,
+                    "power_free_w": 143000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 123389,
+                    "feasible": true,
+                    "power_free_w": 194500,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 114500,
+                    "feasible": true,
+                    "power_free_w": 94500,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 66500,
+                    "feasible": true,
+                    "power_free_w": 94500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1"
+              ],
+              "displaced_count": 1,
+              "net_capability_delta": -34.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay1_a",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 157.0
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G4 \u2014 VTOL Rescue Drone + Hangar (hydrographic_survey, maritime_sar_rescue, surface_surveillance)",
+                  "displaced_from_mode": "LAUNCH_RECOVERY_OPTICS",
+                  "guest_id": "G4",
+                  "mass_freed_kg": 990,
+                  "score_lost": 91.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 111333,
+                    "feasible": true,
+                    "power_free_w": 178000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 98000,
+                    "feasible": true,
+                    "power_free_w": 178000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 125389,
+                    "feasible": true,
+                    "power_free_w": 196500,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 116500,
+                    "feasible": true,
+                    "power_free_w": 96500,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 68500,
+                    "feasible": true,
+                    "power_free_w": 96500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G4"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -125.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay1_a",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 248.0
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 96333,
+                    "feasible": true,
+                    "power_free_w": 163000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 83000,
+                    "feasible": true,
+                    "power_free_w": 163000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 124889,
+                    "feasible": true,
+                    "power_free_w": 196000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 116000,
+                    "feasible": true,
+                    "power_free_w": 96000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 68000,
+                    "feasible": true,
+                    "power_free_w": 96000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G2"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -303.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 425.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                },
+                {
+                  "capability_lost_description": "G4 \u2014 VTOL Rescue Drone + Hangar (hydrographic_survey, maritime_sar_rescue, surface_surveillance)",
+                  "displaced_from_mode": "LAUNCH_RECOVERY_OPTICS",
+                  "guest_id": "G4",
+                  "mass_freed_kg": 990,
+                  "score_lost": 91.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 89533,
+                    "feasible": true,
+                    "power_free_w": 155000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 118000,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 126889,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 118000,
+                    "feasible": true,
+                    "power_free_w": 98000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 70000,
+                    "feasible": true,
+                    "power_free_w": 98000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G2",
+                "G4"
+              ],
+              "displaced_count": 3,
+              "net_capability_delta": -394.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 516.5
+            }
+          ],
+          "fourth_guest_required_conditions": [],
+          "fourth_guest_verdict": "YES_IF",
+          "mass_margin_kg": 2440,
+          "total_mass_kg": 7560
+        },
+        {
+          "combination": [
+            "G1",
+            "G3",
+            "G4",
+            "G5"
+          ],
+          "exceeds_10000_kg": false,
+          "fourth_guest_binding_constraints": [
+            {
+              "capacity": 2000,
+              "constraint_id": "mast_air_cooling_w",
+              "demand": 2700,
+              "detail": "Mast/roof air cooling 2700W > 2000W limit",
+              "margin": -700,
+              "provenance": "DERIVED",
+              "resource_class": "cooling",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "W"
+            },
+            {
+              "capacity": 1,
+              "constraint_id": "mast_3_slot_limits",
+              "demand": 1,
+              "detail": "mast_3 occupants=['G1:G1_MAST_SENSOR_HEAD'] (max 1), mass=45/60kg, footprint=0.5/0.6m2",
+              "margin": 0,
+              "provenance": "DERIVED",
+              "resource_class": "mast",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "slot"
+            }
+          ],
+          "fourth_guest_id": "G5",
+          "fourth_guest_ranked_displacements": [
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 95333,
+                    "feasible": true,
+                    "power_free_w": 162000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 82000,
+                    "feasible": true,
+                    "power_free_w": 162000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 123889,
+                    "feasible": true,
+                    "power_free_w": 195000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 115000,
+                    "feasible": true,
+                    "power_free_w": 95000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 67000,
+                    "feasible": true,
+                    "power_free_w": 95000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1"
+              ],
+              "displaced_count": 1,
+              "net_capability_delta": -34.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 157.0
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G4 \u2014 VTOL Rescue Drone + Hangar (hydrographic_survey, maritime_sar_rescue, surface_surveillance)",
+                  "displaced_from_mode": "LAUNCH_RECOVERY_OPTICS",
+                  "guest_id": "G4",
+                  "mass_freed_kg": 990,
+                  "score_lost": 91.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 88533,
+                    "feasible": true,
+                    "power_free_w": 154000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 117000,
+                    "feasible": true,
+                    "power_free_w": 197000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 125889,
+                    "feasible": true,
+                    "power_free_w": 197000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 117000,
+                    "feasible": true,
+                    "power_free_w": 97000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 69000,
+                    "feasible": true,
+                    "power_free_w": 97000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G4"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -125.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 248.0
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 96333,
+                    "feasible": true,
+                    "power_free_w": 163000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 83000,
+                    "feasible": true,
+                    "power_free_w": 163000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 124889,
+                    "feasible": true,
+                    "power_free_w": 196000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 116000,
+                    "feasible": true,
+                    "power_free_w": 96000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 68000,
+                    "feasible": true,
+                    "power_free_w": 96000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G3"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -218.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 340.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G1 \u2014 Passive Radio & Meteo Mast Sensor (environmental_sensing, flight_weather_support, hydrographic_survey, surface_surveillance, wideband_spectrum_monitoring)",
+                  "displaced_from_mode": "NOMINAL",
+                  "guest_id": "G1",
+                  "mass_freed_kg": 45,
+                  "score_lost": 157.0
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                },
+                {
+                  "capability_lost_description": "G4 \u2014 VTOL Rescue Drone + Hangar (hydrographic_survey, maritime_sar_rescue, surface_surveillance)",
+                  "displaced_from_mode": "LAUNCH_RECOVERY_OPTICS",
+                  "guest_id": "G4",
+                  "mass_freed_kg": 990,
+                  "score_lost": 91.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 89533,
+                    "feasible": true,
+                    "power_free_w": 155000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 118000,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 126889,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 118000,
+                    "feasible": true,
+                    "power_free_w": 98000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 70000,
+                    "feasible": true,
+                    "power_free_w": 98000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G1",
+                "G3",
+                "G4"
+              ],
+              "displaced_count": 3,
+              "net_capability_delta": -309.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 431.5
+            }
+          ],
+          "fourth_guest_required_conditions": [],
+          "fourth_guest_verdict": "YES_IF",
+          "mass_margin_kg": 440,
+          "total_mass_kg": 9560
+        },
+        {
+          "combination": [
+            "G2",
+            "G3",
+            "G4",
+            "G5"
+          ],
+          "exceeds_10000_kg": true,
+          "fourth_guest_binding_constraints": [
+            {
+              "capacity": 0,
+              "constraint_id": "bay_or_deck_slot_exclusivity",
+              "demand": 1,
+              "detail": "Position conflict: bay1_split=False, overcrowded=True, deck_ramp=False",
+              "margin": -1,
+              "provenance": "DERIVED",
+              "resource_class": "positions",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "slot"
+            },
+            {
+              "capacity": 4000,
+              "constraint_id": "bay2_local_mass_limit_4000kg",
+              "demand": 6500,
+              "detail": "Bay 2 mass 6500 kg exceeds local limit 4000 kg (Annex A.3)",
+              "margin": -2500,
+              "provenance": "DERIVED",
+              "resource_class": "positions",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "kg"
+            },
+            {
+              "capacity": 10000,
+              "constraint_id": "max_total_guest_mass_kg",
+              "demand": 13015,
+              "detail": "Total installed mass 13015 kg exceeds 10000 kg limit",
+              "margin": -3015,
+              "provenance": "DERIVED",
+              "resource_class": "mass_stability",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "kg"
+            },
+            {
+              "capacity": 12000.0,
+              "constraint_id": "max_stability_equivalent_kg",
+              "demand": 13263.0,
+              "detail": "Stability equivalent 13263.0 kg-eq exceeds 12000.0 kg-eq limit",
+              "margin": -1263.0,
+              "provenance": "DERIVED",
+              "resource_class": "mass_stability",
+              "state_label": "T+0s:PORT_OPS",
+              "unit": "kg_eq"
+            }
+          ],
+          "fourth_guest_id": "G5",
+          "fourth_guest_ranked_displacements": [
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 76333,
+                    "feasible": true,
+                    "power_free_w": 143000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 63000,
+                    "feasible": true,
+                    "power_free_w": 143000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 123389,
+                    "feasible": true,
+                    "power_free_w": 194500,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 114500,
+                    "feasible": true,
+                    "power_free_w": 94500,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 66500,
+                    "feasible": true,
+                    "power_free_w": 94500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G3"
+              ],
+              "displaced_count": 1,
+              "net_capability_delta": -61.0,
+              "resulting_placement": {
+                "compute_node": "node_2",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay1_a",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 183.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 95333,
+                    "feasible": true,
+                    "power_free_w": 162000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 82000,
+                    "feasible": true,
+                    "power_free_w": 162000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 123889,
+                    "feasible": true,
+                    "power_free_w": 195000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 115000,
+                    "feasible": true,
+                    "power_free_w": 95000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 67000,
+                    "feasible": true,
+                    "power_free_w": 95000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G2"
+              ],
+              "displaced_count": 1,
+              "net_capability_delta": -146.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 268.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                },
+                {
+                  "capability_lost_description": "G4 \u2014 VTOL Rescue Drone + Hangar (hydrographic_survey, maritime_sar_rescue, surface_surveillance)",
+                  "displaced_from_mode": "LAUNCH_RECOVERY_OPTICS",
+                  "guest_id": "G4",
+                  "mass_freed_kg": 990,
+                  "score_lost": 91.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 111333,
+                    "feasible": true,
+                    "power_free_w": 178000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 98000,
+                    "feasible": true,
+                    "power_free_w": 178000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 125389,
+                    "feasible": true,
+                    "power_free_w": 196500,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 116500,
+                    "feasible": true,
+                    "power_free_w": 96500,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 68500,
+                    "feasible": true,
+                    "power_free_w": 96500,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G3",
+                "G4"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -152.0,
+              "resulting_placement": {
+                "compute_node": "node_2",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay1_a",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 274.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                },
+                {
+                  "capability_lost_description": "G4 \u2014 VTOL Rescue Drone + Hangar (hydrographic_survey, maritime_sar_rescue, surface_surveillance)",
+                  "displaced_from_mode": "LAUNCH_RECOVERY_OPTICS",
+                  "guest_id": "G4",
+                  "mass_freed_kg": 990,
+                  "score_lost": 91.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 88533,
+                    "feasible": true,
+                    "power_free_w": 154000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 117000,
+                    "feasible": true,
+                    "power_free_w": 197000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 125889,
+                    "feasible": true,
+                    "power_free_w": 197000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 117000,
+                    "feasible": true,
+                    "power_free_w": 97000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 69000,
+                    "feasible": true,
+                    "power_free_w": 97000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G2",
+                "G4"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -237.0,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 359.5
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window NOMINAL_CRUISE_24C requires G5 mode step-down to STANDBY",
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy NOMINAL_CRUISE_24C budget",
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 96333,
+                    "feasible": true,
+                    "power_free_w": 163000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 83000,
+                    "feasible": true,
+                    "power_free_w": 163000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 124889,
+                    "feasible": true,
+                    "power_free_w": 196000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 116000,
+                    "feasible": true,
+                    "power_free_w": 96000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 68000,
+                    "feasible": true,
+                    "power_free_w": 96000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G2",
+                "G3"
+              ],
+              "displaced_count": 2,
+              "net_capability_delta": -329.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 452.0
+            },
+            {
+              "action_type": "REMOVE_AT_PORT",
+              "candidate_score_gained": 122.5,
+              "capability_lost_breakdown": [
+                {
+                  "capability_lost_description": "G2 \u2014 Ocean & Weather Module (Winch + Probe) (environmental_sensing, hull_and_cable_inspection, hydrographic_survey, salvage_assistance, subsea_intervention, water_quality_monitoring)",
+                  "displaced_from_mode": "INSPECTION_ACTIVE",
+                  "guest_id": "G2",
+                  "mass_freed_kg": 3500,
+                  "score_lost": 268.5
+                },
+                {
+                  "capability_lost_description": "G3 \u2014 Seabed Inspection Vehicle + Cradle (hydrographic_survey, maritime_sar_rescue, seabed_anomaly_detection)",
+                  "displaced_from_mode": "SURVEY_QUIET",
+                  "guest_id": "G3",
+                  "mass_freed_kg": 5500,
+                  "score_lost": 183.5
+                },
+                {
+                  "capability_lost_description": "G4 \u2014 VTOL Rescue Drone + Hangar (hydrographic_survey, maritime_sar_rescue, surface_surveillance)",
+                  "displaced_from_mode": "LAUNCH_RECOVERY_OPTICS",
+                  "guest_id": "G4",
+                  "mass_freed_kg": 990,
+                  "score_lost": 91.0
+                }
+              ],
+              "conditioned_availability": {
+                "conditioned": true,
+                "envelope_binding_witnesses": [],
+                "envelope_feasible": true,
+                "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+                "nominal_offshore_mode_conditions": [
+                  "Window HOT_WATER_SURVEY_30C requires G5 mode step-down to STANDBY"
+                ],
+                "restricted_windows": [
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HOT_WATER_SURVEY_30C budget",
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "restriction": "Requires degraded/step-down mode (G5->STANDBY) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ],
+                "window_evaluations": [
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": false,
+                    "cooling_free_w": 89533,
+                    "feasible": true,
+                    "power_free_w": 155000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 24.0,
+                    "wind_kn": 16,
+                    "window_id": "NOMINAL_CRUISE_24C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 118000,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 18,
+                    "window_id": "HOT_WATER_SURVEY_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 126889,
+                    "feasible": true,
+                    "power_free_w": 198000,
+                    "sea_state": 5,
+                    "seawater_temp_c": 26.0,
+                    "wind_kn": 28,
+                    "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 118000,
+                    "feasible": true,
+                    "power_free_w": 98000,
+                    "sea_state": 4,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 22,
+                    "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+                  },
+                  {
+                    "binding_witnesses": [],
+                    "conditioned": true,
+                    "cooling_free_w": 70000,
+                    "feasible": true,
+                    "power_free_w": 98000,
+                    "sea_state": 3,
+                    "seawater_temp_c": 30.0,
+                    "wind_kn": 20,
+                    "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+                  }
+                ]
+              },
+              "displace_guest_ids": [
+                "G2",
+                "G3",
+                "G4"
+              ],
+              "displaced_count": 3,
+              "net_capability_delta": -420.5,
+              "resulting_placement": {
+                "compute_node": "node_1",
+                "initial_mode": "FULL_SPECTRUM",
+                "subcomponent_positions": {
+                  "G5_COMPUTE_CONTAINER": "bay2",
+                  "G5_MAST_ANTENNA": "mast_3"
+                }
+              },
+              "total_score_lost": 543.0
+            }
+          ],
+          "fourth_guest_required_conditions": [],
+          "fourth_guest_verdict": "YES_IF",
+          "mass_margin_kg": -3015,
+          "total_mass_kg": 13015
+        }
+      ],
+      "errata_three_of_five_verified": true,
+      "exceeding_10000_kg_count": 3,
+      "total_combinations": 5
+    },
+    "g6_admission": {
+      "binding_constraints": [],
+      "calculation_elapsed_ms": 1.438,
+      "candidate_guest_id": "G6",
+      "capability_lost": [],
+      "conditioned_availability": {
+        "conditioned": true,
+        "envelope_binding_witnesses": [],
+        "envelope_feasible": true,
+        "envelope_id": "A10_14DAY_OFFSHORE_ENVELOPE",
+        "nominal_offshore_mode_conditions": [],
+        "restricted_windows": [
+          {
+            "restriction": "Candidate G6 active ops suspended in sea_state=5/wind=28kn (transitions to ECO_SAMPLE)",
+            "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+          },
+          {
+            "restriction": "Requires degraded/step-down mode (G6->ECO_SAMPLE) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget",
+            "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+          },
+          {
+            "restriction": "Requires degraded/step-down mode (G6->ECO_SAMPLE) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget",
+            "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+          },
+          {
+            "restriction": "Requires degraded/step-down mode (G6->ECO_SAMPLE) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget",
+            "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+          }
+        ],
+        "window_evaluations": [
+          {
+            "binding_witnesses": [],
+            "conditioned": false,
+            "cooling_free_w": 73833,
+            "feasible": true,
+            "power_free_w": 139000,
+            "sea_state": 3,
+            "seawater_temp_c": 24.0,
+            "wind_kn": 16,
+            "window_id": "NOMINAL_CRUISE_24C"
+          },
+          {
+            "binding_witnesses": [],
+            "conditioned": false,
+            "cooling_free_w": 60500,
+            "feasible": true,
+            "power_free_w": 139000,
+            "sea_state": 3,
+            "seawater_temp_c": 30.0,
+            "wind_kn": 18,
+            "window_id": "HOT_WATER_SURVEY_30C"
+          },
+          {
+            "binding_witnesses": [],
+            "conditioned": true,
+            "cooling_free_w": 123889,
+            "feasible": true,
+            "power_free_w": 194700,
+            "sea_state": 5,
+            "seawater_temp_c": 26.0,
+            "wind_kn": 28,
+            "window_id": "HIGH_SEA_STATE_5_WIND_28KN"
+          },
+          {
+            "binding_witnesses": [],
+            "conditioned": true,
+            "cooling_free_w": 115000,
+            "feasible": true,
+            "power_free_w": 94700,
+            "sea_state": 4,
+            "seawater_temp_c": 30.0,
+            "wind_kn": 22,
+            "window_id": "DEGRADED_GEN_LOSS_100KW_30C"
+          },
+          {
+            "binding_witnesses": [],
+            "conditioned": true,
+            "cooling_free_w": 67000,
+            "feasible": true,
+            "power_free_w": 94700,
+            "sea_state": 3,
+            "seawater_temp_c": 30.0,
+            "wind_kn": 20,
+            "window_id": "DEGRADED_COOLING_LOOP_72KW_30C"
+          }
+        ]
+      },
+      "decision_type": "D1_ADMISSION",
+      "guest_manifest_sha256": "41e7897ebee019a2c1fe41855ff5a3411f7ef4c05fad25c4f884654f295dbe30",
+      "mission_envelope_hash": "df3097f26b93e8d67c50658853317c2eee18ae72abd8580978458aaf8e6d9484",
+      "next_window": null,
+      "placement": {
+        "compute_node": "node_4",
+        "initial_mode": "NOMINAL",
+        "subcomponent_positions": {
+          "G6_HYDRO_SKID_10FT": "bay1_a"
+        }
+      },
+      "priority_profile_sha256": "67a60217dc9bef2b12eb91b39a88ceb52824757a69e39d72bd292b2d84698b82",
+      "ranked_displacements": [],
+      "rationale": "Verdict=YES for candidate=G6. Feasible placement found (G6_HYDRO_SKID_10FT->bay1_a; compute_node=node_4) across 14-day mission envelope. Binding constraints: none violated. Conditioned availability restrictions: HIGH_SEA_STATE_5_WIND_28KN(Candidate G6 active ops suspended in sea_state=5/wind=28kn (transitions to ECO_SAMPLE)), HIGH_SEA_STATE_5_WIND_28KN(Requires degraded/step-down mode (G6->ECO_SAMPLE) to satisfy HIGH_SEA_STATE_5_WIND_28KN budget), DEGRADED_GEN_LOSS_100KW_30C(Requires degraded/step-down mode (G6->ECO_SAMPLE) to satisfy DEGRADED_GEN_LOSS_100KW_30C budget), DEGRADED_COOLING_LOOP_72KW_30C(Requires degraded/step-down mode (G6->ECO_SAMPLE) to satisfy DEGRADED_COOLING_LOOP_72KW_30C budget).",
+      "required_conditions": [],
+      "ship_profile_hash": "7b44cb146fa15b29112a3b9da8abf27b5a3b0117f28aeb3b4441ceed00623ef6",
+      "verdict": "YES",
+      "within_30s_deadline": true
+    }
+  },
+  "scenario_C": {
+    "regimes": {
+      "FULL_CREW_14": {
+        "autonomous_guests_always_operational": [
+          "G1",
+          "G3",
+          "G5",
+          "G6"
+        ],
+        "available_for_guest_ops": 9,
+        "blocking_diagnostics": {
+          "G2_launch": [],
+          "G2_replacement": [
+            "guest G2 does not support at-sea vehicle replacement"
+          ],
+          "G3_replacement": [],
+          "G4_launch": [],
+          "G4_replacement": [],
+          "G6_at_sea_install": [
+            "guest G6 is port_only=True",
+            "subcomponent G6_HYDRO_SKID_10FT requires bay/mast position ('bay2', 'bay1_a', 'bay1_b') which is port-only (Annex A.5)",
+            "guest G6 total_mass_kg 420 kg > 250 kg at-sea package install limit (Annex A.4)"
+          ]
+        },
+        "crew_total": 14,
+        "g2_rov_at_sea_replacement_permitted": false,
+        "g2_rov_launch_recovery_permitted": true,
+        "g3_auv_at_sea_replacement_permitted": true,
+        "g4_uav_at_sea_replacement_permitted": true,
+        "g4_uav_launch_recovery_permitted": true,
+        "g6_at_sea_install_permitted": false,
+        "max_concurrent_manual_deck_ops": 2,
+        "simultaneous_g2_and_g4_deck_ops_permitted": false,
+        "simultaneous_g2_g4_block_reason": "Annex A.5 requires flight deck clear of other ongoing deck operations during G4 launch/recovery, and G2 winch window (0-5 kn) conflicts with G4 flight recovery window (5-12 kn into wind).",
+        "watch_bridge_engine": 5
+      },
+      "REDUCED_CREW_6": {
+        "autonomous_guests_always_operational": [
+          "G1",
+          "G3",
+          "G5",
+          "G6"
+        ],
+        "available_for_guest_ops": 2,
+        "blocking_diagnostics": {
+          "G2_launch": [],
+          "G2_replacement": [
+            "guest G2 does not support at-sea vehicle replacement"
+          ],
+          "G3_replacement": [
+            "available_crew 2 < A' replacement required 4"
+          ],
+          "G4_launch": [],
+          "G4_replacement": [
+            "available_crew 2 < A' replacement required 3"
+          ],
+          "G6_at_sea_install": [
+            "guest G6 is port_only=True",
+            "subcomponent G6_HYDRO_SKID_10FT requires bay/mast position ('bay2', 'bay1_a', 'bay1_b') which is port-only (Annex A.5)",
+            "guest G6 total_mass_kg 420 kg > 250 kg at-sea package install limit (Annex A.4)",
+            "available_crew 2 < required 4"
+          ]
+        },
+        "crew_total": 6,
+        "g2_rov_at_sea_replacement_permitted": false,
+        "g2_rov_launch_recovery_permitted": true,
+        "g3_auv_at_sea_replacement_permitted": false,
+        "g4_uav_at_sea_replacement_permitted": false,
+        "g4_uav_launch_recovery_permitted": true,
+        "g6_at_sea_install_permitted": false,
+        "max_concurrent_manual_deck_ops": 1,
+        "simultaneous_g2_and_g4_deck_ops_permitted": false,
+        "simultaneous_g2_g4_block_reason": "Annex A.5 requires flight deck clear of other ongoing deck operations during G4 launch/recovery, and G2 winch window (0-5 kn) conflicts with G4 flight recovery window (5-12 kn into wind).",
+        "watch_bridge_engine": 4
+      },
+      "UNCREWED_0": {
+        "autonomous_guests_always_operational": [
+          "G1",
+          "G3",
+          "G5",
+          "G6"
+        ],
+        "available_for_guest_ops": 0,
+        "blocking_diagnostics": {
+          "G2_launch": [
+            "available_crew 0 < required 2 for manual launch/recovery"
+          ],
+          "G2_replacement": [
+            "guest G2 does not support at-sea vehicle replacement"
+          ],
+          "G3_replacement": [
+            "available_crew 0 < A' replacement required 4"
+          ],
+          "G4_launch": [
+            "available_crew 0 < required 2 for manual launch/recovery"
+          ],
+          "G4_replacement": [
+            "available_crew 0 < A' replacement required 3"
+          ],
+          "G6_at_sea_install": [
+            "guest G6 is port_only=True",
+            "subcomponent G6_HYDRO_SKID_10FT requires bay/mast position ('bay2', 'bay1_a', 'bay1_b') which is port-only (Annex A.5)",
+            "guest G6 total_mass_kg 420 kg > 250 kg at-sea package install limit (Annex A.4)",
+            "available_crew 0 < required 4"
+          ]
+        },
+        "crew_total": 0,
+        "g2_rov_at_sea_replacement_permitted": false,
+        "g2_rov_launch_recovery_permitted": false,
+        "g3_auv_at_sea_replacement_permitted": false,
+        "g4_uav_at_sea_replacement_permitted": false,
+        "g4_uav_launch_recovery_permitted": false,
+        "g6_at_sea_install_permitted": false,
+        "max_concurrent_manual_deck_ops": 0,
+        "simultaneous_g2_and_g4_deck_ops_permitted": false,
+        "simultaneous_g2_g4_block_reason": "Annex A.5 requires flight deck clear of other ongoing deck operations during G4 launch/recovery, and G2 winch window (0-5 kn) conflicts with G4 flight recovery window (5-12 kn into wind).",
+        "watch_bridge_engine": 0
+      }
+    },
+    "scenario_c_event_decisions": [
+      {
+        "decision": {
+          "available_crew": 9,
+          "blocking_reasons": [
+            "Active guest G3 (SURVEY_QUIET) forbids deck machinery due to acoustic survey",
+            "speed 3.0 kn outside normal op window [5.0, 12.0] kn",
+            "vessel heading 90.0 deg not aligned into wind 270.0 deg"
+          ],
+          "deck_clear": true,
+          "guest_id": "G4",
+          "operation_type": "LAUNCH_RECOVERY",
+          "permitted": false,
+          "sea_state": 2,
+          "vessel_speed_kn": 3.0,
+          "wind_kn": 16
+        },
+        "event_time_s": 10,
+        "phase": "SCENARIO_C_DECK_MACHINERY_GUARD",
+        "plan_version": 1,
+        "sim_time_s": 10,
+        "tick": 1
+      },
+      {
+        "decision": {
+          "available_crew": 2,
+          "crew_count": 6,
+          "crew_regime": "REDUCED_CREW_6",
+          "g4_launch_recovery": {
+            "available_crew": 2,
+            "blocking_reasons": [
+              "Active guest G3 (SURVEY_QUIET) forbids deck machinery due to acoustic survey",
+              "speed 3.0 kn outside normal op window [5.0, 12.0] kn",
+              "vessel heading 90.0 deg not aligned into wind 270.0 deg"
+            ],
+            "deck_clear": true,
+            "guest_id": "G4",
+            "operation_type": "LAUNCH_RECOVERY",
+            "permitted": false,
+            "sea_state": 2,
+            "vessel_speed_kn": 3.0,
+            "wind_kn": 16
+          },
+          "g4_vehicle_replacement": {
+            "available_crew": 2,
+            "blocking_reasons": [
+              "Active guest G3 (SURVEY_QUIET) forbids deck machinery due to acoustic survey",
+              "speed 3.0 kn outside A' replacement window [4.0, 8.0] kn",
+              "available_crew 2 < A' replacement required 3"
+            ],
+            "deck_clear": true,
+            "guest_id": "G4",
+            "operation_type": "VEHICLE_REPLACEMENT_AT_SEA",
+            "permitted": false,
+            "sea_state": 2,
+            "vessel_speed_kn": 3.0,
+            "wind_kn": 16
+          },
+          "physical_install_check": null
+        },
+        "event_time_s": 30,
+        "phase": "SCENARIO_C_CREW_TRANSITION",
+        "plan_version": 2,
+        "sim_time_s": 30,
+        "tick": 2
+      },
+      {
+        "decision": {
+          "available_crew": 0,
+          "crew_count": 0,
+          "crew_regime": "UNCREWED_0",
+          "g4_launch_recovery": {
+            "available_crew": 0,
+            "blocking_reasons": [
+              "Active guest G3 (SURVEY_QUIET) forbids deck machinery due to acoustic survey",
+              "speed 3.0 kn outside normal op window [5.0, 12.0] kn",
+              "vessel heading 90.0 deg not aligned into wind 270.0 deg",
+              "available_crew 0 < required 2 for manual launch/recovery"
+            ],
+            "deck_clear": true,
+            "guest_id": "G4",
+            "operation_type": "LAUNCH_RECOVERY",
+            "permitted": false,
+            "sea_state": 2,
+            "vessel_speed_kn": 3.0,
+            "wind_kn": 16
+          },
+          "g4_vehicle_replacement": {
+            "available_crew": 0,
+            "blocking_reasons": [
+              "Active guest G3 (SURVEY_QUIET) forbids deck machinery due to acoustic survey",
+              "speed 3.0 kn outside A' replacement window [4.0, 8.0] kn",
+              "available_crew 0 < A' replacement required 3"
+            ],
+            "deck_clear": true,
+            "guest_id": "G4",
+            "operation_type": "VEHICLE_REPLACEMENT_AT_SEA",
+            "permitted": false,
+            "sea_state": 2,
+            "vessel_speed_kn": 3.0,
+            "wind_kn": 16
+          },
+          "physical_install_check": {
+            "available_crew": 0,
+            "blocking_reasons": [
+              "Active guest G3 (SURVEY_QUIET) forbids deck machinery due to acoustic survey",
+              "guest G6 is port_only=True",
+              "subcomponent G6_HYDRO_SKID_10FT requires bay/mast position ('bay2', 'bay1_a', 'bay1_b') which is port-only (Annex A.5)",
+              "guest G6 total_mass_kg 420 kg > 250 kg at-sea package install limit (Annex A.4)",
+              "speed 3.0 kn outside A' at-sea install window [4.0, 8.0] kn (Annex A.4)",
+              "available_crew 0 < required 4"
+            ],
+            "deck_clear": true,
+            "guest_id": "G6",
+            "operation_type": "AT_SEA_INSTALL",
+            "permitted": false,
+            "sea_state": 2,
+            "vessel_speed_kn": 3.0,
+            "wind_kn": 16
+          }
+        },
+        "event_time_s": 60,
+        "phase": "SCENARIO_C_CREW_TRANSITION",
+        "plan_version": 3,
+        "sim_time_s": 60,
+        "tick": 3
+      },
+      {
+        "decision": {
+          "declared_power_w": 45000,
+          "event": "GUEST_OVERCONSUMPTION_DETECTED",
+          "final_budget_snapshot": {
+            "binding_witnesses": [],
+            "classes": {
+              "compute": {
+                "actual": 20,
+                "capacity": 100,
+                "committed": 20,
+                "degraded_capacity": 100,
+                "feasible": true,
+                "free": 80,
+                "local_limits": {
+                  "cluster_accelerators": {
+                    "allocatable": 3,
+                    "feasible": true,
+                    "free": 2,
+                    "used": 1
+                  },
+                  "nodes": {
+                    "node_1": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 0,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_2": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 21,
+                      "free_ram_mib": 86016,
+                      "used_accelerators": 0,
+                      "used_cores": 4,
+                      "used_ram_mib": 16384
+                    },
+                    "node_3": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 0,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 1,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_4": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 25,
+                      "free_ram_mib": 102400,
+                      "used_accelerators": 0,
+                      "used_cores": 0,
+                      "used_ram_mib": 0
+                    }
+                  },
+                  "shared_storage_gb": {
+                    "allocatable_gb": 16000,
+                    "feasible": true,
+                    "free_gb": 4000,
+                    "used_gb": 12000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "cores"
+              },
+              "cooling": {
+                "actual": 18500,
+                "capacity": 137778,
+                "committed": 18500,
+                "degraded_capacity": 137778,
+                "feasible": true,
+                "free": 119278,
+                "local_limits": {
+                  "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C",
+                  "effective_water_cap_with_inertia_w": 137778,
+                  "mast_air_cooling": {
+                    "actual_w": 500,
+                    "capacity_w": 2000,
+                    "feasible": true,
+                    "free_w": 1500
+                  },
+                  "seawater_temp_c": 22.0,
+                  "thermal_inertia_available_boost_w": 0,
+                  "total_thermal_dissipation_w": 19000
+                },
+                "provenance": "SIMULATED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "data": {
+                "actual": 2500000,
+                "capacity": 8000000,
+                "committed": 2500000,
+                "degraded_capacity": 8000000,
+                "feasible": true,
+                "free": 5500000,
+                "local_limits": {
+                  "backbone_lan_bps": {
+                    "actual_total_bps": 420000000,
+                    "feasible": true,
+                    "highest_port_bps": 300000000,
+                    "max_per_port_bps": 1000000000,
+                    "max_total_bps": 10000000000
+                  },
+                  "satcom_bps": {
+                    "actual_bps": 2500000,
+                    "available_bps": 8000000,
+                    "emcon_silence": false,
+                    "emcon_violated": false,
+                    "free_bps": 5500000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "bps"
+              },
+              "mass_stability": {
+                "actual": 9515,
+                "capacity": 10000,
+                "committed": 9515,
+                "degraded_capacity": 10000,
+                "feasible": true,
+                "free": 485,
+                "local_limits": {
+                  "bay1_mass_kg": {
+                    "actual_kg": 5500,
+                    "feasible": true,
+                    "free_kg": 2500,
+                    "max_kg": 8000
+                  },
+                  "bay2_mass_kg": {
+                    "actual_kg": 3000,
+                    "feasible": true,
+                    "free_kg": 1000,
+                    "max_kg": 4000
+                  },
+                  "mass_margin_kg": {
+                    "actual_kg": 9515,
+                    "feasible": true,
+                    "free_kg": 485,
+                    "max_kg": 10000
+                  },
+                  "stability_equivalent_kg": {
+                    "actual_kg_eq": 9763.0,
+                    "feasible": true,
+                    "free_kg_eq": 2237.0,
+                    "max_kg_eq": 12000.0
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "kg"
+              },
+              "mast": {
+                "actual": 1,
+                "capacity": 1,
+                "committed": 1,
+                "degraded_capacity": 1,
+                "feasible": true,
+                "free": 0,
+                "local_limits": {
+                  "fixed_occupied": [
+                    "mast_1",
+                    "mast_2"
+                  ],
+                  "guest_allocatable_slots": 1,
+                  "guest_slot_mast_3": {
+                    "air_cooling_w": 500,
+                    "footprint_m2": 0.3,
+                    "mass_kg": 25,
+                    "max_air_cooling_w": 2000,
+                    "max_footprint_m2": 0.6,
+                    "max_mass_kg": 60,
+                    "owner": "G5:G5_MAST_ANTENNA"
+                  },
+                  "ship_reserved_slots": 2,
+                  "total_physical_slots": 3
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "positions": {
+                "actual": 3,
+                "capacity": 5,
+                "committed": 3,
+                "degraded_capacity": 5,
+                "feasible": true,
+                "free": 2,
+                "local_limits": {
+                  "bay1_20ft": [
+                    "G3:G3_AUV_CRADLE_BAY1_20FT"
+                  ],
+                  "bay1_a_10ft": [],
+                  "bay1_b_10ft": [],
+                  "bay1_max_mass_kg": 8000,
+                  "bay1_total_mass_kg": 5500,
+                  "bay2_10ft": [
+                    "G5:G5_COMPUTE_CONTAINER"
+                  ],
+                  "bay2_max_mass_kg": 4000,
+                  "bay2_total_mass_kg": 3000,
+                  "flight_deck": [
+                    "G4:G4_DRONE_VEHICLE"
+                  ],
+                  "hangar": [
+                    "G4:G4_HANGAR_STATION"
+                  ],
+                  "hangar_max_mass_kg": 1000,
+                  "hangar_roof": [],
+                  "hangar_total_mass_kg": 990,
+                  "stern_ramp": []
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "power": {
+                "actual": 19000,
+                "capacity": 200000,
+                "committed": 19000,
+                "degraded_capacity": 200000,
+                "feasible": true,
+                "free": 181000,
+                "local_limits": {
+                  "LINE_A_FWD": {
+                    "actual_w": 1000,
+                    "committed_w": 1000,
+                    "feasible": true,
+                    "free_w": 149000,
+                    "max_power_w": 150000
+                  },
+                  "LINE_B_AFT": {
+                    "actual_w": 18000,
+                    "committed_w": 18000,
+                    "feasible": true,
+                    "free_w": 132000,
+                    "max_power_w": 150000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "time": {
+                "capacity": 200.0,
+                "degraded_capacity": 200.0,
+                "feasible": true,
+                "local_limits": {
+                  "scenario_a_admission_deadline_ms": 30000.0,
+                  "scenario_b_arbitration_deadline_ms": 2000.0,
+                  "tick_deadline_ms": 200.0
+                },
+                "provenance": "MEASURED",
+                "source_time_ns": "0",
+                "unit": "ms"
+              }
+            },
+            "feasible": true,
+            "infeasible_protected_load": false,
+            "infeasible_reason": null,
+            "sim_time_s": 90,
+            "tick_seq": 5,
+            "vessel_mode": "QUIET_SURVEY"
+          },
+          "measured_power_w": 54000,
+          "mitigation_actions": [
+            {
+              "action": "THROTTLE_OFFENDING_GUEST_MODE",
+              "declared_power_w": 45000,
+              "from_mode": "FULL_SPECTRUM",
+              "guest_id": "G5",
+              "measured_power_w": 54000,
+              "overrun_pct": 20.0,
+              "to_mode": "DEGRADED_70PCT_LOSS"
+            }
+          ],
+          "offending_guest_id": "G5",
+          "overrun_pct": 20.0,
+          "overrun_w": 9000,
+          "plan_version": 4,
+          "protected_load": false,
+          "safety_critical": false
+        },
+        "event_time_s": 90,
+        "phase": "SCENARIO_C_OVERCONSUMPTION",
+        "plan_version": 4,
+        "sim_time_s": 90,
+        "tick": 5
+      },
+      {
+        "decision": {
+          "age_ms": 5000,
+          "budget_snapshot": {
+            "binding_witnesses": [],
+            "classes": {
+              "compute": {
+                "actual": 20,
+                "capacity": 100,
+                "committed": 20,
+                "degraded_capacity": 100,
+                "feasible": true,
+                "free": 80,
+                "local_limits": {
+                  "cluster_accelerators": {
+                    "allocatable": 3,
+                    "feasible": true,
+                    "free": 2,
+                    "used": 1
+                  },
+                  "nodes": {
+                    "node_1": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 0,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_2": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 21,
+                      "free_ram_mib": 86016,
+                      "used_accelerators": 0,
+                      "used_cores": 4,
+                      "used_ram_mib": 16384
+                    },
+                    "node_3": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 0,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 1,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_4": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 25,
+                      "free_ram_mib": 102400,
+                      "used_accelerators": 0,
+                      "used_cores": 0,
+                      "used_ram_mib": 0
+                    }
+                  },
+                  "shared_storage_gb": {
+                    "allocatable_gb": 16000,
+                    "feasible": true,
+                    "free_gb": 4000,
+                    "used_gb": 12000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "cores"
+              },
+              "cooling": {
+                "actual": 18500,
+                "capacity": 120000,
+                "committed": 18500,
+                "degraded_capacity": 120000,
+                "feasible": true,
+                "free": 101500,
+                "local_limits": {
+                  "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C",
+                  "effective_water_cap_with_inertia_w": 120000,
+                  "mast_air_cooling": {
+                    "actual_w": 500,
+                    "capacity_w": 2000,
+                    "feasible": true,
+                    "free_w": 1500
+                  },
+                  "seawater_temp_c": 30.0,
+                  "thermal_inertia_available_boost_w": 0,
+                  "total_thermal_dissipation_w": 19000
+                },
+                "provenance": "UNAVAILABLE",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "data": {
+                "actual": 2500000,
+                "capacity": 8000000,
+                "committed": 2500000,
+                "degraded_capacity": 8000000,
+                "feasible": true,
+                "free": 5500000,
+                "local_limits": {
+                  "backbone_lan_bps": {
+                    "actual_total_bps": 420000000,
+                    "feasible": true,
+                    "highest_port_bps": 300000000,
+                    "max_per_port_bps": 1000000000,
+                    "max_total_bps": 10000000000
+                  },
+                  "satcom_bps": {
+                    "actual_bps": 2500000,
+                    "available_bps": 8000000,
+                    "emcon_silence": false,
+                    "emcon_violated": false,
+                    "free_bps": 5500000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "bps"
+              },
+              "mass_stability": {
+                "actual": 9515,
+                "capacity": 10000,
+                "committed": 9515,
+                "degraded_capacity": 10000,
+                "feasible": true,
+                "free": 485,
+                "local_limits": {
+                  "bay1_mass_kg": {
+                    "actual_kg": 5500,
+                    "feasible": true,
+                    "free_kg": 2500,
+                    "max_kg": 8000
+                  },
+                  "bay2_mass_kg": {
+                    "actual_kg": 3000,
+                    "feasible": true,
+                    "free_kg": 1000,
+                    "max_kg": 4000
+                  },
+                  "mass_margin_kg": {
+                    "actual_kg": 9515,
+                    "feasible": true,
+                    "free_kg": 485,
+                    "max_kg": 10000
+                  },
+                  "stability_equivalent_kg": {
+                    "actual_kg_eq": 9763.0,
+                    "feasible": true,
+                    "free_kg_eq": 2237.0,
+                    "max_kg_eq": 12000.0
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "kg"
+              },
+              "mast": {
+                "actual": 1,
+                "capacity": 1,
+                "committed": 1,
+                "degraded_capacity": 1,
+                "feasible": true,
+                "free": 0,
+                "local_limits": {
+                  "fixed_occupied": [
+                    "mast_1",
+                    "mast_2"
+                  ],
+                  "guest_allocatable_slots": 1,
+                  "guest_slot_mast_3": {
+                    "air_cooling_w": 500,
+                    "footprint_m2": 0.3,
+                    "mass_kg": 25,
+                    "max_air_cooling_w": 2000,
+                    "max_footprint_m2": 0.6,
+                    "max_mass_kg": 60,
+                    "owner": "G5:G5_MAST_ANTENNA"
+                  },
+                  "ship_reserved_slots": 2,
+                  "total_physical_slots": 3
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "positions": {
+                "actual": 3,
+                "capacity": 5,
+                "committed": 3,
+                "degraded_capacity": 5,
+                "feasible": true,
+                "free": 2,
+                "local_limits": {
+                  "bay1_20ft": [
+                    "G3:G3_AUV_CRADLE_BAY1_20FT"
+                  ],
+                  "bay1_a_10ft": [],
+                  "bay1_b_10ft": [],
+                  "bay1_max_mass_kg": 8000,
+                  "bay1_total_mass_kg": 5500,
+                  "bay2_10ft": [
+                    "G5:G5_COMPUTE_CONTAINER"
+                  ],
+                  "bay2_max_mass_kg": 4000,
+                  "bay2_total_mass_kg": 3000,
+                  "flight_deck": [
+                    "G4:G4_DRONE_VEHICLE"
+                  ],
+                  "hangar": [
+                    "G4:G4_HANGAR_STATION"
+                  ],
+                  "hangar_max_mass_kg": 1000,
+                  "hangar_roof": [],
+                  "hangar_total_mass_kg": 990,
+                  "stern_ramp": []
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "power": {
+                "actual": 19000,
+                "capacity": 200000,
+                "committed": 19000,
+                "degraded_capacity": 200000,
+                "feasible": true,
+                "free": 181000,
+                "local_limits": {
+                  "LINE_A_FWD": {
+                    "actual_w": 1000,
+                    "committed_w": 1000,
+                    "feasible": true,
+                    "free_w": 149000,
+                    "max_power_w": 150000
+                  },
+                  "LINE_B_AFT": {
+                    "actual_w": 18000,
+                    "committed_w": 18000,
+                    "feasible": true,
+                    "free_w": 132000,
+                    "max_power_w": 150000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "time": {
+                "capacity": 200.0,
+                "degraded_capacity": 200.0,
+                "feasible": true,
+                "local_limits": {
+                  "scenario_a_admission_deadline_ms": 30000.0,
+                  "scenario_b_arbitration_deadline_ms": 2000.0,
+                  "tick_deadline_ms": 200.0
+                },
+                "provenance": "MEASURED",
+                "source_time_ns": "0",
+                "unit": "ms"
+              }
+            },
+            "feasible": true,
+            "infeasible_protected_load": false,
+            "infeasible_reason": null,
+            "sim_time_s": 120,
+            "tick_seq": 6,
+            "vessel_mode": "QUIET_SURVEY"
+          },
+          "fallback_policy_applied": "CONSERVATIVE_30C_COOLING_CURVE_120KW",
+          "feed_name": "seawater_temp_c",
+          "feed_status": "STALE",
+          "plan_version": 5
+        },
+        "event_time_s": 120,
+        "phase": "SCENARIO_C_FEED_LOSS",
+        "plan_version": 5,
+        "sim_time_s": 120,
+        "tick": 6
+      }
+    ],
+    "scenario_c_event_semantic_sha256": "f9d4dff19cfff2596b6b31a8410c712a0252567b702d4e7dc1629611939eae5a",
+    "scenario_id": "SCENARIO_C_CREW_REGIMES"
+  }
+}

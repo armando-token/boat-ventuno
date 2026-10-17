@@ -1,0 +1,25 @@
+{
+  "generated_at_utc": "2026-10-17T19:08:17Z",
+  "git_commit": "2547e6deeec0699cd516c9d33add50240f8e4739",
+  "metrics": {
+    "cooling_limited_semantic_sha256": "f6492d8f2b25cbaaa2b0a6eef0ac27b97d2ffa1085ea4cb59739ab8803ab0081",
+    "cooling_limited_ticks_count": 91,
+    "errata_exceed_10000_kg_count": 3,
+    "max_tick_calc_ms": 0.6785,
+    "min_tick_calc_ms": 0.0403,
+    "rescue_primary_semantic_sha256": "51dbf78738321832dc17076e3c6b233a65b18d980be87fb27d1b8db13bccde6b",
+    "rescue_primary_ticks_count": 91,
+    "survey_primary_semantic_sha256": "efb110bab7d911c2d52693e30130c40ad693f12c6dd7da47e53bfa32aa0397ca",
+    "survey_primary_ticks_count": 91,
+    "total_decisions_count": 15
+  },
+  "run_id": "release_r8",
+  "runtime_telemetry": {
+    "hostname": "MacBook-Pro-7.local",
+    "pid": 18912,
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_version": "3.13.15",
+    "wall_elapsed_ms": 196.202
+  }
+}

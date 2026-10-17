@@ -1,55 +1,63 @@
 {
   "environment": {
     "hostname": "MacBook-Pro-7.local",
-    "pid": 15059,
+    "pid": 18921,
     "platform_machine": "arm64",
     "platform_system": "Darwin",
     "python_version": "3.13.15",
-    "wall_elapsed_ms": 136.338
+    "wall_elapsed_ms": 191.273
   },
   "files": {
     "decisions.json": {
-      "sha256": "cc354c674ab4cd1e1370ad058fc219f042c17a902daab0c58d823645fbe003a0",
-      "size_bytes": 137370
+      "sha256": "4452fec7446b206079d747e64b51d6995029af3655ab83b1a5e5a51bf4feb4fb",
+      "size_bytes": 165707
     },
     "junit.xml": {
-      "sha256": "272ebf8dbe7b10f93c1cca4c6f3346319bb6a351a644bedf0fd5502561a52181",
-      "size_bytes": 7303
+      "sha256": "4799a77ee1a1aa27f4555b7677d8cd1ecfd967b4acedc2f034036690c15c3034",
+      "size_bytes": 10047
+    },
+    "junit_ventuno_aarch64.xml": {
+      "sha256": "162c0bd20e00b807809b5720680c31420319142ff8e3e91a8cb872ff5be56157",
+      "size_bytes": 10038
     },
     "metrics_summary.json": {
-      "sha256": "c869e009ec4d26fb01a5d650359bc9917c49c84e782c7c2f80064b2d0765b611",
-      "size_bytes": 879
+      "sha256": "ff35c0169b76458e8602eaed137ddc27464023a3bc5370ebf0a39724f509b0d3",
+      "size_bytes": 938
     },
     "remote_parity.json": {
-      "sha256": "900f4e11bedecedeeedba3afcb37d0f85349bdf644e99defcc8bf8858d63ec59",
-      "size_bytes": 1081
+      "sha256": "c77ba2931829bb7bebd2ddb7ddfb7e2869888c5ae9c318f0da2d4870e10eeaf7",
+      "size_bytes": 1080
     },
     "replay_timeline.json": {
-      "sha256": "7b9070658cadbf210cedab1f4ce4165b6c4402d55a56b492d3634fe4d711b391",
-      "size_bytes": 316142
+      "sha256": "e2984d5ce9937fcbeb7bd1e73052e0527000b15f8fddd5186f9662fa05058107",
+      "size_bytes": 3112228
+    },
+    "requirements_matrix.csv": {
+      "sha256": "5de0742368cf5fc981e73775d1cd302e9a2716debfb26a56e1eaf5f733c05697",
+      "size_bytes": 18729
     }
   },
-  "generated_at_utc": "2026-10-17T17:35:22Z",
-  "git_commit": "cf8334d05d15bb93ce75ee2c6b66599b0f0a6424",
+  "generated_at_utc": "2026-10-17T19:08:20Z",
+  "git_commit": "2547e6deeec0699cd516c9d33add50240f8e4739",
   "junit_summary": {
     "errors": 0,
     "failures": 0,
     "skipped": 0,
-    "tests": 58
+    "tests": 77
   },
   "metrics": {
-    "cooling_limited_semantic_sha256": "950b355ebfaa7a8813894dafc134057eabd6f87e3b82d15b5145b3dcd0e1ece1",
+    "cooling_limited_semantic_sha256": "f6492d8f2b25cbaaa2b0a6eef0ac27b97d2ffa1085ea4cb59739ab8803ab0081",
     "cooling_limited_ticks_count": 91,
     "errata_exceed_10000_kg_count": 3,
-    "max_tick_calc_ms": 0.5793,
-    "min_tick_calc_ms": 0.0022,
-    "rescue_primary_semantic_sha256": "3ca8ad185a8f4439074d5bc1592a53e03ac579c26b0d6b6a46fc5dff32fb4971",
+    "max_tick_calc_ms": 0.6422,
+    "min_tick_calc_ms": 0.041,
+    "rescue_primary_semantic_sha256": "51dbf78738321832dc17076e3c6b233a65b18d980be87fb27d1b8db13bccde6b",
     "rescue_primary_ticks_count": 91,
-    "survey_primary_semantic_sha256": "02c7775ee191ca71ddd92def3ed76aa78c16699b4232345079bcd474404ddcfe",
+    "survey_primary_semantic_sha256": "efb110bab7d911c2d52693e30130c40ad693f12c6dd7da47e53bfa32aa0397ca",
     "survey_primary_ticks_count": 91,
     "total_decisions_count": 15
   },
   "run_id": "final_run",
   "schema_version": "1.0.0",
-  "semantic_sha256": "884777031e138d9fab7f308d400bcb909b7761a6dbe45a416dbc43e37a574c12"
+  "semantic_sha256": "185ef94ec07c1e3e03ddc5ddfa790c17f3af3df5535350b315709c1da2badae0"
 }

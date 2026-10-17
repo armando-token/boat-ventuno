@@ -1,24 +1,25 @@
 {
-  "generated_at_utc": "2026-10-17T17:35:22Z",
+  "generated_at_utc": "2026-10-17T19:08:20Z",
+  "git_commit": "2547e6deeec0699cd516c9d33add50240f8e4739",
   "metrics": {
-    "cooling_limited_semantic_sha256": "950b355ebfaa7a8813894dafc134057eabd6f87e3b82d15b5145b3dcd0e1ece1",
+    "cooling_limited_semantic_sha256": "f6492d8f2b25cbaaa2b0a6eef0ac27b97d2ffa1085ea4cb59739ab8803ab0081",
     "cooling_limited_ticks_count": 91,
     "errata_exceed_10000_kg_count": 3,
-    "max_tick_calc_ms": 0.5793,
-    "min_tick_calc_ms": 0.0022,
-    "rescue_primary_semantic_sha256": "3ca8ad185a8f4439074d5bc1592a53e03ac579c26b0d6b6a46fc5dff32fb4971",
+    "max_tick_calc_ms": 0.6422,
+    "min_tick_calc_ms": 0.041,
+    "rescue_primary_semantic_sha256": "51dbf78738321832dc17076e3c6b233a65b18d980be87fb27d1b8db13bccde6b",
     "rescue_primary_ticks_count": 91,
-    "survey_primary_semantic_sha256": "02c7775ee191ca71ddd92def3ed76aa78c16699b4232345079bcd474404ddcfe",
+    "survey_primary_semantic_sha256": "efb110bab7d911c2d52693e30130c40ad693f12c6dd7da47e53bfa32aa0397ca",
     "survey_primary_ticks_count": 91,
     "total_decisions_count": 15
   },
   "run_id": "final_run",
   "runtime_telemetry": {
     "hostname": "MacBook-Pro-7.local",
-    "pid": 15059,
+    "pid": 18921,
     "platform_machine": "arm64",
     "platform_system": "Darwin",
     "python_version": "3.13.15",
-    "wall_elapsed_ms": 136.338
+    "wall_elapsed_ms": 191.273
   }
 }

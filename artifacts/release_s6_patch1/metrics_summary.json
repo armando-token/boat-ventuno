@@ -1,12 +1,12 @@
 {
-  "generated_at_utc": "2026-10-17T21:29:33Z",
-  "git_commit": "96efccb4d13bf8243032a307b71f911346845942",
+  "generated_at_utc": "2026-10-17T22:06:47Z",
+  "git_commit": "c3989e01a566b52837a37f85bbedf17ac2138f60",
   "metrics": {
     "cooling_limited_semantic_sha256": "510d212ae57801c7c709a562055438ba64dac20eb1c8aa786c430c38e90e5309",
     "cooling_limited_ticks_count": 91,
     "errata_exceed_10000_kg_count": 3,
-    "max_tick_calc_ms": 0.6415,
-    "min_tick_calc_ms": 0.0455,
+    "max_tick_calc_ms": 0.6663,
+    "min_tick_calc_ms": 0.0424,
     "rescue_primary_semantic_sha256": "be2977c84fcf9709d34d256c971c78effaffd780dfa0d3f02187eb1b159fca0f",
     "rescue_primary_ticks_count": 91,
     "survey_primary_semantic_sha256": "e3e0bbed04dc6297bce6af303ad7a22ebe5af1292b1b05cd947fd0a76b851f82",
@@ -16,10 +16,10 @@
   "run_id": "release_s6_patch1",
   "runtime_telemetry": {
     "hostname": "MacBook-Pro-7.local",
-    "pid": 25268,
+    "pid": 26888,
     "platform_machine": "arm64",
     "platform_system": "Darwin",
     "python_version": "3.13.15",
-    "wall_elapsed_ms": 208.963
+    "wall_elapsed_ms": 192.338
   }
 }

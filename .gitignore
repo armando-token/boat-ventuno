@@ -1,0 +1,35 @@
+# Virtual environments, caches & build outputs
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.egg-info/
+src/*.egg-info/
+dist/
+build/
+.DS_Store
+**/.DS_Store
+.python-version
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+/tmp_*/
+
+# Legacy prototypes & old handoff reproductions (kept locally on disk, excluded from GitHub)
+viz3d/
+research/
+v5.1*/
+
+# Internal plans, megaplans, audit logs & historical baselines (kept locally on disk, excluded from GitHub)
+*MEGAPLAN*
+*PLAN_*
+*INFORME*
+informe.md
+DEVELOPMENT_LOG.md
+STAGE_STATUS.json
+CORRECTIVE_STATUS.json
+FINAL_STATUS.md
+docs/CORRECTION_LOG.md
+artifacts/baseline_c0_audited/

@@ -1,0 +1,169 @@
+schema_version: "sdv-guest-manifest/1.0"
+guest_id: "G1"
+name: "G1 — Passive Radio & Meteo Mast Sensor"
+category: "PASSIVE_RADIO_SENSOR"
+safety_critical: false
+default_mode: "NOMINAL"
+can_buffer_offline: true
+
+subcomponents:
+  - subcomponent_id: "G1_MAST_SENSOR_HEAD"
+    part_of: "G1"
+    name: "Passive Radio & Meteo Mast Array"
+    mass_kg: 45
+    footprint_m2: 0.50
+    wind_area_m2: 0.50
+    preferred_positions: ["mast_3"]
+    allowed_positions: ["mast_3"]
+    cooling_route: "MAST_AIR_2KW"
+    requires_water_manifold: false
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      mass_kg: "OFFICIAL_BRIEF"
+      footprint_m2: "OFFICIAL_BRIEF"
+      wind_area_m2: "OFFICIAL_BRIEF"
+      preferred_positions: "OFFICIAL_BRIEF"
+      cooling_route: "OFFICIAL_BRIEF"
+
+modes:
+  NOMINAL:
+    description: "Continuous passive RF & meteorological sensing on mast (1.5 kW air-cooled, 50 Mbit/s LAN, 200 kbit/s SATCOM)"
+    min_power_w: 1500
+    nominal_power_w: 1500
+    sustained_power_w: 1500
+    sustained_duration_s: 3600
+    peak_power_w: 1500
+    peak_duration_s: 30
+    cooling_water_w: 0
+    cooling_air_mast_w: 1500
+    compute_cores: 2
+    compute_ram_mib: 4096
+    compute_accelerators: 0
+    shared_storage_gb: 200
+    backbone_lan_bps: 50000000
+    satcom_bps: 200000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 30
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 1.0
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      cooling_air_mast_w: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      satcom_bps: "OFFICIAL_BRIEF"
+      forbids_emcon_silence: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+      compute_accelerators: "ASSUMED"
+      shared_storage_gb: "ASSUMED"
+  RADAR_DEGRADED_30PCT:
+    description: "Passive RF sensing with 30% capability loss while own ship radar transmits nearby"
+    min_power_w: 1500
+    nominal_power_w: 1500
+    sustained_power_w: 1500
+    sustained_duration_s: 3600
+    peak_power_w: 1500
+    peak_duration_s: 30
+    cooling_water_w: 0
+    cooling_air_mast_w: 1500
+    compute_cores: 2
+    compute_ram_mib: 4096
+    compute_accelerators: 0
+    shared_storage_gb: 200
+    backbone_lan_bps: 50000000
+    satcom_bps: 200000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 30
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.70
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      capability_retention_ratio: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      satcom_bps: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+  STANDBY:
+    description: "Low-power mast standby mode"
+    min_power_w: 250
+    nominal_power_w: 300
+    sustained_power_w: 300
+    sustained_duration_s: 3600
+    peak_power_w: 400
+    peak_duration_s: 10
+    cooling_water_w: 0
+    cooling_air_mast_w: 300
+    compute_cores: 1
+    compute_ram_mib: 2048
+    compute_accelerators: 0
+    shared_storage_gb: 200
+    backbone_lan_bps: 5000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 30
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.35
+    value_origin: "ASSUMED"
+
+installation:
+  port_only: true
+  min_crew_required: 2
+  install_time_min: 180
+  remove_time_min: 180
+  sea_install_max_wind_kn: 0
+  sea_install_min_speed_kn: 0.0
+  sea_install_max_speed_kn: 0.0
+
+vehicle_replacement:
+  supported_at_sea: false
+  min_crew_required: 0
+  swap_duration_min: 0
+  min_speed_kn: 0.0
+  max_speed_kn: 0.0
+  max_wind_kn: 0
+  max_sea_state: 0
+
+ship_state_constraints:
+  min_speed_kn_for_operation: 0.0
+  max_speed_kn_for_operation: 25.0
+  max_wind_kn_for_operation: 50
+  max_sea_state_for_operation: 6
+  requires_heading_into_wind_for_launch_recovery: false
+  forbids_deck_machinery_while_active: false
+  uses_deck_machinery: false
+  requires_stern_ramp_free: false
+  acoustic_hold_handshake_min_s: 0
+  acoustic_hold_handshake_max_s: 0
+  acoustic_hold_default_s: 0
+  low_battery_threshold_pct: null
+  emergency_landing_deadline_s: null
+  max_flight_endurance_min: null
+  radar_tx_degradation_ratio: 0.30
+
+dependencies:
+  requires_guests: []
+  excludes_guests: []
+  conditional_excludes: []
+
+mission_capabilities:
+  surface_surveillance: 85.0
+  wideband_spectrum_monitoring: 80.0
+  environmental_sensing: 75.0
+  flight_weather_support: 70.0
+  hydrographic_survey: 15.0

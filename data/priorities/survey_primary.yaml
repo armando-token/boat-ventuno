@@ -1,0 +1,32 @@
+schema_version: "sdv-priority-profile/1.0"
+priority_profile_id: "SURVEY_PRIMARY"
+name: "Hydrographic Survey Primary Priority Profile"
+description: "Maximizes seabed survey continuity (G3) while strictly honoring physical life/vehicle safety limits (G4 battery <20% 12-min landing deadline). Uses minimal recoverable acoustic pause for G3."
+capability_weights:
+  hydrographic_survey: 100.0
+  seabed_anomaly_detection: 90.0
+  environmental_sensing: 70.0
+  water_quality_monitoring: 65.0
+  subsea_intervention: 60.0
+  hull_and_cable_inspection: 55.0
+  maritime_sar_rescue: 50.0
+  surface_surveillance: 40.0
+  flight_weather_support: 45.0
+  wideband_spectrum_monitoring: 30.0
+  salvage_assistance: 25.0
+guest_priority_rank:
+  G3: 1
+  G1: 2
+  G4: 3
+  G6: 4
+  G2: 5
+  G5: 6
+arbitration_policy:
+  survey_vs_recovery_strategy: "MINIMAL_RECOVERABLE_PAUSE"
+  pre_reserve_recovery_power: false
+  max_acceptable_survey_pause_min: 16
+  tie_break_order: "HIGHER_CAPABILITY_SCORE_THEN_LEXICOGRAPHIC"
+degradation_policy:
+  prefer_mode_downgrade_before_shed: true
+  protect_uninterruptible_tasks: true
+  shed_order_lowest_priority_first: ["G5", "G2", "G6", "G3", "G1", "G4"]

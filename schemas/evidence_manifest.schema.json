@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/evidence_manifest.schema.json",
+  "title": "SDV Fail-Closed Evidence Artifact Manifest Schema (B8)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "build_commit",
+    "source_semantic_sha256",
+    "data_semantic_sha256",
+    "observed_platform",
+    "command_executed",
+    "return_code",
+    "junit_summary",
+    "gate_results",
+    "files"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "sdv-evidence-manifest/1.0" },
+    "run_id": { "type": "string", "minLength": 3 },
+    "build_commit": { "type": "string", "minLength": 7 },
+    "source_semantic_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "data_semantic_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "observed_platform": {
+      "type": "object",
+      "required": ["hostname", "os", "arch", "python_version", "started_utc", "finished_utc", "elapsed_ms"],
+      "properties": {
+        "hostname": { "type": "string", "minLength": 1 },
+        "os": { "type": "string", "minLength": 1 },
+        "arch": { "type": "string", "minLength": 1 },
+        "python_version": { "type": "string", "minLength": 1 },
+        "started_utc": { "type": "string", "minLength": 10 },
+        "finished_utc": { "type": "string", "minLength": 10 },
+        "elapsed_ms": { "type": "number", "minimum": 0.01 }
+      }
+    },
+    "command_executed": { "type": "string", "minLength": 3 },
+    "return_code": { "type": "integer" },
+    "junit_summary": {
+      "type": "object",
+      "required": ["total", "passed", "failed", "errors", "skipped", "testcases"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 1 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "errors": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 },
+        "testcases": { "type": "object", "minProperties": 1 }
+      }
+    },
+    "gate_results": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path", "size_bytes", "sha256"],
+        "properties": {
+          "path": { "type": "string" },
+          "size_bytes": { "type": "integer", "minimum": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    }
+  }
+}

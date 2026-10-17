@@ -1,0 +1,42 @@
+schema_version: "sdv-scenario/1.0"
+scenario_id: "SCENARIO_B_CHARGING_DEFICIT_105KW"
+name: "Scenario B Variant — Active 105 kW vs 100 kW Deficit with G3 in Uninterruptible 25 kW Charge"
+scenario_class: "DECLARED_VARIANT"
+seed: 20261018
+initial_state:
+  sim_time_s: 700
+  vessel_mode: "UAV_RECOVERY_HEADING"
+  ship_speed_kn: 7
+  wind_kn: 22
+  sea_state: 3
+  seawater_temp_c: 24.0
+  crew_count: 14
+  deck_clear: true
+  power_reserve_w: 200000
+  cooling_loop_degraded: false
+  installed_guests:
+    - guest_id: "G3"
+      mode: "RECHARGE_CRADLE"
+      placements:
+        G3_AUV_CRADLE_BAY1_20FT: "bay1"
+      compute_node: "node_1"
+    - guest_id: "G4"
+      mode: "LAUNCH_RECOVERY_OPTICS"
+      battery_pct: 15.0
+      placements:
+        G4_DRONE_VEHICLE: "flight_deck"
+        G4_HANGAR_STATION: "hangar"
+      compute_node: "node_3"
+    - guest_id: "G5"
+      mode: "FULL_SPECTRUM"
+      placements:
+        G5_COMPUTE_CONTAINER: "bay2"
+        G5_MAST_ANTENNA: "mast_3"
+      compute_node: "node_2"
+events:
+  - seq: 1
+    sim_time_s: 720
+    priority: 1
+    event_type: "GENERATOR_LOSS"
+    new_power_reserve_w: 100000
+    description: "Minute 12: Generator loss drops reserve to 100 kW while G3 is actively charging at 25 kW (uninterruptible), G4 recovering at 35 kW (safety-critical), and G5 at 45 kW -> 105 kW instantaneous actual load > 100 kW."

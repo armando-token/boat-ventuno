@@ -1,0 +1,79 @@
+{
+  "schema_version": "sdv-hardware-inventory/1.0",
+  "observed_at_utc": "2026-10-17T07:03:00Z",
+  "observed_at_pdt": "2026-10-17T00:03:00-07:00",
+  "host_macbook_pro": {
+    "status": "PASS",
+    "model_identifier": "MacBookPro18,1",
+    "architecture": "arm64",
+    "os_product_name": "macOS",
+    "os_version": "27.0.1",
+    "os_build": "26A434",
+    "ram_total_bytes": 17179869184,
+    "ram_total_gib": 16.0,
+    "xcode_cli_tools": "/Library/Developer/CommandLineTools",
+    "homebrew_path": "/opt/homebrew/bin/brew",
+    "python_executable": "/opt/anaconda3/bin/python3",
+    "python_venv_executable": ".venv/bin/python",
+    "python_version": "3.13.15",
+    "git_version": "2.55.0",
+    "adb_version": "1.0.41 (35.0.2-12147458)"
+  },
+  "usb_attached_devices_on_macbook_pro": {
+    "serial_port_device": "/dev/cu.usbmodem1C49DF7200002",
+    "usb_product_name": "MEGAHUNT VCPHID",
+    "usb_vendor_name": "MEGAHUNT Vctronics",
+    "id_vendor_dec": 1155,
+    "id_vendor_hex": "0x0483",
+    "id_product_dec": 22352,
+    "id_product_hex": "0x5750",
+    "usb_serial_number": "1C49DF720000",
+    "adb_usb_devices": [],
+    "ventuno_q_usb_sbc_status": "BLOCKED_CONNECTION",
+    "ventuno_q_usb_sbc_reason": "Owner-declared Ventuno Q labels (ABX00181, 55DMV.Q02CB.DGJBV, T088NB, COO:TW) recorded. On MacBook Pro USB bus, only /dev/cu.usbmodem1C49DF7200002 (MEGAHUNT VCPHID) enumerates and no USB ADB SBC device is present (5 V laptop USB alone does not power the Ventuno Q Linux SBC per Arduino documentation §2.1)."
+  },
+  "remote_linux_edge_board_ssh": {
+    "connection_status": "PASS",
+    "transport": "SSH over LAN (alias 'ardu' / 'ventuno' -> training06 / 10.0.0.130:22)",
+    "hostname": "training06",
+    "device_tree_model": "Qualcomm Technologies, Inc. Monaco Monza addons",
+    "device_tree_compatible": [
+      "arduino,monza",
+      "qcom,monaco-monza",
+      "qcom,qcs8300"
+    ],
+    "hardware_identity_note": "The live Linux aarch64 board reachable at 10.0.0.130 (alias 'ardu' / 'ventuno' / 'training06') is an official Arduino Ventuno Q (Qualcomm QCS8300 Monza, 8-core aarch64: 4× Cortex-A78C + 4× Cortex-A55, 14 GiB RAM). It executes the remote Linux deployment profile of sdv-resource-governor with verified code SHA-256 and semantic campaign parity (DEP-01, DEP-02, DEP-03).",
+    "architecture": "aarch64",
+    "os_pretty_name": "Ubuntu 24.04.4 LTS (Noble Numbat)",
+    "os_version_id": "24.04",
+    "debian_version_full": "Ubuntu 24.04.4 LTS",
+    "kernel": "6.8.0-1080-qcom #85-Ubuntu SMP PREEMPT_DYNAMIC Thu Jul  9 20:29:30 UTC 2026 aarch64",
+    "cpu_model": "Qualcomm QCS8300 Monza (8 cores: 4× Cortex-A78C + 4× Cortex-A55)",
+    "python_version": "3.12.3",
+    "isolated_venv_path": "/home/arduino/sdv-resource-governor/.venv",
+    "ram_total_mib": 14336,
+    "ram_available_mib_at_inventory": 13312,
+    "swap_total_mib": 0,
+    "disk_root": {
+      "device": "/dev/mmcblk0p71",
+      "size": "55G",
+      "used": "16G",
+      "avail": "38G",
+      "use_pct": "29%"
+    },
+    "disk_home": {
+      "device": "/dev/mmcblk0p71",
+      "mount": "/home/arduino",
+      "size": "55G",
+      "used": "16G",
+      "avail": "38G",
+      "use_pct": "29%"
+    },
+    "arduino_packages_observed": {
+      "arduino_cli": "available (/usr/bin/arduino-cli)",
+      "arduino_app_cli": "available (/usr/bin/arduino-app-cli)"
+    },
+    "npu_accessibility": null,
+    "npu_accessibility_reason": "No NPU runtime or model is used or inferred for the deterministic Resource Governor track (NS-17/NS-18)."
+  }
+}

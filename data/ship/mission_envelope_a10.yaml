@@ -1,0 +1,84 @@
+# data/ship/mission_envelope_a10.yaml — Mission Envelope de 14 Días (Anexo A.10)
+schema_version: "sdv-mission-envelope/1.0"
+envelope_id: "A10_14DAY_OFFSHORE_ENVELOPE"
+mission_duration_days: 14
+port_access_during_mission: false
+
+envelope_states:
+  - state_id: "PIER_COMFORT_16C"
+    description: "Condición cómoda en muelle (NO sustituye la validación del envelope de misión)"
+    is_pier_only: true
+    seawater_temp_c: 16.0
+    vessel_mode: "PORT_OPS"
+    ship_speed_kn: 0
+    wind_kn: 8
+    sea_state: 1
+    power_reserve_w: 220000
+    cooling_loop_degraded: false
+    satcom_available_bps: 8000000
+    emcon_silence: false
+
+  - state_id: "NOMINAL_CRUISE_24C"
+    description: "Crucero nominal en mar abierto con agua a 24 °C (C(24) ≈ 133.333 kW)"
+    is_pier_only: false
+    seawater_temp_c: 24.0
+    vessel_mode: "CRUISE"
+    ship_speed_kn: 10
+    wind_kn: 16
+    sea_state: 3
+    power_reserve_w: 200000
+    cooling_loop_degraded: false
+    satcom_available_bps: 6000000
+    emcon_silence: false
+
+  - state_id: "HOT_WATER_SURVEY_30C"
+    description: "Operación lenta / survey con agua tropical al límite de 30 °C (C(30) = 120 kW)"
+    is_pier_only: false
+    seawater_temp_c: 30.0
+    vessel_mode: "QUIET_SURVEY"
+    ship_speed_kn: 3
+    wind_kn: 18
+    sea_state: 3
+    power_reserve_w: 200000
+    cooling_loop_degraded: false
+    satcom_available_bps: 4000000
+    emcon_silence: false
+
+  - state_id: "HIGH_SEA_STATE_5_WIND_28KN"
+    description: "Mar gruesa (Sea State 5, viento 28 kn): los equipos instalados deben permanecer seguros; operaciones de vuelo quedan condicionadas"
+    is_pier_only: false
+    seawater_temp_c: 26.0
+    vessel_mode: "HEAVY_WEATHER_TRANSIT"
+    ship_speed_kn: 7
+    wind_kn: 28
+    sea_state: 5
+    power_reserve_w: 200000
+    cooling_loop_degraded: false
+    satcom_available_bps: 2000000
+    emcon_silence: false
+
+  - state_id: "DEGRADED_GEN_LOSS_100KW_30C"
+    description: "Fallo de un generador (reserva cae de 200 kW a 100 kW) con agua a 30 °C"
+    is_pier_only: false
+    seawater_temp_c: 30.0
+    vessel_mode: "DEGRADED_POWER"
+    ship_speed_kn: 6
+    wind_kn: 22
+    sea_state: 4
+    power_reserve_w: 100000
+    cooling_loop_degraded: false
+    satcom_available_bps: 2000000
+    emcon_silence: false
+
+  - state_id: "DEGRADED_COOLING_LOOP_72KW_30C"
+    description: "Fallo parcial de loop de refrigeración (-40%) a 30 °C (capacidad térmica cae a 72 kW con potencia en 100 kW)"
+    is_pier_only: false
+    seawater_temp_c: 30.0
+    vessel_mode: "DEGRADED_THERMAL"
+    ship_speed_kn: 5
+    wind_kn: 20
+    sea_state: 3
+    power_reserve_w: 100000
+    cooling_loop_degraded: true
+    satcom_available_bps: 2000000
+    emcon_silence: false

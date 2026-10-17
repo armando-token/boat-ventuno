@@ -1,0 +1,190 @@
+schema_version: "sdv-guest-manifest/1.0"
+guest_id: "G5"
+name: "G5 — Emergency Comms & Edge Compute Node"
+category: "EMERGENCY_COMMS_EDGE_COMPUTE"
+safety_critical: false
+default_mode: "FULL_SPECTRUM"
+can_buffer_offline: true
+
+subcomponents:
+  - subcomponent_id: "G5_COMPUTE_CONTAINER"
+    part_of: "G5"
+    name: "10-ft Shielded Emergency Comms & Edge Compute Container"
+    mass_kg: 3000
+    footprint_m2: 14.9
+    wind_area_m2: 6.0
+    preferred_positions: ["bay2", "bay1_a", "bay1_b"]
+    allowed_positions: ["bay2", "bay1_a", "bay1_b"]
+    cooling_route: "CHILLED_WATER_LOOP"
+    requires_water_manifold: true
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      mass_kg: "OFFICIAL_BRIEF"
+      preferred_positions: "OFFICIAL_BRIEF"
+      allowed_positions: "OFFICIAL_BRIEF"
+      cooling_route: "OFFICIAL_BRIEF"
+      footprint_m2: "ASSUMED"
+      wind_area_m2: "ASSUMED"
+  - subcomponent_id: "G5_MAST_ANTENNA"
+    part_of: "G5"
+    name: "High-Gain Emergency Comms Antenna (Mast Slot or Hangar Roof x1.2 with Drone Clearance)"
+    mass_kg: 25
+    footprint_m2: 0.30
+    wind_area_m2: 0.30
+    preferred_positions: ["mast_3", "hangar_roof"]
+    allowed_positions: ["mast_3", "hangar_roof"]
+    cooling_route: "MAST_AIR_2KW"
+    requires_water_manifold: false
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      mass_kg: "OFFICIAL_BRIEF"
+      footprint_m2: "OFFICIAL_BRIEF"
+      wind_area_m2: "OFFICIAL_BRIEF"
+      preferred_positions: "OFFICIAL_BRIEF"
+      allowed_positions: "OFFICIAL_BRIEF"
+      cooling_route: "OFFICIAL_BRIEF"
+
+modes:
+  FULL_SPECTRUM:
+    description: "Full emergency comms & edge compute node (45 kW continuous: 43.8 kW water + 1.2 kW antenna air; 1 Gbit/s LAN, 6 Mbit/s SATCOM)"
+    min_power_w: 45000
+    nominal_power_w: 45000
+    sustained_power_w: 45000
+    sustained_duration_s: 3600
+    peak_power_w: 45000
+    peak_duration_s: 60
+    cooling_water_w: 43800
+    cooling_air_mast_w: 1200
+    compute_cores: 8
+    compute_ram_mib: 32768
+    compute_accelerators: 1
+    shared_storage_gb: 4000
+    backbone_lan_bps: 1000000000
+    satcom_bps: 6000000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 60
+    forbids_emcon_silence: true
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 1.0
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      satcom_bps: "OFFICIAL_BRIEF"
+      forbids_emcon_silence: "OFFICIAL_BRIEF"
+      cooling_water_w: "ASSUMED"
+      cooling_air_mast_w: "ASSUMED"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+      compute_accelerators: "ASSUMED"
+      shared_storage_gb: "ASSUMED"
+  DEGRADED_70PCT_LOSS:
+    description: "Low-power degraded mode (8 kW total: 7.5 kW water + 0.5 kW antenna air) with 70% capability loss (30% retention)"
+    min_power_w: 8000
+    nominal_power_w: 8000
+    sustained_power_w: 8000
+    sustained_duration_s: 3600
+    peak_power_w: 8000
+    peak_duration_s: 30
+    cooling_water_w: 7500
+    cooling_air_mast_w: 500
+    compute_cores: 4
+    compute_ram_mib: 16384
+    compute_accelerators: 0
+    shared_storage_gb: 4000
+    backbone_lan_bps: 300000000
+    satcom_bps: 1500000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 60
+    forbids_emcon_silence: true
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.30
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      capability_retention_ratio: "OFFICIAL_BRIEF"
+      forbids_emcon_silence: "OFFICIAL_BRIEF"
+      cooling_water_w: "ASSUMED"
+      cooling_air_mast_w: "ASSUMED"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+  STANDBY:
+    description: "Container warm standby (2 kW, zero RF emission)"
+    min_power_w: 1500
+    nominal_power_w: 2000
+    sustained_power_w: 2000
+    sustained_duration_s: 3600
+    peak_power_w: 2500
+    peak_duration_s: 15
+    cooling_water_w: 2000
+    cooling_air_mast_w: 0
+    compute_cores: 2
+    compute_ram_mib: 8192
+    compute_accelerators: 0
+    shared_storage_gb: 4000
+    backbone_lan_bps: 10000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 60
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.05
+    value_origin: "ASSUMED"
+
+installation:
+  port_only: true
+  min_crew_required: 4
+  install_time_min: 360
+  remove_time_min: 360
+  antenna_min_crew_required: 2
+  antenna_install_time_min: 120
+  sea_install_max_wind_kn: 0
+  sea_install_min_speed_kn: 0.0
+  sea_install_max_speed_kn: 0.0
+
+vehicle_replacement:
+  supported_at_sea: false
+  min_crew_required: 0
+  swap_duration_min: 0
+  min_speed_kn: 0.0
+  max_speed_kn: 0.0
+  max_wind_kn: 0
+  max_sea_state: 0
+
+ship_state_constraints:
+  min_speed_kn_for_operation: 0.0
+  max_speed_kn_for_operation: 25.0
+  max_wind_kn_for_operation: 45
+  max_sea_state_for_operation: 6
+  requires_heading_into_wind_for_launch_recovery: false
+  forbids_deck_machinery_while_active: false
+  uses_deck_machinery: false
+  requires_stern_ramp_free: false
+  acoustic_hold_handshake_min_s: 0
+  acoustic_hold_handshake_max_s: 0
+  acoustic_hold_default_s: 0
+  low_battery_threshold_pct: null
+  emergency_landing_deadline_s: null
+  max_flight_endurance_min: null
+
+dependencies:
+  requires_guests: []
+  excludes_guests: []
+  conditional_excludes: []
+
+mission_capabilities:
+  maritime_sar_rescue: 90.0
+  wideband_spectrum_monitoring: 95.0
+  surface_surveillance: 85.0
+  hydrographic_survey: 15.0

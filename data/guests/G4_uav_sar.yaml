@@ -1,0 +1,202 @@
+schema_version: "sdv-guest-manifest/1.0"
+guest_id: "G4"
+name: "G4 — VTOL Rescue Drone + Hangar"
+category: "UAV_SAR_SURVEILLANCE"
+safety_critical: false
+default_mode: "LAUNCH_RECOVERY_OPTICS"
+can_buffer_offline: false
+
+subcomponents:
+  - subcomponent_id: "G4_DRONE_VEHICLE"
+    part_of: "G4"
+    name: "VTOL Rescue Airframe & EO/IR Payload"
+    mass_kg: 140
+    footprint_m2: 4.5
+    wind_area_m2: 1.8
+    preferred_positions: ["flight_deck", "hangar"]
+    allowed_positions: ["flight_deck", "hangar"]
+    cooling_route: "PASSIVE_NO_COOLING"
+    requires_water_manifold: false
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      mass_kg: "OFFICIAL_BRIEF"
+      preferred_positions: "OFFICIAL_BRIEF"
+      allowed_positions: "OFFICIAL_BRIEF"
+      footprint_m2: "ASSUMED"
+      wind_area_m2: "ASSUMED"
+  - subcomponent_id: "G4_HANGAR_STATION"
+    part_of: "G4"
+    name: "Hangar Charging, Arrest Gear & Optical Landing Control Station (Organizer Errata: 850 kg)"
+    mass_kg: 850
+    footprint_m2: 12.0
+    wind_area_m2: 5.0
+    preferred_positions: ["hangar"]
+    allowed_positions: ["hangar"]
+    cooling_route: "CHILLED_WATER_LOOP"
+    requires_water_manifold: true
+    value_origin: "ORGANIZER_ERRATA"
+    field_origins:
+      mass_kg: "ORGANIZER_ERRATA"
+      preferred_positions: "OFFICIAL_BRIEF"
+      allowed_positions: "OFFICIAL_BRIEF"
+      cooling_route: "OFFICIAL_BRIEF"
+      footprint_m2: "ASSUMED"
+      wind_area_m2: "ASSUMED"
+
+modes:
+  LAUNCH_RECOVERY_OPTICS:
+    description: "35 kW sustained for 20 min (1200 s) charging / launch-recovery peak; LOS radio 20 Mbit/s video"
+    min_power_w: 35000
+    nominal_power_w: 35000
+    sustained_power_w: 35000
+    sustained_duration_s: 1200
+    peak_power_w: 35000
+    peak_duration_s: 1200
+    cooling_water_w: 35000
+    cooling_air_mast_w: 0
+    compute_cores: 8
+    compute_ram_mib: 32768
+    compute_accelerators: 1
+    shared_storage_gb: 3000
+    backbone_lan_bps: 20000000
+    satcom_bps: 1500000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 1200
+    min_cooldown_s: 60
+    forbids_emcon_silence: true
+    requires_deck_clear: true
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 1.0
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      sustained_duration_s: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      forbids_emcon_silence: "OFFICIAL_BRIEF"
+      requires_deck_clear: "OFFICIAL_BRIEF"
+      satcom_bps: "ASSUMED"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+      compute_accelerators: "ASSUMED"
+  FLIGHT_PATROL:
+    description: "Post-charge / active flight tracking & LOS video link (10 kW continuous after 20-min 35 kW phase, 5-20 Mbit/s video)"
+    min_power_w: 10000
+    nominal_power_w: 10000
+    sustained_power_w: 10000
+    sustained_duration_s: 3600
+    peak_power_w: 10000
+    peak_duration_s: 30
+    cooling_water_w: 10000
+    cooling_air_mast_w: 0
+    compute_cores: 8
+    compute_ram_mib: 32768
+    compute_accelerators: 1
+    shared_storage_gb: 3000
+    backbone_lan_bps: 20000000
+    satcom_bps: 1000000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 300
+    min_cooldown_s: 60
+    forbids_emcon_silence: true
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.90
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      forbids_emcon_silence: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+      compute_accelerators: "ASSUMED"
+  STANDBY:
+    description: "Drone secured in hangar; 2 kW standby, zero RF emission in silence"
+    min_power_w: 2000
+    nominal_power_w: 2000
+    sustained_power_w: 2000
+    sustained_duration_s: 3600
+    peak_power_w: 2000
+    peak_duration_s: 15
+    cooling_water_w: 2000
+    cooling_air_mast_w: 0
+    compute_cores: 2
+    compute_ram_mib: 8192
+    compute_accelerators: 0
+    shared_storage_gb: 3000
+    backbone_lan_bps: 0
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 60
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.15
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      satcom_bps: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+
+installation:
+  port_only: true
+  min_crew_required: 4
+  install_time_min: 240
+  remove_time_min: 240
+  sea_install_max_wind_kn: 0
+  sea_install_min_speed_kn: 0.0
+  sea_install_max_speed_kn: 0.0
+
+vehicle_replacement:
+  supported_at_sea: true
+  min_crew_required: 3
+  swap_duration_min: 30
+  min_speed_kn: 4.0
+  max_speed_kn: 8.0
+  max_wind_kn: 20
+  max_sea_state: 3
+
+ship_state_constraints:
+  min_speed_kn_for_operation: 5.0
+  max_speed_kn_for_operation: 12.0
+  max_wind_kn_for_operation: 25
+  max_sea_state_for_operation: 4
+  requires_heading_into_wind_for_launch_recovery: true
+  forbids_deck_machinery_while_active: false
+  uses_deck_machinery: true
+  requires_stern_ramp_free: true
+  acoustic_hold_handshake_min_s: 0
+  acoustic_hold_handshake_max_s: 0
+  acoustic_hold_default_s: 0
+  low_battery_threshold_pct: 20.0
+  emergency_landing_deadline_s: 720
+  max_flight_endurance_min: 90
+
+dependencies:
+  requires_guests: []
+  excludes_guests: []
+  conditional_excludes:
+    - other_guest_id: "G3"
+      when_self_modes: ["LAUNCH_RECOVERY_OPTICS", "RECOVERY_APPROACH"]
+      when_other_modes: ["SURVEY_QUIET"]
+      reason: "G4 recovery requires turning into wind at 5-12 kn and active flight-deck machinery, which breaks G3 3-kn quiet acoustic survey"
+    - other_guest_id: "G2"
+      when_self_modes: ["LAUNCH_RECOVERY_OPTICS", "RECOVERY_APPROACH"]
+      when_other_modes: ["INSPECTION_ACTIVE"]
+      reason: "G4 launch/recovery requires clear deck and excludes concurrent G2 winch operation"
+
+mission_capabilities:
+  maritime_sar_rescue: 100.0
+  surface_surveillance: 65.0
+  hydrographic_survey: 15.0

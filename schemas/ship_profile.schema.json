@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/ship_profile.schema.json",
+  "title": "SDV Ship Profile Schema",
+  "type": "object",
+  "required": ["schema_version", "vessel_id", "power", "cooling", "positions", "mass_and_stability", "data_links", "compute_rack", "timing_deadlines", "crew_regimes"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "sdv-ship-profile/1.0" },
+    "vessel_id": { "type": "string" }
+  }
+}

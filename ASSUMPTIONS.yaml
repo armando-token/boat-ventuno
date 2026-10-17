@@ -1,0 +1,140 @@
+# ASSUMPTIONS.yaml — Supuestos Explícitos, Unidades, Justificación y Referencias al Código
+schema_version: "1.0"
+updated_utc: "2026-10-17T10:00:00Z"
+
+official_sources_status:
+  brief_pdf_12_pages:
+    expected_filename: "[n3 DMM] Software-Defined-Vessel_SHORT..pdf"
+    expected_sha256: "0d254ddd547beead36731a82748421b49c45edaba64adacd7683b9a404875646"
+    local_presence: "EXTRACTED_VERBATIM_IN_ANNEX_A_AND_B"
+    extracted_specification_source: "/Users/armandosilva/DATA/Hack-Ardui/MEGAPLAN_CORRECTIVO_SDV_PARA_ANTIGRAVITY.md"
+  organizer_errata:
+    source: "Organizer update transmitted in Brief Errata & Megaplan Annex B"
+    overrides_file: "data/overrides/brief_errata.yaml"
+    g4_hangar_mass_kg: 850
+    g4_drone_mass_kg: 140
+    g4_total_mass_kg: 990
+    combinations_of_four_exceeding_10t: 3
+    none_of_g1_to_g5_is_safety_critical_by_design: true
+
+assumptions:
+  - id: ASM-01
+    parameter: "G1..G5 detailed per-mode resource profiles and per-field provenance (field_origins)"
+    unit: "W, kg, bit/s, cores, MiB, m2"
+    official_anchors:
+      G1_mass_kg: 45
+      G1_footprint_m2: 0.50
+      G1_power_w: 1500
+      G1_lan_bps: 50000000
+      G1_satcom_bps: 200000
+      G1_radar_loss_ratio: 0.30
+      G1_install_crew: 2
+      G1_install_time_min: 180
+      G2_mass_kg: 3500
+      G2_continuous_power_w: 6000
+      G2_winch_sustained_power_w: 20000
+      G2_winch_sustained_duration_s: 300
+      G2_lan_bps: 5000000
+      G2_satcom_bps: 500000
+      G2_install_crew: 4
+      G2_install_time_min: 360
+      G3_mass_kg: 5500
+      G3_survey_and_standby_power_w: 1000
+      G3_charging_power_w: 25000
+      G3_charging_duration_s: 3600
+      G3_leg_duration_s: 2400
+      G3_cradle_lan_bps: 100000000
+      G3_install_crew: 4
+      G3_install_time_min: 360
+      G3_sea_swap_crew: 4
+      G3_sea_swap_duration_min: 45
+      G4_drone_mass_kg: 140
+      G4_hangar_mass_kg: 850
+      G4_total_mass_kg: 990
+      G4_charging_power_w: 35000
+      G4_charging_duration_s: 1200
+      G4_post_charge_power_w: 10000
+      G4_standby_power_w: 2000
+      G4_los_video_bps: 20000000
+      G4_hangar_install_crew: 4
+      G4_hangar_install_time_min: 240
+      G4_sea_swap_crew: 3
+      G4_sea_swap_duration_min: 30
+      G5_container_mass_kg: 3000
+      G5_mast_antenna_mass_kg: 25
+      G5_antenna_footprint_m2: 0.30
+      G5_total_mass_kg: 3025
+      G5_full_power_w: 45000
+      G5_degraded_power_w: 8000
+      G5_degraded_capability_retention_ratio: 0.30
+      G5_lan_bps: 1000000000
+      G5_satcom_bps: 6000000
+      G5_container_install_crew: 4
+      G5_container_install_time_min: 360
+      G5_antenna_install_crew: 2
+      G5_antenna_install_time_min: 120
+    concretized_values: "Every official figure from Annex B is tagged with field_origins: OFFICIAL_BRIEF (or ORGANIZER_ERRATA for G4 hangar 850 kg), while compute sub-fields (compute_cores, compute_ram_mib, compute_accelerators, shared_storage_gb) and G5 water/air cooling split (43.8 kW water + 1.2 kW antenna air) are explicitly tagged ASSUMED in field_origins."
+    justification: "Resolves H06 by aligning 100% of G1..G5 parameters with Annex B and separating per-field provenance so assumed compute fields are never mislabeled OFFICIAL_BRIEF."
+    code_references:
+      - "data/guests/G1_mems_meteo.yaml"
+      - "data/guests/G2_rov_inspection.yaml"
+      - "data/guests/G3_auv_survey.yaml"
+      - "data/guests/G4_uav_sar.yaml"
+      - "data/guests/G5_edge_sigint.yaml"
+      - "src/sdv_governor/manifest.py"
+
+  - id: ASM-02
+    parameter: "G6 custom civil guest card (Civil Hydrographic & eDNA Micro-Sampler)"
+    unit: "kg (420 kg in Bay2/Bay1 10ft), W (4500 W nominal, 1500 W eco), compute (4 cores, 16 GiB, 0 accelerators)"
+    concretized_values: "Self-contained 10 ft civil oceanography & environmental DNA sampler requiring Bay2 or Bay1-half, 4.5 kW nominal power/cooling, no mast slot, and all fields explicitly marked value_origin: ASSUMED."
+    justification: "Scenario A requires a custom civil G6 card that validates against the same schema without claiming OFFICIAL_BRIEF provenance."
+    code_references:
+      - "data/guests/G6_civil_hydro_sampler.yaml"
+      - "src/sdv_governor/admission.py"
+
+  - id: ASM-03
+    parameter: "Cooling capacity outside [12 °C, 30 °C] seawater interval"
+    unit: "W (derived from kW)"
+    concretized_values: "For T < 12 °C, clamp C(T) conservatively to 160,000 W. For T > 30 °C, fail-closed policy flags OUT_OF_ENVELOPE_HIGH_TEMP and applies linear penalty clamped at >= 0 W."
+    justification: "Annex A.2: C(T)=160-40*(T-12)/18 kW in [12, 30] °C; out-of-range values handled by documented conservative policy."
+    code_references:
+      - "src/sdv_governor/budgets.py"
+      - "data/ship/vessel_baseline.yaml"
+
+  - id: ASM-04
+    parameter: "Mast air cooling vs chilled-water loop accounting and hangar_roof placement"
+    unit: "W, kg, m2"
+    concretized_values: "Mast positions have no chilled-water manifold and rely on local air cooling capped at 2,000 W per position. G5's 25 kg antenna can mount on mast_3 (x3.0 stability) or hangar_roof (x1.2 stability); when mounted on hangar_roof with G4 installed, explicit drone clearance verification is required (producing YES_IF unless clearance is pre-verified)."
+    justification: "Annex A.3 and Annex B G5 card: antenna 0.3 m2, 25 kg at free mast slot or hangar roof (x1.2, check drone clearance)."
+    code_references:
+      - "src/sdv_governor/budgets.py"
+      - "src/sdv_governor/placement.py"
+      - "src/sdv_governor/admission.py"
+
+  - id: ASM-05
+    parameter: "Compute rack accelerator indivisibility and 80% allocatable pool"
+    unit: "nodes (4), cores_per_node (32 total, 25 allocatable), ram_mib_per_node (102,400 MiB), accelerators (1 physical per node, max 3 across cluster)"
+    concretized_values: "Each of the 4 rack nodes has 32 cores, 128 GiB RAM, and 1 physical accelerator. Applying the 80% allocatable rule strictly without fractional physical accelerators: 25 cores/node, 102,400 MiB RAM/node, 16,000 GB shared storage, and at most 3 of 4 physical accelerators across the cluster."
+    justification: "Annex A.7: 4 nodes, 32 cores/128 GB/1 accelerator each, 20 TB shared, 80% allocatable."
+    code_references:
+      - "src/sdv_governor/budgets.py"
+      - "data/ship/vessel_baseline.yaml"
+
+  - id: ASM-06
+    parameter: "Scenario B candidate evaluation, losing-mission cost formula, and separate G4 touchdown vs 20-min charging"
+    unit: "seconds, minutes, utility points"
+    concretized_values: "In Scenario B (D3), G4 recovery separates the operational flight-deck approach/touchdown phase (which must complete before the 12-min / 720 s battery deadline) from the subsequent 20-min (1200 s) 35 kW hangar charging phase, followed by 10 kW post-charge operation or 2 kW standby."
+    justification: "Resolves H02 and H04: touchdown occurs within the 720 s battery emergency deadline after acoustic HOLD confirmation and ship turn into wind, before the 1200 s high-power charging cycle."
+    code_references:
+      - "src/sdv_governor/arbitration.py"
+      - "src/sdv_governor/replay.py"
+
+  - id: ASM-07
+    parameter: "Scenario B minute-12 generator loss (200 kW -> 100 kW) official vs active-deficit variants"
+    unit: "W"
+    concretized_values: "In canonical Scenario B where G3 is in survey/hold (1 kW) + G4 recovery/charging (35 kW) + G5 full (45 kW), instantaneous actual load is 81 kW (<= 100 kW), whereas firm committed load including G3's 25 kW uninterruptible recharge reservation is 105 kW (> 100 kW). In scenario_B_charging_deficit_105kw, G3 is actively charging at 25 kW (uninterruptible) so instantaneous actual load is 105 kW > 100 kW."
+    justification: "Distinguishes actual draw (81 kW) from firm reserved draw (105 kW) and active charging draw (105 kW)."
+    code_references:
+      - "src/sdv_governor/degradation.py"
+      - "data/scenarios/scenario_B_arbitration_degradation.yaml"
+      - "data/scenarios/scenario_B_charging_deficit_105kw.yaml"

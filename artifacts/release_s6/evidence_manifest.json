@@ -1,0 +1,63 @@
+{
+  "environment": {
+    "hostname": "MacBook-Pro-7.local",
+    "pid": 22954,
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_version": "3.13.15",
+    "wall_elapsed_ms": 203.938
+  },
+  "files": {
+    "decisions.json": {
+      "sha256": "5c2e184c2344d73b39fce36d87fadf7869494f0842f4746a041c5f8551d52715",
+      "size_bytes": 165708
+    },
+    "junit.xml": {
+      "sha256": "2fc35e6f426fef748fcdf4c40d4a1de5848dab3d7f2e580bf6c44e1eae237036",
+      "size_bytes": 13086
+    },
+    "junit_ventuno_aarch64.xml": {
+      "sha256": "745d1c570a1fdb0dd01acd45ed6f353d12966edadc2f2f8f28926c0c1ca2b869",
+      "size_bytes": 13077
+    },
+    "metrics_summary.json": {
+      "sha256": "c32510714427d16af66e8481d81b0359239b6c6056ee47059da8fa4070d9635e",
+      "size_bytes": 939
+    },
+    "remote_parity.json": {
+      "sha256": "92a20ef7a46640d4d5f6e7d3555109129bbb267460e1c26e383805519d5f5a61",
+      "size_bytes": 1081
+    },
+    "replay_timeline.json": {
+      "sha256": "97052928484938fd69e9c40dbaa93e3e590c3d3923eca8b62b246cada07ec572",
+      "size_bytes": 3113924
+    },
+    "requirements_matrix.csv": {
+      "sha256": "9f549ec39680cd414da0ea25f5bea81743dfe36e2708e06c62eae60cb302511d",
+      "size_bytes": 21039
+    }
+  },
+  "generated_at_utc": "2026-10-17T20:47:40Z",
+  "git_commit": "ee300ba4ae3e58dbc332550746d7209d0d477fc7",
+  "junit_summary": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 98
+  },
+  "metrics": {
+    "cooling_limited_semantic_sha256": "510d212ae57801c7c709a562055438ba64dac20eb1c8aa786c430c38e90e5309",
+    "cooling_limited_ticks_count": 91,
+    "errata_exceed_10000_kg_count": 3,
+    "max_tick_calc_ms": 0.677,
+    "min_tick_calc_ms": 0.0494,
+    "rescue_primary_semantic_sha256": "be2977c84fcf9709d34d256c971c78effaffd780dfa0d3f02187eb1b159fca0f",
+    "rescue_primary_ticks_count": 91,
+    "survey_primary_semantic_sha256": "e3e0bbed04dc6297bce6af303ad7a22ebe5af1292b1b05cd947fd0a76b851f82",
+    "survey_primary_ticks_count": 91,
+    "total_decisions_count": 15
+  },
+  "run_id": "release_s6",
+  "schema_version": "1.0.0",
+  "semantic_sha256": "ea79ed14a6580ab817aeb37d6446d6891f43d3052c5022e27a036935ebfb0024"
+}

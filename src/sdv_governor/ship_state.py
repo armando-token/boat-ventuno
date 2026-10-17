@@ -186,6 +186,7 @@ class ShipOperationalState:
     firm_reserved_loads: List[FirmReservedLoad] = field(default_factory=list)
     thermal_inertia: ThermalInertiaState = field(default_factory=ThermalInertiaState)
     feeds: Dict[str, FeedReading] = field(default_factory=dict)
+    pending_commands: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.speed_kn is not None:
@@ -231,4 +232,5 @@ class ShipOperationalState:
             "firm_reserved_loads": [asdict(r) for r in self.firm_reserved_loads],
             "thermal_inertia": asdict(self.thermal_inertia),
             "feeds": {k: v.to_dict() for k, v in sorted(self.feeds.items())},
+            "pending_commands": copy.deepcopy(self.pending_commands),
         }

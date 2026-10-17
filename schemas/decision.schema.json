@@ -5,50 +5,58 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "decision_id",
+    "decision_type",
+    "candidate_guest_id",
     "verdict",
     "binding_constraints",
-    "rationale",
     "placement",
-    "alternatives_considered",
     "ranked_displacements",
     "capability_lost",
-    "mission_envelope_hash",
-    "degraded_feasibility",
-    "installation_window",
+    "required_conditions",
+    "conditioned_availability",
+    "next_window",
+    "rationale",
     "calculation_elapsed_ms",
-    "source_input_hashes"
+    "within_30s_deadline",
+    "guest_manifest_sha256",
+    "ship_profile_hash",
+    "mission_envelope_hash",
+    "priority_profile_sha256"
   ],
   "properties": {
-    "decision_id": { "type": "string", "minLength": 8 },
+    "decision_type": { "type": "string", "const": "D1_ADMISSION" },
+    "candidate_guest_id": { "type": "string", "minLength": 1 },
     "verdict": { "type": "string", "enum": ["YES", "YES_IF", "NO", "NOT_NOW"] },
     "binding_constraints": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["resource_class", "state_label", "demand", "capacity", "unit", "hard"],
+        "required": ["resource_class", "constraint_id", "state_label", "demand", "capacity", "margin", "unit", "provenance", "detail"],
         "properties": {
           "resource_class": { "type": "string" },
+          "constraint_id": { "type": "string" },
           "state_label": { "type": "string" },
           "demand": { "type": "number" },
           "capacity": { "type": "number" },
+          "margin": { "type": "number" },
           "unit": { "type": "string" },
-          "hard": { "type": "boolean" },
+          "provenance": { "type": "string" },
           "detail": { "type": "string" }
         }
       }
     },
-    "rationale": { "type": "string", "minLength": 15 },
     "placement": { "type": "object" },
-    "alternatives_considered": { "type": "array" },
     "ranked_displacements": { "type": "array" },
     "capability_lost": { "type": "array" },
-    "mission_envelope_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-    "degraded_feasibility": { "type": "object" },
-    "installation_window": { "type": ["object", "null"] },
-    "calculation_elapsed_ms": { "type": "number", "minimum": 0.0 },
-    "source_input_hashes": { "type": "object" },
+    "required_conditions": { "type": "array" },
     "conditioned_availability": { "type": "object" },
-    "next_window": { "type": ["object", "null"] }
+    "next_window": { "type": ["object", "null"] },
+    "rationale": { "type": "string", "minLength": 15 },
+    "calculation_elapsed_ms": { "type": "number", "minimum": 0.0, "maximum": 30000.0 },
+    "within_30s_deadline": { "type": "boolean", "const": true },
+    "guest_manifest_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "ship_profile_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "mission_envelope_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "priority_profile_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
   }
 }

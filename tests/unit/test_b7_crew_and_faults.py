@@ -44,12 +44,16 @@ def test_crw_01_crew_14_6_0_rules() -> None:
     comp = evaluate_crew_regimes_comparison(catalog, state)
     regimes = comp["regimes"]
 
-    assert regimes["FULL_CREW_14"]["simultaneous_g2_and_g4_deck_ops_permitted"] is True
+    assert regimes["FULL_CREW_14"]["max_concurrent_manual_deck_ops"] == 2
     assert regimes["FULL_CREW_14"]["g4_uav_at_sea_replacement_permitted"] is True
+    assert regimes["FULL_CREW_14"]["g3_auv_at_sea_replacement_permitted"] is True
+    assert regimes["FULL_CREW_14"]["simultaneous_g2_and_g4_deck_ops_permitted"] is False
+    assert regimes["FULL_CREW_14"]["g6_at_sea_install_permitted"] is False
 
     assert regimes["REDUCED_CREW_6"]["g4_uav_launch_recovery_permitted"] is True
     assert regimes["REDUCED_CREW_6"]["simultaneous_g2_and_g4_deck_ops_permitted"] is False
     assert regimes["REDUCED_CREW_6"]["g4_uav_at_sea_replacement_permitted"] is False
+    assert regimes["REDUCED_CREW_6"]["g3_auv_at_sea_replacement_permitted"] is False
 
     assert regimes["UNCREWED_0"]["g4_uav_launch_recovery_permitted"] is False
     assert regimes["UNCREWED_0"]["g2_rov_launch_recovery_permitted"] is False

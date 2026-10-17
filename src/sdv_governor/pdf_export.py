@@ -8,7 +8,21 @@ from typing import List
 
 
 def _escape_pdf_text(s: str) -> str:
-    # Convert common unicode symbols to clean ASCII equivalents for Type1 Helvetica/Courier
+    # Convert common unicode symbols and any residual LaTeX tokens to clean ASCII equivalents for Type1 Helvetica/Courier (V2-F09)
+    latex_replacements = {
+        "\\times": "x",
+        "\\rightarrow": "->",
+        "\\leftrightarrow": "<->",
+        "\\le": "<=",
+        "\\ge": ">=",
+        "\\pm": "+/-",
+        "\\ll": "<<",
+        "\\binom": "C",
+        "\\text{": "",
+        "$": "",
+    }
+    for k, v in latex_replacements.items():
+        s = s.replace(k, v)
     replacements = {
         "—": "--",
         "–": "-",
@@ -20,6 +34,9 @@ def _escape_pdf_text(s: str) -> str:
         "°": " deg ",
         "±": "+/-",
         "≪": "<<",
+        "²": "^2",
+        "³": "^3",
+        "₂": "2",
         "“": '"',
         "”": '"',
         "’": "'",

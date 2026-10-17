@@ -215,6 +215,15 @@ def require_dict(
     return val
 
 
+def require_no_unknown_keys(
+    val: Any,
+    allowed_keys: Set[str],
+    field_path: str = "root",
+) -> Dict[str, Any]:
+    """Fail-closed validator rejecting any unexpected keys in `val` (V2-F08)."""
+    return require_dict(val, field_path, allowed_keys=allowed_keys)
+
+
 def canonical_json_bytes(obj: Any) -> bytes:
     """Serialize an object deterministically (sorted keys, UTF-8, no NaN/Inf allowed)."""
     return json.dumps(

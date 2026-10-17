@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/evidence_manifest.schema.json",
+  "title": "SDV Fail-Closed Evidence Artifact Manifest Schema (B8, R4)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "generated_at_utc",
+    "git_commit",
+    "environment",
+    "semantic_sha256",
+    "files",
+    "metrics",
+    "junit_summary"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0.0" },
+    "run_id": { "type": "string", "minLength": 3 },
+    "generated_at_utc": { "type": "string", "minLength": 10 },
+    "git_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "environment": {
+      "type": "object",
+      "required": [
+        "hostname",
+        "platform_system",
+        "platform_machine",
+        "python_version",
+        "pid",
+        "wall_elapsed_ms"
+      ],
+      "properties": {
+        "hostname": { "type": "string", "minLength": 1 },
+        "platform_system": { "type": "string", "minLength": 1 },
+        "platform_machine": { "type": "string", "minLength": 1 },
+        "python_version": { "type": "string", "minLength": 1 },
+        "pid": { "type": "integer", "minimum": 1 },
+        "wall_elapsed_ms": { "type": "number", "minimum": 0.0 },
+        "provenance": { "type": "string", "const": "MEASURED" }
+      }
+    },
+    "semantic_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "files": {
+      "type": "object",
+      "minProperties": 4,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["sha256", "size_bytes"],
+        "properties": {
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "size_bytes": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "total_decisions_count",
+        "errata_exceed_10000_kg_count",
+        "survey_primary_ticks_count",
+        "rescue_primary_ticks_count",
+        "cooling_limited_ticks_count",
+        "max_tick_calc_ms",
+        "min_tick_calc_ms",
+        "survey_primary_semantic_sha256",
+        "rescue_primary_semantic_sha256",
+        "cooling_limited_semantic_sha256"
+      ],
+      "properties": {
+        "total_decisions_count": { "type": "integer", "minimum": 1 },
+        "errata_exceed_10000_kg_count": { "type": "integer", "const": 3 },
+        "survey_primary_ticks_count": { "type": "integer", "const": 91 },
+        "rescue_primary_ticks_count": { "type": "integer", "const": 91 },
+        "cooling_limited_ticks_count": { "type": "integer", "const": 91 },
+        "max_tick_calc_ms": { "type": "number", "minimum": 0.0, "maximum": 200.0 },
+        "min_tick_calc_ms": { "type": "number", "minimum": 0.0, "maximum": 200.0 },
+        "survey_primary_semantic_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "rescue_primary_semantic_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "cooling_limited_semantic_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
+    "junit_summary": {
+      "type": "object",
+      "required": ["tests", "failures", "errors", "skipped"],
+      "properties": {
+        "tests": { "type": "integer", "minimum": 49 },
+        "failures": { "type": "integer", "const": 0 },
+        "errors": { "type": "integer", "const": 0 },
+        "skipped": { "type": "integer", "const": 0 }
+      }
+    }
+  }
+}

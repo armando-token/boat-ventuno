@@ -13,7 +13,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
 endobj
 5 0 obj
-<< /Length 8088 >>
+<< /Length 6893 >>
 stream
 BT
 /F1 7 Tf
@@ -22,93 +22,81 @@ BT
 /F2 8 Tf (# Physical Account -- 8-Class Resource Ledger & Errata Verification \(1 Page\)) Tj /F1 7 Tf T*
 () Tj T*
 /F2 8 Tf (## 1. Subcomponent Mass, Position & Stability Ledger \(Organizer Errata Applied\)) Tj /F1 7 Tf T*
-(Stability is computed strictly **per subcomponent and assigned position** \($\\times 1.0$ main deck bays ) Tj T*
-(`bay1`/`bay2`, $\\times 1.2$ `hangar`/`hangar_roof`/`flight_deck`, $\\times 3.0$ `mast_3`\), never by multiplying an ) Tj T*
-(entire multi-part guest by the mast factor. Local structural limits \(`Bay 1 <= 8,000 kg`, `Bay 2 <= 4,000 kg`, ) Tj T*
-(`Hangar <= 1,000 kg`, `VTOL airframe <= 150 kg`, `mast_3 <= 60 kg / 0.6 m2`, `hangar_roof <= 150 kg / 2.0 m2`\) are ) Tj T*
-(enforced alongside global limits \(`10,000 kg` mass, `12,000 kg-eq` stability\). Under the organizer errata, **G4 ) Tj T*
-(hangar equipment is 850 kg** \(overriding PDF 900 kg\) + **140 kg drone = 990 kg**, and **G5 includes both the 3,000 ) Tj T*
-(kg container and 25 kg antenna = 3,025 kg**:) Tj T*
+(Stability is computed strictly per subcomponent and assigned position \(x1.0 main deck bays bay1/bay2, x1.2 ) Tj T*
+(hangar/hangar_roof/flight_deck, x3.0 mast_3\), never by multiplying an entire multi-part guest by the mast factor. ) Tj T*
+(Local structural limits \(Bay 1 <= 8,000 kg, Bay 2 <= 4,000 kg, Hangar <= 1,000 kg, VTOL airframe <= 150 kg, mast_3 ) Tj T*
+(<= 60 kg / 0.6 m2, hangar_roof <= 150 kg / 2.0 m2\) are enforced alongside global limits \(10,000 kg mass, 12,000 kg-) Tj T*
+(eq stability\). Under the organizer errata, G4 hangar station is 850 kg \(overriding PDF 900 kg\) + 140 kg drone = 990 ) Tj T*
+(kg, and G5 includes both the 3,000 kg container and 25 kg antenna = 3,025 kg:) Tj T*
 () Tj T*
-(| Guest ID & Name | Subcomponents & Assigned Positions | Mass \(kg\) | Stability Multiplier & Calculation | Stability ) Tj T*
-(\(kg-eq\) | Electrical, Thermal & Data Envelope |) Tj T*
+(| Guest ID & Official Name | Subcomponents & Assigned Positions | Mass \(kg\) | Stability Multiplier & Calculation | ) Tj T*
+(Stability \(kg-eq\) | Electrical, Thermal & Data Envelope |) Tj T*
 (|---|---|---:|---|---:|---|) Tj T*
-(| **G1** Radar/EO Meteo | `G1_MAST_SENSOR_HEAD` $\\rightarrow$ `mast_3` \(`0.5 m2`\) | `45` | $45 \\times 3.0$ ) Tj T*
-(\(`mast_3`\) | `135.0` | `1.5 kW` air on `mast_3` \($\\le 2\\text{ kW}$ limit; `0 W` water\); `50 Mbps` LAN, `200 kbps` ) Tj T*
-(SATCOM |) Tj T*
-(| **G2** Ocean Winch/Probe | `G2_ROV_WINCH_CONTAINER_10FT` $\\rightarrow$ `bay2` / `bay1_a` | `3,500` | $3,500 \\times) Tj T*
-( 1.0$ \(deck bay\) | `3,500.0` | `20 kW` sustained `300 s` winch / `6 kW` continuous $\\rightarrow$ water; `5 Mbps` ) Tj T*
-(LAN, `500 kbps` SATCOM |) Tj T*
-(| **G3** AUV Survey/Cradle | `G3_AUV_CRADLE_BAY1_20FT` $\\rightarrow$ `bay1` \(`20 ft` via ramp\) | `5,500` | $5,500 ) Tj T*
-(\\times 1.0$ \(deck bay\) | `5,500.0` | `1 kW` survey / `25 kW` \(`3,600 s`\) uninterruptible charge $\\rightarrow$ water;) Tj T*
-( `100 Mbps` cradle LAN |) Tj T*
-(| **G4** VTOL SAR *\(Errata\)* | `G4_DRONE_VEHICLE` \(`140 kg`\) + `G4_HANGAR_STATION` \(`850 kg`\) $\\rightarrow$ `hangar`) Tj T*
-( | `990` | $\(140 + 850\) \\times 1.2$ \(`hangar` $\\le 1,000\\text{ kg}$\) | `1,188.0` | `35 kW` \(`1,200 s`\) ) Tj T*
-(recovery/charge, `10 kW` patrol, `2 kW` standby \(`0 bps` silence\); `20 Mbps` LAN |) Tj T*
-(| **G5** Comms/Compute | `G5_COMPUTE_CONTAINER` \(`3,000 kg` $\\rightarrow$ `bay2`/`bay1_a`\) + `G5_MAST_ANTENNA` \(`25 ) Tj T*
-(kg` $\\rightarrow$ `mast_3`/`hangar_roof`\) | `3,025` | $3,000 \\times 1.0 + 25 \\times 3.0$ \(`mast_3`\) or $+ 25 \\times ) Tj T*
-(1.2$ \(`roof`\) | `3,075.0` \(`3,030.0` roof\) | `45 kW` \(`43.8 kW` water + `1.2 kW` air\) / `8 kW` degraded \(`30%` ) Tj T*
-(retention\); `1 Gbps` LAN, `6 Mbps` SATCOM |) Tj T*
-(| **G6** Civil Hydro Lab | `G6_HYDRO_LAB_10FT` $\\rightarrow$ `bay1_a` / `bay2` *\(All fields `ASSUMED`\)* | `420` | ) Tj T*
-($420 \\times 1.0$ \(deck bay\) | `420.0` | `4.5 kW` \(`300 s`\) $\\rightarrow$ `4.5 kW` water; `25 Mbps` LAN, `250 kbps` ) Tj T*
-(SATCOM |) Tj T*
+(| G1 -- Passive Radio & Meteo Sensor | G1_MAST_SENSOR_HEAD -> mast_3 \(0.5 m2\) | 45 | 45 x 3.0 \(mast_3\) | 135.0 | 1.5) Tj T*
+( kW air on mast_3 \(<= 2.0 kW limit; 0 W water\); 50 Mbps LAN, 200 kbps SATCOM |) Tj T*
+(| G2 -- Ocean & Weather Module | G2_ROV_WINCH_CONTAINER_10FT -> bay2 / bay1_a | 3,500 | 3,500 x 1.0 \(deck bay\) | ) Tj T*
+(3,500.0 | 20 kW sustained 300 s winch / 6 kW continuous -> water; 5 Mbps LAN, 500 kbps SATCOM |) Tj T*
+(| G3 -- Seabed Inspection AUV + Cradle | G3_AUV_CRADLE_BAY1_20FT -> bay1 \(20 ft via ramp\) | 5,500 | 5,500 x 1.0 ) Tj T*
+(\(deck bay\) | 5,500.0 | 1 kW survey / 25 kW \(3,600 s\) uninterruptible charge -> water; 100 Mbps cradle LAN |) Tj T*
+(| G4 -- VTOL Rescue Drone + Hangar \(Errata\) | G4_DRONE_VEHICLE \(140 kg\) + G4_HANGAR_STATION \(850 kg\) -> hangar | 990) Tj T*
+( | \(140 + 850\) x 1.2 \(hangar <= 1,000 kg\) | 1,188.0 | 35 kW \(1,200 s\) recovery/charge, 10 kW patrol, 2 kW standby \(0) Tj T*
+( bps silence\); 20 Mbps LAN |) Tj T*
+(| G5 -- Emergency Comms & Edge Compute | G5_COMPUTE_CONTAINER \(3,000 kg -> bay2/bay1_a\) + G5_MAST_ANTENNA \(25 kg -> ) Tj T*
+(mast_3/hangar_roof\) | 3,025 | 3,000 x 1.0 + 25 x 3.0 \(mast_3\) or + 25 x 1.2 \(roof\) | 3,075.0 \(3,030.0 roof\) | 45 kW ) Tj T*
+(\(43.8 kW water + 1.2 kW air\) / 8 kW degraded \(30% retention\); 1 Gbps LAN, 6 Mbps SATCOM |) Tj T*
+(| G6 -- Civil Hydrographic & eDNA Micro-Sampler | G6_HYDRO_SKID_10FT -> bay2 / bay1_a \(All fields ASSUMED, ) Tj T*
+(port_only=true\) | 420 | 420 x 1.0 \(deck bay\) | 420.0 | 4.5 kW \(1,800 s\) / 1.5 kW eco -> water; 30 Mbps LAN, 200 kbps) Tj T*
+( SATCOM |) Tj T*
 () Tj T*
 (---) Tj T*
 () Tj T*
-/F2 8 Tf (## 2. Five Combinations of Four Official Guests \(`{G1..G5}`\): Mass vs. Full 8-Class Admission) Tj /F1 7 Tf T*
-(Evaluating all $\\binom{5}{4} = 5$ four-guest combinations confirms the organizer errata \(**exact 3 of 5 exceed the ) Tj T*
-(10,000 kg margin**\) and proves why **passing mass does not imply passing placement, mast/roof clearance, or 14-day ) Tj T*
-(Mission Envelope A.10 constraints**:) Tj T*
+/F2 8 Tf (## 2. Five Combinations of Four Official Guests \({G1..G5}\): Mass vs. Full 8-Class Admission) Tj /F1 7 Tf T*
+(Evaluating all C\(5,4\) = 5 four-guest combinations confirms the organizer errata \(exact 3 of 5 exceed the 10,000 kg ) Tj T*
+(margin\) and proves why passing mass does not imply passing placement, mast/roof clearance, or 14-day Mission ) Tj T*
+(Envelope A.10 constraints:) Tj T*
 () Tj T*
-(| 4-Guest Set | Total Mass \(kg\) | $>10,000\\text{ kg}$? | Total Stability \(kg-eq\) | Physical Placement, Mast/Roof & ) Tj T*
-(Mission Envelope Verdict \(D1\) |) Tj T*
+(| 4-Guest Set | Total Mass \(kg\) | > 10,000 kg? | Total Stability \(kg-eq\) | Physical Placement, Mast/Roof & Mission ) Tj T*
+(Envelope Verdict \(D1\) |) Tj T*
 (|---|---:|---|---:|---|) Tj T*
-(| `{G1, G2, G3, G4}` | **10,035 kg** | **YES** \(`+35 kg`\) | `10,323.0` \($\\le 12,000$\) | `YES_IF` \(Exceeds `10,000 ) Tj T*
-(kg` by `35 kg`; displacing `G2` yields `6,535 kg`\) |) Tj T*
-(| `{G1, G2, G3, G5}` | **12,070 kg** | **YES** \(`+2,070 kg`\) | `12,210.0` \($> 12,000$\) | `YES_IF` \(Exceeds mass & ) Tj T*
-(stability; `G1` & `G5` collide on `mast_3` and `1.5+1.2=2.7 kW > 2.0 kW` mast air\) |) Tj T*
-(| `{G1, G2, G4, G5}` | **7,560 kg** | **NO** \(`2,440 kg` free\) | `7,898.0` \($\\le 12,000$\) | **Blocked on `mast_3` / ) Tj T*
-(`hangar_roof`**: `G5` antenna collides with `G1` on `mast_3` \(`2.7 kW > 2 kW` air\) and with `G4` drone clearance on ) Tj T*
-(`hangar_roof` |) Tj T*
-(| `{G1, G3, G4, G5}` | **9,560 kg** | **NO** \(`440 kg` free\) | `9,898.0` \($\\le 12,000$\) | **Blocked on `mast_3` / ) Tj T*
-(`hangar_roof`**: passes mass/stability \(`G5` container fits in `bay2`\), but `G5` antenna collides with `G1` ) Tj T*
-(\(`mast_3`\) or `G4` \(`hangar_roof`\) |) Tj T*
-(| `{G2, G3, G4, G5}` | **13,015 kg** | **YES** \(`+3,015 kg`\) | `13,263.0` \($> 12,000$\) | `YES_IF` \(Exceeds mass & ) Tj T*
-(stability; `G2`+`G5` containers cannot share `bay2` \(`6,500 kg > 4,000 kg`\) while `G3` occupies `bay1`\) |) Tj T*
+(| {G1, G2, G3, G4} | 10,035 kg | YES \(+35 kg\) | 10,323.0 \(<= 12,000\) | YES_IF \(Exceeds 10,000 kg by 35 kg; ) Tj T*
+(displacing G2 yields 6,535 kg\) |) Tj T*
+(| {G1, G2, G3, G5} | 12,070 kg | YES \(+2,070 kg\) | 12,210.0 \(> 12,000\) | YES_IF \(Exceeds mass & stability; G1 & G5 ) Tj T*
+(collide on mast_3 and 1.5+1.2=2.7 kW > 2.0 kW mast air\) |) Tj T*
+(| {G1, G2, G4, G5} | 7,560 kg | NO \(2,440 kg free\) | 7,898.0 \(<= 12,000\) | YES_IF \(Passes mass/stability, but G5 ) Tj T*
+(antenna collides with G1 on mast_3 or requires G4 hangar_roof clearance\) |) Tj T*
+(| {G1, G3, G4, G5} | 9,560 kg | NO \(440 kg free\) | 9,898.0 \(<= 12,000\) | YES_IF \(Passes mass/stability with G5 ) Tj T*
+(container in bay2, but G5 antenna collides on mast_3 / hangar_roof\) |) Tj T*
+(| {G2, G3, G4, G5} | 13,015 kg | YES \(+3,015 kg\) | 13,263.0 \(> 12,000\) | YES_IF \(Exceeds mass & stability; G2+G5 ) Tj T*
+(containers cannot share bay2 \(6,500 kg > 4,000 kg\) while G3 occupies bay1\) |) Tj T*
 () Tj T*
-(*\(Note: Replacing `G5` with custom card `G6` in `{G1, G2, G4, G6}` yields `4,955 kg`, `5,243.0 kg-eq`, `G1` on ) Tj T*
-(`mast_3`, `G2` on `bay2`, `G4` in `hangar`, and `G6` in `bay1_a` $\\rightarrow$ **`YES` across all 8 resource ) Tj T*
-(classes**.\)*) Tj T*
+(\(Note: Replacing G5 with custom card G6 in {G1, G2, G4, G6} yields 4,955 kg, 5,243.0 kg-eq, G1 on mast_3, G2 on ) Tj T*
+(bay2, G4 in hangar, and G6 in bay1_a -> YES across all 8 resource classes.\)) Tj T*
 () Tj T*
 (---) Tj T*
 () Tj T*
 /F2 8 Tf (## 3. Cooling Curve, Thermal Inertia & Scenario B Power Accounting) Tj /F1 7 Tf T*
-(- **Chilled-Water Curve**: $C\(T\) = 160,000 - 40,000 \\frac{T-12}{18}\\text{ W}$ for $T \\in [12, 30]\\,^\\circ\\text{C}$. ) Tj T*
-(At $30\\,^\\circ\\text{C}$, $C\(30\) = 120\\text{ kW}$ nominal; with $-40\\%$ loop degradation, $C_{\\text{deg}}\(30\) = ) Tj T*
-(72\\text{ kW}$. Sustained loads \($>60\\text{ s}$\) cannot borrow from the $+30\\text{ kW}/60\\text{ s}$ \(`1.8 MJ`\) ) Tj T*
-(thermal inertia buffer.) Tj T*
-(- **Scenario B Power vs. Cooling Binding**: During G4 recovery/charge \(`35 kW`\) + G3 quiet survey \(`1 kW`\) + G5 full) Tj T*
-( spectrum \(`45 kW`\), instantaneous electrical draw is **$81\\text{ kW} \\le 100\\text{ kW}$** \(no instantaneous ) Tj T*
-(electrical deficit on generator loss\), whereas **firm committed power** including G3's uninterruptible `25 kW` ) Tj T*
-(turnaround recharge reservation is **$25 + 35 + 45 = 105\\text{ kW} > 100\\text{ kW}$** \(`5 kW` firm deficit\), and at ) Tj T*
-($30\\,^\\circ\\text{C}$ degraded loop \($72\\text{ kW}$\), chilled-water load is **$1 + 35 + 43.8 = 79.8\\text{ kW} > ) Tj T*
-(72\\text{ kW}$** \(`7.8 kW` thermal deficit\). Stepping down **G5 \(`45 kW` $\\rightarrow$ `8 kW`\)** saves `37 kW` power ) Tj T*
-(and `36.3 kW` water cooling, restoring positive margin in both cases while protecting G4 and G3.) Tj T*
+(- Chilled-Water Curve: C\(T\) = 160,000 - 40,000 * \(T - 12\) / 18 W for T in [12, 30] deg C. At 30 deg C, C\(30\) = 120 ) Tj T*
+(kW nominal; with -40% loop degradation, C_deg\(30\) = 72 kW. Sustained loads \(> 60 s\) cannot borrow from the +30 kW / ) Tj T*
+(60 s \(1.8 MJ\) thermal inertia buffer.) Tj T*
+(- Scenario B Power vs. Cooling Binding: When D3 approves G4 recovery at T=480 s, the governor reserves G4's ) Tj T*
+(committed 35 kW recovery/charging load alongside G3's firm 25 kW post-leg recharge reservation. When generator ) Tj T*
+(reserve drops to 100 kW at T=720 s, instantaneous draw is 81 kW <= 100 kW during G4 recovery, whereas firm committed) Tj T*
+( power is 25 + 35 + 45 = 105 kW > 100 kW \(5 kW firm deficit\), and at 30 deg C degraded loop \(72 kW\), chilled-water ) Tj T*
+(load is 1 + 35 + 43.8 = 79.8 kW > 72 kW \(7.8 kW thermal deficit\). Stepping down G5 \(45 kW -> 8 kW\) at T=720 s saves ) Tj T*
+(37 kW power and 36.3 kW water cooling, maintaining 68 kW <= 100 kW \(32 kW free margin\) and zero infeasible ticks ) Tj T*
+(across the entire timeline.) Tj T*
 () Tj T*
 (---) Tj T*
 () Tj T*
-/F2 8 Tf (## 4. What Would Change If the Vessel Platform Were Modified? \(Mandatory Closing Analysis\)) Tj /F1 7 Tf T*
-(**Que cambiaria en el barco / What would change if the vessel had:**) Tj T*
-(1. **A second free mast position \(`mast_4`, $\\le 60\\text{ kg}$, $\\le 2\\text{ kW}$ air\) or non-interfering roof ) Tj T*
-(sponson**: Both mass-feasible 4-guest sets `{G1, G2, G4, G5}` \(`7,560 kg`\) and `{G1, G3, G4, G5}` \(`9,560 kg`\) would) Tj T*
-( resolve their mast/roof collision \(`G1` on `mast_3` at `1.5 kW`, `G5_MAST_ANTENNA` on `mast_4` at `1.2 kW`\) without) Tj T*
-( violating `G4` flight-deck/hangar clearance.) Tj T*
-(2. **A $+50\\text{ kg}$ mass margin increase \(`10,050 kg` instead of `10,000 kg`\)**: `{G1, G2, G3, G4}` \(`10,035 kg`,) Tj T*
-( `10,323 kg-eq`\) would transition from `YES_IF` to **`YES`**, as its subcomponents already fit physically \(`G1` in ) Tj T*
-(`mast_3`, `G2` in `bay2`, `G3` in `bay1`, `G4` in `hangar`\).) Tj T*
-(3. **An upgraded chilled-water heat exchanger \(`+20 kW` at $30\\,^\\circ\\text{C}$ degraded $\\rightarrow 92\\text{ ) Tj T*
-(kW}$\)**: The vessel could sustain `G3 \(1 kW\) + G4 \(35 kW\) + G5 \(43.8 kW water\) = 79.8 kW` during ) Tj T*
-($30\\,^\\circ\\text{C}$ loop degradation without stepping down G5 until G3 initiates its `25 kW` recharge.) Tj T*
+/F2 8 Tf (## 4. What would change if the vessel had one single platform modification \(`mast_4`\)?) Tj /F1 7 Tf T*
+(If a single structural modification were made to the vessel -- adding a second guest mast slot `mast_4` \(`<= 60 kg`,) Tj T*
+( `<= 0.6 m2`, `<= 2.0 kW` independent forced-air cooling, `x3.0` stability multiplier\) -- both mass-feasible four-) Tj T*
+(guest combinations `{G1, G2, G4, G5}` \(`7,560 kg`, `7,898.0 kg-eq`\) and `{G1, G3, G4, G5}` \(`9,560 kg`, `9,898.0 kg-) Tj T*
+(eq`\) would immediately transition from conditional/blocked \(`YES_IF`\) to unconditional **`YES`** across all 8 ) Tj T*
+(resource classes and all 5 windows of the 14-day Mission Envelope A.10, because `G1_MAST_SENSOR_HEAD` \(`45 kg`, `1.5) Tj T*
+( kW` air on `mast_3`\) and `G5_MAST_ANTENNA` \(`25 kg`, `1.2 kW` air on `mast_4`\) would occupy separate mast slots ) Tj T*
+(without exceeding the `2.0 kW` per-slot air-cooling limit or encroaching on `G4`'s `hangar_roof` VTOL rotor ) Tj T*
+(clearance.) Tj T*
 ET
 endstream
 endobj
@@ -123,9 +111,9 @@ xref
 0000000121 00000 n 
 0000000191 00000 n 
 0000000266 00000 n 
-0000008406 00000 n 
+0000007211 00000 n 
 trailer
 << /Size 7 /Root 1 0 R >>
 startxref
-8542
+7347
 %%EOF

@@ -13,7 +13,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
 endobj
 5 0 obj
-<< /Length 3144 >>
+<< /Length 3733 >>
 stream
 BT
 /F1 8 Tf
@@ -21,8 +21,8 @@ BT
 10 TL
 /F2 9 Tf (# Operational Memo -- Scenario C: Governance Across 14, 6, and 0 Crew Regimes) Tj /F1 8 Tf T*
 () Tj T*
-/F2 9 Tf (**To:** SDV Program Office & Vessel Operations Command  ) Tj /F1 8 Tf T*
-(**From:** Principal Systems Architect, `sdv-resource-governor`  ) Tj T*
+/F2 9 Tf (**To:** SDV Program Office & Vessel Operations Command) Tj /F1 8 Tf T*
+(**From:** Principal Systems Architect, `sdv-resource-governor`) Tj T*
 (**Subject:** Deterministic Resource, Deck-Safety, and Autonomy Rules Under Crew Regimes **14**, **6**,) Tj T*
 ( and **0**) Tj T*
 () Tj T*
@@ -30,37 +30,45 @@ BT
 () Tj T*
 /F2 9 Tf (## 1. Executive Summary) Tj /F1 8 Tf T*
 (A Software-Defined Vessel \(SDV\) cannot treat human crew availability as a mere scheduling annotation: ) Tj T*
-(crew count directly governs **which physical payload transitions are admissible**, **how many deck ) Tj T*
-(evolutions can execute concurrently**, **whether at-sea vehicle replacement \($A'$\) is physically ) Tj T*
-(safe**, and **how fault recovery escalates when telemetry degrades or a payload overconsumes**. In ) Tj T*
-(`sdv-resource-governor`, human crew availability is enforced as a hard operational guard inside ) Tj T*
-(`scheduling.py` and `admission.py`.) Tj T*
+(crew count directly governs **which physical payload transitions are admissible**, **which manual deck) Tj T*
+( evolutions can be staffed**, **whether at-sea vehicle replacement \(A' window\) is physically safe**, ) Tj T*
+(and **how fault recovery escalates when telemetry degrades or a payload overconsumes**. In `sdv-) Tj T*
+(resource-governor`, human crew availability, flight-deck clearance \(`deck_clear`\), and port-only ) Tj T*
+(installation constraints are enforced as hard operational guards inside `scheduling.py`, ) Tj T*
+(`admission.py`, and `replay.py`.) Tj T*
 () Tj T*
 (---) Tj T*
 () Tj T*
 /F2 9 Tf (## 2. Quantitative Regime Comparison \(`FULL_CREW_14` vs. `REDUCED_CREW_6` vs. `UNCREWED_0`\)) Tj /F1 8 Tf T*
 () Tj T*
-(| Operational Dimension | Regime 1: **14 Crew** \(`FULL_CREW_14`\) | Regime 2: **6 Crew** ) Tj T*
-(\(`REDUCED_CREW_6`\) | Regime 3: **0 Crew** \(`UNCREWED_0`\) |) Tj T*
+(| Operational Dimension | Regime 1: 14 Crew \(FULL_CREW_14\) | Regime 2: 6 Crew \(REDUCED_CREW_6\) | ) Tj T*
+(Regime 3: 0 Crew \(UNCREWED_0\) |) Tj T*
 (|---|---|---|---|) Tj T*
-(| **Bridge & Engine Watch** | `5` personnel | `4` personnel | `0` \(Remote Shore Control + Onboard ) Tj T*
-(Autonomy\) |) Tj T*
-(| **Available Deck/Payload Crew** | **`9` personnel** | **`2` personnel** | **`0` personnel** |) Tj T*
-(| **Max Concurrent Manual Deck Ops** | **`2` simultaneous** \(e.g., G2 ROV + G4 UAV\) | **`1` ) Tj T*
-(serialized** \(G2 *or* G4, never simultaneous\) | **`0` manual deck evolutions** |) Tj T*
-(| **G4 UAV Launch / Recovery** \(`5-12 kn`, wind $\\le 25\\text{ kn}`, `SS <= 4`\) | **PERMITTED** \(`15-60) Tj T*
-( s` local bridge confirmation\) | **PERMITTED** \(`1-3 min` watch handover confirmation; blocks G2 deck ) Tj T*
-(ops\) | **FORBIDDEN** if manual deck arrest/handling required; only pre-stowed or automated modes |) Tj T*
-(| **G2 Winch / Probe Deployment** \(`0-5 kn`, wind $\\le 20\\text{ kn}`, `SS <= 4`\) | **PERMITTED** | ) Tj T*
-(**PERMITTED** \(serialized; cannot overlap G4 flight deck ops\) | **FORBIDDEN** \(requires ) Tj T*
+(| Bridge & Engine Watch | 5 personnel | 4 personnel | 0 \(Remote Shore Control + Onboard Autonomy\) |) Tj T*
+(| Available Deck/Payload Crew | 9 personnel | 2 personnel | 0 personnel |) Tj T*
+(| Max Concurrent Manual Deck Teams | 2 teams \(for non-conflicting manual tasks\) | 1 team \(strictly ) Tj T*
+(serialized\) | 0 manual deck evolutions |) Tj T*
+(| G4 UAV Launch / Recovery \(5-12 kn into wind, wind <= 25 kn, SS <= 4, deck_clear=true\) | PERMITTED \(2) Tj T*
+( deck crew; 15-60 s local bridge confirmation\) | PERMITTED \(2 deck crew; 60-180 s watch handover ) Tj T*
+(confirmation\) | FORBIDDEN \(requires manual flight-deck handling; only stowed/standby modes\) |) Tj T*
+(| G2 Winch / Probe Deployment \(0-5 kn, wind <= 20 kn, SS <= 4, deck_clear=true\) | PERMITTED \(2 deck ) Tj T*
+(crew; cannot overlap G4 flight ops\) | PERMITTED \(2 deck crew; serialized\) | FORBIDDEN \(requires ) Tj T*
 (umbilical/winch deck handling\) |) Tj T*
-(| **At-Sea Vehicle Replacement \($A'$\)** \(`G4`: `3` crew / `30 min`; `G3`: `4` crew / `45 min`\) | ) Tj T*
-(**PERMITTED** \(`available_crew=9 >= 4` required for crane/hangar replacement at sea\) | **BLOCKED** ) Tj T*
-(\(`available_crew=2 < 3` for G4 and `< 4` for G3 safe replacement at sea\) | **FORBIDDEN** \(`0` crew; ) Tj T*
-(all physical replacements deferred to port\) |) Tj T*
-(| **At-Sea Physical Module Install** \(`G6` `10 ft` lab, `min_crew=4`\) | **PERMITTED** in calm $A'$ ) Tj T*
-(window \(`0-4 kn`, wind $\\le 12\\text{ kn}$\) | **BLOCKED** \(`available_crew=2 < 4`\) | **FORBIDDEN** ) Tj T*
-(\(`CRW-02`: zero physical installation changes at sea\) |) Tj T*
+(| Simultaneous G2 Winch + G4 Flight Ops | FORBIDDEN \(Annex A.5 requires flight deck clear during G4 ) Tj T*
+(ops; speed windows 0-5 kn vs 5-12 kn into wind are disjoint\) | FORBIDDEN \(insufficient crew + Annex ) Tj T*
+(A.5 deck clearance + disjoint speed windows\) | FORBIDDEN \(0 crew\) |) Tj T*
+(| At-Sea Vehicle Replacement A' \(4-8 kn, wind <= 20 kn, SS <= 3; G4: 3 crew/30m, G3: 4 crew/45m\) | ) Tj T*
+(PERMITTED \(available_crew=9 >= 4 for G3 and >= 3 for G4\) | BLOCKED \(available_crew=2 < 3 for G4 and < ) Tj T*
+(4 for G3 safe replacement at sea\) | FORBIDDEN \(0 crew; all vehicle replacements deferred to port\) |) Tj T*
+(| At-Sea Bay/Mast or >250 kg Module Install \(G5, G6 420 kg in bay2/bay1_a\) | FORBIDDEN AT SEA \(Annex ) Tj T*
+(A.5 bay/mast installs are port-only; Annex A.4 limits at-sea packages to <= 250 kg\) | FORBIDDEN AT SEA) Tj T*
+( \(port-only bay/mast + >250 kg + available_crew=2 < 4\) | FORBIDDEN AT SEA \(CRW-02: zero physical ) Tj T*
+(installations at sea\) |) Tj T*
+(| Autonomous Sensor & Compute Guests \(G1, G3 in-water survey, G5, G6 auto-sampler\) | 100% Operational ) Tj T*
+(| 100% Operational | 100% Operational \(governed via software mode step-down, throttle, and power shed\)) Tj T*
+( |) Tj T*
+() Tj T*
+(---) Tj T*
 ET
 endstream
 endobj
@@ -68,54 +76,62 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
 endobj
 7 0 obj
-<< /Length 3525 >>
+<< /Length 4657 >>
 stream
 BT
 /F1 8 Tf
 36 762 Td
 10 TL
-(| **Autonomous Sensor & Compute Guests** \(`G1`, `G3` in-water survey, `G5`, `G6` auto-sampler\) | ) Tj T*
-(**100% Operational** | **100% Operational** | **100% Operational** \(governed via software mode ) Tj T*
-(switching, throttle, and power shed\) |) Tj T*
+() Tj T*
+/F2 9 Tf (## 3. Concrete Operational Rules & Physical Interlocks Enforced by the Solver) Tj /F1 8 Tf T*
+(1. **Why G2 and G4 Cannot Execute Simultaneous Deck Operations Even With 14 Crew \(`Annex A.5`\)**:) Tj T*
+(   - While **14 crew** provides `9` deck/payload personnel \(enough to staff two manual handling teams ) Tj T*
+(for non-conflicting tasks\), **G2 ROV/winch deployment and G4 UAV launch/recovery are physically ) Tj T*
+(incompatible**: \(a\) Annex A.5 mandates that *"Launch or recovery of a drone requires the flight deck ) Tj T*
+(to be clear of other ongoing deck operations"* \(`state.deck_clear == True`\), and \(b\) **G2** requires ) Tj T*
+(low-speed station-keeping \(`0-5 kn`\) whereas **G4** requires `5-12 kn` with vessel heading aligned ) Tj T*
+(within `+/- 15 deg` of the wind.) Tj T*
+(2. **Why G6 \(`420 kg`, `bay2`/`bay1_a`\) Is Strictly Port-Only Across All Crew Regimes \(`Annex A.4 & ) Tj T*
+(A.5`\)**:) Tj T*
+(   - Annex A.5 specifies that payload installation in **Bays 1-2** and **Mast Positions 1-3** is a ) Tj T*
+(**port-only operation**, and Annex A.4 restricts at-sea A' package installation to light deck packages) Tj T*
+( **`<= 250 kg`** in `Sea State <= 3`, `wind <= 20 kn`, and `4-8 kn`. Because **G6** weighs `420 kg > ) Tj T*
+(250 kg` and installs into `bay2` / `bay1_a`, `G6` has `port_only: true` and is rejected \(`NO` / ) Tj T*
+(`NOT_NOW`\) for at-sea installation under **14**, **6**, and **0** crew alike.) Tj T*
+(3. **Acoustic Survey Deck-Machinery Lockout \(`G3` `forbids_deck_machinery_while_active=True`\)**:) Tj T*
+(   - Across both **14** and **6** crew regimes, while **G3** is in `SURVEY_QUIET` \(`1 kW`, `2-6 kn`\), ) Tj T*
+(hydraulic A-frames, winches \(**G2**\), and flight-deck handling gear \(**G4**\) are locked out to prevent) Tj T*
+( acoustic corruption of the seabed survey sonar.) Tj T*
+(   - Before turning into the wind or operating deck machinery for **G4** recovery, the governor must ) Tj T*
+(issue `ACOUSTIC_HOLD` to **G3**, verify a causal `ACOUSTIC_HOLD_CONFIRMED` ACK from `guest_id='G3'` ) Tj T*
+(matching the active `command_id` and `plan_version` \(`15 s` nominal acoustic handshake, `60 s` ) Tj T*
+(timeout\), and confirm **G3** has transitioned to `HOLD_ACOUSTIC`.) Tj T*
+(4. **Separation of Normal Flight Window vs. A' At-Sea Replacement Window \(`CRW-03`\)**:) Tj T*
+(   - **Normal G4 Flight Launch/Recovery**: vessel speed **`5-12 kn`**, wind **`<= 25 kn`**, Sea State ) Tj T*
+(**`<= 4`**, heading aligned within `+/- 15 deg` of wind, `deck_clear=True`, **`2` deck crew** ) Tj T*
+(\(permitted under **14** and **6** crew\).) Tj T*
+(   - **A' At-Sea Vehicle Replacement**: vessel speed **`4-8 kn`**, wind **`<= 20 kn`**, Sea State ) Tj T*
+(**`<= 3`**, `deck_clear=True`, **`3` deck crew / `30 min`** for **G4** or **`4` deck crew / `45 min`**) Tj T*
+( for **G3** \(permitted only under **14** crew; blocked under **6** and **0** crew\).) Tj T*
 () Tj T*
 (---) Tj T*
 () Tj T*
-/F2 9 Tf (## 3. Acoustic Survey Deck-Machinery Lockout & $A'$ Window Separation) Tj /F1 8 Tf T*
-(1. **Acoustic Survey Lockout \(`G3` `forbids_deck_machinery_while_active=True`\)**:) Tj T*
-(   - Regardless of whether **14** or **6** crew are aboard, while **G3** is in `SURVEY_QUIET` \(`1 kW`,) Tj T*
-( `2-6 kn`\), hydraulic A-frames, winches \(`G2`\), and flight-deck handling gear \(`G4`\) are **locked ) Tj T*
-(out** to prevent acoustic corruption of the seabed survey sonar.) Tj T*
-(   - To launch or recover **G4** \(`UAV_SAR`\) or deploy **G2** \(`ROV_INSPECTION`\), the governor must ) Tj T*
-(first issue `ACOUSTIC_HOLD` to **G3**, wait for the mandatory **`15 s` acoustic modem handshake** ) Tj T*
-(\(`10-60 s` spec\), and confirm G3 is in `HOLD_ACOUSTIC` before unlocking deck machinery or turning into) Tj T*
-( the wind.) Tj T*
-(2. **Separation of Normal Flight Window vs. $A'$ At-Sea Replacement Window \(`CRW-03`\)**:) Tj T*
-(   - **Normal G4 Flight Launch/Recovery**: vessel speed **`5-12 kn`**, wind **$\\le 25\\text{ kn}$**, ) Tj T*
-(Sea State **$\\le 4$**, heading aligned within $\\pm 15^\\circ$ of wind, **`2` deck crew**.) Tj T*
-(   - **$A'$ At-Sea Vehicle Replacement**: vessel speed **`4-8 kn`**, wind **$\\le 20\\text{ kn}$**, Sea ) Tj T*
-(State **$\\le 3$** \(`G4`, `3` crew / `30 min`\) or **$\\le 4$** \(`G3`, `4` crew / `45 min`\). At `10 kn` ) Tj T*
-(and `22 kn` wind, normal UAV recovery is admitted \(`YES`\), whereas at-sea vehicle replacement is ) Tj T*
-(rejected \(`NOT_NOW` / blocked by $A'$ envelope\).) Tj T*
-() Tj T*
-(---) Tj T*
-() Tj T*
-/F2 9 Tf (## 4. Fault Governance Under Reduced and Uncrewed Regimes \(`RUN-03`, `RUN-04`, `SAF-01`\)) Tj /F1 8 Tf T*
-(When operating with **6** or **0** crew, physical manual intervention on tripped breakers or ) Tj T*
-(overheated racks is slow \(**6 crew**\) or impossible \(**0 crew**\). The governor enforces three ) Tj T*
-(automated fail-safe barriers:) Tj T*
-(- **Urgent Safety Commands \(`STOP`, `HOLD`, `SECURE` $\\le 200\\text{ ms}$, `SAF-01`\)**: Routed strictly) Tj T*
-( over the dual `10 Gbps` local shipboard LAN \(`<5 ms` transport latency\), never over `600-800 ms` ) Tj T*
-(SATCOM. Measured execution latency on both MacBook Pro and the `aarch64` Linux board \(`training06`\) is) Tj T*
-( **`< 1 ms`** \($\\ll 200\\text{ ms}$ budget\).) Tj T*
+/F2 9 Tf (## 4. Fault Governance & Decision Escalation Under Reduced \(6\) and Uncrewed \(0\) Regimes) Tj /F1 8 Tf T*
+(When operating with **6** or **0** crew, manual intervention on tripped breakers, overconsuming ) Tj T*
+(payloads, or degraded cooling loops is delayed \(**6 crew**: `60-180 s` watch handover\) or impossible ) Tj T*
+(\(**0 crew**\). The governor enforces three automated fail-safe barriers:) Tj T*
+(- **Urgent Safety Commands \(`STOP`, `HOLD`, `SECURE <= 200 ms`, `SAF-01`\)**: Routed strictly over the ) Tj T*
+(dual `10 Gbps` local shipboard LAN \(`< 5 ms` transport latency\), never over `600-800 ms` SATCOM. ) Tj T*
+(Measured execution latency on both MacBook Pro \(`arm64`\) and the live Arduino Ventuno Q \(`training06`,) Tj T*
+( `aarch64`\) is **`< 1 ms`** \(`<< 200 ms` deadline\).) Tj T*
 (- **Guest Overconsumption \(`+10%` to `+20%`, `RUN-04`\)**: Because none of `G1`-`G5` is safety-critical) Tj T*
-( by design, if a payload \(e.g., `G5` declared `45 kW` drawing `54 kW` = `+20%`\) exceeds its manifest ) Tj T*
-(envelope, 1:1 thermal coupling immediately adds `+9 kW` to the chilled-water ledger and the governor ) Tj T*
-(autonomously throttles `G5` to `DEGRADED_70PCT_LOSS` \(`8 kW`\) while protecting active ) Tj T*
-(uninterruptible/recovery tasks \(`G3` recharge, `G4` flight/recovery\).) Tj T*
-(- **Lost or Stale Telemetry Feeds \(`RUN-03`\)**: If `seawater_temp_c` exceeds its `5,000 ms` TTL ) Tj T*
-(\(`STALE` / `UNAVAILABLE`\), the governor never extrapolates optimistic cooling; it clamps to the ) Tj T*
-(conservative **$30\\,^\\circ\\text{C}$ \(`120 kW` nominal / `72 kW` degraded\)** thermal bound until sensor) Tj T*
-( freshness is restored.) Tj T*
+( by design, if a payload \(e.g., **G5** declared `45 kW` drawing `54 kW` = `+20%`\) exceeds its manifest) Tj T*
+( envelope, 1:1 thermal coupling immediately adds `+9 kW` to the chilled-water ledger and the governor ) Tj T*
+(autonomously throttles **G5** to `DEGRADED_70PCT_LOSS` \(`8 kW`\) while protecting active ) Tj T*
+(uninterruptible/recovery tasks \(**G3** recharge, **G4** flight/recovery\).) Tj T*
+(- **Lost or Stale Telemetry Feeds \(`RUN-03`\)**: If `seawater_temp_c` exceeds its TTL \(`STALE` / ) Tj T*
+(`UNAVAILABLE`\), the governor never extrapolates optimistic cooling; it clamps to the conservative ) Tj T*
+(**`30 deg C` \(`120 kW` nominal / `72 kW` degraded\)** thermal bound until sensor freshness is restored.) Tj T*
 ET
 endstream
 endobj
@@ -130,11 +146,11 @@ xref
 0000000127 00000 n 
 0000000197 00000 n 
 0000000272 00000 n 
-0000003468 00000 n 
-0000003604 00000 n 
-0000007181 00000 n 
+0000004057 00000 n 
+0000004193 00000 n 
+0000008902 00000 n 
 trailer
 << /Size 9 /Root 1 0 R >>
 startxref
-7317
+9038
 %%EOF

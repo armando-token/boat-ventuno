@@ -2,28 +2,28 @@
   "campaign_semantic_sha256_match": true,
   "code_sha256_match": true,
   "local_execution": {
-    "campaign_semantic_sha256": "185ef94ec07c1e3e03ddc5ddfa790c17f3af3df5535350b315709c1da2badae0",
-    "code_sha256": "0410255acac68df3e9237c8d3cabd5751007092a154bb011b5c802195701a81a",
+    "campaign_semantic_sha256": "ea79ed14a6580ab817aeb37d6446d6891f43d3052c5022e27a036935ebfb0024",
+    "code_sha256": "e1892b74db5003fb964256213f2a98ffafd767ba268f8f8a19c97507d6f3b8f3",
     "hostname": "MacBook-Pro-7.local",
     "machine": "arm64",
-    "pid": 18921,
+    "pid": 23437,
     "python_version": "3.13.15",
-    "rss_kib": 48480,
+    "rss_kib": 45056,
     "system": "Darwin",
-    "wall_elapsed_ms": 194.024
+    "wall_elapsed_ms": 187.112
   },
   "parity_verified": true,
   "remote_execution": {
-    "campaign_semantic_sha256": "185ef94ec07c1e3e03ddc5ddfa790c17f3af3df5535350b315709c1da2badae0",
-    "code_sha256": "0410255acac68df3e9237c8d3cabd5751007092a154bb011b5c802195701a81a",
+    "campaign_semantic_sha256": "ea79ed14a6580ab817aeb37d6446d6891f43d3052c5022e27a036935ebfb0024",
+    "code_sha256": "e1892b74db5003fb964256213f2a98ffafd767ba268f8f8a19c97507d6f3b8f3",
     "hostname": "training06",
     "machine": "aarch64",
-    "pid": 224031,
+    "pid": 335503,
     "python_version": "3.12.3",
-    "rss_kib": 30604,
+    "rss_kib": 30616,
     "ssh_target": "ardu",
     "system": "Linux",
-    "wall_elapsed_ms": 566.47
+    "wall_elapsed_ms": 574.152
   },
   "scenario_B_cooling_limited_match": true,
   "scenario_B_rescue_primary_match": true,

@@ -100,8 +100,9 @@ function renderTimelineTick(tickIdx) {
   document.getElementById("timeline-slider").value = clamped;
   const t = ticks[clamped];
   const compFactor = currentStatePayload.time_compression ? currentStatePayload.time_compression.acceleration_factor : 20;
+  const phaseTag = t.is_prediction ? "PREDICTION" : "EXECUTED";
   document.getElementById("timeline-label").textContent =
-    `Tick ${String(t.tick).padStart(2, "0")}/90 (Sim T=${t.sim_time_s}s, ${compFactor}x)`;
+    `Tick ${String(t.tick).padStart(2, "0")}/90 (Sim T=${t.sim_time_s}s, ${compFactor}x, ${phaseTag})`;
 
   const tickSnapshotId = t.snapshot_id || currentStatePayload.snapshot_id;
   renderTopBadges(currentStatePayload, tickSnapshotId);
@@ -114,7 +115,7 @@ function renderTimelineTick(tickIdx) {
     .join(" | ");
 
   document.getElementById("tick-status-box").innerHTML = `
-    <div><strong>Snapshot:</strong> ${tickSnapshotId} | <strong>Plan Version:</strong> v${t.plan_version || 0} | <strong>Vessel Mode:</strong> ${t.vessel_mode} (${t.speed_kn ?? 3} kn, wind ${t.wind_kn ?? 14} kn, SS ${t.sea_state ?? 2}, ${t.seawater_temp_c ?? 24}°C) | <strong>Feasible:</strong> ${t.feasible ? "YES" : "NO"}</div>
+    <div><strong>Run:</strong> ${currentStatePayload.run_id || "RUN_01"} (${phaseTag}) | <strong>Snapshot:</strong> ${tickSnapshotId} | <strong>Plan Version:</strong> v${t.plan_version || 0} | <strong>Vessel Mode:</strong> ${t.vessel_mode} (${t.speed_kn ?? 3} kn, wind ${t.wind_kn ?? 14} kn, SS ${t.sea_state ?? 2}, ${t.seawater_temp_c ?? 24}°C) | <strong>Feasible:</strong> ${t.feasible ? "YES" : "NO"}</div>
     <div><strong>Power:</strong> Actual=${t.power_actual_w} W | Firm Committed=${t.power_committed_w} W | Reserve Cap=${t.power_capacity_w} W</div>
     <div><strong>Chilled Water Cooling:</strong> Actual=${t.cooling_actual_w} W | Effective Cap=${t.cooling_capacity_w} W | <strong>Inertia:</strong> ${t.thermal_inertia_status || "NOMINAL"}</div>
     <div><strong>Active Guests:</strong> ${guestSummary}</div>
@@ -132,6 +133,8 @@ function renderTimelineTick(tickIdx) {
   const relevantDecisions = replay.decisions.filter((d) => d.tick <= clamped);
   document.getElementById("decision-log-box").textContent = JSON.stringify(
     {
+      run_id: currentStatePayload.run_id,
+      tick_state: phaseTag,
       snapshot_id: tickSnapshotId,
       priority_profile_id: replay.priority_profile_id,
       executed_touchdown_time_s: replay.executed_touchdown_time_s,
@@ -172,8 +175,14 @@ function renderCombinationsTable(combosReport) {
   `;
 }
 
-document.getElementById("select-priority").addEventListener("change", (e) => {
-  fetchConsoleState(e.target.value);
+document.getElementById("select-priority").addEventListener("change", async (e) => {
+  const prof = e.target.value;
+  await fetch("/api/profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ priority_profile_id: prof }),
+  });
+  await fetchConsoleState(prof);
 });
 
 document.getElementById("timeline-slider").addEventListener("input", (e) => {
@@ -188,21 +197,35 @@ document.getElementById("btn-play").addEventListener("click", () => {
     currentStatePayload.time_compression.tick_interval_wall_ms
       ? currentStatePayload.time_compression.tick_interval_wall_ms
       : 1000;
-  playInterval = setInterval(() => {
+  playInterval = setInterval(async () => {
     if (currentTickIndex >= 90) {
       clearInterval(playInterval);
       playInterval = null;
       return;
     }
-    renderTimelineTick(currentTickIndex + 1);
+    const nextIdx = currentTickIndex + 1;
+    const targetSimS = nextIdx * 20;
+    const prof = document.getElementById("select-priority").value;
+    await fetch("/api/advance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target_sim_time_s: targetSimS, runner_status: nextIdx >= 90 ? "COMPLETED" : "RUNNING" }),
+    });
+    currentTickIndex = nextIdx;
+    await fetchConsoleState(prof);
   }, wallIntervalMs);
 });
 
-document.getElementById("btn-pause").addEventListener("click", () => {
+document.getElementById("btn-pause").addEventListener("click", async () => {
   if (playInterval) {
     clearInterval(playInterval);
     playInterval = null;
   }
+  await fetch("/api/runner", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ delta_sim_s: 0, runner_status: "PAUSED" }),
+  });
 });
 
 document.getElementById("btn-reset").addEventListener("click", async () => {
@@ -224,10 +247,15 @@ document.querySelectorAll("[data-perturb]").forEach((btn) => {
   btn.addEventListener("click", async () => {
     const pType = btn.getAttribute("data-perturb");
     const prof = document.getElementById("select-priority").value;
+    const targetSimS = currentTickIndex * 20;
     const res = await fetch("/api/perturb", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ perturbation_type: pType, priority_profile_id: prof }),
+      body: JSON.stringify({
+        perturbation_type: pType,
+        priority_profile_id: prof,
+        sim_time_s: targetSimS,
+      }),
     });
     const payload = await res.json();
     await fetchConsoleState(prof);

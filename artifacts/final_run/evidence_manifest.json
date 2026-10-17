@@ -1,56 +1,56 @@
 {
   "environment": {
     "hostname": "MacBook-Pro-7.local",
-    "pid": 23437,
+    "pid": 26841,
     "platform_machine": "arm64",
     "platform_system": "Darwin",
     "python_version": "3.13.15",
-    "wall_elapsed_ms": 188.836
+    "wall_elapsed_ms": 208.382
   },
   "files": {
     "decisions.json": {
-      "sha256": "cb42a900e30628ce46eab190145c5f76f2dea97d79bf24f1a43c344774d886cf",
+      "sha256": "d713b85989a0679749ade7ee8a921d400d954b4f523837ea8b39cc75f8ce8211",
       "size_bytes": 165707
     },
     "junit.xml": {
-      "sha256": "2fc35e6f426fef748fcdf4c40d4a1de5848dab3d7f2e580bf6c44e1eae237036",
-      "size_bytes": 13086
+      "sha256": "e37733ec2cd37631b30580c346ffb950642f29c0ee7a5f6245f183621a51eda0",
+      "size_bytes": 14290
     },
     "junit_ventuno_aarch64.xml": {
-      "sha256": "745d1c570a1fdb0dd01acd45ed6f353d12966edadc2f2f8f28926c0c1ca2b869",
-      "size_bytes": 13077
+      "sha256": "e6cb61d297e4568926c270884905bc583d360395ac7ef2dfe28dd3d49d129413",
+      "size_bytes": 14281
     },
     "metrics_summary.json": {
-      "sha256": "17acf6856f19fa79a6414e224b39c723f507a7c99f474792339cdbad0633298f",
-      "size_bytes": 939
+      "sha256": "a6604809d4ea91bade455e6ff45b812b64184c6b7902a3146462e620fa406b3b",
+      "size_bytes": 938
     },
     "remote_parity.json": {
-      "sha256": "9d2982ee58035f6edaa32fcbed2e7381a918beb0f0226c89c1d9b7a2cff69d26",
+      "sha256": "5225181c3e1341982f3755f505c48b0330b705f420971934c675de44802dccc6",
       "size_bytes": 1081
     },
     "replay_timeline.json": {
-      "sha256": "01d96d8105a606d58bd0122b18e6a579a5001c1deee57189f3a19ccddd94e0b5",
-      "size_bytes": 3113872
+      "sha256": "815eccc1a8d433e1bdb0492e14eebbc388444b2cac6c6442c595c56dbc0fbb83",
+      "size_bytes": 3113895
     },
     "requirements_matrix.csv": {
-      "sha256": "9f549ec39680cd414da0ea25f5bea81743dfe36e2708e06c62eae60cb302511d",
-      "size_bytes": 21039
+      "sha256": "aa87000726c9368b36d1f95ac8be71336cfdb1da04284ed15f6da3d4003f1712",
+      "size_bytes": 22398
     }
   },
-  "generated_at_utc": "2026-10-17T20:57:56Z",
-  "git_commit": "c28d814e489d5303425be5a478dabbc3e1f7a585",
+  "generated_at_utc": "2026-10-17T22:06:37Z",
+  "git_commit": "c3989e01a566b52837a37f85bbedf17ac2138f60",
   "junit_summary": {
     "errors": 0,
     "failures": 0,
     "skipped": 0,
-    "tests": 98
+    "tests": 106
   },
   "metrics": {
     "cooling_limited_semantic_sha256": "510d212ae57801c7c709a562055438ba64dac20eb1c8aa786c430c38e90e5309",
     "cooling_limited_ticks_count": 91,
     "errata_exceed_10000_kg_count": 3,
-    "max_tick_calc_ms": 0.6029,
-    "min_tick_calc_ms": 0.0409,
+    "max_tick_calc_ms": 0.653,
+    "min_tick_calc_ms": 0.0449,
     "rescue_primary_semantic_sha256": "be2977c84fcf9709d34d256c971c78effaffd780dfa0d3f02187eb1b159fca0f",
     "rescue_primary_ticks_count": 91,
     "survey_primary_semantic_sha256": "e3e0bbed04dc6297bce6af303ad7a22ebe5af1292b1b05cd947fd0a76b851f82",

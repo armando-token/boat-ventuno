@@ -4,7 +4,7 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Kids [6 0 R] /Count 1 >>
+<< /Type /Pages /Kids [7 0 R] /Count 1 >>
 endobj
 3 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
@@ -13,107 +13,237 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
 endobj
 5 0 obj
-<< /Length 6893 >>
-stream
-BT
-/F1 7 Tf
-36 768 Td
-8 TL
-/F2 8 Tf (# Physical Account -- 8-Class Resource Ledger & Errata Verification \(1 Page\)) Tj /F1 7 Tf T*
-() Tj T*
-/F2 8 Tf (## 1. Subcomponent Mass, Position & Stability Ledger \(Organizer Errata Applied\)) Tj /F1 7 Tf T*
-(Stability is computed strictly per subcomponent and assigned position \(x1.0 main deck bays bay1/bay2, x1.2 ) Tj T*
-(hangar/hangar_roof/flight_deck, x3.0 mast_3\), never by multiplying an entire multi-part guest by the mast factor. ) Tj T*
-(Local structural limits \(Bay 1 <= 8,000 kg, Bay 2 <= 4,000 kg, Hangar <= 1,000 kg, VTOL airframe <= 150 kg, mast_3 ) Tj T*
-(<= 60 kg / 0.6 m2, hangar_roof <= 150 kg / 2.0 m2\) are enforced alongside global limits \(10,000 kg mass, 12,000 kg-) Tj T*
-(eq stability\). Under the organizer errata, G4 hangar station is 850 kg \(overriding PDF 900 kg\) + 140 kg drone = 990 ) Tj T*
-(kg, and G5 includes both the 3,000 kg container and 25 kg antenna = 3,025 kg:) Tj T*
-() Tj T*
-(| Guest ID & Official Name | Subcomponents & Assigned Positions | Mass \(kg\) | Stability Multiplier & Calculation | ) Tj T*
-(Stability \(kg-eq\) | Electrical, Thermal & Data Envelope |) Tj T*
-(|---|---|---:|---|---:|---|) Tj T*
-(| G1 -- Passive Radio & Meteo Sensor | G1_MAST_SENSOR_HEAD -> mast_3 \(0.5 m2\) | 45 | 45 x 3.0 \(mast_3\) | 135.0 | 1.5) Tj T*
-( kW air on mast_3 \(<= 2.0 kW limit; 0 W water\); 50 Mbps LAN, 200 kbps SATCOM |) Tj T*
-(| G2 -- Ocean & Weather Module | G2_ROV_WINCH_CONTAINER_10FT -> bay2 / bay1_a | 3,500 | 3,500 x 1.0 \(deck bay\) | ) Tj T*
-(3,500.0 | 20 kW sustained 300 s winch / 6 kW continuous -> water; 5 Mbps LAN, 500 kbps SATCOM |) Tj T*
-(| G3 -- Seabed Inspection AUV + Cradle | G3_AUV_CRADLE_BAY1_20FT -> bay1 \(20 ft via ramp\) | 5,500 | 5,500 x 1.0 ) Tj T*
-(\(deck bay\) | 5,500.0 | 1 kW survey / 25 kW \(3,600 s\) uninterruptible charge -> water; 100 Mbps cradle LAN |) Tj T*
-(| G4 -- VTOL Rescue Drone + Hangar \(Errata\) | G4_DRONE_VEHICLE \(140 kg\) + G4_HANGAR_STATION \(850 kg\) -> hangar | 990) Tj T*
-( | \(140 + 850\) x 1.2 \(hangar <= 1,000 kg\) | 1,188.0 | 35 kW \(1,200 s\) recovery/charge, 10 kW patrol, 2 kW standby \(0) Tj T*
-( bps silence\); 20 Mbps LAN |) Tj T*
-(| G5 -- Emergency Comms & Edge Compute | G5_COMPUTE_CONTAINER \(3,000 kg -> bay2/bay1_a\) + G5_MAST_ANTENNA \(25 kg -> ) Tj T*
-(mast_3/hangar_roof\) | 3,025 | 3,000 x 1.0 + 25 x 3.0 \(mast_3\) or + 25 x 1.2 \(roof\) | 3,075.0 \(3,030.0 roof\) | 45 kW ) Tj T*
-(\(43.8 kW water + 1.2 kW air\) / 8 kW degraded \(30% retention\); 1 Gbps LAN, 6 Mbps SATCOM |) Tj T*
-(| G6 -- Civil Hydrographic & eDNA Micro-Sampler | G6_HYDRO_SKID_10FT -> bay2 / bay1_a \(All fields ASSUMED, ) Tj T*
-(port_only=true\) | 420 | 420 x 1.0 \(deck bay\) | 420.0 | 4.5 kW \(1,800 s\) / 1.5 kW eco -> water; 30 Mbps LAN, 200 kbps) Tj T*
-( SATCOM |) Tj T*
-() Tj T*
-(---) Tj T*
-() Tj T*
-/F2 8 Tf (## 2. Five Combinations of Four Official Guests \({G1..G5}\): Mass vs. Full 8-Class Admission) Tj /F1 7 Tf T*
-(Evaluating all C\(5,4\) = 5 four-guest combinations confirms the organizer errata \(exact 3 of 5 exceed the 10,000 kg ) Tj T*
-(margin\) and proves why passing mass does not imply passing placement, mast/roof clearance, or 14-day Mission ) Tj T*
-(Envelope A.10 constraints:) Tj T*
-() Tj T*
-(| 4-Guest Set | Total Mass \(kg\) | > 10,000 kg? | Total Stability \(kg-eq\) | Physical Placement, Mast/Roof & Mission ) Tj T*
-(Envelope Verdict \(D1\) |) Tj T*
-(|---|---:|---|---:|---|) Tj T*
-(| {G1, G2, G3, G4} | 10,035 kg | YES \(+35 kg\) | 10,323.0 \(<= 12,000\) | YES_IF \(Exceeds 10,000 kg by 35 kg; ) Tj T*
-(displacing G2 yields 6,535 kg\) |) Tj T*
-(| {G1, G2, G3, G5} | 12,070 kg | YES \(+2,070 kg\) | 12,210.0 \(> 12,000\) | YES_IF \(Exceeds mass & stability; G1 & G5 ) Tj T*
-(collide on mast_3 and 1.5+1.2=2.7 kW > 2.0 kW mast air\) |) Tj T*
-(| {G1, G2, G4, G5} | 7,560 kg | NO \(2,440 kg free\) | 7,898.0 \(<= 12,000\) | YES_IF \(Passes mass/stability, but G5 ) Tj T*
-(antenna collides with G1 on mast_3 or requires G4 hangar_roof clearance\) |) Tj T*
-(| {G1, G3, G4, G5} | 9,560 kg | NO \(440 kg free\) | 9,898.0 \(<= 12,000\) | YES_IF \(Passes mass/stability with G5 ) Tj T*
-(container in bay2, but G5 antenna collides on mast_3 / hangar_roof\) |) Tj T*
-(| {G2, G3, G4, G5} | 13,015 kg | YES \(+3,015 kg\) | 13,263.0 \(> 12,000\) | YES_IF \(Exceeds mass & stability; G2+G5 ) Tj T*
-(containers cannot share bay2 \(6,500 kg > 4,000 kg\) while G3 occupies bay1\) |) Tj T*
-() Tj T*
-(\(Note: Replacing G5 with custom card G6 in {G1, G2, G4, G6} yields 4,955 kg, 5,243.0 kg-eq, G1 on mast_3, G2 on ) Tj T*
-(bay2, G4 in hangar, and G6 in bay1_a -> YES across all 8 resource classes.\)) Tj T*
-() Tj T*
-(---) Tj T*
-() Tj T*
-/F2 8 Tf (## 3. Cooling Curve, Thermal Inertia & Scenario B Power Accounting) Tj /F1 7 Tf T*
-(- Chilled-Water Curve: C\(T\) = 160,000 - 40,000 * \(T - 12\) / 18 W for T in [12, 30] deg C. At 30 deg C, C\(30\) = 120 ) Tj T*
-(kW nominal; with -40% loop degradation, C_deg\(30\) = 72 kW. Sustained loads \(> 60 s\) cannot borrow from the +30 kW / ) Tj T*
-(60 s \(1.8 MJ\) thermal inertia buffer.) Tj T*
-(- Scenario B Power vs. Cooling Binding: When D3 approves G4 recovery at T=480 s, the governor reserves G4's ) Tj T*
-(committed 35 kW recovery/charging load alongside G3's firm 25 kW post-leg recharge reservation. When generator ) Tj T*
-(reserve drops to 100 kW at T=720 s, instantaneous draw is 81 kW <= 100 kW during G4 recovery, whereas firm committed) Tj T*
-( power is 25 + 35 + 45 = 105 kW > 100 kW \(5 kW firm deficit\), and at 30 deg C degraded loop \(72 kW\), chilled-water ) Tj T*
-(load is 1 + 35 + 43.8 = 79.8 kW > 72 kW \(7.8 kW thermal deficit\). Stepping down G5 \(45 kW -> 8 kW\) at T=720 s saves ) Tj T*
-(37 kW power and 36.3 kW water cooling, maintaining 68 kW <= 100 kW \(32 kW free margin\) and zero infeasible ticks ) Tj T*
-(across the entire timeline.) Tj T*
-() Tj T*
-(---) Tj T*
-() Tj T*
-/F2 8 Tf (## 4. What would change if the vessel had one single platform modification \(`mast_4`\)?) Tj /F1 7 Tf T*
-(If a single structural modification were made to the vessel -- adding a second guest mast slot `mast_4` \(`<= 60 kg`,) Tj T*
-( `<= 0.6 m2`, `<= 2.0 kW` independent forced-air cooling, `x3.0` stability multiplier\) -- both mass-feasible four-) Tj T*
-(guest combinations `{G1, G2, G4, G5}` \(`7,560 kg`, `7,898.0 kg-eq`\) and `{G1, G3, G4, G5}` \(`9,560 kg`, `9,898.0 kg-) Tj T*
-(eq`\) would immediately transition from conditional/blocked \(`YES_IF`\) to unconditional **`YES`** across all 8 ) Tj T*
-(resource classes and all 5 windows of the 14-day Mission Envelope A.10, because `G1_MAST_SENSOR_HEAD` \(`45 kg`, `1.5) Tj T*
-( kW` air on `mast_3`\) and `G5_MAST_ANTENNA` \(`25 kg`, `1.2 kW` air on `mast_4`\) would occupy separate mast slots ) Tj T*
-(without exceeding the `2.0 kW` per-slot air-cooling limit or encroaching on `G4`'s `hangar_roof` VTOL rotor ) Tj T*
-(clearance.) Tj T*
-ET
-endstream
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+<< /Length 19674 >>
+stream
+q 0.10 0.21 0.36 rg 26.00 753.18 560.00 14.82 re f Q
+BT /F2 8.30 Tf 1.00 1.00 1.00 rg 34.00 757.94 Td (Physical Account -- 8-Class Resource Ledger & Errata Verification \(1 Page\)) Tj ET
+BT /F2 7.10 Tf 0.11 0.24 0.44 rg 26.00 741.58 Td (1. Subcomponent Mass, Position & Stability Ledger \(Organizer Errata Applied\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 739.58 560.00 0.60 re f Q
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 729.32 Td (Stability is computed strictly per subcomponent and assigned position \(x1.0 main deck bays bay1/bay2, x1.2 hangar/hangar_roof/flight_deck, x3.0 mast_3\), never by multiplying an) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 721.72 Td (entire multi-part guest by the mast factor. Local structural limits \(Bay 1 <= 8,000 kg, Bay 2 <= 4,000 kg, Hangar <= 1,000 kg, VTOL airframe <= 150 kg, mast_3 <= 60 kg / 0.6 m2,) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 714.12 Td (hangar_roof <= 150 kg / 2.0 m2\) are enforced alongside global limits \(10,000 kg mass, 12,000 kg-eq stability\). Under the organizer errata, G4 hangar station is 850 kg) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 706.52 Td (\(overriding PDF 900 kg\) + 140 kg drone = 990 kg, and G5 includes both the 3,000 kg container and 25 kg antenna = 3,025 kg:) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 687.82 84.73 17.20 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 29.00 697.42 Td (Guest ID & Official Name) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 110.73 687.82 144.00 17.20 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 113.73 697.42 Td (Subcomponents & Assigned Positions) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 254.73 687.82 43.73 17.20 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 257.73 697.42 Td (Mass \(kg\)) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 298.46 687.82 94.02 17.20 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 301.46 697.42 Td (Stability Multiplier &) Tj ET
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 301.46 690.82 Td (Calculation) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 392.49 687.82 50.61 17.20 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 395.49 697.42 Td (Stability) Tj ET
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 395.49 690.82 Td (\(kg-eq\)) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 443.10 687.82 142.90 17.20 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 446.10 697.42 Td (Electrical, Thermal & Data Envelope) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 670.62 84.73 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 680.22 Td (G1 -- Passive Radio &) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 673.62 Td (Meteo Sensor) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 110.73 670.62 144.00 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 680.22 Td (G1_MAST_SENSOR_HEAD -> mast_3 \(0.5 m2\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 254.73 670.62 43.73 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 257.73 680.22 Td (45) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 298.46 670.62 94.02 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 680.22 Td (45 x 3.0 \(mast_3\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 392.49 670.62 50.61 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 395.49 680.22 Td (135.0) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 443.10 670.62 142.90 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 680.22 Td (1.5 kW air on mast_3 \(<= 2.0 kW limit; 0 W) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 673.62 Td (water\); 50 Mbps LAN, 200 kbps SATCOM) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 646.82 84.73 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 663.02 Td (G2 -- Ocean & Weather) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 656.42 Td (Module) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 110.73 646.82 144.00 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 663.02 Td (G2_ROV_WINCH_CONTAINER_10FT -> bay2 /) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 656.42 Td (bay1_a) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 254.73 646.82 43.73 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 257.73 663.02 Td (3,500) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 298.46 646.82 94.02 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 663.02 Td (3,500 x 1.0 \(deck bay\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 392.49 646.82 50.61 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 395.49 663.02 Td (3,500.0) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 443.10 646.82 142.90 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 663.02 Td (20 kW sustained 300 s winch / 6 kW) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 656.42 Td (continuous -> water; 5 Mbps LAN, 500 kbps) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 649.82 Td (SATCOM) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 623.02 84.73 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 639.22 Td (G3 -- Seabed Inspection) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 632.62 Td (AUV + Cradle) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 110.73 623.02 144.00 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 639.22 Td (G3_AUV_CRADLE_BAY1_20FT -> bay1 \(20 ft via) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 632.62 Td (ramp\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 254.73 623.02 43.73 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 257.73 639.22 Td (5,500) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 298.46 623.02 94.02 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 639.22 Td (5,500 x 1.0 \(deck bay\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 392.49 623.02 50.61 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 395.49 639.22 Td (5,500.0) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 443.10 623.02 142.90 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 639.22 Td (1 kW survey / 25 kW \(3,600 s\)) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 632.62 Td (uninterruptible charge -> water; 100 Mbps) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 626.02 Td (cradle LAN) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 599.22 84.73 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 615.42 Td (G4 -- VTOL Rescue Drone) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 608.82 Td (+ Hangar \(Errata\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 110.73 599.22 144.00 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 615.42 Td (G4_DRONE_VEHICLE \(140 kg\) +) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 608.82 Td (G4_HANGAR_STATION \(850 kg\) -> hangar) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 254.73 599.22 43.73 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 257.73 615.42 Td (990) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 298.46 599.22 94.02 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 615.42 Td (\(140 + 850\) x 1.2 \(hangar) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 608.82 Td (<= 1,000 kg\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 392.49 599.22 50.61 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 395.49 615.42 Td (1,188.0) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 443.10 599.22 142.90 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 615.42 Td (35 kW \(1,200 s\) recovery/charge, 10 kW) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 608.82 Td (patrol, 2 kW standby \(0 bps silence\); 20) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 602.22 Td (Mbps LAN) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 575.42 84.73 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 591.62 Td (G5 -- Emergency Comms &) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 585.02 Td (Edge Compute) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 110.73 575.42 144.00 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 591.62 Td (G5_COMPUTE_CONTAINER \(3,000 kg ->) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 585.02 Td (bay2/bay1_a\) + G5_MAST_ANTENNA \(25 kg ->) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 578.42 Td (mast_3/hangar_roof\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 254.73 575.42 43.73 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 257.73 591.62 Td (3,025) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 298.46 575.42 94.02 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 591.62 Td (3,000 x 1.0 + 25 x 3.0) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 585.02 Td (\(mast_3\) or + 25 x 1.2) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 578.42 Td (\(roof\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 392.49 575.42 50.61 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 395.49 591.62 Td (3,075.0) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 395.49 585.02 Td (\(3,030.0) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 395.49 578.42 Td (roof\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 443.10 575.42 142.90 23.80 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 591.62 Td (45 kW \(43.8 kW water + 1.2 kW air\) / 8 kW) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 585.02 Td (degraded \(30% retention\); 1 Gbps LAN, 6) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 578.42 Td (Mbps SATCOM) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 558.22 84.73 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 567.82 Td (G6 -- Civil Hydrographic) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 561.22 Td (& eDNA Micro-Sampler) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 110.73 558.22 144.00 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 567.82 Td (G6_HYDRO_SKID_10FT -> bay2 / bay1_a \(All) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 113.73 561.22 Td (fields ASSUMED, port_only=true\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 254.73 558.22 43.73 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 257.73 567.82 Td (420) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 298.46 558.22 94.02 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 301.46 567.82 Td (420 x 1.0 \(deck bay\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 392.49 558.22 50.61 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 395.49 567.82 Td (420.0) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 443.10 558.22 142.90 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 567.82 Td (4.5 kW \(1,800 s\) / 1.5 kW eco -> water; 30) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 446.10 561.22 Td (Mbps LAN, 200 kbps SATCOM) Tj ET
+BT /F2 7.10 Tf 0.11 0.24 0.44 rg 26.00 547.12 Td (2. Five Combinations of Four Official Guests \({G1..G5}\): Mass vs. Full 8-Class Admission) Tj ET
+q 0.75 0.82 0.90 rg 26.00 545.12 560.00 0.60 re f Q
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 534.86 Td (Evaluating all C\(5,4\) = 5 four-guest combinations confirms the organizer errata \(exact 3 of 5 exceed the 10,000 kg margin\) and proves why passing mass does not imply passing) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 527.26 Td (placement, mast/roof clearance, or 14-day Mission Envelope A.10 constraints:) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 515.16 70.18 10.60 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 29.00 518.16 Td (4-Guest Set) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 96.18 515.16 70.18 10.60 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 99.18 518.16 Td (Total Mass \(kg\)) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 166.35 515.16 70.29 10.60 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 169.35 518.16 Td (> 10,000 kg?) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 236.64 515.16 83.86 10.60 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 239.64 518.16 Td (Total Stability \(kg-eq\)) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 320.50 515.16 265.50 10.60 re B Q
+BT /F2 5.60 Tf 1.00 1.00 1.00 rg 323.50 518.16 Td (Physical Placement, Mast/Roof & Mission Envelope Verdict \(D1\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 504.56 70.18 10.60 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 507.56 Td ({G1, G2, G3, G4}) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 96.18 504.56 70.18 10.60 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 99.18 507.56 Td (10,035 kg) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 166.35 504.56 70.29 10.60 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 169.35 507.56 Td (YES \(+35 kg\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 236.64 504.56 83.86 10.60 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 239.64 507.56 Td (10,323.0 \(<= 12,000\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 320.50 504.56 265.50 10.60 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 507.56 Td (YES_IF \(Exceeds 10,000 kg by 35 kg; displacing G2 yields 6,535 kg\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 487.36 70.18 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 496.96 Td ({G1, G2, G3, G5}) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 96.18 487.36 70.18 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 99.18 496.96 Td (12,070 kg) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 166.35 487.36 70.29 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 169.35 496.96 Td (YES \(+2,070 kg\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 236.64 487.36 83.86 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 239.64 496.96 Td (12,210.0 \(> 12,000\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 320.50 487.36 265.50 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 496.96 Td (YES_IF \(Exceeds mass & stability; G1 & G5 collide on mast_3 and 1.5+1.2=2.7 kW >) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 490.36 Td (2.0 kW mast air\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 470.16 70.18 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 479.76 Td ({G1, G2, G4, G5}) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 96.18 470.16 70.18 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 99.18 479.76 Td (7,560 kg) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 166.35 470.16 70.29 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 169.35 479.76 Td (NO \(2,440 kg free\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 236.64 470.16 83.86 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 239.64 479.76 Td (7,898.0 \(<= 12,000\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 320.50 470.16 265.50 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 479.76 Td (YES_IF \(Passes mass/stability, but G5 antenna collides with G1 on mast_3 or) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 473.16 Td (requires G4 hangar_roof clearance\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 452.96 70.18 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 462.56 Td ({G1, G3, G4, G5}) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 96.18 452.96 70.18 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 99.18 462.56 Td (9,560 kg) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 166.35 452.96 70.29 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 169.35 462.56 Td (NO \(440 kg free\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 236.64 452.96 83.86 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 239.64 462.56 Td (9,898.0 \(<= 12,000\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 320.50 452.96 265.50 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 462.56 Td (YES_IF \(Passes mass/stability with G5 container in bay2, but G5 antenna collides) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 455.96 Td (on mast_3 / hangar_roof\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 435.76 70.18 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 29.00 445.36 Td ({G2, G3, G4, G5}) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 96.18 435.76 70.18 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 99.18 445.36 Td (13,015 kg) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 166.35 435.76 70.29 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 169.35 445.36 Td (YES \(+3,015 kg\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 236.64 435.76 83.86 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 239.64 445.36 Td (13,263.0 \(> 12,000\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 320.50 435.76 265.50 17.20 re B Q
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 445.36 Td (YES_IF \(Exceeds mass & stability; G2+G5 containers cannot share bay2 \(6,500 kg >) Tj ET
+BT /F1 5.60 Tf 0.10 0.14 0.20 rg 323.50 438.76 Td (4,000 kg\) while G3 occupies bay1\)) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 424.66 Td (\(Note: Replacing G5 with custom card G6 in {G1, G2, G4, G6} yields 4,955 kg, 5,243.0 kg-eq, G1 on mast_3, G2 on bay2, G4 in hangar, and G6 in bay1_a -> YES across all 8 resource) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 417.06 Td (classes.\)) Tj ET
+BT /F2 7.10 Tf 0.11 0.24 0.44 rg 26.00 407.96 Td (3. Cooling Curve, Thermal Inertia & Scenario B Power Accounting) Tj ET
+q 0.75 0.82 0.90 rg 26.00 405.96 560.00 0.60 re f Q
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 36.00 395.70 Td (* Chilled-Water Curve: C\(T\) = 160,000 - 40,000 * \(T - 12\) / 18 W for T in [12, 30] deg C. At 30 deg C, C\(30\) = 120 kW nominal; with -40% loop degradation, C_deg\(30\) = 72 kW.) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 36.00 388.10 Td (Sustained loads \(> 60 s\) cannot borrow from the +30 kW / 60 s \(1.8 MJ\) thermal inertia buffer.) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 36.00 379.00 Td (* Scenario B Power vs. Cooling Binding: When D3 approves G4 recovery at T=480 s, the governor reserves G4's committed 35 kW recovery/charging load alongside G3's firm 25 kW) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 36.00 371.40 Td (post-leg recharge reservation. When generator reserve drops to 100 kW at T=720 s, instantaneous draw is 81 kW <= 100 kW during G4 recovery, whereas firm committed power is 25) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 36.00 363.80 Td (+ 35 + 45 = 105 kW > 100 kW \(5 kW firm deficit\), and at 30 deg C degraded loop \(72 kW\), chilled-water load is 1 + 35 + 43.8 = 79.8 kW > 72 kW \(7.8 kW thermal deficit\).) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 36.00 356.20 Td (Stepping down G5 \(45 kW -> 8 kW\) at T=720 s saves 37 kW power and 36.3 kW water cooling, maintaining 68 kW <= 100 kW \(32 kW free margin\) and zero infeasible ticks across the) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 36.00 348.60 Td (entire timeline.) Tj ET
+BT /F2 7.10 Tf 0.11 0.24 0.44 rg 26.00 339.50 Td (4. What would change if the vessel had one single platform modification \(mast_4\)?) Tj ET
+q 0.75 0.82 0.90 rg 26.00 337.50 560.00 0.60 re f Q
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 327.24 Td (If a single structural modification were made to the vessel -- adding a second guest mast slot mast_4 \(<= 60 kg, <= 0.6 m2, <= 2.0 kW independent forced-air cooling, x3.0) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 319.64 Td (stability multiplier\) -- the structural placement and mast air-cooling bottleneck blocking both mass-feasible four-guest combinations {G1, G2, G4, G5} \(7,560 kg, 7,898.0 kg-eq\)) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 312.04 Td (and {G1, G3, G4, G5} \(9,560 kg, 9,898.0 kg-eq\) is eliminated: G1_MAST_SENSOR_HEAD \(45 kg, 1.5 kW air on mast_3\) and G5_MAST_ANTENNA \(25 kg, 1.2 kW air on mast_4\) occupy separate) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 304.44 Td (mast slots without exceeding the 2.0 kW per-slot air-cooling limit or encroaching on G4's hangar_roof VTOL rotor clearance. Both combinations then achieve feasible static) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 296.84 Td (placement \(YES_IF under Mission Envelope A.10\), subject only to operational mode scheduling: \(a\) during degraded SATCOM \(2.0 Mbps\) or EMCON silence \(W4, 0 bps\), G5 \(6.0 Mbps) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 289.24 Td (nominal SATCOM\) steps down to DEGRADED_70PCT_LOSS / offline buffer \(can_buffer_offline=true\), and \(b\) during W2/W3/W5, G2/G3/G4 deck, acoustic-quiet) Tj ET
+BT /F1 6.30 Tf 0.12 0.15 0.20 rg 26.00 281.64 Td (\(forbids_deck_machinery_while_active\), and speed/heading windows remain time-multiplexed by the D3/D4 governor.) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
 endobj
 xref
-0 7
+0 8
 0000000000 65535 f 
 0000000015 00000 n 
 0000000064 00000 n 
 0000000121 00000 n 
 0000000191 00000 n 
 0000000266 00000 n 
-0000007211 00000 n 
+0000000334 00000 n 
+0000020061 00000 n 
 trailer
-<< /Size 7 /Root 1 0 R >>
+<< /Size 8 /Root 1 0 R >>
 startxref
-7347
+20207
 %%EOF

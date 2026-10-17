@@ -3,9 +3,31 @@
   "$id": "https://sdv-governor.local/schemas/ship_profile.schema.json",
   "title": "SDV Ship Profile Schema",
   "type": "object",
-  "required": ["schema_version", "vessel_id", "power", "cooling", "positions", "mass_and_stability", "data_links", "compute_rack", "timing_deadlines", "crew_regimes"],
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "vessel_id",
+    "vessel_name",
+    "power",
+    "cooling",
+    "positions",
+    "mast",
+    "mass_and_stability",
+    "data_links",
+    "compute_rack",
+    "time_deadlines"
+  ],
   "properties": {
-    "schema_version": { "type": "string", "const": "sdv-ship-profile/1.0" },
-    "vessel_id": { "type": "string" }
+    "schema_version": { "type": "string", "const": "sdv-ship-baseline/1.0" },
+    "vessel_id": { "type": "string", "minLength": 1 },
+    "vessel_name": { "type": "string", "minLength": 1 },
+    "power": { "type": "object" },
+    "cooling": { "type": "object" },
+    "positions": { "type": "object" },
+    "mast": { "type": "object" },
+    "mass_and_stability": { "type": "object" },
+    "data_links": { "type": "object" },
+    "compute_rack": { "type": "object" },
+    "time_deadlines": { "type": "object" }
   }
 }

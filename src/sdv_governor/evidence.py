@@ -312,10 +312,40 @@ def _verify_independent_semantic_invariants(
                     break
 
         touchdown_events_in_ticks: List[int] = []
+        milestone_event_times: Dict[str, List[int]] = {
+            "HOLD_CMD": [],
+            "HOLD_ACK": [],
+            "TURN_INTO_WIND": [],
+            "RECOVERY_APPROACH": [],
+            "TOUCHDOWN": [],
+        }
+        canonical_classes = {"power", "cooling", "positions", "mast", "mass_stability", "data", "compute", "time"}
+
         for t in ticks:
+            sim_t_tick = int(t.get("sim_time_s", 0))
             for ev_str in t.get("events", []):
-                if "G4_TOUCHDOWN_AND_SECURED_IN_HANGAR" in ev_str:
-                    touchdown_events_in_ticks.append(int(t.get("sim_time_s", 0)))
+                if "@" in ev_str and ev_str.endswith("s"):
+                    try:
+                        ev_ts = int(ev_str.rsplit("@", 1)[1][:-1])
+                    except ValueError:
+                        ev_ts = sim_t_tick
+                    if ev_ts > sim_t_tick:
+                        errors.append(
+                            f"CAUSAL_FUTURE_EVENT_IN_TICK in '{prof_key}' tick {t.get('tick')} (sim_time_s={sim_t_tick}): event '{ev_str}' has timestamp {ev_ts}s > {sim_t_tick}s"
+                        )
+                    if ev_str.startswith("G3_ACOUSTIC_HOLD_CMD_SENT@"):
+                        milestone_event_times["HOLD_CMD"].append(ev_ts)
+                    elif ev_str.startswith("G3_ACOUSTIC_HOLD_ACK_RECEIVED@"):
+                        milestone_event_times["HOLD_ACK"].append(ev_ts)
+                    elif ev_str.startswith("VESSEL_TURNED_INTO_WIND_FOR_G4_RECOVERY@"):
+                        milestone_event_times["TURN_INTO_WIND"].append(ev_ts)
+                    elif ev_str.startswith("G4_STARTED_35KW_RECOVERY_APPROACH@"):
+                        milestone_event_times["RECOVERY_APPROACH"].append(ev_ts)
+                    elif ev_str.startswith("G4_TOUCHDOWN_AND_SECURED_IN_HANGAR@"):
+                        milestone_event_times["TOUCHDOWN"].append(ev_ts)
+                        touchdown_events_in_ticks.append(ev_ts)
+                elif "G4_TOUCHDOWN_AND_SECURED_IN_HANGAR" in ev_str:
+                    touchdown_events_in_ticks.append(sim_t_tick)
 
             # Verify 1 Hz tick latency budget <= 200.0 ms on every tick (R4.3, V2-F04)
             tick_ms = float(t.get("measured_tick_calc_ms", -1.0))
@@ -325,18 +355,73 @@ def _verify_independent_semantic_invariants(
                     f"measured_tick_calc_ms={tick_ms} ms outside [0.0, 200.0] ms 1 Hz budget"
                 )
 
+            p_act = int(t.get("power_actual_w", 0))
+            p_com = int(t.get("power_committed_w", 0))
+            p_cap = int(t.get("power_capacity_w", 0))
+            c_act = int(t.get("cooling_actual_w", 0))
+            c_cap = int(t.get("cooling_capacity_w", 0))
+
+            # Cross-check canonical 8-class nested budget_snapshot against scalar summary and internal conservation (Phase S4, R8-F04)
+            b_snap = t.get("budget_snapshot")
+            if not isinstance(b_snap, dict) or not isinstance(b_snap.get("classes"), dict):
+                errors.append(f"LEDGER_MISSING_VIOLATION in '{prof_key}' tick {t.get('tick')}: missing budget_snapshot.classes")
+            else:
+                snap_classes = b_snap["classes"]
+                missing_cls = sorted(canonical_classes - set(snap_classes.keys()))
+                if missing_cls:
+                    errors.append(
+                        f"LEDGER_SCHEMA_VIOLATION in '{prof_key}' tick {t.get('tick')}: missing budget classes {missing_cls}"
+                    )
+                if b_snap.get("feasible") != t.get("feasible"):
+                    errors.append(
+                        f"LEDGER_FEASIBILITY_CONTRADICTION in '{prof_key}' tick {t.get('tick')}: "
+                        f"budget_snapshot.feasible={b_snap.get('feasible')} != tick.feasible={t.get('feasible')}"
+                    )
+                pow_cls = snap_classes.get("power", {})
+                if (
+                    int(pow_cls.get("actual", -1)) != p_act
+                    or int(pow_cls.get("committed", -1)) != p_com
+                    or int(pow_cls.get("degraded_capacity", -1)) != p_cap
+                    or int(pow_cls.get("free", -1)) != (p_cap - p_com)
+                ):
+                    errors.append(
+                        f"LEDGER_SCALAR_CONTRADICTION in '{prof_key}' tick {t.get('tick')}: "
+                        f"power ledger(actual={pow_cls.get('actual')}, committed={pow_cls.get('committed')}, "
+                        f"cap={pow_cls.get('degraded_capacity')}, free={pow_cls.get('free')}) != "
+                        f"scalar(actual={p_act}, committed={p_com}, cap={p_cap})"
+                    )
+                cool_cls = snap_classes.get("cooling", {})
+                if (
+                    int(cool_cls.get("actual", -1)) != c_act
+                    or int(cool_cls.get("degraded_capacity", -1)) != c_cap
+                    or int(cool_cls.get("free", -1)) != (c_cap - int(cool_cls.get("committed", -999999)))
+                ):
+                    errors.append(
+                        f"LEDGER_SCALAR_CONTRADICTION in '{prof_key}' tick {t.get('tick')}: "
+                        f"cooling ledger(actual={cool_cls.get('actual')}, cap={cool_cls.get('degraded_capacity')}, "
+                        f"free={cool_cls.get('free')}) != scalar(actual={c_act}, cap={c_cap})"
+                    )
+                for cname, cobj in snap_classes.items():
+                    if not isinstance(cobj, dict):
+                        errors.append(f"LEDGER_CLASS_INVALID in '{prof_key}' tick {t.get('tick')}: class '{cname}' is not an object")
+                        continue
+                    c_deg = float(cobj.get("degraded_capacity", -1))
+                    c_com = float(cobj.get("committed", -1))
+                    c_ac = float(cobj.get("actual", -1))
+                    c_feas = cobj.get("feasible")
+                    if t.get("feasible") is True and (c_feas is not True or c_ac > c_deg + 1e-6 or c_com > c_deg + 1e-6):
+                        errors.append(
+                            f"LEDGER_CLASS_INFEASIBLE in '{prof_key}' tick {t.get('tick')} class '{cname}': "
+                            f"actual={c_ac}, committed={c_com}, degraded_capacity={c_deg}, feasible={c_feas}"
+                        )
+
             # Verify no unmitigated infeasible ticks exist in the nominal Scenario B profiles (R4.3, V2-F01)
             if t.get("feasible") is not True:
                 errors.append(
                     f"UNMITIGATED_INFEASIBLE_TICK in '{prof_key}' tick {t.get('tick')} (sim_time_s={t.get('sim_time_s')}): "
-                    f"feasible={t.get('feasible')}, power={t.get('power_actual_w')}/{t.get('power_committed_w')}W vs {t.get('power_capacity_w')}W"
+                    f"feasible={t.get('feasible')}, power={p_act}/{p_com}W vs {p_cap}W"
                 )
             else:
-                p_act = int(t.get("power_actual_w", 0))
-                p_com = int(t.get("power_committed_w", 0))
-                p_cap = int(t.get("power_capacity_w", 0))
-                c_act = int(t.get("cooling_actual_w", 0))
-                c_cap = int(t.get("cooling_capacity_w", 0))
                 if p_act > p_cap or p_com > p_cap or c_act > c_cap:
                     errors.append(
                         f"INFEASIBLE_SNAPSHOT_LABELED_YES in '{prof_key}' tick {t.get('tick')}: "
@@ -358,7 +443,7 @@ def _verify_independent_semantic_invariants(
                 f"NON_RECOMPUTABLE_SEMANTIC_HASH in '{prof_key}': recorded={p_block.get('semantic_sha256')} != recomputed={recomputed_prof_sha}"
             )
 
-        # Check D3 and D4 decisions inside profile
+        # Check D3 and D4 decisions and strict causal ordering of executed events inside profile (S1, S4)
         for d_entry in decs:
             phase = d_entry.get("phase")
             dec = d_entry.get("decision", {})
@@ -380,6 +465,27 @@ def _verify_independent_semantic_invariants(
                     errors.append(
                         f"ACOUSTIC_CAUSALITY_VIOLATION in '{prof_key}': turn_into_wind_time_s={turn_s} - hold_cmd_time_s={hold_cmd_s} < 10s"
                     )
+                if (
+                    not milestone_event_times["HOLD_CMD"]
+                    or not milestone_event_times["HOLD_ACK"]
+                    or not milestone_event_times["TURN_INTO_WIND"]
+                    or not milestone_event_times["RECOVERY_APPROACH"]
+                    or not milestone_event_times["TOUCHDOWN"]
+                ):
+                    errors.append(
+                        f"MISSING_CAUSAL_MILESTONE_EVENTS in '{prof_key}': observed={milestone_event_times}"
+                    )
+                else:
+                    t_c = milestone_event_times["HOLD_CMD"][0]
+                    t_a = milestone_event_times["HOLD_ACK"][0]
+                    t_w = milestone_event_times["TURN_INTO_WIND"][0]
+                    t_r = milestone_event_times["RECOVERY_APPROACH"][0]
+                    t_d = milestone_event_times["TOUCHDOWN"][0]
+                    if not (t_c + 10 <= t_a <= t_w and t_w + 90 <= t_r < t_d <= int(dl_s or 1200) and t_d == int(exec_td_s or -1)):
+                        errors.append(
+                            f"CAUSAL_MILESTONE_ORDER_VIOLATION in '{prof_key}': cmd={t_c}s, ack={t_a}s, turn={t_w}s, "
+                            f"approach={t_r}s, touchdown={t_d}s, exec_td={exec_td_s}s, deadline={dl_s}s"
+                        )
             elif phase == "D4_DEGRADATION":
                 for act in dec.get("actions_taken", []):
                     if act.get("action_type") == "SHED_LOAD_POWER_OFF":
@@ -716,7 +822,7 @@ def verify_evidence_bundle(bundle_dir: Path) -> Tuple[bool, List[str], Dict[str,
     except Exception as exc:
         errors.append(f"METRIC_RECOMPUTATION_FAILURE: {exc}")
 
-    # Verify JUnit XML content and cross-check summary counts (R4.2, V2-F04)
+    # Verify JUnit XML content and cross-check summary counts (R4.2, V2-F04, R8-F04)
     junit_ok, junit_errs, junit_actual = parse_and_verify_junit_xml(bundle_dir / "junit.xml")
     if not junit_ok:
         errors.extend([f"JUNIT_FAILURE: {e}" for e in junit_errs])
@@ -727,7 +833,23 @@ def verify_evidence_bundle(bundle_dir: Path) -> Tuple[bool, List[str], Dict[str,
                 f"JUNIT_SUMMARY_MISMATCH: manifest tests={manifest_junit.get('tests')} != xml tests={junit_actual.get('tests')}"
             )
 
-    # Independent semantic verification of decisions, timeline, budgets, deadlines, and protected loads (Phase C6 & R4)
+    # Verify any remote/platform JUnit XML files present in files_map or bundle_dir (Phase S4, R8-F04)
+    remote_junit_files = [
+        fname for fname in files_map if fname != "junit.xml" and fname.startswith("junit") and fname.endswith(".xml")
+    ]
+    if "remote_parity.json" in files_map and "junit_ventuno_aarch64.xml" not in remote_junit_files:
+        if (bundle_dir / "junit_ventuno_aarch64.xml").exists():
+            remote_junit_files.append("junit_ventuno_aarch64.xml")
+    for rem_xml in sorted(set(remote_junit_files)):
+        rem_ok, rem_errs, rem_actual = parse_and_verify_junit_xml(bundle_dir / rem_xml)
+        if not rem_ok:
+            errors.extend([f"REMOTE_JUNIT_FAILURE ({rem_xml}): {e}" for e in rem_errs])
+        elif junit_ok and rem_actual.get("tests") != junit_actual.get("tests"):
+            errors.append(
+                f"REMOTE_JUNIT_COUNT_MISMATCH ({rem_xml}): remote tests={rem_actual.get('tests')} != local tests={junit_actual.get('tests')}"
+            )
+
+    # Independent semantic verification of decisions, timeline, budgets, deadlines, and protected loads (Phase C6 & R4 & S4)
     try:
         sem_errs = _verify_independent_semantic_invariants(
             loaded_json_files["decisions.json"],
@@ -774,7 +896,7 @@ def _sync_metrics_and_hashes_for_mutation(mut_dir: Path) -> None:
 
 
 def run_adversarial_mutation_suite(valid_bundle_dir: Path, scratch_root: Path) -> Dict[str, Any]:
-    """Run all 25 adversarial mutation classes (11 structural + 9 C6 semantic + 5 R4 V2 semantic/portable mutations) against `verify_evidence_bundle`."""
+    """Run all 28 adversarial mutation classes (11 structural + 9 C6 semantic + 5 R4 V2 + 3 S4 R8 mutations) against `verify_evidence_bundle`."""
     if scratch_root.exists():
         shutil.rmtree(scratch_root)
     scratch_root.mkdir(parents=True, exist_ok=True)
@@ -805,6 +927,9 @@ def run_adversarial_mutation_suite(valid_bundle_dir: Path, scratch_root: Path) -
         "invented_env_and_commit",
         "tick_9000ms_exceeds_budget",
         "unmitigated_infeasible_tick",
+        "empty_remote_junit",
+        "contradictory_full_ledger",
+        "backdated_causal_milestone_after_late_ack",
     ]
     results: List[Dict[str, Any]] = []
     false_accepts = 0
@@ -982,6 +1107,78 @@ def run_adversarial_mutation_suite(valid_bundle_dir: Path, scratch_root: Path) -
             d = json.loads(p.read_text(encoding="utf-8"))
             d["survey_primary"]["timeline_ticks"][42]["feasible"] = False
             p.write_text(json.dumps(d, indent=2, sort_keys=True), encoding="utf-8")
+            _sync_metrics_and_hashes_for_mutation(mut_dir)
+        elif mut == "empty_remote_junit":
+            p = mut_dir / "junit_ventuno_aarch64.xml"
+            p.write_text('<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0"/></testsuites>', encoding="utf-8")
+            _rehash_file_in_manifest(mut_dir, "junit_ventuno_aarch64.xml")
+        elif mut == "contradictory_full_ledger":
+            p = mut_dir / "replay_timeline.json"
+            tl = json.loads(p.read_text(encoding="utf-8"))
+            b = tl["survey_primary"]
+            b["timeline_ticks"][20]["budget_snapshot"]["classes"]["power"]["actual"] = 999999
+            b["semantic_sha256"] = canonical_json_hash({
+                "scenario_id": "SCENARIO_B_OFFICIAL",
+                "priority_profile_id": "SURVEY_PRIMARY",
+                "executed_touchdown_time_s": b["executed_touchdown_time_s"],
+                "decisions": _strip_wall_clock(b["decisions"]),
+                "timeline_ticks": _strip_wall_clock(b["timeline_ticks"]),
+            })
+            p.write_text(json.dumps(tl, indent=2, sort_keys=True), encoding="utf-8")
+            dp = mut_dir / "decisions.json"
+            dec = json.loads(dp.read_text(encoding="utf-8"))
+            summary = {
+                "scenario_A_four_guest_combinations": dec["scenario_A"]["four_guest_combinations"],
+                "scenario_A_g6_admission": _strip_wall_clock(dec["scenario_A"]["g6_admission"]),
+                "scenario_A_g6_admission_verdict": dec["scenario_A"]["g6_admission"]["verdict"],
+                "scenario_B_survey_primary_sha256": tl["survey_primary"]["semantic_sha256"],
+                "scenario_B_rescue_primary_sha256": tl["rescue_primary"]["semantic_sha256"],
+                "scenario_B_cooling_limited_sha256": tl["cooling_limited_30c"]["semantic_sha256"],
+                "scenario_C_crew_regimes": dec["scenario_C"],
+            }
+            sha = canonical_json_hash(summary)
+            dec["campaign_semantic_sha256"] = sha
+            dp.write_text(json.dumps(dec, indent=2, sort_keys=True), encoding="utf-8")
+            mp = mut_dir / "evidence_manifest.json"
+            m = json.loads(mp.read_text(encoding="utf-8"))
+            m["semantic_sha256"] = sha
+            mp.write_text(json.dumps(m, indent=2, sort_keys=True), encoding="utf-8")
+            _sync_metrics_and_hashes_for_mutation(mut_dir)
+        elif mut == "backdated_causal_milestone_after_late_ack":
+            p = mut_dir / "replay_timeline.json"
+            tl = json.loads(p.read_text(encoding="utf-8"))
+            b = tl["survey_primary"]
+            for t in b["timeline_ticks"]:
+                t["events"] = [
+                    "G3_ACOUSTIC_HOLD_ACK_RECEIVED@770s" if ev == "G3_ACOUSTIC_HOLD_ACK_RECEIVED@735s" else ev
+                    for ev in t.get("events", [])
+                ]
+            b["semantic_sha256"] = canonical_json_hash({
+                "scenario_id": "SCENARIO_B_OFFICIAL",
+                "priority_profile_id": "SURVEY_PRIMARY",
+                "executed_touchdown_time_s": b["executed_touchdown_time_s"],
+                "decisions": _strip_wall_clock(b["decisions"]),
+                "timeline_ticks": _strip_wall_clock(b["timeline_ticks"]),
+            })
+            p.write_text(json.dumps(tl, indent=2, sort_keys=True), encoding="utf-8")
+            dp = mut_dir / "decisions.json"
+            dec = json.loads(dp.read_text(encoding="utf-8"))
+            summary = {
+                "scenario_A_four_guest_combinations": dec["scenario_A"]["four_guest_combinations"],
+                "scenario_A_g6_admission": _strip_wall_clock(dec["scenario_A"]["g6_admission"]),
+                "scenario_A_g6_admission_verdict": dec["scenario_A"]["g6_admission"]["verdict"],
+                "scenario_B_survey_primary_sha256": tl["survey_primary"]["semantic_sha256"],
+                "scenario_B_rescue_primary_sha256": tl["rescue_primary"]["semantic_sha256"],
+                "scenario_B_cooling_limited_sha256": tl["cooling_limited_30c"]["semantic_sha256"],
+                "scenario_C_crew_regimes": dec["scenario_C"],
+            }
+            sha = canonical_json_hash(summary)
+            dec["campaign_semantic_sha256"] = sha
+            dp.write_text(json.dumps(dec, indent=2, sort_keys=True), encoding="utf-8")
+            mp = mut_dir / "evidence_manifest.json"
+            m = json.loads(mp.read_text(encoding="utf-8"))
+            m["semantic_sha256"] = sha
+            mp.write_text(json.dumps(m, indent=2, sort_keys=True), encoding="utf-8")
             _sync_metrics_and_hashes_for_mutation(mut_dir)
 
         ok, errs, _ = verify_evidence_bundle(mut_dir)

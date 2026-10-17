@@ -38,12 +38,12 @@ python -m sdv_governor.cli combinations
 # 4. Run 3 consecutive Scenario B replays and verify identical semantic SHA-256
 python -m sdv_governor.cli replay --runs 3
 
-# 5. Run the complete acceptance & regression test suite (77 tests: unit + integration + adversarial) and emit JUnit XML
+# 5. Run the complete acceptance & regression test suite (98 tests: unit + integration + adversarial) and emit JUnit XML
 pytest -v --junitxml=artifacts/final_run/junit.xml
 
-# 6. Generate and fail-closed verify an evidence bundle (plus all 25 adversarial mutation checks)
-python -m sdv_governor.cli campaign --run-id release_r8 --junit-xml artifacts/final_run/junit.xml --with-remote-parity
-python -m sdv_governor.cli verify-evidence artifacts/release_r8 --run-mutations
+# 6. Generate and fail-closed verify an evidence bundle (plus all 28 adversarial mutation checks)
+python -m sdv_governor.cli campaign --run-id release_s6 --junit-xml artifacts/final_run/junit.xml --with-remote-parity
+python -m sdv_governor.cli verify-evidence artifacts/release_s6 --run-mutations
 
 # 7. Launch the Stateful Single-Screen 2D Operator Console (http://127.0.0.1:8765)
 python -m sdv_governor.cli serve-ui --port 8765
@@ -66,7 +66,106 @@ python -m sdv_governor.cli serve-ui --port 8765
 
 ---
 
-## 4. Repository Structure & Governance Traceability
+## 4. Adding a New Guest Card (`G7` Executable Example)
+
+Any new payload card must conform to `schemas/guest_manifest.schema.json` and pass `parse_guest_manifest` without modifying solver code. Save a YAML manifest (or submit via `POST /api/admit_live`) with `schema_version: "sdv-guest-manifest/1.0"`, 1:1 thermal coupling (`cooling_water_w + cooling_air_mast_w == sustained_power_w`), monotonic power hierarchy (`min <= nominal <= sustained <= peak`), and explicit `value_origin` provenance:
+
+```python
+import json, yaml, jsonschema
+from pathlib import Path
+from sdv_governor.manifest import parse_guest_manifest
+
+g7_yaml = """
+schema_version: "sdv-guest-manifest/1.0"
+guest_id: "G7"
+name: "G7 — Compact Expendable Bathythermograph (XBT) Launcher"
+category: "AUXILIARY_PAYLOAD"
+safety_critical: false
+default_mode: "STANDBY"
+can_buffer_offline: true
+subcomponents:
+  - subcomponent_id: "G7_DECK_LAUNCHER"
+    part_of: "G7"
+    name: "Stern Deck XBT Autolauncher Pod"
+    mass_kg: 180
+    footprint_m2: 1.2
+    wind_area_m2: 0.8
+    preferred_positions: ["bay1_b", "bay2"]
+    allowed_positions: ["bay1_b", "bay2", "bay1_a"]
+    cooling_route: "CHILLED_WATER_LOOP"
+    requires_water_manifold: false
+    value_origin: "ASSUMED"
+modes:
+  STANDBY:
+    description: "Launcher indexed and heater idle"
+    min_power_w: 200
+    nominal_power_w: 300
+    sustained_power_w: 300
+    sustained_duration_s: 3600
+    peak_power_w: 500
+    peak_duration_s: 10
+    cooling_water_w: 300
+    cooling_air_mast_w: 0
+    compute_cores: 1
+    compute_ram_mib: 1024
+    compute_accelerators: 0
+    shared_storage_gb: 20
+    backbone_lan_bps: 1000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 0
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.25
+    value_origin: "ASSUMED"
+installation:
+  port_only: true
+  min_crew_required: 2
+  install_time_min: 30
+  remove_time_min: 20
+  sea_install_max_wind_kn: 0
+  sea_install_min_speed_kn: 0.0
+  sea_install_max_speed_kn: 0.0
+vehicle_replacement:
+  supported_at_sea: false
+  min_crew_required: 0
+  swap_duration_min: 0
+  min_speed_kn: 0.0
+  max_speed_kn: 0.0
+  max_wind_kn: 0
+  max_sea_state: 0
+ship_state_constraints:
+  min_speed_kn_for_operation: 0.0
+  max_speed_kn_for_operation: 20.0
+  max_wind_kn_for_operation: 35
+  max_sea_state_for_operation: 6
+  requires_heading_into_wind_for_launch_recovery: false
+  forbids_deck_machinery_while_active: false
+  acoustic_hold_handshake_min_s: 0
+  acoustic_hold_handshake_max_s: 0
+  acoustic_hold_default_s: 0
+  low_battery_threshold_pct: null
+  emergency_landing_deadline_s: null
+  max_flight_endurance_min: null
+dependencies:
+  requires_guests: []
+  excludes_guests: []
+  conditional_excludes: []
+mission_capabilities:
+  hydro_sampling_value: 20.0
+"""
+raw = yaml.safe_load(g7_yaml)
+schema = json.loads(Path("schemas/guest_manifest.schema.json").read_text())
+jsonschema.validate(raw, schema)
+manifest = parse_guest_manifest(raw)
+```
+
+---
+
+## 5. Repository Structure & Governance Traceability
 
 - `src/sdv_governor/`: Pure Python deterministic engine (`models.py`, `manifest.py`, `ship_state.py`, `budgets.py`, `placement.py`, `explanations.py`, `admission.py`, `arbitration.py`, `degradation.py`, `scheduling.py`, `replay.py`, `evidence.py`, `deployment.py`, `server.py`, `cli.py`, `pdf_export.py`).
 - `schemas/` & `data/`: Strict JSON Schemas and declarative YAML manifests (`vessel_baseline.yaml`, `mission_envelope_a10.yaml`, `G1..G6`, `survey_primary.yaml`, `rescue_primary.yaml`, scenarios, and `brief_errata.yaml`).

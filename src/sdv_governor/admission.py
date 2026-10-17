@@ -720,6 +720,7 @@ def build_baseline_state_with_installed_guests(
     and records any baseline conflict explicitly.
     """
     work_state = state.clone()
+    work_state.installed_guests.clear()
     baseline_conflicts: List[Dict[str, Any]] = []
     node_ids = sorted(ship_profile["compute_rack"]["nodes"].keys())
 

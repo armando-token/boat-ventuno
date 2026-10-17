@@ -1,0 +1,77 @@
+schema_version: "sdv-scenario/1.0"
+scenario_id: "SCENARIO_B_OFFICIAL"
+name: "Scenario B — D3 Live Arbitration (Min 8 Drone 18% Battery) & D4 Generator Loss (Min 12 200->100 kW)"
+scenario_class: "OFFICIAL_CHALLENGE"
+seed: 20261017
+initial_state:
+  sim_time_s: 0
+  vessel_mode: "QUIET_SURVEY"
+  ship_speed_kn: 3
+  wind_kn: 14
+  sea_state: 2
+  seawater_temp_c: 24.0
+  crew_count: 14
+  deck_clear: true
+  power_reserve_w: 200000
+  cooling_loop_degraded: false
+  firm_reserved_loads:
+    - guest_id: "G3"
+      reserved_mode: "RECHARGE_CRADLE"
+      reserved_power_w: 25000
+      reason: "Guaranteed post-leg uninterruptible AUV battery recharge reservation"
+  installed_guests:
+    - guest_id: "G3"
+      mode: "SURVEY_QUIET"
+      leg_duration_s: 2400
+      leg_elapsed_s: 0
+      placements:
+        G3_AUV_CRADLE_BAY1_20FT: "bay1"
+      compute_node: "node_1"
+    - guest_id: "G4"
+      mode: "FLIGHT_PATROL"
+      battery_pct: 54.0
+      placements:
+        G4_DRONE_VEHICLE: "flight_deck"
+        G4_HANGAR_STATION: "hangar"
+      compute_node: "node_3"
+    - guest_id: "G5"
+      mode: "FULL_SPECTRUM"
+      placements:
+        G5_COMPUTE_CONTAINER: "bay2"
+        G5_MAST_ANTENNA: "mast_3"
+      compute_node: "node_2"
+events:
+  - seq: 1
+    sim_time_s: 0
+    priority: 10
+    event_type: "MISSION_START"
+    description: "Minute 0: G3 begins 40-min (2400 s) quiet acoustic survey leg at 3 kn (1 kW); G4 patrolling (10 kW); G5 full spectrum (45 kW)."
+  - seq: 2
+    sim_time_s: 480
+    priority: 1
+    event_type: "DRONE_BATTERY_AND_WIND_ALERT"
+    guest_id: "G4"
+    battery_pct: 18.0
+    max_flight_remaining_s: 720
+    uav_approach_margin_s: 360
+    remaining_survey_waypoint_s: 240
+    wind_kn: 22
+    sea_state: 3
+    required_recovery_mode: "LAUNCH_RECOVERY_OPTICS"
+    description: "Minute 8 (480 s): G4 battery drops to 18% (<20% threshold -> must land within 12 min / 720 s or ditch); wind rises to 22 kn. Requires acoustic HOLD on G3 before ship turns into wind."
+  - seq: 3
+    sim_time_s: 720
+    priority: 1
+    event_type: "GENERATOR_LOSS"
+    new_power_reserve_w: 100000
+    description: "Minute 12 (720 s): Generator fault reduces net mission power reserve from 200 kW to 100 kW. Actual power is 1+35+45 = 81 kW (<=100 kW), while firm committed power with G3 25 kW recharge reservation is 25+35+45 = 105 kW (>100 kW)."
+  - seq: 4
+    sim_time_s: 1500
+    priority: 2
+    event_type: "POWER_COOLING_RESTORATION"
+    new_power_reserve_w: 200000
+    cooling_loop_degraded: false
+    seawater_temp_c: 24.0
+    reconnect_guest_id: "G5"
+    reconnect_mode: "FULL_SPECTRUM"
+    description: "Minute 25 (1500 s): Generator reserve restored to 200 kW; evaluate G5 reconnection to FULL_SPECTRUM with cooldown and hysteresis."

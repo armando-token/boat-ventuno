@@ -1,0 +1,234 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R] /Count 8 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Length 971 >>
+stream
+BT
+/F1 9 Tf
+36 756 Td
+12 TL
+/F2 10 Tf (# SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj /F1 9 Tf T*
+() Tj T*
+/F2 10 Tf (## Slide 1: Executive Overview -- Deterministic Physics First) Tj /F1 9 Tf T*
+(- **Mission**: Govern admission, placement, live arbitration, and graceful degradation ) Tj T*
+(across **8 coupled physical resource classes** \(`power`, `cooling`, `positions`, `mast`, ) Tj T*
+(`mass_stability`, `data`, `compute`, `time`\) on a Software-Defined Vessel.) Tj T*
+(- **Core Principle**: Hard physical and life/vehicle safety limits are satisfied **first**; ) Tj T*
+(mission capability score, free margin, and displacement cost are optimized **second**. No ) Tj T*
+(priority weight can ever override a hard physical limit or drone ditching deadline.) Tj T*
+(- **Zero Opaque Runtime AI**: 100% deterministic, inspectable math \(`Fraction` rational ) Tj T*
+(cooling curve, integer Watts/kg/bps/ms, parameterized witness explanations\).) Tj T*
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+7 0 obj
+<< /Length 1039 >>
+stream
+BT
+/F1 9 Tf
+36 756 Td
+12 TL
+/F2 10 Tf (## Slide 2: Fail-Closed Validation & Defeating Legacy Defects) Tj /F1 9 Tf T*
+(- **Strict Schema & Type Discipline \(`B2`, `F3`, `H06`, `H13`\)**:) Tj T*
+(  - Rejects `NaN`, `Infinity`, negative or zero budgets, booleans used as numbers \(`True != ) Tj T*
+(1`\), string booleans \(`"false"`\), unknown fields, dependency cycles, and invalid cooling ) Tj T*
+(coupling \(`cooling_water_w + cooling_air_mast_w == sustained_power_w`\).) Tj T*
+(  - Reproduces and defeats all **10 adversarial input flaws** \(`resource_engine_repro.json`\)) Tj T*
+( and all **20 verifier mutation classes** \(`false_accepts = 0`\).) Tj T*
+(- **Six Declarative Guest Cards \(`G1`-`G6`\) with Field-Level Provenance**:) Tj T*
+(  - Official `G1` \(`45 kg`, `1.5 kW` air\), `G2` \(`3,500 kg`, `20/6 kW`\), `G3` \(`5,500 kg`, ) Tj T*
+(`25/1 kW`\), `G4` \(`140+850 = 990 kg` per errata, `35/10/2 kW`\), `G5` \(`3,000+25 = 3,025 kg`,) Tj T*
+( `45/8 kW`\), plus custom civil card `G6` \(`420 kg`, all fields `ASSUMED`\).) Tj T*
+ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 927 >>
+stream
+BT
+/F1 9 Tf
+36 756 Td
+12 TL
+/F2 10 Tf (## Slide 3: Scenario A \(D1\) -- 8-Class Admission & Errata Proof) Tj /F1 9 Tf T*
+(- **Organizer Errata Verified \(`DAT-02`, `DAT-03`\)**:) Tj T*
+(  - With `G4 = 990 kg`, exactly **3 of 5** four-guest combinations exceed `10,000 kg`: ) Tj T*
+(`{G1,G2,G3,G4}=10,035 kg`, `{G1,G2,G3,G5}=12,070 kg`, `{G2,G3,G4,G5}=13,015 kg`.) Tj T*
+(  - The 2 mass-feasible sets `{G1,G2,G4,G5}=7,560 kg` and `{G1,G3,G4,G5}=9,560 kg` prove ) Tj T*
+(that **passing mass does not imply passing placement**: `G5`'s antenna collides with `G1` on) Tj T*
+( `mast_3` \(`1.5+1.2=2.7 kW > 2.0 kW` air\) and with `G4` drone clearance on `hangar_roof`!) Tj T*
+(- **14-Day Mission Envelope \(`A.10`\) & Conditioned Availability**:) Tj T*
+(  - Rejects pier-only comfort \(`16  deg C`\); propagates `A.10` offshore thermal/sea-state ) Tj T*
+(restrictions directly into the final `YES` / `YES_IF` / `NO` verdict.) Tj T*
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 1270 >>
+stream
+BT
+/F1 9 Tf
+36 756 Td
+12 TL
+/F2 10 Tf (## Slide 4: Scenario B \(D3\) -- Live Arbitration Under Safety Deadlines) Tj /F1 9 Tf T*
+(- **The Conflict**: `G3` AUV is executing a `40 min` quiet acoustic survey \(`SURVEY_QUIET`, ) Tj T*
+(`1 kW`, `3 kn`\) when `G4` UAV reports **`18%` battery \(`<20%` emergency -> `12 min / 720 s` ) Tj T*
+(max endurance\)** requiring a turn into `22 kn` wind and `35 kW` recovery/charging power.) Tj T*
+(- **Non-Negotiable Safety Invariant \(`ARB-01`..`04`\)**:) Tj T*
+(  - Candidate plans are generated and filtered against hard physical/weather/deadline ) Tj T*
+(constraints before scoring by `priority_profile` weights; touchdown \(`<= T+720 s`\) is ) Tj T*
+(separated from the 20-min \(`1,200 s`\) `35 kW` hangar recharge.) Tj T*
+(  - **`rescue_primary`**: Issues `ACOUSTIC_HOLD` immediately at $T=480\\text{ s}$, receives ) Tj T*
+(ACK at $T=495\\text{ s}$, turns into wind, and lands `G4` at $T=615\\text{ s}$ \(`585 s` safety) Tj T*
+( margin before $T=1,200\\text{ s}$ deadline\).) Tj T*
+(  - **`survey_primary`**: Completes `240 s` of survey pass, issues `ACOUSTIC_HOLD` at ) Tj T*
+($T=720\\text{ s}$, receives ACK at $T=735\\text{ s}$, turns into wind, and lands `G4` at ) Tj T*
+($T=855\\text{ s}$ \(`345 s` safety margin\).) Tj T*
+ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 1056 >>
+stream
+BT
+/F1 9 Tf
+36 756 Td
+12 TL
+/F2 10 Tf (## Slide 5: Scenario B \(D4\) -- Graceful Degradation & Thermal Binding) Tj /F1 9 Tf T*
+(- **Honest Power vs. Thermal Accounting \(`DEG-01`..`05`\)**:) Tj T*
+(  - When generator reserve drops from `200 kW` to `100 kW`, `G3 \(1 kW survey\) + G4 \(35 kW\) +) Tj T*
+( G5 \(45 kW\) = 81 kW` actual draw \($\\le 100\\text{ kW}$, **zero fabricated instantaneous ) Tj T*
+(deficit**\).) Tj T*
+(  - With G3's firm `25 kW` turnaround recharge reservation \(`25 + 35 + 45 = 105 kW > 100 ) Tj T*
+(kW`\), the `5 kW` firm deficit triggers **`G5` mode step-down \(`45 kW` $\\rightarrow$ `8 kW` ) Tj T*
+(`DEGRADED_70PCT_LOSS`\)**, saving `37 kW` power and reducing committed load to `68 kW` \(`32 ) Tj T*
+(kW` free margin\) while retaining `30%` capability.) Tj T*
+(  - At $30\\,^\\circ\\text{C}$ seawater with $-40\\%$ cooling loop loss \(`72 kW` thermal ) Tj T*
+(capacity vs `100 kW` power\), **chilled-water cooling binds first** \(`79.8 kW > 72 kW`\) and ) Tj T*
+(steps down `G5` \(`79.8 kW` $\\rightarrow$ `43.5 kW`\).) Tj T*
+ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 1026 >>
+stream
+BT
+/F1 9 Tf
+36 756 Td
+12 TL
+/F2 10 Tf (## Slide 6: Scenario C -- Crew Regimes \(14 / 6 / 0\) & Resilience) Tj /F1 9 Tf T*
+(- **Crew Regime Enforcement \(`CRW-01`..`03`\)**:) Tj T*
+(  - **14 Crew**: `9` deck/payload crew $\\rightarrow$ `2` concurrent deck operations \(`G2` + ) Tj T*
+(`G4`\) and at-sea vehicle replacement \($A'$ window: `G4` `3` crew / `30 min`; `G3` `4` crew /) Tj T*
+( `45 min`\) permitted.) Tj T*
+(  - **6 Crew**: `2` deck crew $\\rightarrow$ single serialized manual launch/recovery ) Tj T*
+(permitted; at-sea vehicle replacement \(`min_crew >= 3`\) blocked.) Tj T*
+(  - **0 Crew**: Zero physical installations or manual deck evolutions at sea \(`CRW-02`\); ) Tj T*
+(autonomous software re-tasking, mode step-down, and load shedding only.) Tj T*
+(- **Fault Resilience \(`SAF-01`, `RUN-03`, `RUN-04`\)**:) Tj T*
+(  - `STOP`/`HOLD`/`SECURE` measured in `< 1 ms` \($\\le 200\\text{ ms}$ budget\); stale feeds ) Tj T*
+(clamp to $30\\,^\\circ\\text{C}$ cooling; `+20%` overconsumption auto-throttled.) Tj T*
+ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 744 >>
+stream
+BT
+/F1 9 Tf
+36 756 Td
+12 TL
+/F2 10 Tf (## Slide 7: Dual-Platform Architecture & Live Ventuno Q Parity) Tj /F1 9 Tf T*
+(- **Decoupled Laptop + Edge Board Execution \(`B1`, `DEP-01`..`03`\)**:) Tj T*
+(  - **MacBook Pro \(`arm64`, Python 3.13.15\)**: Full test suite, event-driven simulator, 90 s) Tj T*
+( compressed demo, and stateful 2D operator console \(`http://127.0.0.1:8765`\).) Tj T*
+(  - **Arduino Ventuno Q \(`training06`, Qualcomm Dragonwing IQ8 `aarch64`, 16 GB RAM, Ubuntu ) Tj T*
+(24.04.4\)**: Live SSH deployment at `/home/arduino/sdv-resource-governor`.) Tj T*
+(  - **Bit-for-Bit Semantic Parity**: Identical `campaign_semantic_sha256` verified across ) Tj T*
+(`arm64` macOS and live `aarch64` Ventuno Q \(`training06`\).) Tj T*
+ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 876 >>
+stream
+BT
+/F1 9 Tf
+36 756 Td
+12 TL
+/F2 10 Tf (## Slide 8: Single-Screen 2D Operator Console & Fail-Closed Evidence) Tj /F1 9 Tf T*
+(- **Stateful Single-Screen 2D Operator Console \(`B10`, `H12`\)**:) Tj T*
+(  - Persistent `GovernorSession` \(`snapshot_id`, `state_version`, `POST /api/reset`\), live ) Tj T*
+(8-class budget gauges, 2D vessel bay/mast/hangar/roof/rack map, 90 s compressed Scenario B ) Tj T*
+(timeline scrubber, instant `survey_primary` $\\leftrightarrow$ `rescue_primary` switcher, ) Tj T*
+(perturbation injector, and live Scenario A guest card editor.) Tj T*
+(- **Fail-Closed Evidence Verifier \(`B8`, `H05`\)**:) Tj T*
+(  - Recomputes all summary metrics and semantic hashes from raw JSON logs, verifies all 49 ) Tj T*
+(acceptance criteria `<testcase>` nodes in `junit.xml`, and rejects **20 / 20** adversarial ) Tj T*
+(mutations \(`false_accepts = 0`\).) Tj T*
+ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 19 0 R >>
+endobj
+xref
+0 21
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000169 00000 n 
+0000000239 00000 n 
+0000000314 00000 n 
+0000001336 00000 n 
+0000001472 00000 n 
+0000002563 00000 n 
+0000002699 00000 n 
+0000003677 00000 n 
+0000003814 00000 n 
+0000005137 00000 n 
+0000005275 00000 n 
+0000006384 00000 n 
+0000006522 00000 n 
+0000007601 00000 n 
+0000007739 00000 n 
+0000008535 00000 n 
+0000008673 00000 n 
+0000009601 00000 n 
+trailer
+<< /Size 21 /Root 1 0 R >>
+startxref
+9739
+%%EOF

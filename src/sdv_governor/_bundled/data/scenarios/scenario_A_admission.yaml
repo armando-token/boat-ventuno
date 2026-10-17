@@ -1,0 +1,58 @@
+schema_version: "sdv-scenario/1.0"
+scenario_id: "SCENARIO_A_ADMISSION"
+name: "Scenario A — D1 Guest Card Admission & Placement Over 14-Day Mission Envelope"
+scenario_class: "OFFICIAL_CHALLENGE"
+seed: 20261016
+initial_state:
+  sim_time_s: 0
+  vessel_mode: "PORT_OPS"
+  ship_speed_kn: 0
+  wind_kn: 10
+  sea_state: 1
+  seawater_temp_c: 16.0
+  crew_count: 14
+  deck_clear: true
+  power_reserve_w: 200000
+  cooling_loop_degraded: false
+  installed_guests:
+    - guest_id: "G3"
+      mode: "SURVEY_QUIET"
+      placements:
+        G3_AUV_CRADLE_BAY1_20FT: "bay1"
+      compute_node: "node_1"
+    - guest_id: "G4"
+      mode: "FLIGHT_PATROL"
+      placements:
+        G4_DRONE_VEHICLE: "hangar"
+        G4_HANGAR_STATION: "hangar"
+      compute_node: "node_3"
+    - guest_id: "G5"
+      mode: "FULL_SPECTRUM"
+      placements:
+        G5_COMPUTE_CONTAINER: "bay2"
+        G5_MAST_ANTENNA: "mast_3"
+      compute_node: "node_2"
+events:
+  - seq: 1
+    sim_time_s: 0
+    priority: 10
+    event_type: "EVALUATE_ADMISSION"
+    candidate_guest_id: "G6"
+    allow_displacement: false
+    description: "Evaluate admitting G6 onto ship with G3+G4+G5 installed (bays full -> YES_IF with displacement ranking)."
+  - seq: 2
+    sim_time_s: 10
+    priority: 10
+    event_type: "EVALUATE_ADMISSION_WITH_BASELINE"
+    installed_guest_ids: ["G3", "G4"]
+    candidate_guest_id: "G6"
+    allow_displacement: false
+    description: "Evaluate admitting G6 when G3 (Bay1) and G4 (Hangar) are installed and Bay2 is free -> YES across 14-day envelope."
+  - seq: 3
+    sim_time_s: 20
+    priority: 10
+    event_type: "EVALUATE_ADMISSION_WITH_BASELINE"
+    installed_guest_ids: ["G3", "G4"]
+    candidate_guest_id: "G1"
+    allow_displacement: false
+    description: "Evaluate admitting G1 when mast_3 is free -> YES across 14-day envelope."

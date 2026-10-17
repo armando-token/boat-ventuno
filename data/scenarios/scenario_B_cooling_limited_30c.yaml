@@ -1,0 +1,71 @@
+schema_version: "sdv-scenario/1.0"
+scenario_id: "SCENARIO_B_COOLING_LIMITED_30C"
+name: "Scenario B Stress Test — 30 °C Seawater + Degraded Chilled-Water Loop (72 kW Cooling Binding Before 100 kW Power)"
+scenario_class: "STRESS_TEST"
+seed: 20261019
+initial_state:
+  sim_time_s: 0
+  vessel_mode: "QUIET_SURVEY"
+  ship_speed_kn: 3
+  wind_kn: 18
+  sea_state: 3
+  seawater_temp_c: 30.0
+  crew_count: 14
+  deck_clear: true
+  power_reserve_w: 100000
+  cooling_loop_degraded: false
+  installed_guests:
+    - guest_id: "G3"
+      mode: "SURVEY_QUIET"
+      placements:
+        G3_AUV_CRADLE_BAY1_20FT: "bay1"
+      compute_node: "node_1"
+    - guest_id: "G4"
+      mode: "LAUNCH_RECOVERY_OPTICS"
+      placements:
+        G4_DRONE_VEHICLE: "flight_deck"
+        G4_HANGAR_STATION: "hangar"
+      compute_node: "node_3"
+    - guest_id: "G5"
+      mode: "FULL_SPECTRUM"
+      placements:
+        G5_COMPUTE_CONTAINER: "bay2"
+        G5_MAST_ANTENNA: "mast_3"
+      compute_node: "node_2"
+events:
+  - seq: 1
+    sim_time_s: 0
+    priority: 10
+    event_type: "MISSION_START"
+    description: "Minute 0: Operating in 30 °C tropical water with G3 survey (1 kW), G4 recovery/charging (35 kW), G5 full spectrum (45 kW)."
+  - seq: 2
+    sim_time_s: 480
+    priority: 1
+    event_type: "DRONE_BATTERY_AND_WIND_ALERT"
+    guest_id: "G4"
+    battery_pct: 18.0
+    max_flight_remaining_s: 720
+    uav_approach_margin_s: 360
+    remaining_survey_waypoint_s: 240
+    wind_kn: 20
+    sea_state: 3
+    required_recovery_mode: "LAUNCH_RECOVERY_OPTICS"
+    description: "Minute 8 (480 s): G4 battery alert (<20%) in 30 °C water."
+  - seq: 3
+    sim_time_s: 720
+    priority: 1
+    event_type: "COOLING_LOOP_FAILURE"
+    cooling_loop_degraded: true
+    seawater_temp_c: 30.0
+    new_power_reserve_w: 100000
+    description: "Minute 12 (720 s): Chilled-water loop suffers 40% degradation at 30 °C seawater: cooling capacity drops from 120 kW to 72 kW while electrical power reserve remains 100 kW. Total water-loop heat is 1 + 35 + 43.8 = 79.8 kW > 72 kW."
+  - seq: 4
+    sim_time_s: 1500
+    priority: 2
+    event_type: "POWER_COOLING_RESTORATION"
+    new_power_reserve_w: 200000
+    cooling_loop_degraded: false
+    seawater_temp_c: 24.0
+    reconnect_guest_id: "G5"
+    reconnect_mode: "FULL_SPECTRUM"
+    description: "Minute 25 (1500 s): Chilled-water loop and power reserve restored to nominal."

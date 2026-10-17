@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/budget_snapshot.schema.json",
+  "title": "SDV Eight-Class Resource Budget Snapshot Schema",
+  "type": "object",
+  "required": ["tick_s", "sim_time_s", "feasible", "infeasible_reason", "classes"],
+  "properties": {
+    "tick_s": { "type": "integer", "minimum": 0 },
+    "sim_time_s": { "type": "integer", "minimum": 0 },
+    "feasible": { "type": "boolean" },
+    "infeasible_reason": { "type": ["string", "null"] },
+    "classes": {
+      "type": "object",
+      "required": ["power", "cooling", "positions", "mast", "mass_stability", "data", "compute", "time"]
+    }
+  }
+}

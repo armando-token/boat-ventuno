@@ -1,0 +1,215 @@
+schema_version: "sdv-guest-manifest/1.0"
+guest_id: "G3"
+name: "G3 — Seabed Inspection Vehicle + Cradle"
+category: "AUV_HYDRO_SURVEY"
+safety_critical: false
+default_mode: "SURVEY_QUIET"
+can_buffer_offline: true
+
+subcomponents:
+  - subcomponent_id: "G3_AUV_CRADLE_BAY1_20FT"
+    part_of: "G3"
+    name: "20-ft Seabed Inspection AUV Cradle, Acoustic Telemetry & Charger Module"
+    mass_kg: 5500
+    footprint_m2: 29.8
+    wind_area_m2: 11.5
+    preferred_positions: ["bay1"]
+    allowed_positions: ["bay1"]
+    cooling_route: "CHILLED_WATER_LOOP"
+    requires_water_manifold: true
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      mass_kg: "OFFICIAL_BRIEF"
+      preferred_positions: "OFFICIAL_BRIEF"
+      allowed_positions: "OFFICIAL_BRIEF"
+      cooling_route: "OFFICIAL_BRIEF"
+      footprint_m2: "ASSUMED"
+      wind_area_m2: "ASSUMED"
+
+modes:
+  SURVEY_QUIET:
+    description: "Active 40-min (2400 s) seabed survey leg at 3 kn; requires quiet acoustic state and no deck machinery (1 kW)"
+    min_power_w: 1000
+    nominal_power_w: 1000
+    sustained_power_w: 1000
+    sustained_duration_s: 2400
+    peak_power_w: 1000
+    peak_duration_s: 30
+    cooling_water_w: 1000
+    cooling_air_mast_w: 0
+    compute_cores: 8
+    compute_ram_mib: 32768
+    compute_accelerators: 0
+    shared_storage_gb: 5000
+    backbone_lan_bps: 100000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 600
+    min_cooldown_s: 60
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: true
+    capability_retention_ratio: 1.0
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      sustained_duration_s: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      requires_quiet_acoustic_state: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+      shared_storage_gb: "ASSUMED"
+  HOLD_ACOUSTIC:
+    description: "Submerged station-keeping / loiter after 10-60 s acoustic modem HOLD handshake while ship maneuvers"
+    min_power_w: 1000
+    nominal_power_w: 1000
+    sustained_power_w: 1000
+    sustained_duration_s: 1800
+    peak_power_w: 1000
+    peak_duration_s: 15
+    cooling_water_w: 1000
+    cooling_air_mast_w: 0
+    compute_cores: 4
+    compute_ram_mib: 16384
+    compute_accelerators: 0
+    shared_storage_gb: 5000
+    backbone_lan_bps: 10000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 60
+    min_cooldown_s: 30
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.45
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+  RECHARGE_CRADLE:
+    description: "Uninterruptible 25 kW AUV battery recharge on cradle for 60 min (3600 s) after each 40-min leg, with 100 Mbit/s LAN offload"
+    min_power_w: 25000
+    nominal_power_w: 25000
+    sustained_power_w: 25000
+    sustained_duration_s: 3600
+    peak_power_w: 25000
+    peak_duration_s: 3600
+    cooling_water_w: 25000
+    cooling_air_mast_w: 0
+    compute_cores: 8
+    compute_ram_mib: 32768
+    compute_accelerators: 0
+    shared_storage_gb: 5000
+    backbone_lan_bps: 100000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: true
+    min_done_duration_s: 3600
+    min_cooldown_s: 120
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.60
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      sustained_duration_s: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      uninterruptible: "OFFICIAL_BRIEF"
+      min_done_duration_s: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+  STANDBY:
+    description: "AUV secured in cradle on 1 kW standby"
+    min_power_w: 1000
+    nominal_power_w: 1000
+    sustained_power_w: 1000
+    sustained_duration_s: 3600
+    peak_power_w: 1000
+    peak_duration_s: 10
+    cooling_water_w: 1000
+    cooling_air_mast_w: 0
+    compute_cores: 2
+    compute_ram_mib: 8192
+    compute_accelerators: 0
+    shared_storage_gb: 5000
+    backbone_lan_bps: 100000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 60
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.15
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+
+installation:
+  port_only: true
+  min_crew_required: 4
+  install_time_min: 360
+  remove_time_min: 360
+  sea_install_max_wind_kn: 0
+  sea_install_min_speed_kn: 0.0
+  sea_install_max_speed_kn: 0.0
+
+vehicle_replacement:
+  supported_at_sea: true
+  min_crew_required: 4
+  swap_duration_min: 45
+  min_speed_kn: 4.0
+  max_speed_kn: 8.0
+  max_wind_kn: 20
+  max_sea_state: 4
+
+ship_state_constraints:
+  min_speed_kn_for_operation: 2.5
+  max_speed_kn_for_operation: 3.5
+  launch_recovery_min_speed_kn: 4.0
+  launch_recovery_max_speed_kn: 8.0
+  max_wind_kn_for_operation: 22
+  max_sea_state_for_operation: 4
+  requires_heading_into_wind_for_launch_recovery: false
+  forbids_deck_machinery_while_active: true
+  uses_deck_machinery: false
+  requires_stern_ramp_free: true
+  acoustic_hold_handshake_min_s: 10
+  acoustic_hold_handshake_max_s: 60
+  acoustic_hold_default_s: 15
+  low_battery_threshold_pct: null
+  emergency_landing_deadline_s: null
+  max_flight_endurance_min: null
+
+dependencies:
+  requires_guests: []
+  excludes_guests: []
+  conditional_excludes:
+    - other_guest_id: "G4"
+      when_self_modes: ["SURVEY_QUIET"]
+      when_other_modes: ["LAUNCH_RECOVERY_OPTICS", "RECOVERY_APPROACH"]
+      reason: "G3 quiet acoustic survey at 3 kn steady is mutually incompatible with G4 turning into wind and operating flight-deck recovery machinery"
+    - other_guest_id: "G2"
+      when_self_modes: ["SURVEY_QUIET"]
+      when_other_modes: ["INSPECTION_ACTIVE"]
+      reason: "G3 quiet acoustic survey forbids active deck machinery such as G2 winch"
+
+mission_capabilities:
+  hydrographic_survey: 95.0
+  seabed_anomaly_detection: 90.0
+  maritime_sar_rescue: 15.0

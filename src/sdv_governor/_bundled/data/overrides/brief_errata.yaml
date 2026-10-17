@@ -1,0 +1,45 @@
+# data/overrides/brief_errata.yaml — Erratas Oficiales del Organizador sobre el Brief de 12 Páginas
+schema_version: "sdv-brief-errata/1.0"
+source: "Organizer update transmitted by owner (PLAN_TRANSFERENCIA_Y_RECONSTRUCCION_SDV_VENTUNO_Q.md §1 & §B2)"
+original_pdf_name: "[n3 DMM] Software-Defined-Vessel_SHORT..pdf"
+original_pdf_sha256: "0d254ddd547beead36731a82748421b49c45edaba64adacd7683b9a404875646"
+
+overrides:
+  G4_mass_correction:
+    guest_id: "G4"
+    subcomponent_id: "G4_HANGAR_STATION"
+    pdf_original_hangar_mass_kg: 900
+    corrected_hangar_mass_kg: 850
+    drone_vehicle_mass_kg: 140
+    corrected_total_mass_kg: 990
+    unit: "kg"
+    reason: "Errata oficial del organizador: el módulo de hangar de G4 pesa 850 kg (no 900 kg), sumando 990 kg con el dron de 140 kg."
+
+  combinations_of_four_mass_regression:
+    guest_masses_kg:
+      G1: 45
+      G2: 3500
+      G3: 5500
+      G4: 990
+      G5: 3025
+    ship_mass_margin_kg: 10000
+    pdf_original_claim: "any four exceed 10,000 kg"
+    corrected_claim: "three of the five combinations of four exceed 10,000 kg"
+    expected_combinations_of_four:
+      - guests: ["G1", "G2", "G3", "G4"]
+        total_mass_kg: 10035
+        exceeds_10000_kg: true
+      - guests: ["G1", "G2", "G3", "G5"]
+        total_mass_kg: 12070
+        exceeds_10000_kg: true
+      - guests: ["G1", "G2", "G4", "G5"]
+        total_mass_kg: 7560
+        exceeds_10000_kg: false
+      - guests: ["G1", "G3", "G4", "G5"]
+        total_mass_kg: 9560
+        exceeds_10000_kg: false
+      - guests: ["G2", "G3", "G4", "G5"]
+        total_mass_kg: 13015
+        exceeds_10000_kg: true
+    exceeding_count: 3
+    total_combinations_count: 5

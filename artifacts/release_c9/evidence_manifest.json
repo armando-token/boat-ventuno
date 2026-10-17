@@ -1,0 +1,55 @@
+{
+  "environment": {
+    "hostname": "MacBook-Pro-7.local",
+    "pid": 15023,
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_version": "3.13.15",
+    "wall_elapsed_ms": 135.85
+  },
+  "files": {
+    "decisions.json": {
+      "sha256": "c277650eac236ab3d595b040f42048e87e06ccca4cb41d15870416c267263070",
+      "size_bytes": 137371
+    },
+    "junit.xml": {
+      "sha256": "272ebf8dbe7b10f93c1cca4c6f3346319bb6a351a644bedf0fd5502561a52181",
+      "size_bytes": 7303
+    },
+    "metrics_summary.json": {
+      "sha256": "92ac49a99565b1ad7c2269bc3cf97ff20ffefba787111ed995a6ccc774763255",
+      "size_bytes": 879
+    },
+    "remote_parity.json": {
+      "sha256": "fca7da79a1764eea685a2f34b8e0ed3a4c51bc4e60fb41ab2b9e69e747f03eb5",
+      "size_bytes": 1081
+    },
+    "replay_timeline.json": {
+      "sha256": "ad22e9b4723cfc1b0cb1006262e68c1fea02f4586908c2dfb270c90e4f238f99",
+      "size_bytes": 316161
+    }
+  },
+  "generated_at_utc": "2026-10-17T17:34:58Z",
+  "git_commit": "cf8334d05d15bb93ce75ee2c6b66599b0f0a6424",
+  "junit_summary": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 58
+  },
+  "metrics": {
+    "cooling_limited_semantic_sha256": "950b355ebfaa7a8813894dafc134057eabd6f87e3b82d15b5145b3dcd0e1ece1",
+    "cooling_limited_ticks_count": 91,
+    "errata_exceed_10000_kg_count": 3,
+    "max_tick_calc_ms": 0.5367,
+    "min_tick_calc_ms": 0.0022,
+    "rescue_primary_semantic_sha256": "3ca8ad185a8f4439074d5bc1592a53e03ac579c26b0d6b6a46fc5dff32fb4971",
+    "rescue_primary_ticks_count": 91,
+    "survey_primary_semantic_sha256": "02c7775ee191ca71ddd92def3ed76aa78c16699b4232345079bcd474404ddcfe",
+    "survey_primary_ticks_count": 91,
+    "total_decisions_count": 15
+  },
+  "run_id": "release_c9",
+  "schema_version": "1.0.0",
+  "semantic_sha256": "884777031e138d9fab7f308d400bcb909b7761a6dbe45a416dbc43e37a574c12"
+}

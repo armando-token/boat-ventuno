@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDV Resource Governor — Single-Screen Operator Console</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top-bar">
+    <div class="brand">
+      <h1>SDV RESOURCE GOVERNOR</h1>
+      <span class="subtitle">Deterministic 8-Class Physical Admission, Arbitration &amp; Graceful Degradation Engine</span>
+    </div>
+    <div class="backend-badges">
+      <div class="badge" id="badge-snapshot">Snapshot: loading...</div>
+      <div class="badge" id="badge-host">Host: loading...</div>
+      <div class="badge" id="badge-hash">Semantic SHA-256: loading...</div>
+      <div class="badge" id="badge-board">Board: checking...</div>
+    </div>
+  </header>
+
+  <main class="console-grid">
+    <!-- Left Column: 8 Resource Classes + 2D Ship Layout -->
+    <section class="panel" id="panel-resources">
+      <div class="panel-header">
+        <h2>1. Eight-Class Physical Budgets (1 Hz)</h2>
+        <span class="pill" id="overall-feasibility-pill">FEASIBLE</span>
+      </div>
+      <div class="resource-cards" id="resource-cards-container"></div>
+
+      <div class="panel-header mt-12">
+        <h2>2. 2D Vessel Physical &amp; Rack Topology</h2>
+        <span class="small-note">Powered-off guests retain bay/mast/mass (PHY-08)</span>
+      </div>
+      <div class="ship-2d-diagram" id="ship-2d-container"></div>
+    </section>
+
+    <!-- Center Column: Scenario B 90s Replay, Priority Switcher & Perturbations -->
+    <section class="panel" id="panel-replay">
+      <div class="panel-header">
+        <h2>3. Scenario B Live Arbitration (D3) &amp; Degradation (D4) — 90s Demo (20x Compression = 30m)</h2>
+        <div class="profile-switcher">
+          <label for="select-priority">Priority Profile:</label>
+          <select id="select-priority">
+            <option value="survey_primary">survey_primary.yaml (Waypoint-Preserving Hold)</option>
+            <option value="rescue_primary">rescue_primary.yaml (Immediate Recovery Turn)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="timeline-controls">
+        <button id="btn-play" class="btn primary">Play 90s Demo</button>
+        <button id="btn-pause" class="btn">Pause</button>
+        <button id="btn-reset" class="btn">Reset Session &amp; T=0s</button>
+        <input type="range" id="timeline-slider" min="0" max="90" value="0" />
+        <span id="timeline-label" class="mono">Tick 00/90 (Sim T=0s, 20x)</span>
+      </div>
+
+      <div class="tick-status-box" id="tick-status-box"></div>
+
+      <div class="panel-header mt-12">
+        <h2>4. Live Perturbation &amp; Urgent Command Injector (D4 / ROB)</h2>
+      </div>
+      <div class="perturb-buttons">
+        <button class="btn warn" data-perturb="GENERATOR_LOSS_100KW">D4: Generator Loss (200→100 kW)</button>
+        <button class="btn warn" data-perturb="COOLING_LOSS_30C_40PCT">D4: Cooling 30°C + 40% Loop Loss (72 kW)</button>
+        <button class="btn warn" data-perturb="GUEST_OVERCONSUMPTION_20PCT">ROB-02: G5 +20% Overconsumption (54 kW)</button>
+        <button class="btn warn" data-perturb="LOST_SEAWATER_TEMP_FEED">ROB-03: Lost Seawater Temp Feed</button>
+        <button class="btn danger" data-perturb="URGENT_HOLD">ROB-04: Urgent HOLD G3 (≤200 ms)</button>
+        <button class="btn danger" data-perturb="URGENT_STOP">ROB-04: Urgent STOP G3 (≤200 ms)</button>
+      </div>
+      <pre class="console-output" id="decision-log-box">Select a timeline tick or trigger a perturbation to inspect deterministic solver witnesses...</pre>
+    </section>
+
+    <!-- Right Column: Live Scenario A Guest Card Editor & Admission (D1) + Scenario C -->
+    <section class="panel" id="panel-admission">
+      <div class="panel-header">
+        <h2>5. Scenario A Live Guest Card Editor &amp; Admission (D1)</h2>
+      </div>
+      <div class="form-grid">
+        <label>Installed Baseline Guests:
+          <input type="text" id="input-installed" value="G1,G2,G3" />
+        </label>
+        <label>Candidate Guest Card:
+          <select id="select-candidate">
+            <option value="G4">G4 — VTOL Rescue Drone + Hangar (990 kg = 140+850 kg, 35/10/2 kW)</option>
+            <option value="G5">G5 — Emergency Comms &amp; Edge Compute (3025 kg = 3000+25 kg, 45/8 kW)</option>
+            <option value="G6">G6 — Civil Hydro Sampler (420 kg, 4.5 kW)</option>
+            <option value="G2">G2 — Ocean &amp; Weather Module (3500 kg, 6/20 kW)</option>
+            <option value="G3">G3 — Seabed Inspection AUV + Cradle (5500 kg, 1/25 kW)</option>
+            <option value="G1">G1 — Passive Radio &amp; Meteo Sensor (45 kg, 1.5 kW)</option>
+          </select>
+        </label>
+        <label>Override Primary Subcomponent Mass (kg):
+          <input type="number" id="input-mass-kg" placeholder="Leave blank for manifest default" />
+        </label>
+        <label>Override Nominal Power (W):
+          <input type="number" id="input-power-w" placeholder="Leave blank for manifest default" />
+        </label>
+        <label>Override Preferred Position:
+          <select id="select-pos-override">
+            <option value="">(Manifest Default)</option>
+            <option value="bay1">bay1 (20 ft, ≤8,000 kg)</option>
+            <option value="bay1_a">bay1_a (10 ft, Bay1 ≤8,000 kg)</option>
+            <option value="bay1_b">bay1_b (10 ft, Bay1 ≤8,000 kg)</option>
+            <option value="bay2">bay2 (10 ft, ≤4,000 kg)</option>
+            <option value="hangar">hangar (≤1,000 kg)</option>
+            <option value="hangar_roof">hangar_roof (x1.2, drone clearance)</option>
+            <option value="mast_3">mast_3 (≤60 kg, ≤0.6 m2, ≤2 kW air)</option>
+          </select>
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="chk-at-port" checked /> Evaluate at Port (uncheck for At-Sea A' check)
+        </label>
+        <button id="btn-admit-live" class="btn primary full-width">Evaluate Live Admission (D1)</button>
+      </div>
+      <pre class="console-output" id="admission-result-box">Click "Evaluate Live Admission (D1)" to run the solver on the live card...</pre>
+
+      <div class="panel-header mt-12">
+        <h2>6. Errata Mass Regression (3 of 5 Combinations &gt; 10,000 kg)</h2>
+      </div>
+      <div id="combinations-table-container"></div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

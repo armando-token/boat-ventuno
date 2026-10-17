@@ -1,0 +1,180 @@
+schema_version: "sdv-guest-manifest/1.0"
+guest_id: "G2"
+name: "G2 — Ocean & Weather Module (Winch + Probe)"
+category: "OCEAN_WEATHER_MODULE"
+safety_critical: false
+default_mode: "INSPECTION_ACTIVE"
+can_buffer_offline: true
+
+subcomponents:
+  - subcomponent_id: "G2_ROV_WINCH_CONTAINER_10FT"
+    part_of: "G2"
+    name: "10-ft Ocean & Weather Module with Winch and Probe"
+    mass_kg: 3500
+    footprint_m2: 14.9
+    wind_area_m2: 6.0
+    preferred_positions: ["bay2", "bay1_a", "bay1_b"]
+    allowed_positions: ["bay2", "bay1_a", "bay1_b"]
+    cooling_route: "CHILLED_WATER_LOOP"
+    requires_water_manifold: true
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      mass_kg: "OFFICIAL_BRIEF"
+      preferred_positions: "OFFICIAL_BRIEF"
+      allowed_positions: "OFFICIAL_BRIEF"
+      cooling_route: "OFFICIAL_BRIEF"
+      footprint_m2: "ASSUMED"
+      wind_area_m2: "ASSUMED"
+
+modes:
+  INSPECTION_ACTIVE:
+    description: "Active winch & probe deployment (20 kW sustained for 5 min = 300 s; exceeds 60 s thermal inertia)"
+    min_power_w: 6000
+    nominal_power_w: 20000
+    sustained_power_w: 20000
+    sustained_duration_s: 300
+    peak_power_w: 20000
+    peak_duration_s: 300
+    cooling_water_w: 20000
+    cooling_air_mast_w: 0
+    compute_cores: 6
+    compute_ram_mib: 24576
+    compute_accelerators: 1
+    shared_storage_gb: 2500
+    backbone_lan_bps: 5000000
+    satcom_bps: 500000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 120
+    min_cooldown_s: 60
+    forbids_emcon_silence: false
+    requires_deck_clear: true
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 1.0
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      min_power_w: "OFFICIAL_BRIEF"
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      sustained_duration_s: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      satcom_bps: "OFFICIAL_BRIEF"
+      requires_deck_clear: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+      compute_accelerators: "ASSUMED"
+      shared_storage_gb: "ASSUMED"
+  CONTINUOUS_SENSING:
+    description: "Continuous 6 kW ocean & weather monitoring without winch operation"
+    min_power_w: 6000
+    nominal_power_w: 6000
+    sustained_power_w: 6000
+    sustained_duration_s: 3600
+    peak_power_w: 6000
+    peak_duration_s: 60
+    cooling_water_w: 6000
+    cooling_air_mast_w: 0
+    compute_cores: 4
+    compute_ram_mib: 16384
+    compute_accelerators: 0
+    shared_storage_gb: 2500
+    backbone_lan_bps: 5000000
+    satcom_bps: 500000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 60
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.75
+    value_origin: "OFFICIAL_BRIEF"
+    field_origins:
+      nominal_power_w: "OFFICIAL_BRIEF"
+      sustained_power_w: "OFFICIAL_BRIEF"
+      cooling_water_w: "OFFICIAL_BRIEF"
+      backbone_lan_bps: "OFFICIAL_BRIEF"
+      satcom_bps: "OFFICIAL_BRIEF"
+      compute_cores: "ASSUMED"
+      compute_ram_mib: "ASSUMED"
+  STANDBY:
+    description: "Probe secured on deck, telemetry & heater standby"
+    min_power_w: 1000
+    nominal_power_w: 1500
+    sustained_power_w: 1500
+    sustained_duration_s: 3600
+    peak_power_w: 2000
+    peak_duration_s: 15
+    cooling_water_w: 1500
+    cooling_air_mast_w: 0
+    compute_cores: 2
+    compute_ram_mib: 8192
+    compute_accelerators: 0
+    shared_storage_gb: 2500
+    backbone_lan_bps: 1000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 60
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.20
+    value_origin: "ASSUMED"
+
+installation:
+  port_only: true
+  min_crew_required: 4
+  install_time_min: 360
+  remove_time_min: 360
+  sea_install_max_wind_kn: 0
+  sea_install_min_speed_kn: 0.0
+  sea_install_max_speed_kn: 0.0
+
+vehicle_replacement:
+  supported_at_sea: false
+  min_crew_required: 4
+  swap_duration_min: 45
+  min_speed_kn: 0.0
+  max_speed_kn: 5.0
+  max_wind_kn: 18
+  max_sea_state: 3
+
+ship_state_constraints:
+  min_speed_kn_for_operation: 0.0
+  max_speed_kn_for_operation: 5.0
+  max_wind_kn_for_operation: 22
+  max_sea_state_for_operation: 4
+  requires_heading_into_wind_for_launch_recovery: false
+  forbids_deck_machinery_while_active: false
+  uses_deck_machinery: true
+  requires_stern_ramp_free: false
+  acoustic_hold_handshake_min_s: 0
+  acoustic_hold_handshake_max_s: 0
+  acoustic_hold_default_s: 0
+  low_battery_threshold_pct: null
+  emergency_landing_deadline_s: null
+  max_flight_endurance_min: null
+
+dependencies:
+  requires_guests: []
+  excludes_guests: []
+  conditional_excludes:
+    - other_guest_id: "G3"
+      when_self_modes: ["INSPECTION_ACTIVE"]
+      when_other_modes: ["SURVEY_QUIET"]
+      reason: "G2 winch is deck machinery and is excluded while G3 listens in quiet acoustic survey"
+    - other_guest_id: "G4"
+      when_self_modes: ["INSPECTION_ACTIVE"]
+      when_other_modes: ["LAUNCH_RECOVERY_OPTICS", "RECOVERY_APPROACH"]
+      reason: "G2 winch operation is excluded while G4 recovers on flight deck"
+
+mission_capabilities:
+  hydrographic_survey: 85.0
+  water_quality_monitoring: 85.0
+  environmental_sensing: 75.0
+  subsea_intervention: 55.0
+  hull_and_cable_inspection: 55.0
+  salvage_assistance: 50.0

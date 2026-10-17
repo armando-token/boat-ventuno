@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/guest_manifest.schema.json",
+  "title": "SDV Guest Card Manifest Schema (B.0)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "guest_id",
+    "name",
+    "version",
+    "category",
+    "safety_critical",
+    "mission_capabilities",
+    "subcomponents",
+    "modes",
+    "default_mode",
+    "ship_state_constraints",
+    "dependencies",
+    "installation",
+    "vehicle_replacement",
+    "communications",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "sdv-guest-manifest/1.0" },
+    "guest_id": { "type": "string", "pattern": "^[A-Z0-9_\\-]+$" },
+    "name": { "type": "string", "minLength": 3 },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "category": { "type": "string", "enum": ["METEO_SENSOR", "ROV_INSPECTION", "AUV_SURVEY", "UAV_SAR", "SIGINT_EDGE", "CIVIL_HYDRO_SAMPLER", "AUXILIARY_PAYLOAD"] },
+    "safety_critical": { "type": "boolean" },
+    "mission_capabilities": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "number", "minimum": 0.0, "maximum": 100.0 }
+    },
+    "subcomponents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "subcomponent_id",
+          "name",
+          "part_of",
+          "mass_kg",
+          "footprint_ft",
+          "area_m2",
+          "preferred_positions",
+          "allowed_positions",
+          "cooling_route",
+          "value_origin"
+        ],
+        "properties": {
+          "subcomponent_id": { "type": "string", "minLength": 2 },
+          "name": { "type": "string" },
+          "part_of": { "type": "string" },
+          "mass_kg": { "type": "integer", "minimum": 1 },
+          "footprint_ft": { "type": "integer", "enum": [0, 10, 20] },
+          "area_m2": { "type": "number", "minimum": 0.0 },
+          "preferred_positions": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "allowed_positions": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "cooling_route": { "type": "string", "enum": ["CHILLED_WATER_LOOP", "MAST_AIR", "PASSIVE_AMBIENT"] },
+          "power_distribution_fraction": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "value_origin": { "type": "string", "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"] }
+        }
+      }
+    },
+    "modes": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode_name",
+          "capability_retention_ratio",
+          "uninterruptible",
+          "min_power_w",
+          "nominal_power_w",
+          "sustained_power_w",
+          "peak_power_w",
+          "sustained_duration_s",
+          "peak_duration_s",
+          "duty_cycle_pct",
+          "cooling_water_w",
+          "cooling_air_mast_w",
+          "compute_cores",
+          "compute_ram_mib",
+          "compute_accelerators",
+          "compute_storage_gb",
+          "compute_single_node_required",
+          "bandwidth_lan_bps",
+          "bandwidth_satcom_bps",
+          "bandwidth_rf_bps",
+          "bandwidth_acoustic_bps",
+          "value_origin"
+        ],
+        "properties": {
+          "mode_name": { "type": "string" },
+          "capability_retention_ratio": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+          "uninterruptible": { "type": "boolean" },
+          "min_done_duration_s": { "type": "integer", "minimum": 0 },
+          "min_power_w": { "type": "integer", "minimum": 0 },
+          "nominal_power_w": { "type": "integer", "minimum": 0 },
+          "sustained_power_w": { "type": "integer", "minimum": 0 },
+          "peak_power_w": { "type": "integer", "minimum": 0 },
+          "sustained_duration_s": { "type": "integer", "minimum": 0 },
+          "peak_duration_s": { "type": "integer", "minimum": 0 },
+          "duty_cycle_pct": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "cooling_water_w": { "type": "integer", "minimum": 0 },
+          "cooling_air_mast_w": { "type": "integer", "minimum": 0 },
+          "compute_cores": { "type": "integer", "minimum": 0 },
+          "compute_ram_mib": { "type": "integer", "minimum": 0 },
+          "compute_accelerators": { "type": "integer", "minimum": 0 },
+          "compute_storage_gb": { "type": "integer", "minimum": 0 },
+          "compute_single_node_required": { "type": "boolean" },
+          "bandwidth_lan_bps": { "type": "integer", "minimum": 0 },
+          "bandwidth_satcom_bps": { "type": "integer", "minimum": 0 },
+          "bandwidth_rf_bps": { "type": "integer", "minimum": 0 },
+          "bandwidth_acoustic_bps": { "type": "integer", "minimum": 0 },
+          "value_origin": { "type": "string", "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"] }
+        }
+      }
+    },
+    "default_mode": { "type": "string" },
+    "ship_state_constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowed_vessel_modes",
+        "excluded_vessel_modes",
+        "max_wind_kn_for_operation",
+        "max_sea_state_for_operation",
+        "min_speed_kn_for_operation",
+        "max_speed_kn_for_operation",
+        "requires_quiet_acoustics",
+        "requires_heading_into_wind_for_launch_recovery",
+        "forbids_deck_machinery_while_active",
+        "transition_guard_s"
+      ],
+      "properties": {
+        "allowed_vessel_modes": { "type": "array", "items": { "type": "string" } },
+        "excluded_vessel_modes": { "type": "array", "items": { "type": "string" } },
+        "max_wind_kn_for_operation": { "type": "integer", "minimum": 0 },
+        "max_sea_state_for_operation": { "type": "integer", "minimum": 0, "maximum": 9 },
+        "min_speed_kn_for_operation": { "type": "integer", "minimum": 0 },
+        "max_speed_kn_for_operation": { "type": "integer", "minimum": 0 },
+        "requires_quiet_acoustics": { "type": "boolean" },
+        "requires_heading_into_wind_for_launch_recovery": { "type": "boolean" },
+        "forbids_deck_machinery_while_active": { "type": "boolean" },
+        "transition_guard_s": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requires_guests", "excludes_guests", "conditional_excludes"],
+      "properties": {
+        "requires_guests": { "type": "array", "items": { "type": "string" } },
+        "excludes_guests": { "type": "array", "items": { "type": "string" } },
+        "conditional_excludes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["other_guest_id", "when_self_mode_in", "when_other_mode_in", "reason"],
+            "properties": {
+              "other_guest_id": { "type": "string" },
+              "when_self_mode_in": { "type": "array", "items": { "type": "string" } },
+              "when_other_mode_in": { "type": "array", "items": { "type": "string" } },
+              "reason": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "installation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "port_only",
+        "min_crew_required",
+        "duration_min",
+        "equipment_needed",
+        "sea_install_max_speed_kn",
+        "sea_install_min_speed_kn",
+        "sea_install_max_wind_kn"
+      ],
+      "properties": {
+        "port_only": { "type": "boolean" },
+        "min_crew_required": { "type": "integer", "minimum": 1 },
+        "duration_min": { "type": "integer", "minimum": 1 },
+        "equipment_needed": { "type": "array", "items": { "type": "string" } },
+        "sea_install_min_speed_kn": { "type": "integer", "minimum": 0 },
+        "sea_install_max_speed_kn": { "type": "integer", "minimum": 0 },
+        "sea_install_max_wind_kn": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "vehicle_replacement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supported_at_sea",
+        "min_crew_required",
+        "duration_min",
+        "min_speed_kn",
+        "max_speed_kn",
+        "max_wind_kn",
+        "max_sea_state"
+      ],
+      "properties": {
+        "supported_at_sea": { "type": "boolean" },
+        "min_crew_required": { "type": "integer", "minimum": 0 },
+        "duration_min": { "type": "integer", "minimum": 0 },
+        "min_speed_kn": { "type": "integer", "minimum": 0 },
+        "max_speed_kn": { "type": "integer", "minimum": 0 },
+        "max_wind_kn": { "type": "integer", "minimum": 0 },
+        "max_sea_state": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "communications": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_links",
+        "fallback_links",
+        "local_buffer_capacity_s",
+        "silence_effect",
+        "control_latency_budget_ms",
+        "handshake_hold_latency_s"
+      ],
+      "properties": {
+        "required_links": { "type": "array", "items": { "type": "string" } },
+        "fallback_links": { "type": "array", "items": { "type": "string" } },
+        "local_buffer_capacity_s": { "type": "integer", "minimum": 0 },
+        "silence_effect": { "type": "string", "enum": ["NONE", "BUFFER_LOCALLY", "DEGRADE_TO_PASSIVE", "SUSPEND_TRANSMISSION", "ABORT_OPERATION"] },
+        "control_latency_budget_ms": { "type": "integer", "minimum": 1 },
+        "handshake_hold_latency_s": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_document", "errata_applied", "notes"],
+      "properties": {
+        "source_document": { "type": "string" },
+        "errata_applied": { "type": "boolean" },
+        "notes": { "type": "string" }
+      }
+    },
+    "x_extensions": {
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,122 @@
+schema_version: "sdv-guest-manifest/1.0"
+guest_id: "G6"
+name: "G6 — Civil Hydrographic & eDNA Micro-Sampler (Custom Scenario A Card)"
+category: "CIVIL_HYDRO_SAMPLER"
+safety_critical: false
+default_mode: "NOMINAL"
+can_buffer_offline: true
+
+subcomponents:
+  - subcomponent_id: "G6_HYDRO_SKID_10FT"
+    part_of: "G6"
+    name: "Compact 10-ft Civil Water Quality & eDNA Filtration Skid"
+    mass_kg: 420
+    footprint_m2: 6.5
+    wind_area_m2: 2.2
+    preferred_positions: ["bay2", "bay1_a", "bay1_b"]
+    allowed_positions: ["bay2", "bay1_a", "bay1_b"]
+    cooling_route: "CHILLED_WATER_LOOP"
+    requires_water_manifold: true
+    value_origin: "ASSUMED"
+    field_origins:
+      mass_kg: "ASSUMED"
+      footprint_m2: "ASSUMED"
+      wind_area_m2: "ASSUMED"
+      preferred_positions: "ASSUMED"
+      cooling_route: "ASSUMED"
+
+modes:
+  NOMINAL:
+    description: "Continuous flow-through water quality & eDNA filtration (4.5 kW water-cooled)"
+    min_power_w: 3500
+    nominal_power_w: 4500
+    sustained_power_w: 4500
+    sustained_duration_s: 1800
+    peak_power_w: 5500
+    peak_duration_s: 20
+    cooling_water_w: 4500
+    cooling_air_mast_w: 0
+    compute_cores: 4
+    compute_ram_mib: 16384
+    compute_accelerators: 0
+    shared_storage_gb: 800
+    backbone_lan_bps: 30000000
+    satcom_bps: 200000
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 30
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 1.0
+    value_origin: "ASSUMED"
+  ECO_SAMPLE:
+    description: "Reduced pump duty cycle (1.5 kW water-cooled)"
+    min_power_w: 1200
+    nominal_power_w: 1500
+    sustained_power_w: 1500
+    sustained_duration_s: 3600
+    peak_power_w: 2000
+    peak_duration_s: 10
+    cooling_water_w: 1500
+    cooling_air_mast_w: 0
+    compute_cores: 2
+    compute_ram_mib: 8192
+    compute_accelerators: 0
+    shared_storage_gb: 800
+    backbone_lan_bps: 10000000
+    satcom_bps: 0
+    safety_critical: false
+    uninterruptible: false
+    min_done_duration_s: 0
+    min_cooldown_s: 30
+    forbids_emcon_silence: false
+    requires_deck_clear: false
+    requires_quiet_acoustic_state: false
+    capability_retention_ratio: 0.55
+    value_origin: "ASSUMED"
+
+installation:
+  port_only: false
+  min_crew_required: 4
+  install_time_min: 40
+  remove_time_min: 30
+  sea_install_max_wind_kn: 18
+  sea_install_min_speed_kn: 0.0
+  sea_install_max_speed_kn: 6.0
+
+vehicle_replacement:
+  supported_at_sea: false
+  min_crew_required: 0
+  swap_duration_min: 0
+  min_speed_kn: 0.0
+  max_speed_kn: 0.0
+  max_wind_kn: 0
+  max_sea_state: 0
+
+ship_state_constraints:
+  min_speed_kn_for_operation: 0.0
+  max_speed_kn_for_operation: 14.0
+  max_wind_kn_for_operation: 30
+  max_sea_state_for_operation: 4
+  requires_heading_into_wind_for_launch_recovery: false
+  forbids_deck_machinery_while_active: false
+  uses_deck_machinery: false
+  requires_stern_ramp_free: false
+  acoustic_hold_handshake_min_s: 0
+  acoustic_hold_handshake_max_s: 0
+  acoustic_hold_default_s: 0
+  low_battery_threshold_pct: null
+  emergency_landing_deadline_s: null
+  max_flight_endurance_min: null
+
+dependencies:
+  requires_guests: []
+  excludes_guests: []
+  conditional_excludes: []
+
+mission_capabilities:
+  water_quality_monitoring: 85.0
+  environmental_sensing: 65.0
+  hydrographic_survey: 50.0

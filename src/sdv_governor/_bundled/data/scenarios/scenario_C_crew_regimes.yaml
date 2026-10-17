@@ -1,0 +1,70 @@
+schema_version: "sdv-scenario/1.0"
+scenario_id: "SCENARIO_C_CREW_REGIMES"
+name: "Scenario C — Crew Regimes (14 / 6 / 0), A' Windows, 20% Overconsumption & Lost Telemetry Feed"
+scenario_class: "OFFICIAL_CHALLENGE"
+seed: 20261020
+initial_state:
+  sim_time_s: 0
+  vessel_mode: "QUIET_SURVEY"
+  ship_speed_kn: 3
+  wind_kn: 16
+  sea_state: 2
+  seawater_temp_c: 22.0
+  crew_count: 14
+  deck_clear: true
+  power_reserve_w: 200000
+  cooling_loop_degraded: false
+  installed_guests:
+    - guest_id: "G3"
+      mode: "SURVEY_QUIET"
+      placements:
+        G3_AUV_CRADLE_BAY1_20FT: "bay1"
+      compute_node: "node_1"
+    - guest_id: "G4"
+      mode: "FLIGHT_PATROL"
+      placements:
+        G4_DRONE_VEHICLE: "flight_deck"
+        G4_HANGAR_STATION: "hangar"
+      compute_node: "node_3"
+    - guest_id: "G5"
+      mode: "FULL_SPECTRUM"
+      placements:
+        G5_COMPUTE_CONTAINER: "bay2"
+        G5_MAST_ANTENNA: "mast_3"
+      compute_node: "node_2"
+events:
+  - seq: 1
+    sim_time_s: 10
+    priority: 5
+    event_type: "REQUEST_DECK_MACHINERY"
+    crew_count: 14
+    description: "Attempt to operate deck crane while G3 is in SURVEY_QUIET -> blocked by acoustic hull-quiet interlock."
+  - seq: 2
+    sim_time_s: 30
+    priority: 5
+    event_type: "EVALUATE_CREW_TRANSITION"
+    crew_count: 6
+    description: "Reduced crew (6): human confirmation window expands to 60-180 s; urgent 2 s arbitration uses pre-authorized safety policy."
+  - seq: 3
+    sim_time_s: 60
+    priority: 5
+    event_type: "EVALUATE_CREW_TRANSITION"
+    crew_count: 0
+    attempt_physical_install_guest_id: "G6"
+    description: "Uncrewed (Crew 0) at sea: any physical installation or vehicle replacement is strictly forbidden; only software retasking, compute reallocation, throttle, and shedding allowed."
+  - seq: 4
+    sim_time_s: 90
+    priority: 2
+    event_type: "GUEST_OVERCONSUMPTION"
+    guest_id: "G5"
+    overconsumption_pct: 20.0
+    measured_power_w: 54000
+    description: "G5 draws 54 kW (+20% over 45 kW manifest nominal) -> governor detects anomaly, recalculates balance, and throttles G5 to DEGRADED_70PCT_LOSS."
+  - seq: 5
+    sim_time_s: 120
+    priority: 2
+    event_type: "FEED_LOSS"
+    feed_id: "seawater_temperature_sensor"
+    age_ms: 5000
+    ttl_ms: 1000
+    description: "Seawater temperature sensor feed stops -> marked STALE/UNAVAILABLE after TTL and falls back conservatively to worst-case envelope temperature (30 °C)."

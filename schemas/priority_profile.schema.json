@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/priority_profile.schema.json",
+  "title": "SDV Mission Priority Profile Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "priority_profile_id",
+    "name",
+    "description",
+    "capability_weights",
+    "guest_priority_rank",
+    "arbitration_policy",
+    "degradation_policy"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "sdv-priority-profile/1.0" },
+    "priority_profile_id": { "type": "string", "minLength": 3 },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "capability_weights": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "number", "minimum": 0.0, "maximum": 100.0 }
+    },
+    "guest_priority_rank": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "integer", "minimum": 1, "maximum": 100 }
+    },
+    "arbitration_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "survey_vs_recovery_strategy",
+        "pre_reserve_recovery_power",
+        "max_acceptable_survey_pause_min",
+        "tie_break_order"
+      ],
+      "properties": {
+        "survey_vs_recovery_strategy": {
+          "type": "string",
+          "enum": ["MINIMAL_RECOVERABLE_PAUSE", "IMMEDIATE_FULL_SUSPENSION"]
+        },
+        "pre_reserve_recovery_power": { "type": "boolean" },
+        "max_acceptable_survey_pause_min": { "type": "integer", "minimum": 1 },
+        "tie_break_order": { "type": "string", "enum": ["HIGHER_CAPABILITY_SCORE_THEN_LEXICOGRAPHIC", "LOWER_DISPLACEMENT_COST_THEN_LEXICOGRAPHIC"] }
+      }
+    },
+    "degradation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prefer_mode_downgrade_before_shed",
+        "protect_uninterruptible_tasks",
+        "shed_order_lowest_priority_first"
+      ],
+      "properties": {
+        "prefer_mode_downgrade_before_shed": { "type": "boolean" },
+        "protect_uninterruptible_tasks": { "type": "boolean" },
+        "shed_order_lowest_priority_first": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

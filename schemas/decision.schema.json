@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/decision.schema.json",
+  "title": "SDV Resource Governor Decision Output Schema (D1/D3/D4)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_id",
+    "verdict",
+    "binding_constraints",
+    "rationale",
+    "placement",
+    "alternatives_considered",
+    "ranked_displacements",
+    "capability_lost",
+    "mission_envelope_hash",
+    "degraded_feasibility",
+    "installation_window",
+    "calculation_elapsed_ms",
+    "source_input_hashes"
+  ],
+  "properties": {
+    "decision_id": { "type": "string", "minLength": 8 },
+    "verdict": { "type": "string", "enum": ["YES", "YES_IF", "NO", "NOT_NOW"] },
+    "binding_constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["resource_class", "state_label", "demand", "capacity", "unit", "hard"],
+        "properties": {
+          "resource_class": { "type": "string" },
+          "state_label": { "type": "string" },
+          "demand": { "type": "number" },
+          "capacity": { "type": "number" },
+          "unit": { "type": "string" },
+          "hard": { "type": "boolean" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "rationale": { "type": "string", "minLength": 15 },
+    "placement": { "type": "object" },
+    "alternatives_considered": { "type": "array" },
+    "ranked_displacements": { "type": "array" },
+    "capability_lost": { "type": "array" },
+    "mission_envelope_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "degraded_feasibility": { "type": "object" },
+    "installation_window": { "type": ["object", "null"] },
+    "calculation_elapsed_ms": { "type": "number", "minimum": 0.0 },
+    "source_input_hashes": { "type": "object" },
+    "conditioned_availability": { "type": "object" },
+    "next_window": { "type": ["object", "null"] }
+  }
+}

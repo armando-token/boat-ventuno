@@ -1,0 +1,175 @@
+# data/ship/vessel_baseline.yaml — Línea Base Oficial del Buque (Anexo A.1 – A.9)
+schema_version: "sdv-ship-baseline/1.0"
+vessel_id: "SDV_PATROL_SURVEY_BASE_V1"
+vessel_name: "SDV Multi-Mission Offshore Vessel (Baseline)"
+
+power:
+  propulsion_and_hotel_reserved: true
+  nominal_guest_reserve_w: 200000
+  single_generator_loss_reserve_w: 100000
+  local_power_lines:
+    LINE_A_FWD:
+      max_power_w: 150000
+      feeds_positions: ["bay1", "bay1_a", "bay1_b", "mast_1", "mast_2", "mast_3"]
+    LINE_B_AFT:
+      max_power_w: 150000
+      feeds_positions: ["bay2", "hangar", "hangar_roof", "flight_deck", "stern_ramp", "rack"]
+
+cooling:
+  chilled_water_loop:
+    formula_description: "C(T) = 160000 - 40000 * (T - 12.0) / 18.0 W for T in [12.0, 30.0] C"
+    temp_min_c: 12.0
+    temp_max_c: 30.0
+    capacity_at_12c_w: 160000
+    capacity_at_30c_w: 120000
+    out_of_range_policy: "CLAMP_CONSERVATIVE_AT_BOUNDS_AND_FLAG_WARNING"
+    partial_loop_loss_multiplier: 0.60
+    capacity_at_30c_degraded_w: 72000
+    thermal_inertia:
+      boost_power_w: 30000
+      max_duration_s: 60
+      max_energy_j: 1800000
+      cooldown_period_s: 600
+      sustained_loads_cannot_use_inertia: true
+  mast_air_cooling:
+    water_manifold_available: false
+    max_air_cooling_per_position_w: 2000
+
+positions:
+  bays:
+    bay1:
+      footprint_ft: 20
+      max_mass_kg: 8000
+      can_split_into: ["bay1_a", "bay1_b"]
+      stability_zone: "DECK_AND_BAYS"
+      stability_multiplier: 1.0
+      power_line: "LINE_A_FWD"
+      cooling_route: "CHILLED_WATER_LOOP"
+    bay1_a:
+      footprint_ft: 10
+      parent_bay: "bay1"
+      max_combined_bay1_mass_kg: 8000
+      stability_zone: "DECK_AND_BAYS"
+      stability_multiplier: 1.0
+      power_line: "LINE_A_FWD"
+      cooling_route: "CHILLED_WATER_LOOP"
+    bay1_b:
+      footprint_ft: 10
+      parent_bay: "bay1"
+      max_combined_bay1_mass_kg: 8000
+      stability_zone: "DECK_AND_BAYS"
+      stability_multiplier: 1.0
+      power_line: "LINE_A_FWD"
+      cooling_route: "CHILLED_WATER_LOOP"
+    bay2:
+      footprint_ft: 10
+      max_mass_kg: 4000
+      stability_zone: "DECK_AND_BAYS"
+      stability_multiplier: 1.0
+      power_line: "LINE_B_AFT"
+      cooling_route: "CHILLED_WATER_LOOP"
+  hangar_and_flight_deck:
+    hangar:
+      max_vtol_drones: 1
+      max_vtol_airframe_mass_kg: 150
+      max_total_mass_kg: 1000
+      stability_zone: "HANGAR"
+      stability_multiplier: 1.2
+      power_line: "LINE_B_AFT"
+      cooling_route: "CHILLED_WATER_LOOP"
+    hangar_roof:
+      max_mass_kg: 150
+      max_footprint_m2: 2.0
+      requires_drone_clearance_if_g4_present: true
+      stability_zone: "HANGAR"
+      stability_multiplier: 1.2
+      power_line: "LINE_B_AFT"
+      cooling_route: "MAST_AIR_2KW"
+    flight_deck:
+      mutually_exclusive_with_stern_ramp: true
+      stability_zone: "HANGAR"
+      stability_multiplier: 1.2
+      power_line: "LINE_B_AFT"
+    stern_ramp:
+      mutually_exclusive_with_flight_deck: true
+      max_craft_mass_kg: 5000
+      cradle_assisted_max_mass_kg: 5500
+      stability_zone: "DECK_AND_BAYS"
+      stability_multiplier: 1.0
+      power_line: "LINE_B_AFT"
+
+mast:
+  total_positions: 3
+  fixed_occupied_positions: ["mast_1", "mast_2"]
+  available_guest_positions: ["mast_3"]
+  max_mass_per_position_kg: 60
+  max_footprint_per_position_m2: 0.6
+  max_air_cooling_per_position_w: 2000
+  water_manifold_available: false
+  stability_zone: "MAST"
+  stability_multiplier: 3.0
+  power_line: "LINE_A_FWD"
+
+mass_and_stability:
+  max_total_guest_mass_kg: 10000
+  max_stability_equivalent_kg: 12000
+  zone_multipliers:
+    DECK_AND_BAYS: 1.0
+    HANGAR: 1.2
+    MAST: 3.0
+
+data_links:
+  backbone_lan:
+    max_total_bps: 10000000000
+    max_per_port_bps: 1000000000
+  satcom:
+    nominal_bps: 8000000
+    min_degraded_bps: 1000000
+    zero_during_emcon_silence: true
+  internal_bus:
+    safety_telemetry_isolated_from_bulk_payload: true
+
+compute_rack:
+  total_nodes: 4
+  allocatable_fraction: 0.80
+  shared_storage_total_gb: 20000
+  shared_storage_allocatable_gb: 16000
+  cluster_allocatable_accelerators: 3
+  nodes:
+    node_1:
+      total_cores: 32
+      allocatable_cores: 25
+      total_ram_mib: 131072
+      allocatable_ram_mib: 102400
+      total_accelerators: 1
+      allocatable_accelerators: 1
+    node_2:
+      total_cores: 32
+      allocatable_cores: 25
+      total_ram_mib: 131072
+      allocatable_ram_mib: 102400
+      total_accelerators: 1
+      allocatable_accelerators: 1
+    node_3:
+      total_cores: 32
+      allocatable_cores: 25
+      total_ram_mib: 131072
+      allocatable_ram_mib: 102400
+      total_accelerators: 1
+      allocatable_accelerators: 1
+    node_4:
+      total_cores: 32
+      allocatable_cores: 25
+      total_ram_mib: 131072
+      allocatable_ram_mib: 102400
+      total_accelerators: 1
+      allocatable_accelerators: 1
+
+time_deadlines:
+  scenario_a_admission_max_s: 30.0
+  scenario_b_arbitration_max_s: 2.0
+  degradation_first_shed_max_s: 5.0
+  degradation_full_sequence_max_s: 60.0
+  urgent_command_stop_hold_secure_max_ms: 200.0
+  acoustic_modem_handshake_min_s: 10
+  acoustic_modem_handshake_max_s: 60

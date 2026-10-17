@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sdv-resource-governor"
+version = "1.1.0"
+description = "Deterministic Eight-Class Resource Governor for Software-Defined Vessel (SDV)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+  {name = "Armando Silva"},
+  {name = "Antigravity Assistant (Declared AI Use)"}
+]
+dependencies = [
+  "PyYAML>=6.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+]
+
+[project.scripts]
+sdv-governor = "sdv_governor.cli:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sdv_governor*"]
+
+[tool.setuptools.package-data]
+"*" = [
+  "_bundled/**/*",
+  "_bundled/*",
+  "_bundled/data/**/*",
+  "_bundled/ui/**/*",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra -q"

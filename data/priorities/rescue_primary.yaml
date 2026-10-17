@@ -1,0 +1,32 @@
+schema_version: "sdv-priority-profile/1.0"
+priority_profile_id: "RESCUE_PRIMARY"
+name: "Maritime SAR & Aerial Rescue Primary Priority Profile"
+description: "Maximizes aerial SAR and rapid drone recovery readiness (G4) and wide-area surveillance (G5). Immediately suspends G3 survey leg after mandatory acoustic HOLD confirmation to pre-allocate recovery power and heading margin."
+capability_weights:
+  maritime_sar_rescue: 100.0
+  surface_surveillance: 90.0
+  flight_weather_support: 85.0
+  wideband_spectrum_monitoring: 80.0
+  environmental_sensing: 60.0
+  subsea_intervention: 50.0
+  hydrographic_survey: 40.0
+  seabed_anomaly_detection: 35.0
+  water_quality_monitoring: 30.0
+  hull_and_cable_inspection: 25.0
+  salvage_assistance: 20.0
+guest_priority_rank:
+  G4: 1
+  G1: 2
+  G5: 3
+  G3: 4
+  G2: 5
+  G6: 6
+arbitration_policy:
+  survey_vs_recovery_strategy: "IMMEDIATE_FULL_SUSPENSION"
+  pre_reserve_recovery_power: true
+  max_acceptable_survey_pause_min: 40
+  tie_break_order: "LOWER_DISPLACEMENT_COST_THEN_LEXICOGRAPHIC"
+degradation_policy:
+  prefer_mode_downgrade_before_shed: true
+  protect_uninterruptible_tasks: true
+  shed_order_lowest_priority_first: ["G6", "G2", "G3", "G5", "G1", "G4"]

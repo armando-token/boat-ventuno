@@ -1,7 +1,13 @@
 component,url,license,version_or_commit,platform,usage_in_sdv_resource_governor,vendored
-Python Standard Library,https://docs.python.org/3/library/,PSF-2.0,3.13.15 (macOS) / 3.13.5 (Linux aarch64),macOS arm64 & Linux aarch64,"Core runtime, typing, dataclasses, decimal, fractions, hashlib, sqlite3, http.server, unittest/subprocess",no
+Python Standard Library,https://docs.python.org/3/library/,PSF-2.0,3.13.15 (macOS) / 3.12.3 (Linux aarch64),macOS arm64 & Linux aarch64,"Core runtime, typing, dataclasses, decimal, fractions, hashlib, sqlite3, http.server, unittest/subprocess",no
 PyYAML,https://github.com/yaml/pyyaml,MIT,6.0.3,macOS arm64 & Linux aarch64,"Declarative loading of vessel baseline, guest manifests G1-G6, priority profiles, scenarios, and brief errata overrides",no
 pytest,https://github.com/pytest-dev/pytest,MIT,9.1.1,macOS arm64 & Linux aarch64,"Test runner and JUnit XML evidence generation for unit, integration, and adversarial gates",no
+jsonschema,https://github.com/python-jsonschema/jsonschema,MIT,4.26.0 (macOS) / 4.10.3 (Linux aarch64),macOS arm64 & Linux aarch64,"Validation of the 7 formal JSON Schemas in schemas/*.schema.json during test/validation runs",no
+attrs,https://github.com/python-attrs/attrs,MIT,26.1.0 (macOS) / 23.2.0 (Linux aarch64),macOS arm64 & Linux aarch64,Transitive dependency of jsonschema for schema validation classes,no
+jsonschema-specifications,https://github.com/python-jsonschema/jsonschema-specifications,MIT,2025.9.1,macOS arm64,Transitive dependency of jsonschema 4.26.0 for Draft 2020-12 meta-schemas,no
+referencing,https://github.com/python-jsonschema/referencing,MIT,0.37.0,macOS arm64,Transitive dependency of jsonschema 4.26.0 for JSON Reference resolution,no
+rpds-py,https://github.com/crate-py/rpds,MIT,0.30.0,macOS arm64,Transitive dependency of referencing/jsonschema for persistent data structures,no
+pyrsistent,https://github.com/tobgu/pyrsistent,MIT,0.20.0,Linux aarch64,Transitive dependency of jsonschema 4.10.3 on Ubuntu 24.04 aarch64,no
 iniconfig,https://github.com/pytest-dev/iniconfig,MIT,2.3.1,macOS arm64 & Linux aarch64,Transitive dependency of pytest for configuration parsing,no
 packaging,https://github.com/pypa/packaging,Apache-2.0 OR BSD-2-Clause,26.3,macOS arm64 & Linux aarch64,Transitive dependency of pytest for version/specifier handling,no
 pluggy,https://github.com/pytest-dev/pluggy,MIT,1.7.0,macOS arm64 & Linux aarch64,Transitive dependency of pytest for plugin management,no

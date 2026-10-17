@@ -135,8 +135,11 @@ def _process_acoustic_hold_ack_event(
     fired_d3_milestones: Set[str],
     events_at_tick: List[str],
 ) -> bool:
-    """Validate and apply an ACOUSTIC_HOLD_CONFIRMED event against state.pending_commands['G3'] (R1.2, V2-F02)."""
-    ack_gid = str(ev.get("guest_id", "G3"))
+    """Validate and apply an ACOUSTIC_HOLD_CONFIRMED event against state.pending_commands['G3'] (R1.2, V2-F02, R8-F01)."""
+    if "guest_id" not in ev or ev.get("guest_id") is None:
+        events_at_tick.append(f"REJECTED_INCOMPLETE_ACOUSTIC_ACK:missing_guest_id@{ev_time}s")
+        return False
+    ack_gid = str(ev["guest_id"])
     if ack_gid != "G3":
         events_at_tick.append(f"REJECTED_INVALID_ACOUSTIC_ACK:guest_id={ack_gid}@{ev_time}s")
         return False
@@ -146,16 +149,34 @@ def _process_acoustic_hold_ack_event(
         events_at_tick.append(f"IGNORED_PREMATURE_ACOUSTIC_ACK_NO_ACTIVE_CMD@{ev_time}s")
         return False
 
-    if "command_id" in ev and str(ev["command_id"]) != str(pending_cmd.get("command_id")):
+    if "command_id" in ev and ev.get("command_id") is not None:
+        if str(ev["command_id"]) != str(pending_cmd.get("command_id")):
+            events_at_tick.append(
+                f"REJECTED_MISMATCHED_COMMAND_ID_ACK:{ev['command_id']}!={pending_cmd.get('command_id')}@{ev_time}s"
+            )
+            return False
+
+    if "plan_version" in ev and ev.get("plan_version") is not None:
+        if int(ev["plan_version"]) != int(pending_cmd.get("plan_version", -1)):
+            events_at_tick.append(
+                f"REJECTED_STALE_PLAN_VERSION_ACK:v{ev['plan_version']}!=v{pending_cmd.get('plan_version')}@{ev_time}s"
+            )
+            return False
+
+    if (
+        "command_id" not in ev
+        or ev.get("command_id") is None
+        or "plan_version" not in ev
+        or ev.get("plan_version") is None
+    ):
         events_at_tick.append(
-            f"REJECTED_MISMATCHED_COMMAND_ID_ACK:{ev['command_id']}!={pending_cmd.get('command_id')}@{ev_time}s"
+            f"REJECTED_INCOMPLETE_ACOUSTIC_ACK:missing_command_id_or_plan_version@{ev_time}s"
         )
         return False
 
-    if "plan_version" in ev and int(ev["plan_version"]) != int(pending_cmd.get("plan_version", -1)):
-        events_at_tick.append(
-            f"REJECTED_STALE_PLAN_VERSION_ACK:v{ev['plan_version']}!=v{pending_cmd.get('plan_version')}@{ev_time}s"
-        )
+    min_ack_at_s = int(pending_cmd.get("issued_at_s", 0)) + 10
+    if ev_time < min_ack_at_s:
+        events_at_tick.append(f"REJECTED_PREMATURE_ACOUSTIC_ACK:{ev_time}s<{min_ack_at_s}s")
         return False
 
     timeout_at_s = int(pending_cmd.get("timeout_at_s", int(pending_cmd["issued_at_s"]) + 60))
@@ -203,6 +224,14 @@ def run_scenario_b_replay(
     *,
     compressed_90s: bool = True,
     initial_state_override: Optional[ShipOperationalState] = None,
+    consumed_event_indices: Optional[Set[int]] = None,
+    fired_d3_milestones_init: Optional[Set[str]] = None,
+    active_arb_decision_init: Optional[Dict[str, Any]] = None,
+    active_plan_version_init: int = 0,
+    executed_touchdown_time_s_init: Optional[int] = None,
+    stop_at_sim_time_s: Optional[int] = None,
+    superseded_event_types: Optional[Set[str]] = None,
+    return_continuation_state: bool = False,
 ) -> Dict[str, Any]:
     """Execute deterministic 1 Hz event-driven Scenario B/C replay (90 s compressed 20x demo over 1800 s).
 
@@ -212,7 +241,7 @@ def run_scenario_b_replay(
       budget re-verification so Scenario B never enters an unmitigated infeasible state (R1.1, V2-F01).
     - Strict causal `ACOUSTIC_HOLD` -> `ACOUSTIC_HOLD_CONFIRMED` command-ACK verification (`guest_id == 'G3'`,
       `command_id`, `plan_version`, timeout) and resource precondition re-verification before executing
-      `TURN_INTO_WIND`, `RECOVERY_APPROACH`, or `TOUCHDOWN` (R1.2, V2-F02).
+      `TURN_INTO_WIND`, `RECOVERY_APPROACH`, or `TOUCHDOWN` (R1.2, V2-F02, R8-F01).
     - Full Scenario C event execution (`REQUEST_DECK_MACHINERY`, `EVALUATE_CREW_TRANSITION`,
       `GUEST_OVERCONSUMPTION`, `FEED_LOSS`) (R3.3, V2-F06).
     - `measured_tick_calc_ms` measured after `evaluate_eight_class_budgets` completes (R1.3, V2-F05).
@@ -231,6 +260,10 @@ def run_scenario_b_replay(
     total_ticks = 90 if compressed_90s else 60
     dt_s = 20 if compressed_90s else 30
     base_sim_time_s = int(state.sim_time_s)
+    start_tick = base_sim_time_s // dt_s
+    max_sim_time_s = total_ticks * dt_s
+    target_end_sim_s = min(max_sim_time_s, int(stop_at_sim_time_s)) if stop_at_sim_time_s is not None else max_sim_time_s
+    end_tick = max(start_tick, target_end_sim_s // dt_s)
 
     raw_events = list(scenario_data.get("events", []))
     sorted_events = sorted(
@@ -241,7 +274,13 @@ def run_scenario_b_replay(
             int(item[1].get("seq", item[0] + 1)),
         ),
     )
-    executed_event_indices: Set[int] = set()
+    executed_event_indices: Set[int] = set(consumed_event_indices) if consumed_event_indices is not None else set()
+    if base_sim_time_s > 0:
+        for ev_idx, ev in sorted_events:
+            if int(ev["sim_time_s"]) < base_sim_time_s:
+                executed_event_indices.add(ev_idx)
+
+    superseded_types: Set[str] = set(superseded_event_types) if superseded_event_types is not None else set()
 
     # If the scenario explicitly supplies ACOUSTIC_HOLD_CONFIRMED / ACOUSTIC_LINK_LOSS events or disables
     # automatic acoustic ACK, do not synthesize an automatic modem ACK at hold_ack_t (R1.2, V2-F02).
@@ -251,17 +290,21 @@ def run_scenario_b_replay(
         or bool(scenario_data.get("require_explicit_acoustic_ack", False))
     )
 
-    arb_decision: Optional[Dict[str, Any]] = None
-    fired_d3_milestones: Set[str] = set()
-    active_plan_version = 0
-    executed_touchdown_time_s: Optional[int] = None
+    arb_decision: Optional[Dict[str, Any]] = (
+        dict(active_arb_decision_init) if active_arb_decision_init is not None else None
+    )
+    fired_d3_milestones: Set[str] = (
+        set(fired_d3_milestones_init) if fired_d3_milestones_init is not None else set()
+    )
+    active_plan_version = int(active_plan_version_init)
+    executed_touchdown_time_s: Optional[int] = executed_touchdown_time_s_init
     inertia_status = "THERMAL_NOMINAL"
 
-    for tick in range(total_ticks + 1):
+    for tick in range(start_tick, end_tick + 1):
         t_tick_ns = time.perf_counter_ns()
         state.tick_seq = tick
-        target_sim_time_s = base_sim_time_s + tick * dt_s
-        sub_steps = [base_sim_time_s] if tick == 0 else list(range(state.sim_time_s + 1, target_sim_time_s + 1))
+        target_sim_time_s = tick * dt_s
+        sub_steps = [base_sim_time_s] if tick == start_tick else list(range(state.sim_time_s + 1, target_sim_time_s + 1))
 
         events_at_tick: List[str] = []
 
@@ -282,6 +325,8 @@ def run_scenario_b_replay(
                 if ev_time <= sim_s:
                     executed_event_indices.add(ev_idx)
                     ev_type = str(ev["event_type"])
+                    if ev_type in superseded_types:
+                        continue
 
                     if ev_type == "MISSION_START":
                         events_at_tick.append(f"EVENT_MISSION_START@{ev_time}s")
@@ -333,6 +378,24 @@ def run_scenario_b_replay(
                         sem_arb = dict(arb_decision)
                         sem_arb.pop("calculation_elapsed_ms", None)
                         sem_arb["plan_version"] = active_plan_version
+                        if sem_arb.get("verdict") == "YES":
+                            sem_arb["planned_hold_cmd_time_s"] = int(sem_arb["hold_cmd_time_s"])
+                            sem_arb["planned_hold_ack_time_s"] = int(sem_arb["hold_ack_time_s"])
+                            sem_arb["planned_turn_into_wind_time_s"] = int(sem_arb["turn_into_wind_time_s"])
+                            sem_arb["planned_stabilized_time_s"] = int(
+                                sem_arb.get("stabilized_time_s", int(sem_arb["turn_into_wind_time_s"]) + 90)
+                            )
+                            sem_arb["planned_touchdown_time_s"] = int(sem_arb["touchdown_time_s"])
+                            sem_arb["planned_charging_complete_time_s"] = int(
+                                sem_arb.get("charging_complete_time_s", int(sem_arb["touchdown_time_s"]) + 1200)
+                            )
+                            sem_arb["executed_hold_cmd_time_s"] = None
+                            sem_arb["executed_hold_ack_time_s"] = None
+                            sem_arb["executed_turn_into_wind_time_s"] = None
+                            sem_arb["executed_stabilized_time_s"] = None
+                            sem_arb["executed_touchdown_time_s"] = None
+                            sem_arb["executed_charging_complete_time_s"] = None
+                        arb_decision = sem_arb
                         decisions.append(
                             {
                                 "phase": "D3_ARBITRATION",
@@ -730,7 +793,7 @@ def run_scenario_b_replay(
     }
     semantic_sha256 = canonical_json_hash(semantic_payload)
 
-    return {
+    result: Dict[str, Any] = {
         "scenario_id": scenario_data.get("scenario_id", "SCENARIO_B"),
         "priority_profile_id": priority_profile.priority_profile_id,
         "executed_touchdown_time_s": executed_touchdown_time_s,
@@ -748,6 +811,16 @@ def run_scenario_b_replay(
             "provenance": "MEASURED",
         },
     }
+    if return_continuation_state:
+        result["continuation_state"] = {
+            "ending_state": state.clone(),
+            "consumed_event_indices": set(executed_event_indices),
+            "fired_d3_milestones": set(fired_d3_milestones),
+            "active_arb_decision": dict(arb_decision) if arb_decision is not None else None,
+            "active_plan_version": active_plan_version,
+            "executed_touchdown_time_s": executed_touchdown_time_s,
+        }
+    return result
 
 
 def _apply_due_d3_milestones(
@@ -760,20 +833,34 @@ def _apply_due_d3_milestones(
     events_at_tick: List[str],
     has_explicit_acoustic_ack_control: bool = False,
 ) -> Optional[int]:
-    """Apply due D3 arbitration milestones once each in strict causal order with precondition re-verification (R1.2, V2-F02)."""
+    """Apply due D3 arbitration milestones once each in strict causal order with precondition re-verification (R1.2, V2-F02, R8-F01)."""
     if arb_decision is None or arb_decision.get("verdict") != "YES":
         return None
-    if "PLAN_INVALIDATED_INSUFFICIENT_POWER" in fired_d3_milestones:
+    if (
+        "PLAN_INVALIDATED_INSUFFICIENT_POWER" in fired_d3_milestones
+        or "PLAN_INVALIDATED_DEADLINE_EXCEEDED" in fired_d3_milestones
+    ):
         return None
 
     touchdown_recorded: Optional[int] = None
-    hold_cmd_t = int(arb_decision["hold_cmd_time_s"])
-    hold_ack_t = int(arb_decision["hold_ack_time_s"])
-    turn_t = int(arb_decision["turn_into_wind_time_s"])
-    stab_t = int(arb_decision.get("stabilized_time_s", turn_t + 90))
-    td_t = int(arb_decision["touchdown_time_s"])
+    hold_cmd_t = int(arb_decision.get("planned_hold_cmd_time_s", arb_decision["hold_cmd_time_s"]))
+    hold_ack_t = int(arb_decision.get("planned_hold_ack_time_s", arb_decision["hold_ack_time_s"]))
+    planned_turn_t = int(arb_decision.get("planned_turn_into_wind_time_s", arb_decision["turn_into_wind_time_s"]))
+    planned_stab_t = int(
+        arb_decision.get("planned_stabilized_time_s", arb_decision.get("stabilized_time_s", planned_turn_t + 90))
+    )
+    planned_td_t = int(arb_decision.get("planned_touchdown_time_s", arb_decision["touchdown_time_s"]))
     dl_t = int(arb_decision.get("hard_touchdown_deadline_s", 1200))
-    chg_done_t = int(arb_decision.get("charging_complete_time_s", td_t + 1200))
+    planned_chg_done_t = int(
+        arb_decision.get(
+            "planned_charging_complete_time_s",
+            arb_decision.get("charging_complete_time_s", planned_td_t + 1200),
+        )
+    )
+
+    turn_stabilization_duration_s = max(0, planned_stab_t - planned_turn_t)
+    recovery_approach_duration_s = max(0, planned_td_t - planned_stab_t)
+    charging_duration_s = max(0, planned_chg_done_t - planned_td_t)
 
     # Step 1: Issue ACOUSTIC_HOLD command to G3 and register pending command expectation
     if up_to_time_s >= hold_cmd_t and "HOLD_CMD" not in fired_d3_milestones:
@@ -790,6 +877,7 @@ def _apply_due_d3_milestones(
             "confirmed": False,
             "confirmed_at_s": None,
         }
+        arb_decision["executed_hold_cmd_time_s"] = hold_cmd_t
         events_at_tick.append(f"G3_ACOUSTIC_HOLD_CMD_SENT@{hold_cmd_t}s")
 
     # Step 2: Acoustic modem ACK arrival (simulated link-layer ACK unless overridden by explicit scenario ACK events)
@@ -812,11 +900,29 @@ def _apply_due_d3_milestones(
                 fired_d3_milestones.add("HOLD_ACK_TIMEOUT")
                 events_at_tick.append(f"G3_ACOUSTIC_HOLD_ACK_TIMEOUT_ESCALATION@{up_to_time_s}s")
 
-    # Step 3: Turn vessel into wind ONLY if G3 acoustic HOLD ACK is confirmed and power/deck preconditions hold
+    pending_g3_after = state.pending_commands.get("G3", {})
+    confirmed_ack_t = (
+        int(pending_g3_after["confirmed_at_s"])
+        if pending_g3_after.get("confirmed") is True and pending_g3_after.get("confirmed_at_s") is not None
+        else None
+    )
+    if confirmed_ack_t is not None:
+        arb_decision["executed_hold_ack_time_s"] = confirmed_ack_t
+        turn_t = max(planned_turn_t, confirmed_ack_t)
+        stab_t = turn_t + turn_stabilization_duration_s
+        td_t = stab_t + recovery_approach_duration_s
+        chg_done_t = td_t + charging_duration_s
+    else:
+        turn_t = planned_turn_t
+        stab_t = planned_stab_t
+        td_t = planned_td_t
+        chg_done_t = planned_chg_done_t
+
+    # Step 3: Turn vessel into wind ONLY if G3 acoustic HOLD ACK is confirmed and power/deck/deadline preconditions hold
     if up_to_time_s >= turn_t and "TURN_INTO_WIND" not in fired_d3_milestones:
         g3_ack_ok = (
             "HOLD_ACK" in fired_d3_milestones
-            and state.pending_commands.get("G3", {}).get("confirmed") is True
+            and confirmed_ack_t is not None
             and ("G3" not in state.installed_guests or state.installed_guests["G3"].active_mode == "HOLD_ACOUSTIC")
         )
         if not g3_ack_ok:
@@ -824,8 +930,20 @@ def _apply_due_d3_milestones(
                 fired_d3_milestones.add("BLOCKED_TURN_NO_HOLD_ACK")
                 events_at_tick.append(f"BLOCKED_TURN_INTO_WIND_AWAITING_G3_HOLD_ACK@{up_to_time_s}s")
             return None
+        if td_t > dl_t:
+            fired_d3_milestones.add("PLAN_INVALIDATED_DEADLINE_EXCEEDED")
+            arb_decision["executed_touchdown_time_s"] = None
+            arb_decision["plan_status"] = "INVALIDATED_LATE_ACK_EXCEEDS_DEADLINE"
+            state.firm_reserved_loads = [
+                fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
+            ]
+            events_at_tick.append(
+                f"D3_PLAN_INVALIDATED_LATE_ACK_TOUCHDOWN_{td_t}S_EXCEEDS_DEADLINE_{dl_t}S@{up_to_time_s}s"
+            )
+            return None
         if state.power_reserve_w < 35000 or not state.deck_clear:
             fired_d3_milestones.add("PLAN_INVALIDATED_INSUFFICIENT_POWER")
+            arb_decision["plan_status"] = "INVALIDATED_PRECONDITIONS"
             state.firm_reserved_loads = [
                 fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
             ]
@@ -835,6 +953,7 @@ def _apply_due_d3_milestones(
             return None
 
         fired_d3_milestones.add("TURN_INTO_WIND")
+        arb_decision["executed_turn_into_wind_time_s"] = turn_t
         if state.vessel_mode not in ("DEGRADED_POWER", "DEGRADED_THERMAL"):
             state.vessel_mode = "UAV_RECOVERY_HEADING"
         state.heading_deg = state.wind_deg
@@ -857,6 +976,7 @@ def _apply_due_d3_milestones(
             return None
 
         fired_d3_milestones.add("RECOVERY_APPROACH")
+        arb_decision["executed_stabilized_time_s"] = stab_t
         if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
             state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
             state.installed_guests["G4"].mode_elapsed_s = 0
@@ -878,6 +998,7 @@ def _apply_due_d3_milestones(
 
         fired_d3_milestones.add("TOUCHDOWN")
         touchdown_recorded = td_t
+        arb_decision["executed_touchdown_time_s"] = td_t
         if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
             state.installed_guests["G4"].placements["G4_DRONE_VEHICLE"] = "hangar"
             state.installed_guests["G4"].battery_pct = 20.0
@@ -891,6 +1012,7 @@ def _apply_due_d3_milestones(
         if "TOUCHDOWN" not in fired_d3_milestones:
             return touchdown_recorded
         fired_d3_milestones.add("CHARGE_COMPLETE")
+        arb_decision["executed_charging_complete_time_s"] = chg_done_t
         if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
             state.installed_guests["G4"].active_mode = "STANDBY"
             state.installed_guests["G4"].battery_pct = 100.0

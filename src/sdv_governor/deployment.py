@@ -151,7 +151,8 @@ def sync_and_run_remote_parity(
     # Sync files via tar over ssh
     sync_cmd = (
         f"COPYFILE_DISABLE=1 tar --exclude=\"._*\" -cf - -C {repo_root} "
-        f"pyproject.toml README.md requirements_matrix.csv ASSUMPTIONS.yaml src schemas data docs ui tests "
+        f"pyproject.toml README.md README.pdf FINAL_STATUS.md CLOSURE_STATUS_V2.json hardware_inventory.json "
+        f"requirements_matrix.csv ASSUMPTIONS.yaml src schemas data docs ui tests artifacts/release_r8 artifacts/release_s6 artifacts/final_run "
         f"| ssh -o BatchMode=yes {ssh_target} 'mkdir -p {remote_dir} && tar -xf - -C {remote_dir}'"
     )
     sync_res = subprocess.run(sync_cmd, shell=True, capture_output=True, text=True, timeout=30)

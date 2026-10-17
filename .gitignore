@@ -36,6 +36,10 @@ docs/CORRECTION_LOG.md
 docs/CLOSURE_LOG_V2.md
 artifacts/baseline_c0_audited/
 artifacts/review_v2_repro/
+artifacts/review_r8_repro/
 artifacts/audit_*/
-tools/reproduce_review_v2.py
+artifacts/*.zip
+tools/
+
+
 

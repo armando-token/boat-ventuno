@@ -51,7 +51,7 @@ from .ship_state import InstalledGuestState, ShipOperationalState
 
 
 class GovernorSession:
-    """Persistent operational session state, guest catalog, and manifest registry across API calls (H12, R2, R5)."""
+    """Persistent operational session state, guest catalog, and manifest registry across API calls (H12, R2, R5, R8-F02, R8-F03)."""
 
     def __init__(self, repo_root: Path) -> None:
         self.repo_root = repo_root.resolve()
@@ -63,6 +63,17 @@ class GovernorSession:
         self.manifest_registry: Dict[str, Dict[str, Any]] = {}
         self.has_live_mutations: bool = False
         self.action_history: List[Dict[str, Any]] = []
+        self.admission_attempts: List[Dict[str, Any]] = []
+        self.run_id: str = "RUN_SCENARIO_B_0001"
+        self.runner_status: str = "PAUSED"
+        self.executed_ticks: List[Dict[str, Any]] = []
+        self.executed_decisions: List[Dict[str, Any]] = []
+        self.consumed_event_indices: set[int] = set()
+        self.fired_d3_milestones: set[str] = set()
+        self.active_arb_decision: Optional[Dict[str, Any]] = None
+        self.active_plan_version: int = 0
+        self.executed_touchdown_time_s: Optional[int] = None
+        self.superseded_event_types: set[str] = set()
         self.reset(self.priority_profile_id, self.scenario_file)
 
     @property
@@ -95,15 +106,229 @@ class GovernorSession:
         self.live_state = build_initial_state_from_scenario(scen_data, self.session_catalog)
         self.has_live_mutations = False
         self.state_version += 1
+        self.run_id = f"RUN_{self.scenario_file.split('.')[0].upper()}_V{self.state_version:04d}"
+        self.runner_status = "PAUSED"
+        self.executed_ticks = []
+        self.executed_decisions = []
+        self.consumed_event_indices = set()
+        self.fired_d3_milestones = set()
+        self.active_arb_decision = None
+        self.active_plan_version = 0
+        self.executed_touchdown_time_s = None
+        self.superseded_event_types = set()
+        self.admission_attempts = []
         self.action_history = [
             {
                 "state_version": self.state_version,
                 "snapshot_id": self.snapshot_id,
+                "sim_time_s": self.live_state.sim_time_s,
                 "action": "SESSION_INITIALIZED",
                 "priority_profile_id": self.priority_profile_id,
                 "scenario_file": self.scenario_file,
+                "run_id": self.run_id,
             }
         ]
+
+    def _sync_current_executed_tick(
+        self,
+        ship_profile: Dict[str, Any],
+        event_tag: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        assert self.live_state is not None
+        snap = evaluate_eight_class_budgets(ship_profile, self.session_catalog, self.live_state)
+        snap["snapshot_id"] = self.snapshot_id
+        sim_t = int(self.live_state.sim_time_s)
+        tick_idx = sim_t // 20
+        existing_events: List[str] = []
+        if self.executed_ticks and int(self.executed_ticks[-1]["sim_time_s"]) == sim_t:
+            existing_events = list(self.executed_ticks[-1].get("events", []))
+        if event_tag and event_tag not in existing_events:
+            existing_events.append(event_tag)
+        tick_entry = {
+            "tick": tick_idx,
+            "sim_time_s": sim_t,
+            "snapshot_id": self.snapshot_id,
+            "plan_version": self.active_plan_version,
+            "vessel_mode": self.live_state.vessel_mode,
+            "speed_kn": self.live_state.speed_kn,
+            "wind_kn": self.live_state.wind_kn,
+            "sea_state": self.live_state.sea_state,
+            "seawater_temp_c": self.live_state.effective_seawater_temp_c()[0],
+            "crew_regime": self.live_state.crew_regime,
+            "deck_clear": self.live_state.deck_clear,
+            "events": existing_events,
+            "guest_modes": {
+                gid: {
+                    "mode": ginst.active_mode,
+                    "powered_on": ginst.powered_on,
+                    "mode_elapsed_s": ginst.mode_elapsed_s,
+                    "placements": dict(ginst.placements),
+                    "compute_node": ginst.compute_node,
+                }
+                for gid, ginst in sorted(self.live_state.installed_guests.items())
+            },
+            "power_actual_w": snap["classes"]["power"]["actual"],
+            "power_committed_w": snap["classes"]["power"]["committed"],
+            "power_capacity_w": snap["classes"]["power"]["degraded_capacity"],
+            "cooling_actual_w": snap["classes"]["cooling"]["actual"],
+            "cooling_capacity_w": snap["classes"]["cooling"]["degraded_capacity"],
+            "thermal_inertia_status": "THERMAL_NOMINAL",
+            "thermal_inertia_accumulated_j": self.live_state.thermal_inertia.accumulated_boost_energy_j,
+            "feasible": snap["feasible"],
+            "measured_tick_calc_ms": snap["classes"]["time"]["actual"],
+            "budget_snapshot": snap,
+            "is_prediction": False,
+            "run_id": self.run_id,
+        }
+        if self.executed_ticks and int(self.executed_ticks[-1]["sim_time_s"]) == sim_t:
+            self.executed_ticks[-1] = tick_entry
+        else:
+            self.executed_ticks.append(tick_entry)
+        return snap
+
+    def advance_to(
+        self,
+        target_sim_time_s: int,
+        ship_profile: Dict[str, Any],
+        priority_profile: Any,
+    ) -> Dict[str, Any]:
+        """Advance the single active session mission clock monotonically to target_sim_time_s (Phase S3, R8-F03)."""
+        assert self.live_state is not None
+        current_t = int(self.live_state.sim_time_s)
+        target_t = max(current_t, min(1800, int(target_sim_time_s)))
+        data_dir = self.repo_root / "data"
+        scen_path = data_dir / "scenarios" / self.scenario_file
+        if not scen_path.exists():
+            scen_path = data_dir / "scenarios" / "scenario_B_arbitration_degradation.yaml"
+        scen_data = load_yaml_file(scen_path)
+
+        res = run_scenario_b_replay(
+            scen_data,
+            ship_profile,
+            priority_profile,
+            self.session_catalog,
+            initial_state_override=self.live_state,
+            consumed_event_indices=self.consumed_event_indices,
+            fired_d3_milestones_init=self.fired_d3_milestones,
+            active_arb_decision_init=self.active_arb_decision,
+            active_plan_version_init=self.active_plan_version,
+            executed_touchdown_time_s_init=self.executed_touchdown_time_s,
+            stop_at_sim_time_s=target_t,
+            superseded_event_types=self.superseded_event_types,
+            return_continuation_state=True,
+        )
+        cont = res["continuation_state"]
+        self.live_state = cont["ending_state"]
+        self.consumed_event_indices = cont["consumed_event_indices"]
+        self.fired_d3_milestones = cont["fired_d3_milestones"]
+        self.active_arb_decision = cont["active_arb_decision"]
+        self.active_plan_version = cont["active_plan_version"]
+        self.executed_touchdown_time_s = cont["executed_touchdown_time_s"]
+
+        existing_by_time = {int(t["sim_time_s"]): t for t in self.executed_ticks}
+        for tick_item in res["timeline_ticks"]:
+            t_sim = int(tick_item["sim_time_s"])
+            tick_copy = copy.deepcopy(tick_item)
+            tick_copy["is_prediction"] = False
+            tick_copy["run_id"] = self.run_id
+            if t_sim == current_t and t_sim in existing_by_time and existing_by_time[t_sim].get("events"):
+                merged_ev = list(existing_by_time[t_sim]["events"])
+                for ev_s in tick_copy.get("events", []):
+                    if ev_s not in merged_ev:
+                        merged_ev.append(ev_s)
+                tick_copy["events"] = merged_ev
+            existing_by_time[t_sim] = tick_copy
+        self.executed_ticks = [existing_by_time[k] for k in sorted(existing_by_time.keys())]
+        self.executed_decisions.extend(copy.deepcopy(res["decisions"]))
+        self.state_version += 1
+        if self.executed_ticks:
+            self.executed_ticks[-1]["snapshot_id"] = self.snapshot_id
+            if isinstance(self.executed_ticks[-1].get("budget_snapshot"), dict):
+                self.executed_ticks[-1]["budget_snapshot"]["snapshot_id"] = self.snapshot_id
+        self.runner_status = "COMPLETED" if self.live_state.sim_time_s >= 1800 else "PAUSED"
+        self.action_history.append(
+            {
+                "state_version": self.state_version,
+                "snapshot_id": self.snapshot_id,
+                "sim_time_s": self.live_state.sim_time_s,
+                "action": f"ADVANCE_CLOCK:{current_t}S->{self.live_state.sim_time_s}S",
+                "run_id": self.run_id,
+            }
+        )
+        return res
+
+    def build_unified_replay_view(
+        self,
+        ship_profile: Dict[str, Any],
+        priority_profile: Any,
+        scenario_file_override: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Pure-read assembly of executed history + forward prediction from the active session state (Phase S3, R8-F03)."""
+        assert self.live_state is not None
+        data_dir = self.repo_root / "data"
+        scen_name = scenario_file_override or self.scenario_file
+        scen_path = data_dir / "scenarios" / scen_name
+        if not scen_path.exists():
+            scen_path = data_dir / "scenarios" / "scenario_B_arbitration_degradation.yaml"
+        scen_data = load_yaml_file(scen_path)
+
+        is_other_scenario = scenario_file_override is not None and scenario_file_override != self.scenario_file
+        if is_other_scenario:
+            return run_scenario_b_replay(
+                scen_data,
+                ship_profile,
+                priority_profile,
+                self.session_catalog,
+            )
+
+        current_t = int(self.live_state.sim_time_s)
+        forward_res = run_scenario_b_replay(
+            scen_data,
+            ship_profile,
+            priority_profile,
+            self.session_catalog,
+            initial_state_override=self.live_state if (self.has_live_mutations or current_t > 0) else None,
+            consumed_event_indices=self.consumed_event_indices,
+            fired_d3_milestones_init=self.fired_d3_milestones,
+            active_arb_decision_init=self.active_arb_decision,
+            active_plan_version_init=self.active_plan_version,
+            executed_touchdown_time_s_init=self.executed_touchdown_time_s,
+            superseded_event_types=self.superseded_event_types,
+        )
+
+        past_ticks = [copy.deepcopy(t) for t in self.executed_ticks if int(t["sim_time_s"]) < current_t]
+        for pt in past_ticks:
+            pt["is_prediction"] = False
+            pt["run_id"] = self.run_id
+
+        future_ticks: List[Dict[str, Any]] = []
+        for ft in forward_res.get("timeline_ticks", []):
+            ft_copy = copy.deepcopy(ft)
+            ft_sim = int(ft_copy["sim_time_s"])
+            if ft_sim == current_t:
+                ft_copy["is_prediction"] = False
+                ft_copy["run_id"] = self.run_id
+                ft_copy["snapshot_id"] = self.snapshot_id
+                if isinstance(ft_copy.get("budget_snapshot"), dict):
+                    ft_copy["budget_snapshot"]["snapshot_id"] = self.snapshot_id
+                if self.executed_ticks and int(self.executed_ticks[-1]["sim_time_s"]) == current_t:
+                    prev_evs = list(self.executed_ticks[-1].get("events", []))
+                    for ev_s in ft_copy.get("events", []):
+                        if ev_s not in prev_evs:
+                            prev_evs.append(ev_s)
+                    ft_copy["events"] = prev_evs
+            else:
+                ft_copy["is_prediction"] = True
+                ft_copy["run_id"] = self.run_id
+            future_ticks.append(ft_copy)
+
+        combined_ticks = past_ticks + future_ticks
+        combined_decisions = copy.deepcopy(self.executed_decisions) + copy.deepcopy(forward_res.get("decisions", []))
+        forward_res["timeline_ticks"] = combined_ticks
+        forward_res["decisions"] = combined_decisions
+        forward_res["run_id"] = self.run_id
+        forward_res["current_sim_time_s"] = current_t
+        return forward_res
 
 
 _SESSIONS_BY_ROOT: Dict[str, GovernorSession] = {}
@@ -154,9 +379,11 @@ def dispatch_api_request(
             scen_file = require_str(req.get("scenario", "scenario_B_arbitration_degradation.yaml"), "scenario")
             sess.reset(prof_id, scen_file)
             assert sess.live_state is not None
-            snap = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
+            snap = sess._sync_current_executed_tick(ship_profile, "SESSION_RESET")
             return 200, {
                 "status": "OK",
+                "run_id": sess.run_id,
+                "runner_status": sess.runner_status,
                 "state_version": sess.state_version,
                 "snapshot_id": sess.snapshot_id,
                 "priority_profile_id": sess.priority_profile_id,
@@ -164,68 +391,142 @@ def dispatch_api_request(
                 "action_history": sess.action_history,
             }
 
+        if method == "POST" and route == "/api/profile":
+            req = require_dict(body if body is not None else {}, "request_body")
+            require_no_unknown_keys(req, {"priority_profile_id", "scenario"}, "POST /api/profile")
+            prof_id = require_str(req.get("priority_profile_id", sess.priority_profile_id), "priority_profile_id")
+            if prof_id not in profiles:
+                raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile_id '{prof_id}'", "priority_profile_id")
+            scen_file = require_str(req.get("scenario", sess.scenario_file), "scenario")
+            sess.priority_profile_id = prof_id
+            sess.scenario_file = scen_file
+            sess.state_version += 1
+            assert sess.live_state is not None
+            snap = sess._sync_current_executed_tick(ship_profile, f"PROFILE_SWITCHED:{prof_id}")
+            sess.action_history.append(
+                {
+                    "state_version": sess.state_version,
+                    "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
+                    "action": f"PROFILE_SWITCHED:{prof_id}",
+                    "priority_profile_id": prof_id,
+                    "scenario_file": scen_file,
+                    "run_id": sess.run_id,
+                }
+            )
+            return 200, {
+                "status": "OK",
+                "run_id": sess.run_id,
+                "runner_status": sess.runner_status,
+                "state_version": sess.state_version,
+                "snapshot_id": sess.snapshot_id,
+                "priority_profile_id": sess.priority_profile_id,
+                "current_budget_snapshot": snap,
+                "action_history": sess.action_history,
+            }
+
+        if method == "POST" and route in ("/api/advance", "/api/step", "/api/runner"):
+            req = require_dict(body if body is not None else {}, "request_body")
+            require_no_unknown_keys(
+                req,
+                {"target_sim_time_s", "delta_sim_s", "steps", "runner_status", "priority_profile_id"},
+                f"POST {route}",
+            )
+            if "priority_profile_id" in req:
+                prof_id = require_str(req["priority_profile_id"], "priority_profile_id")
+                if prof_id not in profiles:
+                    raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile_id '{prof_id}'", "priority_profile_id")
+                sess.priority_profile_id = prof_id
+            assert sess.live_state is not None
+            cur_t = int(sess.live_state.sim_time_s)
+            if "target_sim_time_s" in req:
+                target_t = require_int(req["target_sim_time_s"], "target_sim_time_s", min_value=cur_t, max_value=1800)
+            elif "delta_sim_s" in req:
+                delta_s = require_int(req["delta_sim_s"], "delta_sim_s", min_value=0, max_value=1800)
+                target_t = min(1800, cur_t + delta_s)
+            elif "steps" in req:
+                steps_n = require_int(req["steps"], "steps", min_value=0, max_value=90)
+                target_t = min(1800, cur_t + steps_n * 20)
+            else:
+                target_t = min(1800, cur_t + 20)
+
+            if target_t > cur_t or not sess.executed_ticks:
+                sess.advance_to(target_t, ship_profile, profiles[sess.priority_profile_id])
+            if "runner_status" in req:
+                r_stat = require_str(req["runner_status"], "runner_status")
+                if r_stat not in ("PAUSED", "RUNNING", "COMPLETED"):
+                    raise StrictValidationError("UNKNOWN_ENUM", f"Unknown runner_status '{r_stat}'", "runner_status")
+                sess.runner_status = r_stat
+
+            snap = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
+            snap["snapshot_id"] = sess.snapshot_id
+            return 200, {
+                "status": "OK",
+                "run_id": sess.run_id,
+                "runner_status": sess.runner_status,
+                "state_version": sess.state_version,
+                "snapshot_id": sess.snapshot_id,
+                "sim_time_s": sess.live_state.sim_time_s,
+                "priority_profile_id": sess.priority_profile_id,
+                "live_operational_state": sess.live_state.to_snapshot_dict(),
+                "current_budget_snapshot": snap,
+                "executed_ticks_count": len(sess.executed_ticks),
+                "action_history": sess.action_history,
+            }
+
         if method == "GET" and route == "/api/state":
+            # Pure read: NEVER mutates state_version, priority_profile_id, scenario_file, or live_state (Phase S3, R8-F03)
             req_prof = query.get("priority_profile", [sess.priority_profile_id])[0]
             req_scen = query.get("scenario", [sess.scenario_file])[0]
             if req_prof not in profiles:
                 raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile '{req_prof}'", "priority_profile")
 
-            if req_prof != sess.priority_profile_id or req_scen != sess.scenario_file:
-                sess.priority_profile_id = req_prof
-                sess.scenario_file = req_scen
-                sess.state_version += 1
-                sess.action_history.append(
-                    {
-                        "state_version": sess.state_version,
-                        "snapshot_id": sess.snapshot_id,
-                        "action": "PROFILE_OR_SCENARIO_SWITCHED",
-                        "priority_profile_id": req_prof,
-                        "scenario_file": req_scen,
-                    }
-                )
-
-            scen_path = data_dir / "scenarios" / sess.scenario_file
-            if not scen_path.exists():
-                scen_path = data_dir / "scenarios" / "scenario_B_arbitration_degradation.yaml"
-
-            scen_data = load_yaml_file(scen_path)
+            is_preview = (req_prof != sess.priority_profile_id) or (req_scen != sess.scenario_file)
             assert sess.live_state is not None
-            replay_res = run_scenario_b_replay(
-                scen_data,
+            replay_res = sess.build_unified_replay_view(
                 ship_profile,
-                profiles[sess.priority_profile_id],
-                sess.session_catalog,
-                initial_state_override=sess.live_state if sess.has_live_mutations else None,
+                profiles[req_prof],
+                scenario_file_override=req_scen if req_scen != sess.scenario_file else None,
             )
-            if sess.has_live_mutations and replay_res.get("timeline_ticks"):
-                replay_res["timeline_ticks"][0]["snapshot_id"] = sess.snapshot_id
-                if isinstance(replay_res["timeline_ticks"][0].get("budget_snapshot"), dict):
-                    replay_res["timeline_ticks"][0]["budget_snapshot"]["snapshot_id"] = sess.snapshot_id
             combos_res = evaluate_four_guest_combinations(
-                sess.session_catalog, ship_profile, mission_envelope, profiles[sess.priority_profile_id]
+                sess.session_catalog, ship_profile, mission_envelope, profiles[req_prof]
             )
             current_budget = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
+            current_budget["snapshot_id"] = sess.snapshot_id
             crew_comp = evaluate_crew_regimes_comparison(sess.session_catalog, sess.live_state)
             doc_info = run_doctor(repo_root, probe_remote=False)
 
+            executed_ticks = [t for t in replay_res.get("timeline_ticks", []) if not t.get("is_prediction", False)]
+            predicted_ticks = [t for t in replay_res.get("timeline_ticks", []) if t.get("is_prediction", False)]
+
             return 200, {
                 "status": "OK",
+                "run_id": sess.run_id,
+                "runner_status": sess.runner_status,
+                "is_preview": is_preview,
                 "state_version": sess.state_version,
                 "snapshot_id": sess.snapshot_id,
+                "current_sim_time_s": sess.live_state.sim_time_s,
                 "time_compression": {
                     "wall_clock_demo_s": 90,
                     "simulated_mission_s": 1800,
                     "acceleration_factor": 20.0,
                     "tick_interval_sim_s": 20,
                     "tick_interval_wall_ms": 1000,
+                    "internal_substep_hz": 1.0,
+                    "ui_gauge_publish_hz": 1.0,
                 },
                 "doctor": doc_info,
                 "priority_profile_id": sess.priority_profile_id,
+                "evaluated_priority_profile_id": req_prof,
                 "available_priority_profiles": list(profiles.keys()),
                 "initial_budget_snapshot": current_budget,
                 "current_budget_snapshot": current_budget,
                 "live_operational_state": sess.live_state.to_snapshot_dict(),
                 "action_history": sess.action_history,
+                "admission_attempts": sess.admission_attempts,
+                "executed_timeline_ticks": executed_ticks,
+                "predicted_timeline_ticks": predicted_ticks,
                 "scenario_B_replay": replay_res,
                 "scenario_A_combinations": combos_res,
                 "scenario_C_crew_regimes": crew_comp,
@@ -244,6 +545,9 @@ def dispatch_api_request(
                     "allow_displacement",
                     "defer_if_temporary_operational_block",
                     "hangar_roof_clearance_verified",
+                    "apply_if_admitted",
+                    "apply_if_accepted",
+                    "apply_yes_if",
                     "speed_kn",
                     "wind_kn",
                     "sea_state",
@@ -262,12 +566,6 @@ def dispatch_api_request(
                 raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile_id '{prof_id}'", "priority_profile_id")
             priority_profile = profiles[prof_id]
 
-            installed_ids = req.get("installed_guest_ids", req.get("installed_guests", ["G1", "G2", "G3"]))
-            if not isinstance(installed_ids, list):
-                raise StrictValidationError("TYPE_ERROR", "installed_guest_ids must be a list of guest IDs", "installed_guest_ids")
-            for idx, gid in enumerate(installed_ids):
-                require_str(gid, f"installed_guest_ids[{idx}]")
-
             at_port = require_bool(req.get("at_port", True), "at_port")
             allow_disp = require_bool(req.get("allow_displacement", True), "allow_displacement")
             defer_temp = require_bool(
@@ -278,24 +576,53 @@ def dispatch_api_request(
                 req.get("hangar_roof_clearance_verified", False),
                 "hangar_roof_clearance_verified",
             )
+            raw_apply = req.get("apply_if_admitted", req.get("apply_if_accepted", True))
+            apply_if_admitted = require_bool(raw_apply, "apply_if_admitted")
+            apply_yes_if = require_bool(req.get("apply_yes_if", False), "apply_yes_if")
 
-            base_state = ShipOperationalState(
-                tick_seq=0,
-                sim_time_s=0,
-                vessel_mode="PORT_INTEGRATION" if at_port else "QUIET_SURVEY",
-                speed_kn=0.0 if at_port else require_finite_number(req.get("speed_kn", 6.0), "speed_kn", min_value=0.0),
-                heading_deg=0.0,
-                wind_deg=0.0,
-                wind_kn=require_int(req.get("wind_kn", 10), "wind_kn", min_value=0),
-                sea_state=require_int(req.get("sea_state", 2), "sea_state", min_value=0, max_value=9),
-                seawater_temp_c=require_finite_number(req.get("seawater_temp_c", 16.0), "seawater_temp_c", min_value=-5.0, max_value=60.0),
-                power_reserve_w=require_int(req.get("power_reserve_w", 200000), "power_reserve_w", min_value=0),
-            )
-
-            # Never silently drop requested baseline guests (H13)
-            state, baseline_conflicts = build_baseline_state_with_installed_guests(
-                installed_ids, base_state, ship_profile, sess.session_catalog
-            )
+            assert sess.live_state is not None
+            has_explicit_guest_list = ("installed_guest_ids" in req) or ("installed_guests" in req)
+            if has_explicit_guest_list:
+                installed_ids = req.get("installed_guest_ids", req.get("installed_guests", []))
+                if not isinstance(installed_ids, list):
+                    raise StrictValidationError("TYPE_ERROR", "installed_guest_ids must be a list of guest IDs", "installed_guest_ids")
+                for idx, gid in enumerate(installed_ids):
+                    require_str(gid, f"installed_guest_ids[{idx}]")
+                base_state = ShipOperationalState(
+                    tick_seq=sess.live_state.tick_seq,
+                    sim_time_s=sess.live_state.sim_time_s,
+                    vessel_mode="PORT_INTEGRATION" if at_port else "QUIET_SURVEY",
+                    speed_kn=0.0 if at_port else require_finite_number(req.get("speed_kn", 6.0), "speed_kn", min_value=0.0),
+                    heading_deg=0.0,
+                    wind_deg=0.0,
+                    wind_kn=require_int(req.get("wind_kn", 10), "wind_kn", min_value=0),
+                    sea_state=require_int(req.get("sea_state", 2), "sea_state", min_value=0, max_value=9),
+                    seawater_temp_c=require_finite_number(req.get("seawater_temp_c", 16.0), "seawater_temp_c", min_value=-5.0, max_value=60.0),
+                    power_reserve_w=require_int(req.get("power_reserve_w", 200000), "power_reserve_w", min_value=0),
+                )
+                trial_state, baseline_conflicts = build_baseline_state_with_installed_guests(
+                    installed_ids, base_state, ship_profile, sess.session_catalog
+                )
+            else:
+                installed_ids = list(sess.live_state.installed_guests.keys())
+                baseline_conflicts = []
+                trial_state = sess.live_state.clone()
+                trial_state.vessel_mode = "PORT_INTEGRATION" if at_port else trial_state.vessel_mode
+                if at_port and "speed_kn" not in req:
+                    trial_state.speed_kn = 0.0
+                    trial_state.ship_speed_kn = 0.0
+                elif "speed_kn" in req:
+                    spd_v = require_finite_number(req["speed_kn"], "speed_kn", min_value=0.0)
+                    trial_state.speed_kn = spd_v
+                    trial_state.ship_speed_kn = spd_v
+                if "wind_kn" in req:
+                    trial_state.wind_kn = require_int(req["wind_kn"], "wind_kn", min_value=0)
+                if "sea_state" in req:
+                    trial_state.sea_state = require_int(req["sea_state"], "sea_state", min_value=0, max_value=9)
+                if "seawater_temp_c" in req:
+                    trial_state.seawater_temp_c = require_finite_number(req["seawater_temp_c"], "seawater_temp_c", min_value=-5.0, max_value=60.0)
+                if "power_reserve_w" in req:
+                    trial_state.power_reserve_w = require_int(req["power_reserve_w"], "power_reserve_w", min_value=0)
 
             if "candidate_manifest" in req:
                 raw_cand = copy.deepcopy(require_dict(req["candidate_manifest"], "candidate_manifest"))
@@ -359,7 +686,7 @@ def dispatch_api_request(
 
             decision = evaluate_admission(
                 cand_manifest,
-                state,
+                trial_state,
                 ship_profile,
                 mission_envelope,
                 priority_profile,
@@ -371,38 +698,69 @@ def dispatch_api_request(
                 hangar_roof_clearance_verified=hangar_roof_verified,
             )
 
-            # Persist candidate manifest & overrides in session catalog/registry so subsequent GET /api/state stays coherent (R2.1, R2.2, V2-F03)
-            sess.session_catalog[cand_manifest.guest_id] = cand_manifest
-            sess.manifest_registry[cand_manifest.guest_id] = raw_cand
-            sess.state_version += 1
-            sess.has_live_mutations = True
+            verdict = decision["verdict"]
+            should_apply = apply_if_admitted and (
+                verdict == "YES" or (verdict == "YES_IF" and apply_yes_if and decision.get("placement") is not None)
+            )
 
-            if decision["verdict"] == "YES" and decision.get("placement"):
+            if should_apply and decision.get("placement"):
                 p = decision["placement"]
-                state.installed_guests[cand_manifest.guest_id] = InstalledGuestState(
+                for disp_gid in decision.get("displaced_guests", []):
+                    trial_state.installed_guests.pop(disp_gid, None)
+                    trial_state.firm_reserved_loads = [
+                        fl for fl in trial_state.firm_reserved_loads if fl.guest_id != disp_gid
+                    ]
+                trial_state.installed_guests[cand_manifest.guest_id] = InstalledGuestState(
                     guest_id=cand_manifest.guest_id,
                     active_mode=p["initial_mode"],
                     powered_on=True,
                     placements=p["subcomponent_positions"],
                     compute_node=p["compute_node"],
                 )
-            sess.live_state = state
-            updated_snap = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
-            sess.action_history.append(
-                {
-                    "state_version": sess.state_version,
-                    "snapshot_id": sess.snapshot_id,
-                    "action": f"ADMIT_LIVE:{cand_manifest.guest_id}->{decision['verdict']}",
-                }
-            )
+                # Atomic commit of catalog, manifest registry, live state, and state_version (Phase S2, R8-F02)
+                sess.session_catalog[cand_manifest.guest_id] = cand_manifest
+                sess.manifest_registry[cand_manifest.guest_id] = raw_cand
+                sess.live_state = trial_state
+                sess.state_version += 1
+                sess.has_live_mutations = True
+                updated_snap = sess._sync_current_executed_tick(
+                    ship_profile, f"ADMIT_LIVE_APPLIED:{cand_manifest.guest_id}"
+                )
+                sess.action_history.append(
+                    {
+                        "state_version": sess.state_version,
+                        "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
+                        "action": f"ADMIT_LIVE:{cand_manifest.guest_id}->{verdict}",
+                        "applied": True,
+                    }
+                )
+            else:
+                # Non-mutating rejection / deferral / unapplied YES_IF: preserve active state & catalog intact (Phase S2, R8-F02)
+                updated_snap = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
+                updated_snap["snapshot_id"] = sess.snapshot_id
+                sess.admission_attempts.append(
+                    {
+                        "state_version": sess.state_version,
+                        "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
+                        "candidate_guest_id": cand_manifest.guest_id,
+                        "candidate_total_mass_kg": cand_manifest.total_mass_kg,
+                        "verdict": verdict,
+                        "applied": False,
+                    }
+                )
 
             return 200, {
                 "status": "OK",
+                "run_id": sess.run_id,
                 "state_version": sess.state_version,
                 "snapshot_id": sess.snapshot_id,
+                "applied": should_apply,
                 "candidate_guest_id": cand_manifest.guest_id,
                 "candidate_total_mass_kg": cand_manifest.total_mass_kg,
                 "installed_before": list(installed_ids),
+                "installed_after": list(sess.live_state.installed_guests.keys()),
                 "baseline_conflicts": baseline_conflicts,
                 "decision": decision,
                 "current_budget_snapshot": updated_snap,
@@ -421,6 +779,7 @@ def dispatch_api_request(
                     "age_ms",
                     "new_power_reserve_w",
                     "seawater_temp_c",
+                    "sim_time_s",
                 },
                 "POST /api/perturb",
             )
@@ -432,6 +791,11 @@ def dispatch_api_request(
             sess.priority_profile_id = prof_id
 
             assert sess.live_state is not None
+            if "sim_time_s" in req:
+                req_sim_t = require_int(req["sim_time_s"], "sim_time_s", min_value=sess.live_state.sim_time_s, max_value=1800)
+                if req_sim_t > sess.live_state.sim_time_s:
+                    sess.advance_to(req_sim_t, ship_profile, priority_profile)
+
             state = sess.live_state.clone()
             if perturbation in ("GENERATOR_LOSS_100KW", "COOLING_LOSS_30C_40PCT"):
                 if "G4" in state.installed_guests and state.installed_guests["G4"].powered_on:
@@ -444,20 +808,31 @@ def dispatch_api_request(
                 res = execute_graceful_degradation(state, ship_profile, priority_profile, sess.session_catalog)
                 sess.live_state = res["resulting_state"]
                 sess.has_live_mutations = True
+                sess.superseded_event_types.add("GENERATOR_LOSS")
                 sess.state_version += 1
+                snap_after = sess._sync_current_executed_tick(
+                    ship_profile,
+                    f"LIVE_PERTURBATION_GENERATOR_LOSS_TO_{state.power_reserve_w // 1000}KW@{sess.live_state.sim_time_s}s",
+                )
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
+                res_clean["budget_snapshot"] = snap_after
                 sess.action_history.append(
                     {
                         "state_version": sess.state_version,
                         "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
                         "action": f"PERTURB:{perturbation}",
+                        "run_id": sess.run_id,
                     }
                 )
                 return 200, {
                     "status": "OK",
+                    "run_id": sess.run_id,
                     "state_version": sess.state_version,
                     "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
                     "perturbation": perturbation,
+                    "current_budget_snapshot": snap_after,
                     "result": res_clean,
                 }
 
@@ -468,20 +843,31 @@ def dispatch_api_request(
                 res = execute_graceful_degradation(state, ship_profile, priority_profile, sess.session_catalog)
                 sess.live_state = res["resulting_state"]
                 sess.has_live_mutations = True
+                sess.superseded_event_types.add("COOLING_LOOP_FAILURE")
                 sess.state_version += 1
+                snap_after = sess._sync_current_executed_tick(
+                    ship_profile,
+                    f"LIVE_PERTURBATION_COOLING_LOSS@{sess.live_state.sim_time_s}s",
+                )
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
+                res_clean["budget_snapshot"] = snap_after
                 sess.action_history.append(
                     {
                         "state_version": sess.state_version,
                         "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
                         "action": f"PERTURB:{perturbation}",
+                        "run_id": sess.run_id,
                     }
                 )
                 return 200, {
                     "status": "OK",
+                    "run_id": sess.run_id,
                     "state_version": sess.state_version,
                     "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
                     "perturbation": perturbation,
+                    "current_budget_snapshot": snap_after,
                     "result": res_clean,
                 }
 
@@ -497,19 +883,29 @@ def dispatch_api_request(
                 sess.live_state = res["resulting_state"]
                 sess.has_live_mutations = True
                 sess.state_version += 1
+                snap_after = sess._sync_current_executed_tick(
+                    ship_profile,
+                    f"LIVE_PERTURBATION_OVERCONSUMPTION_{gid}@{sess.live_state.sim_time_s}s",
+                )
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
+                res_clean["budget_snapshot"] = snap_after
                 sess.action_history.append(
                     {
                         "state_version": sess.state_version,
                         "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
                         "action": f"PERTURB:{perturbation}:{gid}",
+                        "run_id": sess.run_id,
                     }
                 )
                 return 200, {
                     "status": "OK",
+                    "run_id": sess.run_id,
                     "state_version": sess.state_version,
                     "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
                     "perturbation": perturbation,
+                    "current_budget_snapshot": snap_after,
                     "result": res_clean,
                 }
 
@@ -522,19 +918,29 @@ def dispatch_api_request(
                 sess.live_state = res["resulting_state"]
                 sess.has_live_mutations = True
                 sess.state_version += 1
+                snap_after = sess._sync_current_executed_tick(
+                    ship_profile,
+                    f"LIVE_PERTURBATION_LOST_FEED_{fname}@{sess.live_state.sim_time_s}s",
+                )
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
+                res_clean["budget_snapshot"] = snap_after
                 sess.action_history.append(
                     {
                         "state_version": sess.state_version,
                         "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
                         "action": f"PERTURB:{perturbation}",
+                        "run_id": sess.run_id,
                     }
                 )
                 return 200, {
                     "status": "OK",
+                    "run_id": sess.run_id,
                     "state_version": sess.state_version,
                     "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
                     "perturbation": perturbation,
+                    "current_budget_snapshot": snap_after,
                     "result": res_clean,
                 }
 
@@ -547,20 +953,27 @@ def dispatch_api_request(
                 sess.live_state = res["resulting_state"]
                 sess.has_live_mutations = True
                 sess.state_version += 1
-                snap_after = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
+                snap_after = sess._sync_current_executed_tick(
+                    ship_profile,
+                    f"URGENT_{cmd}_{gid}@{sess.live_state.sim_time_s}s",
+                )
                 res_clean = {k: v for k, v in res.items() if k != "resulting_state"}
                 res_clean["budget_snapshot"] = snap_after
                 sess.action_history.append(
                     {
                         "state_version": sess.state_version,
                         "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
                         "action": f"URGENT:{cmd}:{gid}",
+                        "run_id": sess.run_id,
                     }
                 )
                 return 200, {
                     "status": "OK",
+                    "run_id": sess.run_id,
                     "state_version": sess.state_version,
                     "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
                     "perturbation": perturbation,
                     "result": res_clean,
                 }
@@ -612,11 +1025,14 @@ def dispatch_api_request(
                 {
                     "state_version": sess.state_version,
                     "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
                     "action": f"ARBITRATE:{prof_id}->{arb['verdict']}",
+                    "run_id": sess.run_id,
                 }
             )
             return 200, {
                 "status": "OK",
+                "run_id": sess.run_id,
                 "state_version": sess.state_version,
                 "snapshot_id": sess.snapshot_id,
                 "arbitration": arb,

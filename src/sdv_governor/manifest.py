@@ -178,6 +178,23 @@ def _parse_field_origins(raw_fo: Any, field_path: str, guest_id: str) -> Dict[st
     return out
 
 
+VALID_GUEST_CATEGORIES: Set[str] = {
+    "PASSIVE_RADIO_SENSOR",
+    "OCEAN_WEATHER_MODULE",
+    "AUV_HYDRO_SURVEY",
+    "UAV_SAR_SURVEILLANCE",
+    "EMERGENCY_COMMS_EDGE_COMPUTE",
+    "SIGINT_EDGE_PROCESSING",
+    "CIVIL_HYDRO_SAMPLER",
+    "METEO_SENSOR",
+    "ROV_INSPECTION",
+    "AUV_SURVEY",
+    "UAV_SAR",
+    "SIGINT_EDGE",
+    "AUXILIARY_PAYLOAD",
+}
+
+
 def parse_guest_manifest(
     raw: Dict[str, Any],
     *,
@@ -199,7 +216,11 @@ def parse_guest_manifest(
     )
     guest_id = require_str(raw["guest_id"], "guest_manifest.guest_id")
     name = require_str(raw["name"], "guest_manifest.name")
-    category = require_str(raw["category"], "guest_manifest.category")
+    category = require_str(
+        raw["category"],
+        "guest_manifest.category",
+        allowed_enum=VALID_GUEST_CATEGORIES,
+    )
     safety_critical = require_bool(raw["safety_critical"], "guest_manifest.safety_critical")
     default_mode = require_str(raw["default_mode"], "guest_manifest.default_mode")
     can_buffer_offline = require_bool(raw["can_buffer_offline"], "guest_manifest.can_buffer_offline")
@@ -571,7 +592,28 @@ def parse_guest_manifest(
 
     req_guests = tuple(require_str(g, f"dependencies.requires_guests[{i}]") for i, g in enumerate(dep_raw["requires_guests"]))
     exc_guests = tuple(require_str(g, f"dependencies.excludes_guests[{i}]") for i, g in enumerate(dep_raw["excludes_guests"]))
-    cond_exc = tuple(require_dict(c, f"dependencies.conditional_excludes[{i}]") for i, c in enumerate(dep_raw["conditional_excludes"]))
+    cond_exc_list: List[Dict[str, Any]] = []
+    cond_exc_keys = {"other_guest_id", "when_self_modes", "when_other_modes", "reason"}
+    for i, c in enumerate(dep_raw["conditional_excludes"]):
+        cp = f"dependencies.conditional_excludes[{i}]"
+        c_dict = require_dict(c, cp, required_keys=cond_exc_keys, allowed_keys=cond_exc_keys)
+        other_gid = require_str(c_dict["other_guest_id"], f"{cp}.other_guest_id")
+        if other_gid == guest_id:
+            raise StrictValidationError("SELF_DEPENDENCY", f"Guest '{guest_id}' cannot conditionally exclude itself", cp)
+        if not isinstance(c_dict["when_self_modes"], list) or len(c_dict["when_self_modes"]) == 0:
+            raise StrictValidationError("TYPE_ERROR", "when_self_modes must be a non-empty list", f"{cp}.when_self_modes")
+        if not isinstance(c_dict["when_other_modes"], list) or len(c_dict["when_other_modes"]) == 0:
+            raise StrictValidationError("TYPE_ERROR", "when_other_modes must be a non-empty list", f"{cp}.when_other_modes")
+        self_modes = [require_str(m, f"{cp}.when_self_modes[{j}]") for j, m in enumerate(c_dict["when_self_modes"])]
+        other_modes = [require_str(m, f"{cp}.when_other_modes[{j}]") for j, m in enumerate(c_dict["when_other_modes"])]
+        reason_str = require_str(c_dict["reason"], f"{cp}.reason")
+        cond_exc_list.append({
+            "other_guest_id": other_gid,
+            "when_self_modes": self_modes,
+            "when_other_modes": other_modes,
+            "reason": reason_str,
+        })
+    cond_exc = tuple(cond_exc_list)
     if guest_id in req_guests or guest_id in exc_guests:
         raise StrictValidationError("SELF_DEPENDENCY", f"Guest '{guest_id}' cannot require or exclude itself", "guest_manifest.dependencies")
 
@@ -610,6 +652,31 @@ def parse_guest_manifest(
     )
 
 
+def validate_dependency_graph(catalog: Dict[str, GuestManifest]) -> None:
+    """Detect any cycle in `requires_guests` across a guest catalog (fail-closed)."""
+    visiting: Set[str] = set()
+    visited: Set[str] = set()
+
+    def _dfs(gid: str, path: List[str]) -> None:
+        if gid in visiting:
+            cycle_str = " -> ".join(path + [gid])
+            raise StrictValidationError(
+                "DEPENDENCY_CYCLE",
+                f"Cyclic dependency detected in requires_guests: {cycle_str}",
+                f"guest_manifest.{gid}.dependencies.requires_guests",
+            )
+        if gid in visited or gid not in catalog:
+            return
+        visiting.add(gid)
+        for req_id in catalog[gid].dependencies.requires_guests:
+            _dfs(req_id, path + [gid])
+        visiting.remove(gid)
+        visited.add(gid)
+
+    for g_id in sorted(catalog.keys()):
+        _dfs(g_id, [])
+
+
 def load_guest_catalog(
     guests_dir: Path,
     errata_path: Optional[Path] = None,
@@ -629,6 +696,7 @@ def load_guest_catalog(
 
     if not catalog:
         raise StrictValidationError("EMPTY_CATALOG", f"No guest manifests found in {guests_dir}", str(guests_dir))
+    validate_dependency_graph(catalog)
     return catalog
 
 

@@ -1,0 +1,63 @@
+{
+  "environment": {
+    "hostname": "MacBook-Pro-7.local",
+    "pid": 18912,
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_version": "3.13.15",
+    "wall_elapsed_ms": 196.202
+  },
+  "files": {
+    "decisions.json": {
+      "sha256": "f724f3e892b5be975fa9ef5906670776684e4838b396ceb713c5cc1788e2a0b0",
+      "size_bytes": 165708
+    },
+    "junit.xml": {
+      "sha256": "4799a77ee1a1aa27f4555b7677d8cd1ecfd967b4acedc2f034036690c15c3034",
+      "size_bytes": 10047
+    },
+    "junit_ventuno_aarch64.xml": {
+      "sha256": "162c0bd20e00b807809b5720680c31420319142ff8e3e91a8cb872ff5be56157",
+      "size_bytes": 10038
+    },
+    "metrics_summary.json": {
+      "sha256": "8bd8fc12530a9c58bf1389427710ea5da1fca57cc0bbf4bc8173445be58df90d",
+      "size_bytes": 940
+    },
+    "remote_parity.json": {
+      "sha256": "abf5ffe241a3db4aa5896397225ea90439fa5d62e5901c41bda71689ae39f95f",
+      "size_bytes": 1081
+    },
+    "replay_timeline.json": {
+      "sha256": "f7cc09891d04d8c5061f4c7c19f7aab9f97fc44b8498c3310e4ec8012ccd1a57",
+      "size_bytes": 3112252
+    },
+    "requirements_matrix.csv": {
+      "sha256": "5de0742368cf5fc981e73775d1cd302e9a2716debfb26a56e1eaf5f733c05697",
+      "size_bytes": 18729
+    }
+  },
+  "generated_at_utc": "2026-10-17T19:08:17Z",
+  "git_commit": "2547e6deeec0699cd516c9d33add50240f8e4739",
+  "junit_summary": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 77
+  },
+  "metrics": {
+    "cooling_limited_semantic_sha256": "f6492d8f2b25cbaaa2b0a6eef0ac27b97d2ffa1085ea4cb59739ab8803ab0081",
+    "cooling_limited_ticks_count": 91,
+    "errata_exceed_10000_kg_count": 3,
+    "max_tick_calc_ms": 0.6785,
+    "min_tick_calc_ms": 0.0403,
+    "rescue_primary_semantic_sha256": "51dbf78738321832dc17076e3c6b233a65b18d980be87fb27d1b8db13bccde6b",
+    "rescue_primary_ticks_count": 91,
+    "survey_primary_semantic_sha256": "efb110bab7d911c2d52693e30130c40ad693f12c6dd7da47e53bfa32aa0397ca",
+    "survey_primary_ticks_count": 91,
+    "total_decisions_count": 15
+  },
+  "run_id": "release_r8",
+  "schema_version": "1.0.0",
+  "semantic_sha256": "185ef94ec07c1e3e03ddc5ddfa790c17f3af3df5535350b315709c1da2badae0"
+}

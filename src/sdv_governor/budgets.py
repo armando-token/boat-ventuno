@@ -382,10 +382,13 @@ def evaluate_eight_class_budgets(
     hangar_roof_max_mass_kg = int(hangar_roof_Spec.get("max_mass_kg", 150))
     hangar_roof_max_fp_m2 = float(hangar_roof_Spec.get("max_footprint_m2", 2.0))
     g4_installed = "G4" in state.installed_guests
+    eff_roof_verified = bool(
+        hangar_roof_clearance_verified or getattr(state, "hangar_roof_clearance_verified", False)
+    )
     hangar_roof_clearance_violation = (
         len(pos_occupants["hangar_roof"]) > 0
         and g4_installed
-        and not hangar_roof_clearance_verified
+        and not eff_roof_verified
     )
 
     positions_feasible = (

@@ -882,3 +882,248 @@ def _format_admission_decision(
         "mission_envelope_hash": canonical_json_hash(mission_envelope),
         "priority_profile_sha256": priority_profile.source_sha256,
     }
+
+
+def apply_admission_decision_atomically(
+    decision: Dict[str, Any],
+    candidate: GuestManifest,
+    base_state: ShipOperationalState,
+    ship_profile: Dict[str, Any],
+    mission_envelope: Dict[str, Any],
+    catalog: Dict[str, GuestManifest],
+    *,
+    at_port: bool = True,
+    apply_if_admitted: bool = True,
+    apply_yes_if: bool = False,
+    hangar_roof_clearance_verified: bool = False,
+) -> Dict[str, Any]:
+    """Atomically validate and apply a YES or conditional YES_IF admission plan (S6-I02).
+
+    Guarantees that:
+    - YES_IF is never applied unless `apply_yes_if=True` AND a concrete conditional plan is valid,
+    - all physical displacements (`displace_guest_ids`) and reservation cleanups are executed,
+    - external conditions (such as `hangar_roof_clearance_verified` when `hangar_roof` is occupied with G4)
+      are verified rather than inferred from `apply_yes_if=True`,
+    - required mode step-downs are applied if needed by the current state or conditional exclusions, and
+    - the resulting state passes `check_dependency_constraints`, `evaluate_eight_class_budgets`, and
+      `evaluate_mission_envelope_a10` before committing.
+    """
+    if not apply_if_admitted:
+        return {
+            "applied": False,
+            "reason": "APPLY_DISABLED",
+            "applied_plan": None,
+            "displaced_guest_ids": [],
+            "state": base_state,
+        }
+
+    verdict = str(decision.get("verdict", "NO"))
+    if verdict == "YES":
+        placement = dict(decision.get("placement") or {})
+        displaced_ids: List[str] = []
+        action_type = "INSTALL_DIRECT"
+        cap_lost: List[Dict[str, Any]] = []
+        total_score_lost = 0.0
+        net_capability_delta = 0.0
+    elif verdict == "YES_IF" and apply_yes_if:
+        if decision.get("ranked_displacements"):
+            top_disp = decision["ranked_displacements"][0]
+            displaced_ids = [str(gid) for gid in top_disp.get("displace_guest_ids", [])]
+            action_type = str(top_disp.get("action_type", "REMOVE_AT_PORT"))
+            placement = dict(top_disp.get("resulting_placement") or decision.get("placement") or {})
+            cap_lost = list(top_disp.get("capability_lost_breakdown", decision.get("capability_lost", [])))
+            total_score_lost = float(top_disp.get("total_score_lost", 0.0))
+            net_capability_delta = float(top_disp.get("net_capability_delta", 0.0))
+        elif decision.get("placement"):
+            displaced_ids = []
+            action_type = "INSTALL_CONDITIONED"
+            placement = dict(decision.get("placement") or {})
+            cap_lost = list(decision.get("capability_lost", []))
+            total_score_lost = 0.0
+            net_capability_delta = 0.0
+        else:
+            return {
+                "applied": False,
+                "reason": "NO_EXECUTABLE_PLAN",
+                "applied_plan": None,
+                "displaced_guest_ids": [],
+                "state": base_state,
+            }
+    else:
+        return {
+            "applied": False,
+            "reason": f"VERDICT_{verdict}_NOT_APPLIED",
+            "applied_plan": None,
+            "displaced_guest_ids": [],
+            "state": base_state,
+        }
+
+    sub_positions = dict(placement.get("subcomponent_positions") or {})
+    if not sub_positions:
+        return {
+            "applied": False,
+            "reason": "MISSING_PLACEMENT_POSITIONS",
+            "applied_plan": None,
+            "displaced_guest_ids": [],
+            "state": base_state,
+        }
+
+    aug_catalog = dict(catalog)
+    aug_catalog[candidate.guest_id] = candidate
+    work_state = base_state.clone()
+    work_state.hangar_roof_clearance_verified = bool(hangar_roof_clearance_verified)
+
+    if displaced_ids:
+        if not at_port or action_type != "REMOVE_AT_PORT":
+            return {
+                "applied": False,
+                "reason": "PHYSICAL_DISPLACEMENT_REQUIRES_PORT",
+                "applied_plan": None,
+                "displaced_guest_ids": [],
+                "state": base_state,
+            }
+        for dgid in displaced_ids:
+            if dgid not in work_state.installed_guests:
+                return {
+                    "applied": False,
+                    "reason": f"DISPLACED_GUEST_NOT_INSTALLED:{dgid}",
+                    "applied_plan": None,
+                    "displaced_guest_ids": [],
+                    "state": base_state,
+                }
+            if dgid in aug_catalog and aug_catalog[dgid].safety_critical:
+                return {
+                    "applied": False,
+                    "reason": f"CANNOT_DISPLACE_SAFETY_CRITICAL:{dgid}",
+                    "applied_plan": None,
+                    "displaced_guest_ids": [],
+                    "state": base_state,
+                }
+            work_state.installed_guests.pop(dgid, None)
+            work_state.pending_commands.pop(dgid, None)
+        displaced_set = set(displaced_ids)
+        work_state.firm_reserved_loads = [
+            fl for fl in work_state.firm_reserved_loads if fl.guest_id not in displaced_set
+        ]
+
+    initial_mode = str(placement.get("initial_mode") or candidate.default_mode)
+    compute_node = str(placement.get("compute_node") or "node_1")
+    work_state.installed_guests[candidate.guest_id] = InstalledGuestState(
+        guest_id=candidate.guest_id,
+        active_mode=initial_mode,
+        powered_on=True,
+        placements=sub_positions,
+        compute_node=compute_node,
+    )
+
+    # External condition gate: never infer hangar_roof clearance from apply_yes_if=True
+    uses_hangar_roof = any(
+        "hangar_roof" in ginst.placements.values()
+        for ginst in work_state.installed_guests.values()
+    )
+    if uses_hangar_roof and "G4" in work_state.installed_guests and not hangar_roof_clearance_verified:
+        return {
+            "applied": False,
+            "reason": "UNVERIFIED_EXTERNAL_CONDITION:hangar_roof_clearance_verified",
+            "applied_plan": None,
+            "displaced_guest_ids": [],
+            "state": base_state,
+        }
+
+    mode_adjustments: Dict[str, str] = {}
+    dep_witnesses, cond_notes = check_dependency_constraints(
+        candidate,
+        work_state,
+        aug_catalog,
+        candidate_mode=work_state.installed_guests[candidate.guest_id].active_mode,
+    )
+    if dep_witnesses:
+        return {
+            "applied": False,
+            "reason": "DEPENDENCY_CONSTRAINT_VIOLATION",
+            "applied_plan": None,
+            "displaced_guest_ids": [],
+            "state": base_state,
+        }
+
+    # If conditional_excludes or current window budget requires a mode step-down on candidate under YES_IF, try stepping down
+    snap_now = evaluate_eight_class_budgets(
+        ship_profile,
+        aug_catalog,
+        work_state,
+        hangar_roof_clearance_verified=hangar_roof_clearance_verified,
+    )
+    if (cond_notes or not snap_now["feasible"]) and verdict == "YES_IF":
+        ordered_modes = sorted(
+            candidate.modes.values(),
+            key=lambda m: (-m.capability_retention_ratio, m.sustained_power_w, m.mode_name),
+        )
+        for m_spec in ordered_modes:
+            work_state.installed_guests[candidate.guest_id].active_mode = m_spec.mode_name
+            dw, cn = check_dependency_constraints(
+                candidate,
+                work_state,
+                aug_catalog,
+                candidate_mode=m_spec.mode_name,
+            )
+            sn = evaluate_eight_class_budgets(
+                ship_profile,
+                aug_catalog,
+                work_state,
+                hangar_roof_clearance_verified=hangar_roof_clearance_verified,
+            )
+            if not dw and not cn and sn["feasible"]:
+                if m_spec.mode_name != initial_mode:
+                    mode_adjustments[candidate.guest_id] = m_spec.mode_name
+                dep_witnesses = dw
+                cond_notes = cn
+                snap_now = sn
+                break
+
+    if dep_witnesses or cond_notes or not snap_now["feasible"]:
+        return {
+            "applied": False,
+            "reason": "POST_VALIDATION_INFEASIBLE",
+            "applied_plan": None,
+            "displaced_guest_ids": [],
+            "state": base_state,
+        }
+
+    env_now = evaluate_mission_envelope_a10(
+        candidate,
+        work_state,
+        ship_profile,
+        mission_envelope,
+        aug_catalog,
+        hangar_roof_clearance_verified=hangar_roof_clearance_verified,
+    )
+    if not env_now["envelope_feasible"]:
+        return {
+            "applied": False,
+            "reason": "MISSION_ENVELOPE_INFEASIBLE",
+            "applied_plan": None,
+            "displaced_guest_ids": [],
+            "state": base_state,
+        }
+
+    applied_plan = {
+        "action_type": action_type,
+        "displace_guest_ids": displaced_ids,
+        "mode_adjustments": mode_adjustments,
+        "resulting_placement": {
+            "initial_mode": work_state.installed_guests[candidate.guest_id].active_mode,
+            "subcomponent_positions": dict(work_state.installed_guests[candidate.guest_id].placements),
+            "compute_node": work_state.installed_guests[candidate.guest_id].compute_node,
+        },
+        "capability_lost": cap_lost,
+        "total_score_lost": total_score_lost,
+        "net_capability_delta": net_capability_delta,
+    }
+    return {
+        "applied": True,
+        "reason": "APPLIED_VALIDATED_PLAN",
+        "applied_plan": applied_plan,
+        "displaced_guest_ids": displaced_ids,
+        "state": work_state,
+    }
+

@@ -1,7 +1,7 @@
 {
   "campaign_semantic_sha256": "ea79ed14a6580ab817aeb37d6446d6891f43d3052c5022e27a036935ebfb0024",
-  "generated_at_utc": "2026-10-17T20:57:56Z",
-  "git_commit": "c28d814e489d5303425be5a478dabbc3e1f7a585",
+  "generated_at_utc": "2026-10-17T22:06:37Z",
+  "git_commit": "c3989e01a566b52837a37f85bbedf17ac2138f60",
   "run_id": "final_run",
   "scenario_A": {
     "four_guest_combinations": {
@@ -3079,7 +3079,7 @@
     },
     "g6_admission": {
       "binding_constraints": [],
-      "calculation_elapsed_ms": 1.425,
+      "calculation_elapsed_ms": 1.489,
       "candidate_guest_id": "G6",
       "capability_lost": [],
       "conditioned_availability": {

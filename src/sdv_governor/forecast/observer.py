@@ -25,6 +25,7 @@ from sdv_governor.ship_state import ShipOperationalState
 from .advisory import AdvisoryStateMachine, advisory_sentence
 from .conformal import compute_conformal_band
 from .holt import HoltParams, HoltState, holt_forecast, holt_update, interp_quantile
+from .ood import OOD_GATE_BAND_FRACTION, OodGuard
 from .projector import project_guest_physics
 
 
@@ -78,6 +79,7 @@ class ForecastObserver:
 
         self.holt_states: Dict[str, HoltState] = {}
         self.advisory_machines: Dict[str, AdvisoryStateMachine] = {}
+        self.ood_guards: Dict[str, OodGuard] = {}
         self.telemetry_history: Dict[str, List[Tuple[int, float]]] = {}
         self.last_forecasts: Dict[str, Optional[Dict[int, float]]] = {}
         self.last_projections: Dict[str, Optional[Dict[str, Any]]] = {}
@@ -198,11 +200,14 @@ class ForecastObserver:
 
             # Define projection trajectories with conformal bands
             phi = self.params.phi
+            guard = self.ood_guards.setdefault(guest_id, OodGuard())
+            ood_active = guard.update(st.resid_ewm_var)
+            k = guard.band_scale
 
             def get_hi(h: int) -> float:
                 scale = float(h) if abs(1.0 - phi) < 1e-9 else phi * (1.0 - math.pow(phi, h)) / (1.0 - phi)
                 y_hat = (st.level + st.trend * scale) * nominal_w
-                q_hi = interp_quantile(self.params.conformal_q_hi or self.params.conformal_q, h)
+                q_hi = k * interp_quantile(self.params.conformal_q_hi or self.params.conformal_q, h)
                 _, hi_w = compute_conformal_band(y_hat, nominal_w, q_lo=0.0, q_hi=q_hi, status=status)
                 return hi_w
 
@@ -213,16 +218,20 @@ class ForecastObserver:
             def get_lo(h: int) -> float:
                 scale = float(h) if abs(1.0 - phi) < 1e-9 else phi * (1.0 - math.pow(phi, h)) / (1.0 - phi)
                 y_hat = (st.level + st.trend * scale) * nominal_w
-                q_lo = (interp_quantile(self.params.conformal_q_lo, h) if self.params.conformal_q_lo
-                        else -interp_quantile(self.params.conformal_q, h))
+                q_lo = k * (interp_quantile(self.params.conformal_q_lo, h) if self.params.conformal_q_lo
+                            else -interp_quantile(self.params.conformal_q, h))
                 lo_w, _ = compute_conformal_band(y_hat, nominal_w, q_lo=q_lo, q_hi=0.0, status=status)
                 return lo_w
 
+            def get_gate(h: int) -> float:
+                q_hi = interp_quantile(self.params.conformal_q_hi or self.params.conformal_q, h)
+                return get_mid(h) + OOD_GATE_BAND_FRACTION * q_hi * nominal_w
+
             # Band at 30s
             y_30 = get_mid(30)
-            q_lo_30 = (interp_quantile(self.params.conformal_q_lo, 30) if self.params.conformal_q_lo
-                       else -interp_quantile(self.params.conformal_q, 30))
-            q_hi_30 = interp_quantile(self.params.conformal_q_hi or self.params.conformal_q, 30)
+            q_lo_30 = k * (interp_quantile(self.params.conformal_q_lo, 30) if self.params.conformal_q_lo
+                           else -interp_quantile(self.params.conformal_q, 30))
+            q_hi_30 = k * interp_quantile(self.params.conformal_q_hi or self.params.conformal_q, 30)
             band_30 = compute_conformal_band(y_30, nominal_w, q_lo=q_lo_30, q_hi=q_hi_30, status=status)
 
             # Project physics
@@ -241,6 +250,30 @@ class ForecastObserver:
                 conformal_band_at_30=band_30,
             )
             self.last_projections[guest_id] = p
+            if p is not None and ood_active:
+                p["ood_ratio"] = round(guard.ratio, 2)
+                # WARN gate while OOD: project point forecast + a fraction of the calibrated band on
+                # its own (the widened band can be infeasible at h=1 and would inflate the level).
+                p_mid = project_guest_physics(
+                    ship_profile=self.ship_profile,
+                    catalog=self.catalog,
+                    state=state_clone,
+                    guest_id=guest_id,
+                    declared_w=nominal_w,
+                    power_trajectory_hi=get_gate,
+                    budgets_snapshot=budgets_snapshot,
+                    slope_w_per_s=slope_w_per_s,
+                )
+                if p_mid is not None:
+                    tick_evals += p_mid.get("evals_used", 0)
+                    h_mid = int(p_mid["h_star_band_s"][0])
+                    p["h_star_s"] = h_mid
+                    p["point_forecast_crosses"] = True
+                    p["h_star_band_s"] = [p["h_star_band_s"][0], max(int(p["h_star_band_s"][1]), h_mid)]
+                    p["witness"] = p_mid["witness"]
+                else:
+                    p["point_forecast_crosses"] = False
+                    p["h_star_s"] = 60
 
             h_star_hi = None
             if p is not None:
@@ -258,6 +291,7 @@ class ForecastObserver:
                 status=status,
                 reactive_breach_active=guest_id in reactive,
                 p=p,
+                ood_active=ood_active,
             )
 
             # One alert per WARN episode (on entry), not one per tick while in WARN.

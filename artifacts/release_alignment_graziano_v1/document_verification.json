@@ -1,0 +1,40 @@
+{
+  "all_page_limits_satisfied": true,
+  "documents": [
+    {
+      "document": "docs/PHYSICAL_ACCOUNT.pdf",
+      "exists": true,
+      "max_pages_allowed": 1,
+      "pages": 1,
+      "sha256": "813528666c402121ca1fe4d57f4ed3a926b1337bf4190a0691f603dca6cc8b61",
+      "within_page_limit": true
+    },
+    {
+      "document": "docs/MEMO_SCENARIO_C.pdf",
+      "exists": true,
+      "max_pages_allowed": 2,
+      "pages": 1,
+      "sha256": "5ec1bae0b37815dca99e52fd0156c75fc32c7601b21a71266b9ace7e60c7ab82",
+      "within_page_limit": true
+    },
+    {
+      "document": "README.pdf",
+      "exists": true,
+      "max_pages_allowed": 3,
+      "pages": 2,
+      "sha256": "5598accb069a06bec8101048148cbbb734878ac7df47879f4e9d942365b726f8",
+      "within_page_limit": true
+    },
+    {
+      "document": "docs/PITCH_SLIDES.pdf",
+      "exists": true,
+      "max_pages_allowed": 10,
+      "pages": 10,
+      "sha256": "7c068dc0d7a9337ae5d1cab4f94102fdf57ac0841b5c0af49f9cac09fb76bcce",
+      "within_page_limit": true
+    }
+  ],
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-document-verification/1.0"
+}

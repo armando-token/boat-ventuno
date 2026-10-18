@@ -1,0 +1,161 @@
+# viz3d/spec/vessel_spec.yaml
+# Escala 1:1 (1 unidad 3D = 1.0 metro SI)
+# Trazabilidad estricta: OFFICIAL_BRIEF (Anexo A/B), BLUEPRINT_MEASURED (12.416 px/m sobre plano 60m),
+# ORGANIZER_ERRATA (G4 = 140 + 850 = 990 kg), o ASSUMED (proporciones hidrostáticas OPV 60m).
+
+schema_version: "sdv-viz3d-vessel-spec/1.0"
+vessel_id: "SDV_FINCANTIERI_DUAL_USE_60M"
+vessel_name: "SDV 60m Multi-Role Dual-Use Offshore Vessel"
+
+coordinate_frame:
+  origin: "Aft Perpendicular (AP) at Baseline (keel z=0, centerline y=0)"
+  x_axis: "Longitudinal (+X forward from AP=0.0m to FP=60.0m; rendered centered at X=[-30.0, +30.0])"
+  y_axis: "Vertical (+Y up from Baseline=0.0m; Design Waterline WL at Y=+3.20m)"
+  z_axis: "Transverse (+Z starboard, -Z port; Beam B=11.0m -> Z in [-5.50, +5.50])"
+  scale_calibration_px_per_m: 12.416
+
+principal_dimensions:
+  loa_m:
+    value: 60.0
+    origin: "OFFICIAL_BRIEF_AND_BLUEPRINT"
+  lwl_m:
+    value: 56.2
+    origin: "BLUEPRINT_MEASURED"
+  beam_molded_m:
+    value: 11.0
+    origin: "ASSUMED"
+    justification: "Standard 60m OPV/MPV beam (10.5-11.2m) required to accommodate 12x8m stern flight deck and side passages."
+  depth_main_deck_m:
+    value: 5.8
+    origin: "BLUEPRINT_MEASURED"
+    justification: "Blueprint vertical cota '6m' to main working deck / 8m to upper forecastle deck."
+  depth_forecastle_deck_m:
+    value: 8.0
+    origin: "BLUEPRINT_MEASURED"
+  draft_design_m:
+    value: 3.2
+    origin: "ASSUMED"
+    justification: "Hull baseline to waterline in blueprint (~2.6-3.5m class range); pods extend to -5.1m."
+  block_coefficient_cb:
+    value: 0.485
+    origin: "ASSUMED"
+  waterplane_coefficient_cwp:
+    value: 0.78
+    origin: "ASSUMED"
+  displacement_tonnes:
+    value: 984.0
+    origin: "DERIVED"
+    formula: "LWL * B * T * Cb * 1.025"
+  tpc_tonnes_per_cm:
+    value: 4.94
+    origin: "DERIVED"
+    formula: "(LWL * B * Cwp * 1.025) / 100"
+  gm_transverse_m:
+    value: 1.28
+    origin: "ASSUMED"
+  mast_top_height_above_wl_m:
+    value: 20.4
+    origin: "BLUEPRINT_MEASURED"
+
+blueprint_stations_x_from_ap_m:
+  transom_stern: 0.0
+  stern_ramp_slot: [0.0, 6.5]
+  aft_working_and_flight_deck: [1.2, 16.8]
+  bay1_20ft_envelope: [10.2, 16.3]
+  hangar_superstructure_aft: [16.8, 25.5]
+  funnel_stack_casing: [23.0, 28.5]
+  midships_boat_recess_and_bay2: [25.5, 34.0]
+  bridge_superstructure: [32.0, 44.5]
+  integrated_mast_tower: [34.2, 38.0]
+  foredeck_weapon_or_sar_mount: [45.5, 50.2]
+  forecastle_bow_peak: [50.2, 60.0]
+  bulbous_bow_tip: 60.0
+  rov_hangar_lower_bow: [42.0, 51.0]
+  propulsion_pods_aft: [4.8, 12.5]
+  bow_thruster_tunnel: 53.2
+
+resource_zones_3d_mapping:
+  positions:
+    POS_bay1:
+      center_m: [-16.75, 5.85, 0.0]
+      size_m: [6.058, 2.591, 2.438]
+      max_mass_kg: 8000
+      stability_multiplier: 1.0
+      power_line: "LINE_A_FWD"
+      cooling_route: "CHILLED_WATER_LOOP"
+      origin: "OFFICIAL_BRIEF"
+    POS_bay1_a:
+      center_m: [-18.30, 5.85, 0.0]
+      size_m: [2.991, 2.591, 2.438]
+      max_mass_kg: 8000
+      stability_multiplier: 1.0
+      power_line: "LINE_A_FWD"
+      cooling_route: "CHILLED_WATER_LOOP"
+      origin: "OFFICIAL_BRIEF"
+    POS_bay1_b:
+      center_m: [-15.20, 5.85, 0.0]
+      size_m: [2.991, 2.591, 2.438]
+      max_mass_kg: 8000
+      stability_multiplier: 1.0
+      power_line: "LINE_A_FWD"
+      cooling_route: "CHILLED_WATER_LOOP"
+      origin: "OFFICIAL_BRIEF"
+    POS_bay2:
+      center_m: [-1.20, 5.85, -3.15]
+      size_m: [2.991, 2.591, 2.438]
+      max_mass_kg: 4000
+      stability_multiplier: 1.0
+      power_line: "LINE_B_AFT"
+      cooling_route: "CHILLED_WATER_LOOP"
+      origin: "OFFICIAL_BRIEF"
+    POS_hangar:
+      center_m: [-9.20, 6.20, 0.0]
+      size_m: [6.8, 3.2, 5.4]
+      max_mass_kg: 1000
+      stability_multiplier: 1.2
+      power_line: "LINE_B_AFT"
+      cooling_route: "CHILLED_WATER_LOOP"
+      origin: "OFFICIAL_BRIEF"
+    POS_hangar_roof:
+      center_m: [-9.50, 9.65, 0.0]
+      size_m: [1.6, 0.8, 1.6]
+      max_mass_kg: 150
+      stability_multiplier: 1.2
+      power_line: "LINE_B_AFT"
+      cooling_route: "MAST_AIR_2KW"
+      origin: "OFFICIAL_BRIEF"
+    POS_flight_deck:
+      center_m: [-22.5, 5.82, 0.0]
+      size_m: [12.0, 0.2, 8.0]
+      stability_multiplier: 1.2
+      power_line: "LINE_B_AFT"
+      mutually_exclusive_with: "POS_stern_ramp"
+      origin: "OFFICIAL_BRIEF"
+    POS_stern_ramp:
+      center_m: [-28.2, 3.40, 0.0]
+      size_m: [7.5, 1.8, 3.2]
+      max_mass_kg: 5500
+      stability_multiplier: 1.0
+      power_line: "LINE_B_AFT"
+      mutually_exclusive_with: "POS_flight_deck"
+      origin: "OFFICIAL_BRIEF"
+    POS_mast_1:
+      role: "Fixed X-Band Navigation Radar"
+      center_m: [6.2, 17.8, 0.0]
+      occupied_by: "SHIP_NAV_RADAR"
+      origin: "OFFICIAL_BRIEF"
+    POS_mast_2:
+      role: "Fixed Ku/Ka SATCOM Radome"
+      center_m: [5.4, 15.2, 0.0]
+      occupied_by: "SHIP_SATCOM_DOME"
+      origin: "OFFICIAL_BRIEF"
+    POS_mast_3:
+      role: "Free Guest Mast Slot (<=60 kg, <=0.6 m2, <=2 kW Air)"
+      center_m: [6.0, 20.1, 0.0]
+      size_m: [0.8, 1.2, 0.8]
+      max_mass_kg: 60
+      max_footprint_m2: 0.60
+      max_air_cooling_w: 2000
+      stability_multiplier: 3.0
+      power_line: "LINE_A_FWD"
+      origin: "OFFICIAL_BRIEF"

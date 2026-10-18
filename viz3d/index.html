@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDV Digital Twin · Fincantieri 60 m</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <div id="boot"><div class="boot-card"><div class="spinner"></div><div id="bootMsg">Loading 3D engine (100% local air-gapped)…</div></div></div>
+  <div id="fatal" hidden><div class="fatal-card"><h3>The 3D view could not start</h3><pre id="fatalMsg"></pre><p id="fatalHelp"></p></div></div>
+
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
+          <path d="M3 21h26l-3.5 5H7z"/><path d="M7 21v-5h9l4 5"/><path d="M11 16v-4h5"/><path d="M14 12V6"/><path d="M12 8h4"/>
+        </svg>
+        <span><b>SDV Digital Twin</b><small>Fincantieri · 60 m software-defined vessel</small></span>
+      </div>
+      <div class="chips">
+        <span class="chip src" id="chipLink">● Connecting…</span>
+        <span class="chip mono" id="chipVersion">v1 · SNAP_V0001</span>
+        <span class="chip mono" id="chipClock">T+00:00</span>
+        <span class="chip opt" id="chipSea">Sea state 2</span>
+        <span class="chip opt" id="chipWind">Wind 12 kn</span>
+      </div>
+      <div class="actions">
+        <div class="seg" id="segLivery"><button data-livery="naval" class="active">Naval</button><button data-livery="civil">Civil</button></div>
+        <div class="seg" id="segTime"><button data-time="day" class="active">Day</button><button data-time="golden">Golden</button><button data-time="night">Night</button></div>
+        <button class="btn" id="btnRec">● Record</button>
+      </div>
+    </header>
+
+    <div id="staleBanner" hidden style="background:#7f1d1d;color:#fecaca;padding:6px 16px;font-size:12px;font-weight:700;letter-spacing:0.04em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ef4444;">
+      <span id="staleBannerText">⚠ STALE / DESCONECTADO — Authoritative Governor (:8765) unreachable. Controls disabled; showing last verified snapshot.</span>
+      <span class="mono" id="staleBannerMeta">v0 · T+00:00</span>
+    </div>
+
+    <main class="workspace">
+      <section class="stage" id="stage">
+        <canvas id="gl"></canvas>
+        <div id="labels"></div>
+
+        <div class="hud hud-tl">
+          <div class="glass kpi"><div class="lbl">Speed</div><div class="val mono" id="kSpeed">6.0<small>kn</small></div></div>
+          <div class="glass kpi"><div class="lbl">Heading</div><div class="val mono" id="kHdg">090<small>°</small></div></div>
+          <div class="glass kpi"><div class="lbl">Mode</div><div class="val sm" id="kMode">Quiet survey</div></div>
+        </div>
+
+        <div class="glass eventbar" id="eventbar">
+          <div class="mission-row">
+            <span class="t">ACTIVE MISSION</span>
+            <div class="seg" id="segMission">
+              <button data-mission="survey" class="active">1 · Seabed Survey (AUV)</button>
+              <button data-mission="sortie">2 · SAR Drone Sortie</button>
+              <button data-mission="rtb">3 · Drone RTB &amp; Land</button>
+              <button data-mission="fault">4 · DG2 Fault &amp; Shed</button>
+            </div>
+          </div>
+          <div class="m" id="eventMsg">Authoritative Governor Ready · T+00:00</div>
+        </div>
+
+        <div class="glass dock" id="dock">
+          <div class="seg" id="segCam">
+            <button data-cam="hero" class="active">Hero</button>
+            <button data-cam="blueprint">Blueprint 1:1</button>
+            <button data-cam="subsea">Subsea (Motor &amp; AUV)</button>
+            <button data-cam="bow">Bow</button>
+            <button data-cam="bridge">Bridge</button>
+            <button data-cam="deck">Mission deck</button>
+            <button data-cam="stern">Stern</button>
+            <button data-cam="plan">Plan</button>
+          </div>
+          <span class="sep"></span>
+          <button class="btn sm" id="tXray">X-ray</button>
+          <button class="btn sm on" id="tLabels">Labels</button>
+          <button class="btn sm" id="tOrbit">Orbit</button>
+          <button class="btn sm" id="tEco">Eco</button>
+        </div>
+      </section>
+
+      <aside class="rail">
+        <section class="card">
+          <h3>Resource governor <span class="chip ok" id="govState">Nominal</span></h3>
+          <div class="classes" id="classes"></div>
+        </section>
+        <section class="card">
+          <h3>Decision Log &amp; Alerts</h3>
+          <div class="alerts" id="alerts"></div>
+        </section>
+        <section class="card">
+          <h3>Inject Perturbation <button class="btn sm" id="btnClear">Reset</button></h3>
+          <div class="grid2">
+            <button class="btn" data-inject="genLoss">⚡ Generator loss</button>
+            <button class="btn" data-inject="coolLoss">❄ Cooling loss</button>
+            <button class="btn" data-inject="overload">▲ G5 overload</button>
+            <button class="btn danger" data-inject="hold">■ Hold G3</button>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Admission check</h3>
+          <label class="field">Candidate
+            <select id="admCand">
+              <option value="G6">G6 · eDNA sampler (420 kg)</option>
+              <option value="G4">G4 · VTOL drone + hangar (990 kg)</option>
+              <option value="G5">G5 · Comms &amp; edge (3025 kg)</option>
+              <option value="G2">G2 · Ocean &amp; weather (3500 kg)</option>
+              <option value="G3">G3 · Seabed AUV (5500 kg)</option>
+              <option value="G1">G1 · Radio mast (45 kg)</option>
+            </select>
+          </label>
+          <label class="field">Slot
+            <select id="admSlot">
+              <option value="bay2">Bay 2 (10 ft)</option>
+              <option value="bay1">Bay 1 (20 ft)</option>
+              <option value="hangar">Hangar</option>
+              <option value="hangar_roof">Hangar roof</option>
+              <option value="mast_3">Mast slot 3</option>
+            </select>
+          </label>
+          <button class="btn primary" id="admRun" style="width:100%">Evaluate &amp; preview in 3D</button>
+          <div class="verdict" id="admOut"><b>Ready</b>Pick a candidate and a slot.</div>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="timeline">
+      <button class="btn primary" id="btnPlay">▶ Play</button>
+      <button class="btn" id="btnReset">Reset</button>
+      <select id="profile"><option value="survey_primary">Survey first</option><option value="rescue_primary">Rescue first</option></select>
+      <button class="btn sm" id="tDirector">Director</button>
+      <input type="range" id="scrub" min="0" max="90" value="0" />
+      <span class="clock mono" id="tlLabel">00:00 / 30:00</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var bootMsg = document.getElementById('bootMsg');
+      function fatal(msg, help) {
+        document.getElementById('fatalMsg').textContent = msg;
+        document.getElementById('fatalHelp').innerHTML = help || '';
+        document.getElementById('fatal').hidden = false;
+      }
+      window.addEventListener('error', function (e) {
+        if (window.SDV && window.SDV.running) { console.error(e.error || e.message); return; }
+      });
+      function seq(list, done, onFail) {
+        var i = 0;
+        (function next() {
+          if (i >= list.length) return done();
+          bootMsg.textContent = 'Building 3D vessel…';
+          var s = document.createElement('script');
+          s.src = list[i++];
+          s.onload = next;
+          s.onerror = function () { s.remove(); if (onFail) onFail(s.src); else fatal('Could not load ' + s.src); };
+          document.head.appendChild(s);
+        })();
+      }
+      // Strictly local air-gapped loading (ALIGN-T41): try local vendor/three.min.js first;
+      // if absent, automatically run the zero-dependency WebGL1 engine in app_standalone.js.
+      seq(['vendor/three.min.js'], function () {
+        seq(['js/util.js', 'js/env.js', 'js/vessel.js', 'js/data.js', 'js/app.js'], function () {
+          try { window.SDV.start(); } catch (err) { fatal(String(err && err.stack || err)); }
+        });
+      }, function () {
+        bootMsg.textContent = 'Starting zero-dependency WebGL1 3D engine…';
+        seq(['app_standalone.js'], function () {
+          var b = document.getElementById('boot');
+          if (b) b.classList.add('done');
+          window.SDV = window.SDV || {};
+          window.SDV.running = true;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

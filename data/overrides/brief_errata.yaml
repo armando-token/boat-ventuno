@@ -13,6 +13,23 @@ overrides:
     drone_vehicle_mass_kg: 140
     corrected_total_mass_kg: 990
     unit: "kg"
+    source_id: "GRAZIANO_ROOF_AND_G4_MASS_0904"
+    total_mass_origin: "ORGANIZER_ERRATA"
+    vehicle_mass_origin: "OFFICIAL_BRIEF"
+    hangar_mass_derivation:
+      expression: "corrected_total_mass_kg - drone_vehicle_mass_kg"
+      formula: "990 - 140 = 850"
+      inputs:
+        corrected_total_mass_kg: 990
+        drone_vehicle_mass_kg: 140
+      derived_value_kg: 850
+    superseded_history:
+      status: "SUPERSEDED"
+      pdf_original_hangar_mass_kg: 900
+      pdf_original_total_mass_kg: 1040
+      pdf_original_g3_g4_g5_mass_t: 9.0
+      corrected_g3_g4_g5_mass_kg: 9515
+      corrected_g3_g4_g5_mass_t_approx: 9.52
     reason: "Errata oficial del organizador: el módulo de hangar de G4 pesa 850 kg (no 900 kg), sumando 990 kg con el dron de 140 kg."
 
   combinations_of_four_mass_regression:

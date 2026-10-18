@@ -1,0 +1,46 @@
+{
+  "d1_admission_ms": {
+    "ceiling_ms": 30000.0,
+    "median_ms": 2.015,
+    "samples_count": 6,
+    "within_ceiling": true,
+    "worst_observed_ms": 2.015
+  },
+  "d3_arbitration_ms": {
+    "ceiling_ms": 2000.0,
+    "median_ms": 0.1275,
+    "samples_count": 3,
+    "within_ceiling": true,
+    "worst_observed_ms": 1.4479
+  },
+  "d4_degradation_ms": {
+    "first_action_ceiling_s": 5.0,
+    "first_action_software_dispatch_ms": 1.4479,
+    "samples_count": 3,
+    "sequence_ceiling_s": 60.0,
+    "sequence_software_calc_ms": 1.4479,
+    "simulated_first_action_delta_s": 0,
+    "simulated_sequence_delta_s": 0,
+    "within_ceiling": true
+  },
+  "environment": {
+    "hostname": "MacBook-Pro-7.local",
+    "pid": 37825,
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_version": "3.13.15",
+    "wall_elapsed_ms": 391.999
+  },
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "measurement_scope": "HOST_MONOTONIC_PYTHON_AND_SIMULATED_MISSION_CLOCK (does not claim physical board electrical actuator latency)",
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-performance-metrics/1.0",
+  "tick_1hz_calc_ms": {
+    "ceiling_ms": 200.0,
+    "max_ms": 1.4479,
+    "median_ms": 0.1275,
+    "min_ms": 0.0732,
+    "samples_count": 273,
+    "within_ceiling": true
+  }
+}

@@ -1,7 +1,7 @@
 schema_version: "sdv-scenario/1.0"
 scenario_id: "SCENARIO_B_CHARGING_DEFICIT_105KW"
-name: "Scenario B Variant — Active 105 kW vs 100 kW Deficit with G3 in Uninterruptible 25 kW Charge"
-scenario_class: "DECLARED_VARIANT"
+name: "Isolated 3-Guest Unit Fixture (G3+G4+G5) — Active 105 kW vs 100 kW Deficit with G3 in Uninterruptible 25 kW Charge"
+scenario_class: "UNIT_FIXTURE"
 seed: 20261018
 initial_state:
   sim_time_s: 700

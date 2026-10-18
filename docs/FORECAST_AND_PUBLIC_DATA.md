@@ -60,7 +60,7 @@ $$\hat{Y}_{t+h|t} = \left[\hat{y}_{t+h|t} + \text{declared\_w} \cdot q_h^{lo}, \
 
 ## 3. Pre-Registered Acceptance Gates & Empirical Results
 
-Measured by `tools/bench_forecast.py --split both` on the **production** `ForecastObserver` (`on_sample` + `on_tick`), commit `880c0e9`, macOS arm64. Disjoint seeds: `train` 1000--1239, `calib` 2000--2079, `test` 3000--3119, `ood` 4000--4119, `control_steady_1h` 5000--5005. Full output: `docs/evidence/forecast_report_20261018.{md,json}`. Thresholds were not changed.
+Measured by `tools/bench_forecast.py --split both` on the **production** `ForecastObserver` (`on_sample` + `on_tick`), commit `c6c1052`, macOS arm64. Disjoint seeds: `train` 1000--1239, `calib` 2000--2079, `test` 3000--3119, `ood` 4000--4119, `control_steady_1h` 5000--5005. Full output: `docs/evidence/forecast_report_20261018.{md,json}`. Thresholds were not changed.
 
 | Gate ID | Requirement | Split | Measured | Status |
 |---|---|---|---|---|

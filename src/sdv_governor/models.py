@@ -355,6 +355,7 @@ class ShipStateConstraints:
     radar_tx_degradation_ratio: float = 0.0
     launch_recovery_min_speed_kn: Optional[float] = None
     launch_recovery_max_speed_kn: Optional[float] = None
+    launch_recovery_area: str = "none"
 
 
 @dataclass(frozen=True)

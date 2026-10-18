@@ -79,6 +79,10 @@ def execute_graceful_degradation(
             manifest = catalog[gid]
             cur_mode_spec = manifest.modes[ginst.active_mode]
 
+            # Do not step down G3 while it is in HOLD_ACOUSTIC for an active D3 recovery plan
+            if gid == "G3" and ginst.active_mode == "HOLD_ACOUSTIC":
+                continue
+
             # Non-overridable protection check (H09, DEG-01, DEG-04)
             is_prot, _ = is_mode_protected(
                 manifest,
@@ -89,11 +93,15 @@ def execute_graceful_degradation(
             if is_prot:
                 continue
 
-            # Find lower-power operational modes (excluding STANDBY in Phase 1 if an active degraded mode exists)
+            # Find lower-power operational modes
             candidate_modes = sorted(
                 [
                     m for m in manifest.modes.values()
-                    if (m.sustained_power_w < cur_mode_spec.sustained_power_w or m.cooling_water_w < cur_mode_spec.cooling_water_w)
+                    if (
+                        m.sustained_power_w < cur_mode_spec.sustained_power_w
+                        or m.cooling_water_w < cur_mode_spec.cooling_water_w
+                        or m.cooling_air_mast_w < cur_mode_spec.cooling_air_mast_w
+                    )
                 ],
                 key=lambda m: (-m.capability_retention_ratio, m.sustained_power_w),
             )
@@ -104,7 +112,52 @@ def execute_graceful_degradation(
                 prev_spec = manifest.modes[prev_mode]
                 p_saved = prev_spec.sustained_power_w - alt_mode.sustained_power_w
                 c_saved = prev_spec.cooling_water_w - alt_mode.cooling_water_w
-                if p_saved <= 0 and c_saved <= 0:
+                c_air_saved = prev_spec.cooling_air_mast_w - alt_mode.cooling_air_mast_w
+                if p_saved <= 0 and c_saved <= 0 and c_air_saved <= 0:
+                    continue
+
+                # Only apply a mode step-down if it actually reduces the violated/binding budget metric
+                trial_state = work_state.clone()
+                trial_state.installed_guests[gid].active_mode = alt_mode.mode_name
+                trial_snap = evaluate_eight_class_budgets(ship_profile, catalog, trial_state)
+
+                p_comm_before = int(current_snap["classes"]["power"]["committed"])
+                p_act_before = int(current_snap["classes"]["power"]["actual"])
+                p_cap_now = int(current_snap["classes"]["power"]["degraded_capacity"])
+                c_comm_before = int(current_snap["classes"]["cooling"]["committed"])
+                c_act_before = int(current_snap["classes"]["cooling"]["actual"])
+                c_cap_now = int(current_snap["classes"]["cooling"]["degraded_capacity"])
+
+                reduces_violated_metric = False
+                if p_comm_before > p_cap_now and int(trial_snap["classes"]["power"]["committed"]) < p_comm_before:
+                    reduces_violated_metric = True
+                if p_act_before > p_cap_now and int(trial_snap["classes"]["power"]["actual"]) < p_act_before:
+                    reduces_violated_metric = True
+                if (
+                    not current_snap["classes"]["power"]["feasible"]
+                    and p_comm_before <= p_cap_now
+                    and p_act_before <= p_cap_now
+                    and p_saved > 0
+                ):
+                    reduces_violated_metric = True
+                if c_comm_before > c_cap_now and int(trial_snap["classes"]["cooling"]["committed"]) < c_comm_before:
+                    reduces_violated_metric = True
+                if c_act_before > c_cap_now and int(trial_snap["classes"]["cooling"]["actual"]) < c_act_before:
+                    reduces_violated_metric = True
+                if (
+                    not current_snap["classes"]["cooling"]["feasible"]
+                    and c_comm_before <= c_cap_now
+                    and c_act_before <= c_cap_now
+                    and (c_saved > 0 or c_air_saved > 0)
+                ):
+                    reduces_violated_metric = True
+                if (
+                    not current_snap["classes"]["data"]["feasible"]
+                    and int(trial_snap["classes"]["data"]["actual"]) < int(current_snap["classes"]["data"]["actual"])
+                ):
+                    reduces_violated_metric = True
+
+                if not reduces_violated_metric:
                     continue
 
                 ginst.active_mode = alt_mode.mode_name
@@ -113,7 +166,7 @@ def execute_graceful_degradation(
                 if first_shed_ms is None:
                     first_shed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
 
-                current_snap = evaluate_eight_class_budgets(ship_profile, catalog, work_state)
+                current_snap = trial_snap
                 step_record = {
                     "step_index": len(actions_taken) + 1,
                     "action_type": "MODE_STEP_DOWN",
@@ -122,10 +175,12 @@ def execute_graceful_degradation(
                     "to_mode": alt_mode.mode_name,
                     "power_saved_w": p_saved,
                     "cooling_water_saved_w": c_saved,
+                    "cooling_air_saved_w": c_air_saved,
                     "capability_retention_ratio": alt_mode.capability_retention_ratio,
                     "post_step_power_actual_w": current_snap["classes"]["power"]["actual"],
                     "post_step_power_committed_w": current_snap["classes"]["power"]["committed"],
                     "post_step_cooling_actual_w": current_snap["classes"]["cooling"]["actual"],
+                    "post_step_cooling_committed_w": current_snap["classes"]["cooling"]["committed"],
                     "post_step_feasible": current_snap["feasible"],
                     "min_cooldown_before_reconnect_s": alt_mode.min_cooldown_s,
                     "required_hysteresis_margin_w": reconnection_hysteresis_margin_w,
@@ -170,11 +225,13 @@ def execute_graceful_degradation(
                 "to_mode": "POWERED_OFF_PHYSICAL_INSTALLED",
                 "power_saved_w": prev_spec.sustained_power_w,
                 "cooling_water_saved_w": prev_spec.cooling_water_w,
+                "cooling_air_saved_w": prev_spec.cooling_air_mast_w,
                 "capability_retention_ratio": 0.0,
                 "physical_footprint_retained": True,
                 "post_step_power_actual_w": current_snap["classes"]["power"]["actual"],
                 "post_step_power_committed_w": current_snap["classes"]["power"]["committed"],
                 "post_step_cooling_actual_w": current_snap["classes"]["cooling"]["actual"],
+                "post_step_cooling_committed_w": current_snap["classes"]["cooling"]["committed"],
                 "post_step_feasible": current_snap["feasible"],
                 "min_cooldown_before_reconnect_s": prev_spec.min_cooldown_s,
                 "required_hysteresis_margin_w": reconnection_hysteresis_margin_w,
@@ -382,8 +439,11 @@ def issue_urgent_command(
     target_guest_id: str,
     state: ShipOperationalState,
     catalog: Dict[str, GuestManifest],
+    *,
+    force_power_off: bool = True,
+    respect_protected_post_touchdown_charge: bool = False,
 ) -> Dict[str, Any]:
-    """Execute urgent local command (`STOP`, `HOLD`, `SECURE`) within <= 200 ms deadline (SAF-01, ROB-04, H17)."""
+    """Execute urgent local command (`STOP`, `HOLD`, `SECURE`) within <= 200 ms deadline (SAF-01, ROB-04, H17, ALIGN-T31, ALIGN-T32)."""
     t0_ns = time.perf_counter_ns()
     cmd_upper = command.strip().upper()
     if cmd_upper not in {"STOP", "HOLD", "SECURE"}:
@@ -393,10 +453,19 @@ def issue_urgent_command(
     ginst = work_state.installed_guests[target_guest_id]
     manifest = catalog[target_guest_id]
     prev_mode = ginst.active_mode
+    post_touchdown_secured_in_hangar = (
+        target_guest_id == "G4"
+        and ginst.placements.get("G4_DRONE_VEHICLE") == "hangar"
+        and prev_mode == "LAUNCH_RECOVERY_OPTICS"
+    )
 
     if cmd_upper == "STOP":
-        ginst.powered_on = False
-        new_state_label = "POWERED_OFF_STOPPED"
+        if post_touchdown_secured_in_hangar and (respect_protected_post_touchdown_charge or not force_power_off):
+            ginst.powered_on = True
+            new_state_label = "PROTECTED_POST_TOUCHDOWN_CHARGE_RESPECTED"
+        else:
+            ginst.powered_on = False
+            new_state_label = "POWERED_OFF_STOPPED"
     elif cmd_upper == "HOLD":
         if "HOLD_ACOUSTIC" in manifest.modes:
             ginst.active_mode = "HOLD_ACOUSTIC"
@@ -410,6 +479,12 @@ def issue_urgent_command(
         else:
             ginst.powered_on = False
         new_state_label = ginst.active_mode if ginst.powered_on else "SECURED_OFF"
+
+    if hasattr(work_state, "cancel_transitions_for_plan"):
+        work_state.cancel_transitions_for_plan(
+            owner_id=target_guest_id,
+            reason=f"URGENT_{cmd_upper}",
+        )
 
     if not ginst.powered_on:
         work_state.firm_reserved_loads = [
@@ -426,9 +501,12 @@ def issue_urgent_command(
         "previous_mode": prev_mode,
         "new_state": new_state_label,
         "powered_on": ginst.powered_on,
+        "post_touchdown_secured_in_hangar": post_touchdown_secured_in_hangar,
+        "protected_physical_process_respected": post_touchdown_secured_in_hangar,
         "elapsed_ms": elapsed_ms,
         "deadline_ms": 200.0,
         "within_200ms_deadline": 0.0 <= elapsed_ms <= 200.0,
         "provenance": "MEASURED",
         "resulting_state": work_state,
     }
+

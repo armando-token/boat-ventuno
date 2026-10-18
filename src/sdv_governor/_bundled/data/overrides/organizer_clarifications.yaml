@@ -1,0 +1,44 @@
+schema_version: "sdv-source-register/1.0"
+sources:
+  - source_id: "GRAZIANO_B_COMPOSITION_0855"
+    source_kind: "ORGANIZER_MESSAGE_TRANSCRIBED_BY_OWNER"
+    received_date: "2026-10-17"
+    posted_time_text: "8:55 AM"
+    published_date: null
+    timezone: null
+    original_url: null
+    independent_authentication: "NOT_PERFORMED"
+    applies_to: ["scenario_B", "source_precedence"]
+    verbatim_quotes:
+      - "Yes. Use G1 + G3 + G4 + G5 for Scenario B. Your figures are correct: G2 + G3 + G4 + G5 fails on both bays and mass (13.0 t vs 10 t), while G1 + G3 + G4 + G5 fits (9.56 t, G3 in Bay 1, G5 in Bay 2, G1 on the mast, G5's antenna on the hangar roof). The Annexes take precedence over the demo narrative."
+  - source_id: "GRAZIANO_ROOF_AND_G4_MASS_0904"
+    source_kind: "ORGANIZER_MESSAGE_TRANSCRIBED_BY_OWNER"
+    received_date: "2026-10-17"
+    posted_time_text: "9:04 AM"
+    published_date: null
+    timezone: null
+    original_url: null
+    independent_authentication: "NOT_PERFORMED"
+    applies_to: ["G4.total_mass_kg", "roof_drone_clearance"]
+    verbatim_quotes:
+      - "It's your assumption, as long as you declare it and the engine enforces it. The brief deliberately doesn't define the drone-clearance geometry. ‘Check drone clearance’ means your manifest and placement logic must be able to express that constraint, not that the answer is fixed."
+      - "Either way, record the assumption in the Physical Account and point to where the code uses it. What we don't accept is ignoring the note. One correction: according to the new mass value provided G3 + G4 + G5 weighs 9.52 t (5.5 + 0.99 + 3.025), not 9.0 t. It still fits the 10 t margin and the bays."
+derivations:
+  - derivation_id: "DERIV-G4-STATION-MASS-850KG"
+    target_field: "G4.components[G4_HANGAR_STATION].mass_kg"
+    expression: "G4.total_mass_kg (990) - G4_DRONE_VEHICLE.mass_kg (140) = 850"
+    inputs:
+      total_mass_kg:
+        value: 990
+        value_origin: "ORGANIZER_ERRATA"
+        source_ref: "GRAZIANO_ROOF_AND_G4_MASS_0904"
+      vehicle_mass_kg:
+        value: 140
+        value_origin: "OFFICIAL_BRIEF"
+        source_ref: "ANNEX_B_G4"
+    derived_value: 850
+    superseded_history:
+      previous_total_mass_kg: 450
+      previous_station_mass_kg: 310
+      status: "SUPERSEDED"
+      reason: "Superseded by organizer clarification GRAZIANO_ROOF_AND_G4_MASS_0904 (5.5 + 0.99 + 3.025 = 9.515 t ≈ 9.52 t)."

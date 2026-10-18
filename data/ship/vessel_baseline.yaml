@@ -34,6 +34,17 @@ cooling:
   mast_air_cooling:
     water_manifold_available: false
     max_air_cooling_per_position_w: 2000
+  air_cooling_domains:
+    mast_3:
+      capacity_w: 2000
+      positions: ["mast_1", "mast_2", "mast_3"]
+      value_origin: "OFFICIAL_BRIEF"
+      source_ref: "ANNEX_A_2_A_3"
+    hangar_roof:
+      capacity_w: 2000
+      positions: ["hangar_roof"]
+      value_origin: "ASSUMED"
+      assumption_ref: "ASM-ROOF-AIR-2000W"
 
 positions:
   bays:
@@ -173,3 +184,29 @@ time_deadlines:
   urgent_command_stop_hold_secure_max_ms: 200.0
   acoustic_modem_handshake_min_s: 10
   acoustic_modem_handshake_max_s: 60
+
+air_cooling_domains:
+  mast_3:
+    capacity_w: 2000
+    positions: ["mast_1", "mast_2", "mast_3"]
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_2_A_3"
+  hangar_roof:
+    capacity_w: 2000
+    positions: ["hangar_roof"]
+    value_origin: "ASSUMED"
+    assumption_ref: "ASM-ROOF-AIR-2000W"
+
+roof_drone_clearance_policy:
+  policy_id: "ROOF_OUTSIDE_G4_RECOVERY_V1"
+  policy_version: 1
+  layout_version: "VESSEL_BASELINE_LAYOUT_V1"
+  constraint_id: "hangar_roof_drone_clearance"
+  assumption_ref: "ASM-ROOF-G4-CLEARANCE"
+  value_origin: "ASSUMED"
+  compatibility: "CONDITIONAL"
+  antenna_zone: "ROOF_ANTENNA_OUTSIDE_RECOVERY_ENVELOPE"
+  excluded_zones: ["G4_ROTOR_DISC", "G4_RECOVERY_CORRIDOR"]
+  requires_installation_verification: true
+  invalidated_by: ["ANTENNA_RELOCATION", "G4_ENVELOPE_CHANGE", "LAYOUT_VERSION_CHANGE"]
+

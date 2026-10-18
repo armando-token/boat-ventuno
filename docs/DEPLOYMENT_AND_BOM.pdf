@@ -1,0 +1,208 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+6 0 obj
+<< /Length 14312 >>
+stream
+q 0.10 0.21 0.36 rg 26.00 750.84 560.00 17.16 re f Q
+BT /F2 9.20 Tf 1.00 1.00 1.00 rg 34.00 756.32 Td (Deployment Guide & Bill of Materials \(DEPLOYMENT_AND_BOM.md\)) Tj ET
+BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 738.04 Td (1. Observed Hardware & Environment Inventory \(hardware_inventory.json\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 736.04 560.00 0.60 re f Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 721.66 73.81 11.30 re B Q
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 29.00 724.66 Td (Component) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 99.81 721.66 231.95 11.30 re B Q
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 102.81 724.66 Td (Observed Identity & Specifications) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 331.76 721.66 254.24 11.30 re B Q
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 334.76 724.66 Td (Connection / Role) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 695.76 73.81 25.90 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 713.36 Td (Primary Development) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 706.06 Td (& Demo Host) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.81 695.76 231.95 25.90 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 713.36 Td (Apple MacBook Pro \(MacBookPro18,1, Apple M1 Pro arm64, 10 cores,) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 706.06 Td (16 GiB RAM, macOS 27.0.1, Python 3.13.15\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 331.76 695.76 254.24 25.90 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 713.36 Td (Runs full test suite, 1 Hz simulator, fail-closed evidence verifier,) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 706.06 Td (PDF generator, single-screen 2D Operator UI \(http://127.0.0.1:8765\),) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 698.76 Td (and synchronized Three.js 3D Vessel Twin \(viz3d/\).) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 662.56 73.81 33.20 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 687.46 Td (Remote Edge Linux) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 680.16 Td (SBC \(ssh ardu /) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 672.86 Td (ventuno\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.81 662.56 231.95 33.20 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 687.46 Td (Arduino Ventuno Q \(training06, arduino,monza / Qualcomm QCS8300) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 680.16 Td (Monza 8-core aarch64: 4x Cortex-A78C + 4x Cortex-A55, 14 GiB) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 672.86 Td (RAM, 55 GB eMMC, Ubuntu 24.04.4 LTS noble, Kernel) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 665.56 Td (6.8.0-1080-qcom, Python 3.12.3\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 331.76 662.56 254.24 33.20 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 687.46 Td (Connected via Wi-Fi LAN \(10.0.0.130\). Hosts isolated) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 680.16 Td (/home/arduino/sdv-resource-governor/.venv \(--system-site-packages\) for) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 672.86 Td (edge deterministic replay \(G1+G3+G4+G5 Scenario B, 9,560 kg, 9,853) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 665.56 Td (kg-eq\) and verified semantic parity \(PASS\).) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 629.36 73.81 33.20 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 654.26 Td (USB Serial) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 646.96 Td (Interface) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.81 629.36 231.95 33.20 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 654.26 Td (/dev/cu.usbmodem1C49DF7200002 \(MEGAHUNT VCPHID, VID 0x0483, PID) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 646.96 Td (0x5750\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 331.76 629.36 254.24 33.20 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 654.26 Td (Enumerated over USB-C. Note: Ventuno Q ADB USB enumeration requires) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 646.96 Td (external 7-24 V DC barrel/header power; when unpowered, sdv-governor) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 639.66 Td (doctor reports adb_usb: BLOCKED_CONNECTION without affecting standalone) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 632.36 Td (or LAN operation.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 610.76 73.81 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 621.06 Td (STM32H5 Real-Time) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 613.76 Td (MCU) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.81 610.76 231.95 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 102.81 621.06 Td (Onboard MCU co-processor \(arduino:zephyr:ventunoq\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 331.76 610.76 254.24 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 621.06 Td (Out of scope for the admission/arbitration challenge; no UNO Q motor) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 334.76 613.76 Td (sketch is flashed.) Tj ET
+BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 598.46 Td (2. Software Bill of Materials \(SBOM -- Synchronized with THIRD_PARTY_COMPONENTS.csv\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 596.46 560.00 0.60 re f Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 574.78 93.68 18.60 re B Q
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 29.00 585.08 Td (Package / Tool) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 119.68 574.78 95.28 18.60 re B Q
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 122.68 585.08 Td (MacBook Pro) Tj ET
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 122.68 577.78 Td (\(requirements-macos-arm64.lock\)) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 214.96 574.78 107.73 18.60 re B Q
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 217.96 585.08 Td (Arduino Ventuno Q) Tj ET
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 217.96 577.78 Td (\(requirements-linux-aarch64.lock\)) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 322.69 574.78 50.82 18.60 re B Q
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 325.69 585.08 Td (License) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 373.51 574.78 212.49 18.60 re B Q
+BT /F2 6.10 Tf 1.00 1.00 1.00 rg 376.51 585.08 Td (Purpose) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 556.18 93.68 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 566.48 Td (Python) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 119.68 556.18 95.28 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 122.68 566.48 Td (3.13.15) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 214.96 556.18 107.73 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 217.96 566.48 Td (3.12.3) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 322.69 556.18 50.82 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 325.69 566.48 Td (PSF-2.0) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.51 556.18 212.49 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 566.48 Td (Standard library \(fractions, dataclasses, hashlib,) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 559.18 Td (http.server, xml.etree.ElementTree\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 530.28 93.68 25.90 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 547.88 Td (PyYAML) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 119.68 530.28 95.28 25.90 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 122.68 547.88 Td (6.0.3) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 214.96 530.28 107.73 25.90 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 217.96 547.88 Td (6.0.3) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 322.69 530.28 50.82 25.90 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 325.69 547.88 Td (MIT) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.51 530.28 212.49 25.90 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 547.88 Td (Declarative YAML loading for ship baseline, guest manifests) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 540.58 Td (G1-G6, priority profiles, scenarios, and) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 533.28 Td (errata/clarification overrides) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 511.68 93.68 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 521.98 Td (pytest) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 119.68 511.68 95.28 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 122.68 521.98 Td (9.1.1) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 214.96 511.68 107.73 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 217.96 521.98 Td (9.1.1) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 322.69 511.68 50.82 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 325.69 521.98 Td (MIT) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.51 511.68 212.49 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 521.98 Td (Automated test execution and JUnit XML generation) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 514.68 Td (\(junit.xml\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 493.08 93.68 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 503.38 Td (jsonschema) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 119.68 493.08 95.28 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 122.68 503.38 Td (4.26.0) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 214.96 493.08 107.73 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 217.96 503.38 Td (4.10.3) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 322.69 493.08 50.82 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 325.69 503.38 Td (MIT) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.51 493.08 212.49 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 503.38 Td (Formal JSON Schema Draft 2020-12 validation of all 7) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 496.08 Td (schemas \(schemas/*.schema.json\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 474.48 93.68 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 484.78 Td (attrs / referencing /) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 477.48 Td (rpds-py / pyrsistent) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 119.68 474.48 95.28 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 122.68 484.78 Td (26.1.0 / 0.37.0 / 0.30.0) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 214.96 474.48 107.73 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 217.96 484.78 Td (23.2.0 / 0.20.0) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 322.69 474.48 50.82 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 325.69 484.78 Td (MIT) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.51 474.48 212.49 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 484.78 Td (Transitive dependencies of jsonschema) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 455.88 93.68 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 466.18 Td (three.js) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 119.68 455.88 95.28 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 122.68 466.18 Td (0.160.0 \(viz3d\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 214.96 455.88 107.73 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 217.96 466.18 Td (N/A \(browser UI\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 322.69 455.88 50.82 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 325.69 466.18 Td (MIT) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.51 455.88 212.49 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 466.18 Td (WebGL 3D rendering library for the synchronized 3D Vessel) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 458.88 Td (Twin \(viz3d/\) bound to /api/state) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 437.28 93.68 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 447.58 Td (vite) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 119.68 437.28 95.28 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 122.68 447.58 Td (5.x \(dev-only\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 214.96 437.28 107.73 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 217.96 447.58 Td (N/A) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 322.69 437.28 50.82 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 325.69 447.58 Td (MIT) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.51 437.28 212.49 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 447.58 Td (Offline frontend bundler used only during development to) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 440.28 Td (build viz3d/dist) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 418.68 93.68 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 29.00 428.98 Td (Blender) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 119.68 418.68 95.28 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 122.68 428.98 Td (4.x \(offline tool\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 214.96 418.68 107.73 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 217.96 428.98 Td (N/A) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 322.69 418.68 50.82 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 325.69 428.98 Td (GPL-3.0) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.51 418.68 212.49 18.60 re B Q
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 428.98 Td (External offline 3D asset authoring tool for static GLB) Tj ET
+BT /F1 6.10 Tf 0.10 0.14 0.20 rg 376.51 421.68 Td (meshes; not linked or invoked at runtime) Tj ET
+BT /F1 7.20 Tf 0.12 0.15 0.20 rg 26.00 406.38 Td (\(Zero ML/LLM/vision dependencies \(onnx, torch, opencv, transformers, gguf\) are installed or imported in .venv.\)) Tj ET
+BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 396.08 Td (3. Clean / Offline Setup & Remote Board Commands) Tj ET
+q 0.75 0.82 0.90 rg 26.00 394.08 560.00 0.60 re f Q
+q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 314.00 560.00 77.00 re B Q
+BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 382.80 Td (# Clean environment setup with dev + schema validation dependencies) Tj ET
+BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 375.60 Td (python3 -m venv .venv --system-site-packages) Tj ET
+BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 368.40 Td (.venv/bin/pip install -r requirements-macos-arm64.lock) Tj ET
+BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 361.20 Td (.venv/bin/pip install --no-build-isolation --no-deps -e .) Tj ET
+BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 346.80 Td (# Run local hardware & transport doctor) Tj ET
+BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 339.60 Td (PYTHONPATH=src .venv/bin/python -m sdv_governor.cli doctor) Tj ET
+BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 325.20 Td (# Sync codebase to remote Linux board \(when reachable on ssh ardu\) and verify semantic hash parity) Tj ET
+BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 318.00 Td (PYTHONPATH=src .venv/bin/python -m sdv_governor.cli deploy-board --ssh-target ardu) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000191 00000 n 
+0000000266 00000 n 
+0000000334 00000 n 
+0000014699 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+14845
+%%EOF

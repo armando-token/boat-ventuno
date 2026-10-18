@@ -1,4 +1,4 @@
-"""Scenario B (D3) Live Conflict Arbitration & Candidate-Based Multi-Objective Solver (B5, ARB-01..04, H02)."""
+"""Scenario B (D3) Live Conflict Arbitration & Candidate-Based Multi-Objective Solver (B5, ARB-01..04, H02, L5)."""
 
 from __future__ import annotations
 
@@ -11,6 +11,15 @@ from .models import (
     GuestManifest,
     PriorityProfile,
     canonical_json_hash,
+)
+from .scheduling import (
+    DEFAULT_TRANSITION_TIMING_POLICY,
+    compute_course_settle_duration_s,
+    compute_deck_clear_duration_s,
+    compute_human_confirmation_duration_s,
+    compute_quiet_transition_duration_s,
+    compute_speed_transition_duration_s,
+    evaluate_roof_drone_clearance_safe,
 )
 from .ship_state import ShipOperationalState
 
@@ -32,22 +41,170 @@ def _evaluate_candidate_feasibility_and_score(
     uav_battery_pct: float,
     uav_max_endurance_s: int,
     remaining_survey_waypoint_s: int,
+    timing_policy: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """Evaluate physical feasibility across all 8 classes, weather/deck/ramp/acoustic rules, and score candidate."""
+    """Evaluate physical feasibility across all 8 classes, weather/deck/ramp/acoustic/roof rules, A.6 timings, and score candidate."""
+    pol = timing_policy or DEFAULT_TRANSITION_TIMING_POLICY
     t_alert = state.sim_time_s
     hard_deadline_s = t_alert + uav_max_endurance_s
+    target_recovery_speed_kn = float(pol.get("recovery_target_speed_kn", 5.0))
 
     hold_cmd_time_s = t_alert + hold_delay_s
     hold_ack_time_s = hold_cmd_time_s + handshake_s
     turn_into_wind_time_s = hold_ack_time_s
-    stabilized_time_s = turn_into_wind_time_s + maneuver_to_wind_s
-    touchdown_time_s = turn_into_wind_time_s + maneuver_to_wind_s + recovery_approach_s
+
+    course_settle_s = compute_course_settle_duration_s(state.heading_deg, state.wind_deg, pol)
+    if course_settle_s <= 0:
+        course_settle_s = int(pol.get("course_settle_s", 90))
+    speed_change_s = compute_speed_transition_duration_s(
+        float(state.speed_kn if state.speed_kn is not None else state.ship_speed_kn),
+        target_recovery_speed_kn,
+        pol,
+    )
+    human_confirm_s = compute_human_confirmation_duration_s(state.crew_count, pol)
+    human_confirm_done_s = t_alert + int(human_confirm_s or 0)
+
+    deck_already_clear = bool(state.deck_clear and getattr(state, "deck_clear_verified", True))
+    deck_clear_s = compute_deck_clear_duration_s(
+        state.crew_count,
+        deck_already_clear=deck_already_clear,
+        policy=pol,
+    )
+    if deck_already_clear:
+        deck_ready_s = t_alert
+    elif deck_clear_s is not None:
+        deck_ready_s = turn_into_wind_time_s + int(deck_clear_s)
+    else:
+        deck_ready_s = hard_deadline_s + 9999
+
+    course_ready_s = turn_into_wind_time_s + course_settle_s
+    speed_ready_s = turn_into_wind_time_s + speed_change_s
+    maneuver_ready_s = max(course_ready_s, speed_ready_s)
+    t_ready_s = max(maneuver_ready_s, human_confirm_done_s, deck_ready_s)
+
+    stabilized_time_s = t_ready_s
+    touchdown_time_s = stabilized_time_s + recovery_approach_s
     charging_complete_time_s = touchdown_time_s + charging_duration_s
+
+    return_course_s = int(pol.get("course_settle_s", 90))
+    return_speed_s = compute_speed_transition_duration_s(target_recovery_speed_kn, 3.0, pol)
+    enter_quiet_s = compute_quiet_transition_duration_s(True, pol, current_quiet=False)
+    g3_return_course_speed_ready_s = touchdown_time_s + max(return_course_s, return_speed_s)
+    g3_quiet_ready_s = g3_return_course_speed_ready_s + enter_quiet_s
+
+    preserved_s = min(remaining_survey_waypoint_s, hold_delay_s)
+    aborted_s = max(0, remaining_survey_waypoint_s - preserved_s)
+    g3_reposition_s = 360 if aborted_s > 0 else 0
+    g3_survey_resume_time_s = g3_quiet_ready_s + g3_reposition_s
+    g3_remaining_leg_s = 2400 if aborted_s > 0 else max(0, 2400 - hold_cmd_time_s)
+    g3_leg_repeat_complete_s = g3_survey_resume_time_s + g3_remaining_leg_s
+
+    planned_transitions = [
+        {
+            "transition_id": f"{candidate_id}:HUMAN_CONFIRM",
+            "transition_type": "HUMAN_CONFIRMATION",
+            "owner_id": "BRIDGE_WATCH",
+            "start_time_s": t_alert,
+            "end_time_s": human_confirm_done_s,
+            "duration_s": int(human_confirm_s or 0),
+            "from_value": "PENDING",
+            "to_value": "CONFIRMED",
+            "status": "PLANNED",
+        },
+        {
+            "transition_id": f"{candidate_id}:G3_ACOUSTIC_HOLD",
+            "transition_type": "ACOUSTIC_HOLD_HANDSHAKE",
+            "owner_id": "G3",
+            "start_time_s": hold_cmd_time_s,
+            "end_time_s": hold_ack_time_s,
+            "duration_s": handshake_s,
+            "from_value": "SURVEY_QUIET",
+            "to_value": "HOLD_ACOUSTIC",
+            "status": "PLANNED",
+        },
+        {
+            "transition_id": f"{candidate_id}:EXIT_QUIET",
+            "transition_type": "EXIT_QUIET_STATE",
+            "owner_id": "VESSEL",
+            "start_time_s": turn_into_wind_time_s,
+            "end_time_s": turn_into_wind_time_s,
+            "duration_s": 0,
+            "from_value": True,
+            "to_value": False,
+            "status": "PLANNED",
+        },
+        {
+            "transition_id": f"{candidate_id}:SPEED_TO_5KN",
+            "transition_type": "SPEED_CHANGE",
+            "owner_id": "VESSEL",
+            "start_time_s": turn_into_wind_time_s,
+            "end_time_s": speed_ready_s,
+            "duration_s": speed_change_s,
+            "from_value": float(state.speed_kn if state.speed_kn is not None else state.ship_speed_kn),
+            "to_value": target_recovery_speed_kn,
+            "status": "PLANNED",
+        },
+        {
+            "transition_id": f"{candidate_id}:COURSE_INTO_WIND",
+            "transition_type": "COURSE_SETTLE",
+            "owner_id": "VESSEL",
+            "start_time_s": turn_into_wind_time_s,
+            "end_time_s": course_ready_s,
+            "duration_s": course_settle_s,
+            "from_value": state.heading_deg,
+            "to_value": state.wind_deg,
+            "status": "PLANNED",
+        },
+        {
+            "transition_id": f"{candidate_id}:DECK_CLEAR",
+            "transition_type": "DECK_CLEAR_VERIFICATION",
+            "owner_id": "DECK_CREW",
+            "start_time_s": t_alert if deck_already_clear else turn_into_wind_time_s,
+            "end_time_s": deck_ready_s,
+            "duration_s": 0 if deck_already_clear else deck_clear_s,
+            "from_value": deck_already_clear,
+            "to_value": True,
+            "status": "PLANNED",
+        },
+        {
+            "transition_id": f"{candidate_id}:G4_RECOVERY_APPROACH",
+            "transition_type": "UAV_RECOVERY_APPROACH",
+            "owner_id": "G4",
+            "start_time_s": stabilized_time_s,
+            "end_time_s": touchdown_time_s,
+            "duration_s": recovery_approach_s,
+            "from_value": "FLIGHT_PATROL",
+            "to_value": "TOUCHDOWN_HANGAR",
+            "status": "PLANNED",
+        },
+        {
+            "transition_id": f"{candidate_id}:G4_HANGAR_CHARGE",
+            "transition_type": "UAV_HANGAR_CHARGE_1200S",
+            "owner_id": "G4",
+            "start_time_s": touchdown_time_s,
+            "end_time_s": charging_complete_time_s,
+            "duration_s": charging_duration_s,
+            "from_value": "LAUNCH_RECOVERY_OPTICS",
+            "to_value": "STANDBY",
+            "status": "PLANNED",
+        },
+        {
+            "transition_id": f"{candidate_id}:RETURN_QUIET_SURVEY",
+            "transition_type": "ENTER_QUIET_STATE",
+            "owner_id": "VESSEL",
+            "start_time_s": touchdown_time_s,
+            "end_time_s": g3_quiet_ready_s,
+            "duration_s": g3_quiet_ready_s - touchdown_time_s,
+            "from_value": "UAV_RECOVERY_HEADING",
+            "to_value": "QUIET_SURVEY",
+            "status": "PLANNED",
+        },
+    ]
 
     witnesses: List[BindingConstraintWitness] = []
     state_label = f"T+{t_alert}s:{candidate_id}"
 
-    # 1. Check hard battery touchdown deadline (<20% -> must land within 12 min / 720 s or ditch)
+    # 1. Check hard battery touchdown deadline (<20% -> must land within 12 min / 720 s or ditch; inclusive <= 1200 s)
     if uav_battery_pct < 20.0 and touchdown_time_s > hard_deadline_s:
         witnesses.append(
             BindingConstraintWitness(
@@ -82,22 +239,43 @@ def _evaluate_candidate_feasibility_and_score(
             )
         )
 
-    # 3. Check G4 flight-deck, weather, sea-state, stern-ramp, and crew constraints
+    # 3. Check G4 flight-deck, roof clearance, weather, sea-state, stern-ramp, and crew constraints
     g4_man = catalog.get("G4")
     if g4_man is not None:
         sc4 = g4_man.ship_state_constraints
-        if not state.deck_clear:
+        if not deck_already_clear and (deck_clear_s is None or touchdown_time_s > hard_deadline_s):
             witnesses.append(
                 BindingConstraintWitness(
                     resource_class="positions",
                     constraint_id="flight_deck_clear_for_recovery",
                     state_label=state_label,
-                    demand=1,
-                    capacity=0,
-                    margin=-1,
-                    unit="deck_clear",
+                    demand=deck_ready_s if deck_clear_s is not None else 1,
+                    capacity=hard_deadline_s - recovery_approach_s if deck_clear_s is not None else 0,
+                    margin=(hard_deadline_s - recovery_approach_s - deck_ready_s) if deck_clear_s is not None else -1,
+                    unit="s" if deck_clear_s is not None else "deck_clear",
                     provenance="DERIVED",
-                    detail="Flight deck is not clear for G4 recovery",
+                    detail=(
+                        f"Occupied flight deck requires {deck_clear_s}s clearing under crew={state.crew_count} "
+                        f"(deck_ready_s={deck_ready_s}s, touchdown={touchdown_time_s}s > deadline={hard_deadline_s}s)"
+                        if deck_clear_s is not None
+                        else "Flight deck is not clear and 0-crew regime cannot clear deck at sea"
+                    ),
+                )
+            )
+        roof_eval = evaluate_roof_drone_clearance_safe(state, ship_profile, catalog)
+        if not roof_eval["satisfied"] and roof_eval.get("witness") is not None:
+            w_roof = roof_eval["witness"]
+            witnesses.append(
+                BindingConstraintWitness(
+                    resource_class=w_roof.resource_class,
+                    constraint_id="hangar_roof_drone_clearance",
+                    state_label=state_label,
+                    demand=w_roof.demand,
+                    capacity=w_roof.capacity,
+                    margin=w_roof.margin,
+                    unit=w_roof.unit,
+                    provenance=w_roof.provenance,
+                    detail=w_roof.detail,
                 )
             )
         if state.wind_kn > sc4.max_wind_kn_for_operation:
@@ -147,8 +325,8 @@ def _evaluate_candidate_feasibility_and_score(
     trial_state = state.clone()
     trial_state.vessel_mode = "UAV_RECOVERY_HEADING"
     trial_state.heading_deg = trial_state.wind_deg
-    trial_state.ship_speed_kn = 7.0
-    trial_state.speed_kn = 7.0
+    trial_state.ship_speed_kn = target_recovery_speed_kn
+    trial_state.speed_kn = target_recovery_speed_kn
     if "G3" in trial_state.installed_guests:
         trial_state.installed_guests["G3"].active_mode = "HOLD_ACOUSTIC"
         trial_state.installed_guests["G3"].acoustic_hold_confirmed = True
@@ -161,16 +339,16 @@ def _evaluate_candidate_feasibility_and_score(
 
     snap = evaluate_eight_class_budgets(ship_profile, catalog, trial_state)
     if not snap["feasible"]:
+        existing_cids = {w.constraint_id for w in witnesses}
         for bw in snap["binding_witnesses"]:
-            witnesses.append(BindingConstraintWitness(**bw))
+            if bw["constraint_id"] not in existing_cids:
+                witnesses.append(BindingConstraintWitness(**bw))
 
     feasible = len(witnesses) == 0
 
     # Quantify losing-mission cost (G3 survey impact)
-    preserved_s = min(remaining_survey_waypoint_s, hold_delay_s)
-    aborted_s = max(0, remaining_survey_waypoint_s - preserved_s)
     reposition_penalty_min = 6.0 if aborted_s > 0 else 0.0
-    recovery_window_min = round((maneuver_to_wind_s + recovery_approach_s) / 60.0, 2)
+    recovery_window_min = round(((stabilized_time_s - turn_into_wind_time_s) + recovery_approach_s) / 60.0, 2)
     post_landing_stabilize_min = 7.75 if aborted_s == 0 else 13.75
     total_survey_interruption_min = round(
         (handshake_s / 60.0) + recovery_window_min + post_landing_stabilize_min + reposition_penalty_min,
@@ -210,12 +388,25 @@ def _evaluate_candidate_feasibility_and_score(
         "hold_ack_time_s": hold_ack_time_s,
         "handshake_latency_s": handshake_s,
         "turn_into_wind_time_s": turn_into_wind_time_s,
+        "course_settle_s": course_settle_s,
+        "speed_change_s": speed_change_s,
+        "target_recovery_speed_kn": target_recovery_speed_kn,
+        "deck_clear_duration_s": 0 if deck_already_clear else deck_clear_s,
+        "human_confirmation_s": human_confirm_s,
+        "human_confirm_done_s": human_confirm_done_s,
+        "deck_ready_s": deck_ready_s,
+        "t_ready_s": t_ready_s,
         "stabilized_time_s": stabilized_time_s,
         "touchdown_time_s": touchdown_time_s,
         "charging_start_time_s": touchdown_time_s,
         "charging_complete_time_s": charging_complete_time_s,
+        "g3_return_course_speed_ready_s": g3_return_course_speed_ready_s,
+        "g3_quiet_ready_s": g3_quiet_ready_s,
+        "g3_leg_repeat_complete_s": g3_leg_repeat_complete_s,
+        "simulated_transition_to_touchdown_s": touchdown_time_s - t_alert,
         "hard_touchdown_deadline_s": hard_deadline_s,
         "safety_margin_s": safety_margin_s,
+        "planned_transitions": planned_transitions,
         "losing_mission_cost": {
             "losing_guest_id": "G3",
             "survey_segment_preserved_s": preserved_s,
@@ -224,6 +415,8 @@ def _evaluate_candidate_feasibility_and_score(
             "reposition_penalty_min": reposition_penalty_min,
             "total_survey_interruption_min": total_survey_interruption_min,
             "g3_mode_during_recovery": "HOLD_ACOUSTIC",
+            "g3_quiet_ready_s": g3_quiet_ready_s,
+            "g3_leg_repeat_complete_s": g3_leg_repeat_complete_s,
             "g5_pre_stepped_down": pre_stepdown_g5,
         },
         "binding_witnesses": [w.to_dict() for w in witnesses],
@@ -244,25 +437,34 @@ def arbitrate_live_conflict(
 ) -> Dict[str, Any]:
     """Arbitrate Scenario B live conflict between G3 (quiet acoustic survey) and G4 (<20% battery emergency recovery).
 
-    Generates operational candidate plans, filters by hard physical/weather/deck/acoustic/budget constraints,
-    and selects the highest-scoring feasible candidate under `priority_profile` (`H02`, `ARB-01..04`).
+    Generates operational candidate plans using Annex A.6 / §9.2 transition timings, filters by hard physical/weather/
+    deck/acoustic/roof/budget constraints, and selects the highest-scoring feasible candidate under `priority_profile`.
     If no candidate is physically feasible, returns `verdict="NO"` with explicit `binding_constraints`.
     """
     t0_ns = time.perf_counter_ns()
     t_alert = state.sim_time_s
     hard_deadline_s = t_alert + uav_max_endurance_s
+    timing_policy = DEFAULT_TRANSITION_TIMING_POLICY
+    target_recovery_speed_kn = float(timing_policy.get("recovery_target_speed_kn", 5.0))
 
     g3_manifest = catalog["G3"]
     handshake_s = g3_manifest.ship_state_constraints.acoustic_hold_default_s or 15
-    maneuver_to_wind_s = 90
+    maneuver_to_wind_s = int(timing_policy.get("course_settle_s", 90))
     recovery_approach_s = max(60, uav_approach_margin_s - maneuver_to_wind_s)
     charging_duration_s = catalog["G4"].modes["LAUNCH_RECOVERY_OPTICS"].sustained_duration_s
+    partial_wp_s = max(0, remaining_survey_waypoint_s // 2)
 
     raw_candidates_specs = [
         (
             "CAND_WAYPOINT_PRESERVING_RECOVERY",
             "MINIMAL_RECOVERABLE_PAUSE",
             remaining_survey_waypoint_s,
+            False,
+        ),
+        (
+            "CAND_PARTIAL_WAYPOINT_RECOVERY",
+            "PARTIAL_WAYPOINT_PAUSE",
+            partial_wp_s,
             False,
         ),
         (
@@ -309,6 +511,7 @@ def arbitrate_live_conflict(
             uav_battery_pct=uav_battery_pct,
             uav_max_endurance_s=uav_max_endurance_s,
             remaining_survey_waypoint_s=remaining_survey_waypoint_s,
+            timing_policy=timing_policy,
         )
         evaluated_candidates.append(cand_eval)
 
@@ -316,11 +519,15 @@ def arbitrate_live_conflict(
 
     if not feasible_candidates:
         elapsed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
-        # Collect binding witnesses from the primary immediate-turn candidate
-        primary_failed = evaluated_candidates[1]
+        # Collect binding witnesses from the immediate-turn candidate
+        primary_failed = next(
+            (c for c in evaluated_candidates if c["candidate_id"] == "CAND_IMMEDIATE_RECOVERY_TURN"),
+            evaluated_candidates[0],
+        )
         return {
             "decision_type": "D3_LIVE_ARBITRATION",
             "verdict": "NO",
+            "verdict_code": "DENIED",
             "status": "INFEASIBLE_ARBITRATION",
             "priority_profile_id": priority_profile.priority_profile_id,
             "strategy_applied": "NONE_FEASIBLE",
@@ -328,18 +535,28 @@ def arbitrate_live_conflict(
             "alert_time_s": t_alert,
             "uav_battery_pct": uav_battery_pct,
             "hard_touchdown_deadline_s": hard_deadline_s,
+            "target_recovery_speed_kn": target_recovery_speed_kn,
             "hold_cmd_time_s": None,
             "hold_ack_time_s": None,
             "handshake_latency_s": handshake_s,
             "turn_into_wind_time_s": None,
+            "t_ready_s": None,
+            "stabilized_time_s": None,
             "touchdown_time_s": None,
+            "charging_complete_time_s": None,
+            "g3_quiet_ready_s": None,
+            "g3_leg_repeat_complete_s": None,
+            "simulated_transition_to_touchdown_s": None,
+            "planned_transitions": primary_failed["planned_transitions"],
             "hard_safety_satisfied": False,
             "binding_constraints": primary_failed["binding_witnesses"],
             "evaluated_candidates": [
                 {
                     "candidate_id": c["candidate_id"],
+                    "strategy_label": c["strategy_label"],
                     "feasible": c["feasible"],
                     "utility_score": c["utility_score"],
+                    "t_ready_s": c["t_ready_s"],
                     "touchdown_time_s": c["touchdown_time_s"],
                     "binding_witnesses": c["binding_witnesses"],
                 }
@@ -350,7 +567,7 @@ def arbitrate_live_conflict(
             "tie_break_rule": priority_profile.tie_break_order,
             "rationale": (
                 f"D3 Arbitration INFEASIBLE (verdict=NO) under profile={priority_profile.priority_profile_id}: "
-                f"no candidate plan satisfies hard physical/weather/budget constraints."
+                f"no candidate plan satisfies hard physical/weather/deck/roof/budget constraints."
             ),
             "calculation_elapsed_ms": elapsed_ms,
             "within_2s_deadline": elapsed_ms <= 2000.0,
@@ -409,8 +626,10 @@ def arbitrate_live_conflict(
                 "target": "VESSEL_NAVIGATION",
                 "command": "TURN_INTO_WIND_FOR_RECOVERY",
                 "new_vessel_mode": "UAV_RECOVERY_HEADING",
-                "target_speed_kn": 7.0,
-                "reason": "Acoustic HOLD confirmed; turn vessel into wind (5-12 kn window) and stabilize roll for G4 landing",
+                "target_speed_kn": target_recovery_speed_kn,
+                "course_settle_s": winner["course_settle_s"],
+                "speed_change_s": winner["speed_change_s"],
+                "reason": "Acoustic HOLD confirmed; turn vessel into wind (5-12 kn window at 5.0 kn) and stabilize roll for G4 landing",
             },
             {
                 "time_s": stabilized_time_s,
@@ -438,8 +657,9 @@ def arbitrate_live_conflict(
         f"D3 Arbitration under profile={priority_profile.priority_profile_id} selected candidate={winner['candidate_id']} "
         f"(utility_score={winner['utility_score']}): G4 battery={uav_battery_pct}% (<20%) imposes hard landing deadline T+{hard_deadline_s}s. "
         f"Issued ACOUSTIC_HOLD to G3 at T+{hold_cmd_time_s}s, confirmed at T+{hold_ack_time_s}s ({handshake_s}s acoustic latency), "
-        f"vessel turns into wind at T+{turn_into_wind_time_s}s, G4 touchdown at T+{touchdown_time_s}s (margin={winner['safety_margin_s']}s), "
-        f"followed by 1200s 35 kW hangar charge until T+{charging_complete_time_s}s. "
+        f"vessel turns into wind at T+{turn_into_wind_time_s}s (target {target_recovery_speed_kn} kn, ready at T+{stabilized_time_s}s), "
+        f"G4 touchdown at T+{touchdown_time_s}s (margin={winner['safety_margin_s']}s), "
+        f"followed by 1200s 35 kW hangar charge until T+{charging_complete_time_s}s and G3 quiet survey resume at T+{winner['g3_quiet_ready_s']}s. "
         f"Losing mission cost on G3: interruption={losing_cost['total_survey_interruption_min']} min, "
         f"aborted_segment={losing_cost['survey_segment_aborted_s']}s."
     )
@@ -447,6 +667,7 @@ def arbitrate_live_conflict(
     return {
         "decision_type": "D3_LIVE_ARBITRATION",
         "verdict": "YES",
+        "verdict_code": "FEASIBLE",
         "status": "FEASIBLE",
         "priority_profile_id": priority_profile.priority_profile_id,
         "strategy_applied": winner["strategy_label"],
@@ -455,13 +676,26 @@ def arbitrate_live_conflict(
         "alert_time_s": t_alert,
         "uav_battery_pct": uav_battery_pct,
         "hard_touchdown_deadline_s": hard_deadline_s,
+        "target_recovery_speed_kn": target_recovery_speed_kn,
         "hold_cmd_time_s": hold_cmd_time_s,
         "hold_ack_time_s": hold_ack_time_s,
         "handshake_latency_s": handshake_s,
         "turn_into_wind_time_s": turn_into_wind_time_s,
+        "course_settle_s": winner["course_settle_s"],
+        "speed_change_s": winner["speed_change_s"],
+        "deck_clear_duration_s": winner["deck_clear_duration_s"],
+        "human_confirmation_s": winner["human_confirmation_s"],
+        "human_confirm_done_s": winner["human_confirm_done_s"],
+        "deck_ready_s": winner["deck_ready_s"],
+        "t_ready_s": winner["t_ready_s"],
         "stabilized_time_s": stabilized_time_s,
         "touchdown_time_s": touchdown_time_s,
         "charging_complete_time_s": charging_complete_time_s,
+        "g3_return_course_speed_ready_s": winner["g3_return_course_speed_ready_s"],
+        "g3_quiet_ready_s": winner["g3_quiet_ready_s"],
+        "g3_leg_repeat_complete_s": winner["g3_leg_repeat_complete_s"],
+        "simulated_transition_to_touchdown_s": winner["simulated_transition_to_touchdown_s"],
+        "planned_transitions": winner["planned_transitions"],
         "hard_safety_satisfied": touchdown_time_s <= hard_deadline_s,
         "binding_constraints": [],
         "evaluated_candidates": [
@@ -471,6 +705,7 @@ def arbitrate_live_conflict(
                 "feasible": c["feasible"],
                 "utility_score": c["utility_score"],
                 "displacement_cost": c["displacement_cost"],
+                "t_ready_s": c["t_ready_s"],
                 "touchdown_time_s": c["touchdown_time_s"],
                 "safety_margin_s": c["safety_margin_s"],
                 "binding_witnesses": c["binding_witnesses"],

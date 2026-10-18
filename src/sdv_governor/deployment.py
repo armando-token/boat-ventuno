@@ -149,10 +149,35 @@ def sync_and_run_remote_parity(
         }
 
     # Sync files via tar over ssh
+    candidate_sync_paths = [
+        "pyproject.toml",
+        "README.md",
+        "README.pdf",
+        "FINAL_STATUS.md",
+        "CLOSURE_STATUS_V2.json",
+        "PROVENANCE.md",
+        "AI_USE_DISCLOSURE.md",
+        "BACKGROUND_IP.md",
+        "THIRD_PARTY_COMPONENTS.csv",
+        "hardware_inventory.json",
+        "requirements_matrix.csv",
+        "ASSUMPTIONS.yaml",
+        "src",
+        "schemas",
+        "data",
+        "docs",
+        "ui",
+        "viz3d",
+        "tests",
+        "artifacts/release_r8",
+        "artifacts/release_s6",
+        "artifacts/release_s6_patch1",
+        "artifacts/final_run",
+    ]
+    existing_sync_paths = " ".join(p for p in candidate_sync_paths if (repo_root / p).exists())
     sync_cmd = (
         f"COPYFILE_DISABLE=1 tar --exclude=\"._*\" -cf - -C {repo_root} "
-        f"pyproject.toml README.md README.pdf FINAL_STATUS.md CLOSURE_STATUS_V2.json hardware_inventory.json "
-        f"requirements_matrix.csv ASSUMPTIONS.yaml src schemas data docs ui tests artifacts/release_r8 artifacts/release_s6 artifacts/final_run "
+        f"{existing_sync_paths} "
         f"| ssh -o BatchMode=yes {ssh_target} 'mkdir -p {remote_dir} && tar -xf - -C {remote_dir}'"
     )
     sync_res = subprocess.run(sync_cmd, shell=True, capture_output=True, text=True, timeout=30)

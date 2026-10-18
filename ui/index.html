@@ -7,18 +7,33 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+  <div id="stale-banner" class="stale-banner" style="display:none;">
+    ⚠ STALE / DESCONECTADO — Authoritative Governor (:8765) unreachable; telemetry frozen at last verified snapshot.
+  </div>
   <header class="top-bar">
     <div class="brand">
       <h1>SDV RESOURCE GOVERNOR</h1>
       <span class="subtitle">Deterministic 8-Class Physical Admission, Arbitration &amp; Graceful Degradation Engine</span>
     </div>
     <div class="backend-badges">
+      <div class="badge" id="badge-connection">LIVE: AUTHORITATIVE_GOVERNOR</div>
       <div class="badge" id="badge-snapshot">Snapshot: loading...</div>
+      <div class="badge" id="badge-profile-sha256">Profile SHA-256: loading...</div>
       <div class="badge" id="badge-host">Host: loading...</div>
       <div class="badge" id="badge-hash">Semantic SHA-256: loading...</div>
       <div class="badge" id="badge-board">Board: checking...</div>
+      <a href="/viz3d" target="_blank" rel="noopener" class="btn primary" id="link-open-viz3d">Open 3D Twin (/viz3d)</a>
+      <button type="button" class="btn" id="btn-toggle-viz3d">Embed 3D Viewport</button>
     </div>
   </header>
+
+  <section id="embedded-viz3d-panel" class="panel mb-10" style="display:none;">
+    <div class="panel-header">
+      <h2>Embedded 3D Digital Twin Viewport (/viz3d — Unified Port :8765)</h2>
+      <button type="button" class="btn" id="btn-close-viz3d">Hide 3D Viewport</button>
+    </div>
+    <iframe id="viz3d-iframe" src="about:blank" data-src="/viz3d" title="SDV 3D Digital Twin" class="viz3d-iframe"></iframe>
+  </section>
 
   <main class="console-grid">
     <!-- Left Column: 8 Resource Classes + 2D Ship Layout -->
@@ -34,6 +49,19 @@
         <span class="small-note">Powered-off guests retain bay/mast/mass (PHY-08)</span>
       </div>
       <div class="ship-2d-diagram" id="ship-2d-container"></div>
+
+      <div class="panel-header mt-12">
+        <h2>2B. Scenario C Crew Regime &amp; Deck Safety Interlock</h2>
+        <span class="small-note" id="crew-regime-badge">FULL_CREW_14 (14)</span>
+      </div>
+      <div class="crew-controls">
+        <button type="button" class="btn primary" data-crew="14">14 Crew (Full)</button>
+        <button type="button" class="btn" data-crew="6">6 Crew (Reduced)</button>
+        <button type="button" class="btn" data-crew="0">0 Crew (Uncrewed)</button>
+        <label class="checkbox-label">
+          <input type="checkbox" id="chk-deck-clear" checked /> Deck Clear
+        </label>
+      </div>
     </section>
 
     <!-- Center Column: Scenario B 90s Replay, Priority Switcher & Perturbations -->
@@ -48,6 +76,17 @@
           </select>
         </div>
       </div>
+
+      <details class="custom-profile-drawer" id="details-custom-profile">
+        <summary>Custom Priority Profile Editor (YAML / JSON Live Validation — ALIGN-T27)</summary>
+        <div class="custom-profile-body">
+          <textarea id="textarea-custom-profile" rows="7" placeholder="Paste custom priority profile YAML or JSON (requires profile_id, description, guest_priority_rank, capability_weights, shed_order_lowest_priority_first, hold_vs_abort_policy)..."></textarea>
+          <div class="custom-profile-actions">
+            <button type="button" class="btn" id="btn-load-sample-profile">Load Template YAML</button>
+            <button type="button" class="btn primary" id="btn-apply-custom-profile">Validate &amp; Apply Custom Profile</button>
+          </div>
+        </div>
+      </details>
 
       <div class="timeline-controls">
         <button id="btn-play" class="btn primary">Play 90s Demo</button>
@@ -92,24 +131,50 @@
             <option value="G1">G1 — Passive Radio &amp; Meteo Sensor (45 kg, 1.5 kW)</option>
           </select>
         </label>
-        <label>Override Primary Subcomponent Mass (kg):
-          <input type="number" id="input-mass-kg" placeholder="Leave blank for manifest default" />
-        </label>
-        <label>Override Nominal Power (W):
-          <input type="number" id="input-power-w" placeholder="Leave blank for manifest default" />
-        </label>
-        <label>Override Preferred Position:
-          <select id="select-pos-override">
-            <option value="">(Manifest Default)</option>
-            <option value="bay1">bay1 (20 ft, ≤8,000 kg)</option>
-            <option value="bay1_a">bay1_a (10 ft, Bay1 ≤8,000 kg)</option>
-            <option value="bay1_b">bay1_b (10 ft, Bay1 ≤8,000 kg)</option>
-            <option value="bay2">bay2 (10 ft, ≤4,000 kg)</option>
-            <option value="hangar">hangar (≤1,000 kg)</option>
-            <option value="hangar_roof">hangar_roof (x1.2, drone clearance)</option>
-            <option value="mast_3">mast_3 (≤60 kg, ≤0.6 m2, ≤2 kW air)</option>
-          </select>
-        </label>
+        <div class="override-subgrid">
+          <label>Override Mass (kg):
+            <input type="number" id="input-mass-kg" placeholder="Manifest default" />
+          </label>
+          <label>Override Preferred Position:
+            <select id="select-pos-override">
+              <option value="">(Manifest Default)</option>
+              <option value="bay1">bay1 (20 ft, ≤8,000 kg)</option>
+              <option value="bay1_a">bay1_a (10 ft, Bay1 ≤8,000 kg)</option>
+              <option value="bay1_b">bay1_b (10 ft, Bay1 ≤8,000 kg)</option>
+              <option value="bay2">bay2 (10 ft, ≤4,000 kg)</option>
+              <option value="hangar">hangar (≤1,000 kg)</option>
+              <option value="hangar_roof">hangar_roof (x1.2, drone clearance)</option>
+              <option value="mast_3">mast_3 (≤60 kg, ≤0.6 m2, ≤2 kW air)</option>
+            </select>
+          </label>
+          <label>Nominal Power (W):
+            <input type="number" id="input-power-w" placeholder="Manifest default" />
+          </label>
+          <label>Sustained Power (W):
+            <input type="number" id="input-sustained-power-w" placeholder="Manifest default" />
+          </label>
+          <label>Peak Power (W):
+            <input type="number" id="input-peak-power-w" placeholder="Manifest default" />
+          </label>
+          <label>Chilled Water Cooling (W):
+            <input type="number" id="input-cooling-water-w" placeholder="Manifest default" />
+          </label>
+          <label>Mast Air Cooling (W):
+            <input type="number" id="input-cooling-air-mast-w" placeholder="Manifest default" />
+          </label>
+          <label>Compute Cores:
+            <input type="number" id="input-compute-cores" placeholder="Manifest default" />
+          </label>
+          <label>Compute RAM (MiB):
+            <input type="number" id="input-compute-ram-mib" placeholder="Manifest default" />
+          </label>
+          <label>Compute Accelerators:
+            <input type="number" id="input-compute-accelerators" placeholder="Manifest default" />
+          </label>
+          <label>SATCOM Bandwidth (bps):
+            <input type="number" id="input-satcom-bps" placeholder="Manifest default" />
+          </label>
+        </div>
         <label class="checkbox-label">
           <input type="checkbox" id="chk-at-port" checked /> Evaluate at Port (uncheck for At-Sea A' check)
         </label>

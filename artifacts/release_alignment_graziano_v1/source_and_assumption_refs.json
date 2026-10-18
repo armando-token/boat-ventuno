@@ -1,0 +1,152 @@
+{
+  "assumptions_ids": [
+    "ASM-01",
+    "ASM-02",
+    "ASM-03",
+    "ASM-04",
+    "ASM-05",
+    "ASM-06",
+    "ASM-07",
+    "ASM-ROOF-G4-CLEARANCE",
+    "ASM-ROOF-AIR-2000W",
+    "ASM-G5-COMPONENT-POWER-SPLIT",
+    "ASM-G4-STATION-POWER-ACCOUNTING",
+    "ASM-A6-INTRABAND-SPEED-3-TO-5KN"
+  ],
+  "derivations": [
+    {
+      "derivation_id": "DERIV-G4-STATION-MASS-850KG",
+      "derived_value": 850,
+      "expression": "G4.total_mass_kg (990) - G4_DRONE_VEHICLE.mass_kg (140) = 850",
+      "inputs": {
+        "total_mass_kg": {
+          "source_ref": "GRAZIANO_ROOF_AND_G4_MASS_0904",
+          "value": 990,
+          "value_origin": "ORGANIZER_ERRATA"
+        },
+        "vehicle_mass_kg": {
+          "source_ref": "ANNEX_B_G4",
+          "value": 140,
+          "value_origin": "OFFICIAL_BRIEF"
+        }
+      },
+      "superseded_history": {
+        "previous_station_mass_kg": 310,
+        "previous_total_mass_kg": 450,
+        "reason": "Superseded by organizer clarification GRAZIANO_ROOF_AND_G4_MASS_0904 (5.5 + 0.99 + 3.025 = 9.515 t \u2248 9.52 t).",
+        "status": "SUPERSEDED"
+      },
+      "target_field": "G4.components[G4_HANGAR_STATION].mass_kg"
+    }
+  ],
+  "effective_inputs": {
+    "ASSUMPTIONS.yaml": {
+      "sha256": "e14cf634f3f3544a1be8bfb3b5dfc4bf93c8d1e16c27c02c04db3376b1ffcc49",
+      "size_bytes": 14301
+    },
+    "data/guests/G1_mems_meteo.yaml": {
+      "sha256": "9b44a358c14b6e4697d71b9337db060976f37a635abfe170d40a4441abdb3447",
+      "size_bytes": 4899
+    },
+    "data/guests/G2_rov_inspection.yaml": {
+      "sha256": "a24087050ef606fb4b3fd07c7e7fbfc7896be90d1df180c34e6747ef4ac3539d",
+      "size_bytes": 5518
+    },
+    "data/guests/G3_auv_survey.yaml": {
+      "sha256": "3f619d39d819af6337f118bb0831977d56ecceef449fc0a7f382536f03afc155",
+      "size_bytes": 6758
+    },
+    "data/guests/G4_uav_sar.yaml": {
+      "sha256": "b4b8f99d3b770f4ce58dc8fc4f67cb91051032f112be2fec7fd069e72a14fc62",
+      "size_bytes": 8410
+    },
+    "data/guests/G5_edge_sigint.yaml": {
+      "sha256": "1e5ff81e6b3f953177c5c0c10c99aa5acbb4b9c37df7d8c9286652ecd0cc21cc",
+      "size_bytes": 7341
+    },
+    "data/guests/G6_civil_hydro_sampler.yaml": {
+      "sha256": "41e7897ebee019a2c1fe41855ff5a3411f7ef4c05fad25c4f884654f295dbe30",
+      "size_bytes": 3378
+    },
+    "data/overrides/brief_errata.yaml": {
+      "sha256": "0910117e414ebf1f79b0c0914e9baef58ba34a88ccc8d4714a0b4a05f2378683",
+      "size_bytes": 2308
+    },
+    "data/overrides/organizer_clarifications.yaml": {
+      "sha256": "6e7ff04fcbc80c23cf564e544e85eb65c383d943ca0a9ff5de121cfecd19ad9e",
+      "size_bytes": 2420
+    },
+    "data/priorities/rescue_primary.yaml": {
+      "sha256": "372057467a260c4a5d816b0f6a6d392c02e23774a9ba8b4004419936d5c6c794",
+      "size_bytes": 1198
+    },
+    "data/priorities/survey_primary.yaml": {
+      "sha256": "67a60217dc9bef2b12eb91b39a88ceb52824757a69e39d72bd292b2d84698b82",
+      "size_bytes": 1158
+    },
+    "data/scenarios/scenario_B_arbitration_degradation.yaml": {
+      "sha256": "500e0cf3839ab053250576b48973081786e35a035c5db50132ab43a9f61caaa9",
+      "size_bytes": 3869
+    },
+    "data/scenarios/scenario_B_cooling_limited_30c.yaml": {
+      "sha256": "7cd5b3096dd1063ce0bd978c20ea84ad54100fc714a0074eef1b2ff0cb8dee63",
+      "size_bytes": 3297
+    },
+    "data/scenarios/scenario_C_crew_regimes.yaml": {
+      "sha256": "1617d27b42cc915a2db1118d414310c1e64f12e8cd9b22436fcf106621218ca5",
+      "size_bytes": 2429
+    },
+    "data/ship/mission_envelope_a10.yaml": {
+      "sha256": "771196aa16bd4545e7aab2b88506800d642ceb7d58383a194d2c3495a2057898",
+      "size_bytes": 2698
+    },
+    "data/ship/transition_timing_policy.yaml": {
+      "sha256": "6a6bacba7dbb5b6d4dfe46b9b2947918e343bf79172c3adf9b9a5f0a9c94eb5e",
+      "size_bytes": 3368
+    },
+    "data/ship/vessel_baseline.yaml": {
+      "sha256": "ff7d6e6a15555cdc3e325666d4eb722c8eeaeb915c4c3a8568fd879db88d451f",
+      "size_bytes": 6270
+    }
+  },
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "organizer_clarifications": [
+    {
+      "applies_to": [
+        "scenario_B",
+        "source_precedence"
+      ],
+      "independent_authentication": "NOT_PERFORMED",
+      "original_url": null,
+      "posted_time_text": "8:55 AM",
+      "published_date": null,
+      "received_date": "2026-10-17",
+      "source_id": "GRAZIANO_B_COMPOSITION_0855",
+      "source_kind": "ORGANIZER_MESSAGE_TRANSCRIBED_BY_OWNER",
+      "timezone": null,
+      "verbatim_quotes": [
+        "Yes. Use G1 + G3 + G4 + G5 for Scenario B. Your figures are correct: G2 + G3 + G4 + G5 fails on both bays and mass (13.0 t vs 10 t), while G1 + G3 + G4 + G5 fits (9.56 t, G3 in Bay 1, G5 in Bay 2, G1 on the mast, G5's antenna on the hangar roof). The Annexes take precedence over the demo narrative."
+      ]
+    },
+    {
+      "applies_to": [
+        "G4.total_mass_kg",
+        "roof_drone_clearance"
+      ],
+      "independent_authentication": "NOT_PERFORMED",
+      "original_url": null,
+      "posted_time_text": "9:04 AM",
+      "published_date": null,
+      "received_date": "2026-10-17",
+      "source_id": "GRAZIANO_ROOF_AND_G4_MASS_0904",
+      "source_kind": "ORGANIZER_MESSAGE_TRANSCRIBED_BY_OWNER",
+      "timezone": null,
+      "verbatim_quotes": [
+        "It's your assumption, as long as you declare it and the engine enforces it. The brief deliberately doesn't define the drone-clearance geometry. \u2018Check drone clearance\u2019 means your manifest and placement logic must be able to express that constraint, not that the answer is fixed.",
+        "Either way, record the assumption in the Physical Account and point to where the code uses it. What we don't accept is ignoring the note. One correction: according to the new mass value provided G3 + G4 + G5 weighs 9.52 t (5.5 + 0.99 + 3.025), not 9.0 t. It still fits the 10 t margin and the bays."
+      ]
+    }
+  ],
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-source-and-assumption-refs/1.0"
+}

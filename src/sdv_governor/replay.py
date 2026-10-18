@@ -36,6 +36,7 @@ from .models import (
 from .scheduling import (
     evaluate_a_prime_window,
     evaluate_crew_regimes_comparison,
+    evaluate_roof_drone_clearance_safe,
     handle_lost_or_stale_feed,
 )
 from .ship_state import (
@@ -48,6 +49,13 @@ from .ship_state import (
 def load_yaml_file(path: Path) -> Dict[str, Any]:
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     return require_dict(raw, str(path.name))
+
+
+def _normalize_compute_node(nid: str) -> str:
+    s = str(nid).strip()
+    if s.startswith("node") and not s.startswith("node_") and s[4:].isdigit():
+        return f"node_{s[4:]}"
+    return s
 
 
 def build_initial_state_from_scenario(
@@ -65,25 +73,40 @@ def build_initial_state_from_scenario(
             gid = gspec["guest_id"]
             if gid not in catalog:
                 raise StrictValidationError("UNKNOWN_MISSION", f"Scenario guest '{gid}' not in catalog", f"installed_guests.{gid}")
+            act_m = gspec.get("mode") or gspec.get("active_mode")
+            leg_el = int(gspec.get("leg_elapsed_s", gspec.get("mode_elapsed_s", 0)))
+            leg_tgt = int(gspec.get("leg_duration_s", gspec.get("survey_leg_target_s", 2400)))
+            leg_stat = "IN_PROGRESS" if (gid == "G3" and act_m in ("SURVEY_QUIET", "QUIET_SURVEY_ACTIVE")) else "NONE"
             installed[gid] = InstalledGuestState(
                 guest_id=gid,
-                active_mode=gspec.get("mode") or gspec.get("active_mode"),
+                active_mode=act_m,
                 placements=dict(gspec["placements"]),
-                compute_node=gspec["compute_node"],
+                compute_node=_normalize_compute_node(gspec["compute_node"]),
                 powered_on=bool(gspec.get("powered_on", True)),
                 battery_pct=gspec.get("battery_pct"),
-                mode_elapsed_s=int(gspec.get("leg_elapsed_s", gspec.get("mode_elapsed_s", 0))),
+                mode_elapsed_s=leg_el,
+                survey_leg_target_s=leg_tgt,
+                survey_leg_elapsed_s=leg_el if gid == "G3" else 0,
+                survey_leg_status=leg_stat,
             )
     elif isinstance(raw_guests, dict):
         for gid, gspec in sorted(raw_guests.items()):
             if gid not in catalog:
                 raise StrictValidationError("UNKNOWN_MISSION", f"Scenario guest '{gid}' not in catalog", f"installed_guests.{gid}")
+            act_m = gspec.get("mode") or gspec.get("active_mode")
+            leg_el = int(gspec.get("leg_elapsed_s", gspec.get("mode_elapsed_s", 0)))
+            leg_tgt = int(gspec.get("leg_duration_s", gspec.get("survey_leg_target_s", 2400)))
+            leg_stat = "IN_PROGRESS" if (gid == "G3" and act_m in ("SURVEY_QUIET", "QUIET_SURVEY_ACTIVE")) else "NONE"
             installed[gid] = InstalledGuestState(
                 guest_id=gid,
-                active_mode=gspec.get("mode") or gspec.get("active_mode"),
+                active_mode=act_m,
                 placements=dict(gspec["placements"]),
-                compute_node=gspec["compute_node"],
+                compute_node=_normalize_compute_node(gspec["compute_node"]),
                 powered_on=bool(gspec.get("powered_on", True)),
+                mode_elapsed_s=leg_el,
+                survey_leg_target_s=leg_tgt,
+                survey_leg_elapsed_s=leg_el if gid == "G3" else 0,
+                survey_leg_status=leg_stat,
             )
 
     firm_loads: List[FirmReservedLoad] = []
@@ -103,10 +126,22 @@ def build_initial_state_from_scenario(
     crew_cnt = int(init.get("crew_count", 14))
     default_regime = "FULL_CREW_14" if crew_cnt >= 14 else ("REDUCED_CREW_6" if crew_cnt >= 6 else "UNCREWED_0")
     default_avail_crew = 9 if crew_cnt >= 14 else (2 if crew_cnt >= 6 else 0)
-    return ShipOperationalState(
+    uses_roof_with_g4 = (
+        "G4" in installed
+        and any("hangar_roof" in g.placements.values() for g in installed.values())
+    )
+    raw_roof_ver = init.get(
+        "hangar_roof_clearance_verified",
+        scenario_data.get("hangar_roof_clearance_verified", uses_roof_with_g4),
+    )
+    roof_cert = init.get("roof_clearance_verification", scenario_data.get("roof_clearance_verification", None))
+    deck_clr = bool(init.get("deck_clear", True))
+    v_mode = str(init.get("vessel_mode", "QUIET_SURVEY"))
+
+    st_obj = ShipOperationalState(
         tick_seq=0,
         sim_time_s=int(init.get("sim_time_s", 0)),
-        vessel_mode=init.get("vessel_mode", "QUIET_SURVEY"),
+        vessel_mode=v_mode,
         ship_speed_kn=spd,
         speed_kn=spd,
         heading_deg=float(init.get("heading_deg", 90.0)),
@@ -121,10 +156,18 @@ def build_initial_state_from_scenario(
         crew_count=crew_cnt,
         crew_regime=init.get("crew_regime", default_regime),
         available_crew=int(init.get("available_crew", default_avail_crew)),
-        deck_clear=bool(init.get("deck_clear", True)),
+        deck_clear=deck_clr,
+        deck_clear_verified=bool(init.get("deck_clear_verified", deck_clr)),
+        quiet_acoustic_state=bool(init.get("quiet_acoustic_state", v_mode in ("QUIET_SURVEY", "SURVEY"))),
+        hangar_roof_clearance_verified=bool(raw_roof_ver),
+        roof_clearance_verification=dict(roof_cert) if isinstance(roof_cert, dict) else None,
         installed_guests=installed,
         firm_reserved_loads=firm_loads,
     )
+    if st_obj.hangar_roof_clearance_verified and st_obj.roof_clearance_verification is None:
+        if hasattr(st_obj, "stamp_roof_clearance_verification"):
+            st_obj.stamp_roof_clearance_verification()
+    return st_obj
 
 
 def _process_acoustic_hold_ack_event(
@@ -223,6 +266,7 @@ def run_scenario_b_replay(
     catalog: Dict[str, GuestManifest],
     *,
     compressed_90s: bool = True,
+    max_sim_time_s: int = 1800,
     initial_state_override: Optional[ShipOperationalState] = None,
     consumed_event_indices: Optional[Set[int]] = None,
     fired_d3_milestones_init: Optional[Set[str]] = None,
@@ -236,7 +280,7 @@ def run_scenario_b_replay(
     """Execute deterministic 1 Hz event-driven Scenario B/C replay (90 s compressed 20x demo over 1800 s).
 
     Enforces:
-    - True 1 Hz (`dt = 1 s`) internal simulation stepping across all 1800 s of mission time (R1.3).
+    - True 1 Hz (`dt = 1 s`) internal simulation stepping across all 1800 s (or `max_sim_time_s`) of mission time (R1.3).
     - Firm planned reservation (`35 kW`) registered upon D3 recovery plan approval and post-transition
       budget re-verification so Scenario B never enters an unmitigated infeasible state (R1.1, V2-F01).
     - Strict causal `ACOUSTIC_HOLD` -> `ACOUSTIC_HOLD_CONFIRMED` command-ACK verification (`guest_id == 'G3'`,
@@ -257,12 +301,16 @@ def run_scenario_b_replay(
     decisions: List[Dict[str, Any]] = []
     timeline_ticks: List[Dict[str, Any]] = []
 
-    total_ticks = 90 if compressed_90s else 60
     dt_s = 20 if compressed_90s else 30
+    total_ticks = max(1, int(max_sim_time_s) // dt_s)
     base_sim_time_s = int(state.sim_time_s)
     start_tick = base_sim_time_s // dt_s
-    max_sim_time_s = total_ticks * dt_s
-    target_end_sim_s = min(max_sim_time_s, int(stop_at_sim_time_s)) if stop_at_sim_time_s is not None else max_sim_time_s
+    eff_max_sim_time_s = total_ticks * dt_s
+    target_end_sim_s = (
+        min(eff_max_sim_time_s, int(stop_at_sim_time_s))
+        if stop_at_sim_time_s is not None
+        else eff_max_sim_time_s
+    )
     end_tick = max(start_tick, target_end_sim_s // dt_s)
 
     raw_events = list(scenario_data.get("events", []))
@@ -311,11 +359,36 @@ def run_scenario_b_replay(
         for sim_s in sub_steps:
             state.sim_time_s = sim_s
 
-            # Advance elapsed time by 1 s (1 Hz internal step) for all powered-on guests
+            # Advance elapsed time by 1 s (1 Hz internal step) for all powered-on guests and G3 survey leg
             if sim_s > base_sim_time_s:
-                for ginst in state.installed_guests.values():
+                for gid, ginst in state.installed_guests.items():
                     if ginst.powered_on:
                         ginst.mode_elapsed_s += 1
+                        if gid == "G3":
+                            if ginst.active_mode in ("SURVEY_QUIET", "QUIET_SURVEY_ACTIVE"):
+                                ginst.survey_leg_elapsed_s += 1
+                                ginst.survey_leg_status = "IN_PROGRESS"
+                                if ginst.survey_leg_elapsed_s >= ginst.survey_leg_target_s:
+                                    ginst.survey_legs_completed += 1
+                                    ginst.survey_leg_status = "COMPLETED"
+                                    if "G3" in catalog and "RECHARGE_CRADLE" in catalog["G3"].modes:
+                                        ginst.active_mode = "RECHARGE_CRADLE"
+                                        ginst.mode_elapsed_s = 0
+                                        events_at_tick.append(
+                                            f"G3_COMPLETED_40MIN_SURVEY_LEG_ENTERED_RECHARGE@{sim_s}s"
+                                        )
+                            elif ginst.active_mode == "RECHARGE_CRADLE" and "G3" in catalog:
+                                rech_dur = catalog["G3"].modes["RECHARGE_CRADLE"].min_done_duration_s
+                                if rech_dur > 0 and ginst.mode_elapsed_s >= rech_dur:
+                                    ginst.active_mode = "STANDBY"
+                                    ginst.mode_elapsed_s = 0
+                                    state.firm_reserved_loads = [
+                                        fl for fl in state.firm_reserved_loads if fl.guest_id != "G3"
+                                    ]
+                                    events_at_tick.append(f"G3_COMPLETED_30MIN_RECHARGE_TO_STANDBY@{sim_s}s")
+
+                if hasattr(state, "advance_transitions"):
+                    state.advance_transitions(sim_s, events_log=events_at_tick)
 
             # 1. Process all scenario events scheduled at or before sim_s
             for ev_idx, ev in sorted_events:
@@ -427,7 +500,7 @@ def run_scenario_b_replay(
                             and state.deck_clear
                         ):
                             state.vessel_mode = str(ev.get("vessel_mode", "UAV_RECOVERY_HEADING"))
-                            spd_ev = float(ev.get("ship_speed_kn", 7.0))
+                            spd_ev = float(ev.get("ship_speed_kn", 5.0))
                             state.ship_speed_kn = spd_ev
                             state.speed_kn = spd_ev
                             state.heading_deg = state.wind_deg
@@ -445,6 +518,8 @@ def run_scenario_b_replay(
                             fired_d3_milestones=fired_d3_milestones,
                             events_at_tick=events_at_tick,
                             has_explicit_acoustic_ack_control=has_explicit_acoustic_ack_control,
+                            ship_profile=ship_profile,
+                            catalog=catalog,
                         )
                         if td_pre is not None and executed_touchdown_time_s is None:
                             executed_touchdown_time_s = td_pre
@@ -494,6 +569,8 @@ def run_scenario_b_replay(
                             fired_d3_milestones=fired_d3_milestones,
                             events_at_tick=events_at_tick,
                             has_explicit_acoustic_ack_control=has_explicit_acoustic_ack_control,
+                            ship_profile=ship_profile,
+                            catalog=catalog,
                         )
                         if td_pre is not None and executed_touchdown_time_s is None:
                             executed_touchdown_time_s = td_pre
@@ -530,12 +607,21 @@ def run_scenario_b_replay(
 
                     elif ev_type == "POWER_COOLING_RESTORATION":
                         state.power_reserve_w = int(ev.get("new_power_reserve_w", 200000))
-                        state.cooling_loop_degraded = bool(ev.get("cooling_loop_degraded", False))
+                        req_cool_deg = bool(ev.get("cooling_loop_degraded", False))
+                        at_port_repair = bool(ev.get("at_port_repair", False)) or state.vessel_mode == "PORT_OPS"
+                        if state.cooling_loop_degraded and not req_cool_deg and not at_port_repair:
+                            # Annex A.6: degraded cooling loop CANNOT be repaired at sea! (ALIGN-T36)
+                            state.cooling_loop_degraded = True
+                            events_at_tick.append(
+                                f"REJECTED_AT_SEA_COOLING_LOOP_REPAIR_FORBIDDEN_ANNEX_A6@{ev_time}s"
+                            )
+                        else:
+                            state.cooling_loop_degraded = req_cool_deg
+                            events_at_tick.append(
+                                f"RESTORATION_RESERVE_{state.power_reserve_w // 1000}KW_COOLING_NOMINAL@{ev_time}s"
+                            )
                         if "seawater_temp_c" in ev:
                             state.seawater_temp_c = float(ev["seawater_temp_c"])
-                        events_at_tick.append(
-                            f"RESTORATION_RESERVE_{state.power_reserve_w // 1000}KW_COOLING_NOMINAL@{ev_time}s"
-                        )
 
                         rec_gid = str(ev.get("reconnect_guest_id", "G5"))
                         rec_mode = str(ev.get("reconnect_mode", "FULL_SPECTRUM"))
@@ -569,7 +655,7 @@ def run_scenario_b_replay(
                     elif ev_type == "REQUEST_DECK_MACHINERY":
                         req_gid = str(ev.get("guest_id", "G4"))
                         target_manifest = catalog.get(req_gid, catalog["G4"])
-                        win_res = evaluate_a_prime_window(target_manifest, "LAUNCH_RECOVERY", state, catalog)
+                        win_res = evaluate_a_prime_window(target_manifest, "LAUNCH_RECOVERY", state, catalog, ship_profile=ship_profile)
                         active_plan_version += 1
                         status_tag = "PERMITTED" if win_res["permitted"] else "BLOCKED"
                         events_at_tick.append(f"DECK_MACHINERY_REQUEST_{req_gid}_{status_tag}@{ev_time}s")
@@ -597,13 +683,13 @@ def run_scenario_b_replay(
                             state.crew_regime = "UNCREWED_0"
                             state.available_crew = 0
 
-                        g4_launch_chk = evaluate_a_prime_window(catalog["G4"], "LAUNCH_RECOVERY", state, catalog)
-                        g4_repl_chk = evaluate_a_prime_window(catalog["G4"], "VEHICLE_REPLACEMENT_AT_SEA", state, catalog)
+                        g4_launch_chk = evaluate_a_prime_window(catalog["G4"], "LAUNCH_RECOVERY", state, catalog, ship_profile=ship_profile)
+                        g4_repl_chk = evaluate_a_prime_window(catalog["G4"], "VEHICLE_REPLACEMENT_AT_SEA", state, catalog, ship_profile=ship_profile)
                         install_chk = None
                         if "attempt_physical_install_guest_id" in ev:
                             inst_gid = str(ev["attempt_physical_install_guest_id"])
                             if inst_gid in catalog:
-                                install_chk = evaluate_a_prime_window(catalog[inst_gid], "AT_SEA_INSTALL", state, catalog)
+                                install_chk = evaluate_a_prime_window(catalog[inst_gid], "AT_SEA_INSTALL", state, catalog, ship_profile=ship_profile)
 
                         active_plan_version += 1
                         events_at_tick.append(f"CREW_TRANSITION_TO_{state.crew_regime}@{ev_time}s")
@@ -691,6 +777,8 @@ def run_scenario_b_replay(
                 fired_d3_milestones=fired_d3_milestones,
                 events_at_tick=events_at_tick,
                 has_explicit_acoustic_ack_control=has_explicit_acoustic_ack_control,
+                ship_profile=ship_profile,
+                catalog=catalog,
             )
             if td_time is not None and executed_touchdown_time_s is None:
                 executed_touchdown_time_s = td_time
@@ -782,6 +870,46 @@ def run_scenario_b_replay(
 
     wall_total_ms = round((time.perf_counter_ns() - t0_wall_ns) / 1_000_000.0, 3)
 
+    g4_chg_complete_t = (
+        int(arb_decision.get("planned_charging_complete_time_s", executed_touchdown_time_s + 1200))
+        if (arb_decision and executed_touchdown_time_s is not None)
+        else None
+    )
+    g3_inst_end = state.installed_guests.get("G3")
+    g3_leg_rem_s = (
+        max(0, int(g3_inst_end.survey_leg_target_s) - int(g3_inst_end.survey_leg_elapsed_s))
+        if g3_inst_end is not None and g3_inst_end.survey_leg_status != "COMPLETED"
+        else 0
+    )
+    horizon_obligations_summary = {
+        "horizon_end_sim_time_s": state.sim_time_s,
+        "g4_charging_1200s": {
+            "status": (
+                "COMPLETED"
+                if "CHARGE_COMPLETE" in fired_d3_milestones
+                else ("PENDING_HORIZON" if executed_touchdown_time_s is not None else "NOT_STARTED")
+            ),
+            "touchdown_time_s": executed_touchdown_time_s,
+            "expected_complete_time_s": g4_chg_complete_t,
+            "remaining_s_at_horizon": (
+                max(0, g4_chg_complete_t - state.sim_time_s)
+                if (g4_chg_complete_t is not None and "CHARGE_COMPLETE" not in fired_d3_milestones)
+                else 0
+            ),
+        },
+        "g3_survey_leg_2400s": {
+            "status": (
+                "COMPLETED"
+                if (g3_inst_end is not None and g3_inst_end.survey_legs_completed > 0)
+                else ("PENDING_HORIZON" if g3_inst_end is not None else "NOT_INSTALLED")
+            ),
+            "leg_target_s": int(g3_inst_end.survey_leg_target_s) if g3_inst_end is not None else 2400,
+            "leg_elapsed_s": int(g3_inst_end.survey_leg_elapsed_s) if g3_inst_end is not None else 0,
+            "legs_completed": int(g3_inst_end.survey_legs_completed) if g3_inst_end is not None else 0,
+            "remaining_s_at_horizon": g3_leg_rem_s,
+        },
+    }
+
     semantic_ticks = _strip_wall_clock(timeline_ticks)
     semantic_decisions = _strip_wall_clock(decisions)
     semantic_payload = {
@@ -797,6 +925,7 @@ def run_scenario_b_replay(
         "scenario_id": scenario_data.get("scenario_id", "SCENARIO_B"),
         "priority_profile_id": priority_profile.priority_profile_id,
         "executed_touchdown_time_s": executed_touchdown_time_s,
+        "horizon_obligations_summary": horizon_obligations_summary,
         "semantic_sha256": semantic_sha256,
         "semantic_payload": semantic_payload,
         "timeline_ticks": timeline_ticks,
@@ -832,6 +961,8 @@ def _apply_due_d3_milestones(
     fired_d3_milestones: Set[str],
     events_at_tick: List[str],
     has_explicit_acoustic_ack_control: bool = False,
+    ship_profile: Optional[Dict[str, Any]] = None,
+    catalog: Optional[Dict[str, GuestManifest]] = None,
 ) -> Optional[int]:
     """Apply due D3 arbitration milestones once each in strict causal order with precondition re-verification (R1.2, V2-F02, R8-F01)."""
     if arb_decision is None or arb_decision.get("verdict") != "YES":
@@ -840,6 +971,7 @@ def _apply_due_d3_milestones(
         "PLAN_INVALIDATED_INSUFFICIENT_POWER" in fired_d3_milestones
         or "PLAN_INVALIDATED_DEADLINE_EXCEEDED" in fired_d3_milestones
         or "PLAN_INVALIDATED_G4_UNAVAILABLE" in fired_d3_milestones
+        or "PLAN_INVALIDATED_ROOF_CLEARANCE" in fired_d3_milestones
     ):
         return None
 
@@ -872,6 +1004,7 @@ def _apply_due_d3_milestones(
         state.firm_reserved_loads = [
             fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
         ]
+        state.cancel_transitions_for_plan(owner_id="G4", reason="G4_UNAVAILABLE")
         events_at_tick.append(f"D3_PLAN_INVALIDATED_G4_UNAVAILABLE@{up_to_time_s}s")
         return None
 
@@ -937,13 +1070,25 @@ def _apply_due_d3_milestones(
         and ("G3" not in state.installed_guests or state.installed_guests["G3"].active_mode == "HOLD_ACOUSTIC")
     )
 
-    # Step 3: Turn vessel into wind ONLY if G3 acoustic HOLD ACK is confirmed and power/deck/deadline preconditions hold
+    # Step 3: Turn vessel into wind ONLY if G3 acoustic HOLD ACK is confirmed and power/deck/deadline/roof-clearance preconditions hold
     if up_to_time_s >= turn_t and "TURN_INTO_WIND" not in fired_d3_milestones:
         if not g3_ack_ok:
             if "BLOCKED_TURN_NO_HOLD_ACK" not in fired_d3_milestones:
                 fired_d3_milestones.add("BLOCKED_TURN_NO_HOLD_ACK")
                 events_at_tick.append(f"BLOCKED_TURN_INTO_WIND_AWAITING_G3_HOLD_ACK@{up_to_time_s}s")
             return None
+        if ship_profile is not None and catalog is not None:
+            roof_check = evaluate_roof_drone_clearance_safe(state, ship_profile, catalog)
+            if not roof_check["satisfied"]:
+                fired_d3_milestones.add("PLAN_INVALIDATED_ROOF_CLEARANCE")
+                arb_decision["executed_touchdown_time_s"] = None
+                arb_decision["plan_status"] = "INVALIDATED_ROOF_CLEARANCE"
+                state.firm_reserved_loads = [
+                    fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
+                ]
+                state.cancel_transitions_for_plan(owner_id="G4", reason="ROOF_CLEARANCE_INVALIDATED")
+                events_at_tick.append(f"D3_PLAN_INVALIDATED_ROOF_CLEARANCE@{up_to_time_s}s")
+                return None
         if td_t > dl_t:
             fired_d3_milestones.add("PLAN_INVALIDATED_DEADLINE_EXCEEDED")
             arb_decision["executed_touchdown_time_s"] = None
@@ -951,6 +1096,7 @@ def _apply_due_d3_milestones(
             state.firm_reserved_loads = [
                 fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
             ]
+            state.cancel_transitions_for_plan(owner_id="G4", reason="LATE_ACK_EXCEEDS_DEADLINE")
             events_at_tick.append(
                 f"D3_PLAN_INVALIDATED_LATE_ACK_TOUCHDOWN_{td_t}S_EXCEEDS_DEADLINE_{dl_t}S@{up_to_time_s}s"
             )
@@ -961,6 +1107,7 @@ def _apply_due_d3_milestones(
             state.firm_reserved_loads = [
                 fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
             ]
+            state.cancel_transitions_for_plan(owner_id="G4", reason="PRECONDITIONS_FAILED")
             events_at_tick.append(
                 f"D3_PLAN_INVALIDATED_PRECONDITIONS_POWER_{state.power_reserve_w}W_DECK_{state.deck_clear}@{up_to_time_s}s"
             )
@@ -968,27 +1115,70 @@ def _apply_due_d3_milestones(
 
         fired_d3_milestones.add("TURN_INTO_WIND")
         arb_decision["executed_turn_into_wind_time_s"] = turn_t
+        target_speed_kn = float(arb_decision.get("target_recovery_speed_kn", 5.0))
+        state.request_transition(
+            transition_id=f"TRANS_EXIT_QUIET_V{active_plan_version}",
+            resource_or_state_variable="quiet_acoustic_state",
+            requested_state=False,
+            duration_s=0,
+            effective_state=True,
+            requested_at_s=turn_t,
+            plan_version=active_plan_version,
+            owner_id="VESSEL",
+        )
+        state.request_transition(
+            transition_id=f"TRANS_SPEED_FOR_RECOVERY_V{active_plan_version}",
+            resource_or_state_variable="speed_kn",
+            requested_state=target_speed_kn,
+            duration_s=min(60, turn_stabilization_duration_s),
+            effective_state=state.speed_kn,
+            requested_at_s=turn_t,
+            plan_version=active_plan_version,
+            owner_id="VESSEL",
+        )
+        state.request_transition(
+            transition_id=f"TRANS_COURSE_INTO_WIND_V{active_plan_version}",
+            resource_or_state_variable="heading_deg",
+            requested_state=state.wind_deg,
+            duration_s=turn_stabilization_duration_s,
+            effective_state=state.heading_deg,
+            requested_at_s=turn_t,
+            plan_version=active_plan_version,
+            owner_id="VESSEL",
+        )
+        state.advance_transitions(up_to_time_s, events_log=events_at_tick)
         if state.vessel_mode not in ("DEGRADED_POWER", "DEGRADED_THERMAL"):
             state.vessel_mode = "UAV_RECOVERY_HEADING"
-        state.heading_deg = state.wind_deg
-        state.speed_kn = 7.0
-        state.ship_speed_kn = 7.0
         events_at_tick.append(f"VESSEL_TURNED_INTO_WIND_FOR_G4_RECOVERY@{turn_t}s")
 
     # Step 4: Start 35 kW G4 recovery approach ONLY if vessel turned into wind, G3 HOLD ACK holds, and >= 35 kW reserve + deck_clear hold
     if up_to_time_s >= stab_t and "RECOVERY_APPROACH" not in fired_d3_milestones:
         if "TURN_INTO_WIND" not in fired_d3_milestones or not g3_ack_ok:
             return None
+        if ship_profile is not None and catalog is not None:
+            roof_check = evaluate_roof_drone_clearance_safe(state, ship_profile, catalog)
+            if not roof_check["satisfied"]:
+                fired_d3_milestones.add("PLAN_INVALIDATED_ROOF_CLEARANCE")
+                arb_decision["executed_touchdown_time_s"] = None
+                arb_decision["plan_status"] = "INVALIDATED_ROOF_CLEARANCE"
+                state.firm_reserved_loads = [
+                    fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
+                ]
+                state.cancel_transitions_for_plan(owner_id="G4", reason="ROOF_CLEARANCE_INVALIDATED")
+                events_at_tick.append(f"D3_PLAN_INVALIDATED_ROOF_CLEARANCE@{up_to_time_s}s")
+                return None
         if state.power_reserve_w < 35000 or not state.deck_clear:
             fired_d3_milestones.add("PLAN_INVALIDATED_INSUFFICIENT_POWER")
             state.firm_reserved_loads = [
                 fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
             ]
+            state.cancel_transitions_for_plan(owner_id="G4", reason="INSUFFICIENT_POWER_APPROACH")
             events_at_tick.append(
                 f"D3_RECOVERY_APPROACH_ABORTED_POWER_{state.power_reserve_w}W@{up_to_time_s}s"
             )
             return None
 
+        state.advance_transitions(up_to_time_s, events_log=events_at_tick)
         fired_d3_milestones.add("RECOVERY_APPROACH")
         arb_decision["executed_stabilized_time_s"] = stab_t
         state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
@@ -999,11 +1189,24 @@ def _apply_due_d3_milestones(
     if up_to_time_s >= td_t and "TOUCHDOWN" not in fired_d3_milestones:
         if "RECOVERY_APPROACH" not in fired_d3_milestones or not g3_ack_ok:
             return None
+        if ship_profile is not None and catalog is not None:
+            roof_check = evaluate_roof_drone_clearance_safe(state, ship_profile, catalog)
+            if not roof_check["satisfied"]:
+                fired_d3_milestones.add("PLAN_INVALIDATED_ROOF_CLEARANCE")
+                arb_decision["executed_touchdown_time_s"] = None
+                arb_decision["plan_status"] = "INVALIDATED_ROOF_CLEARANCE"
+                state.firm_reserved_loads = [
+                    fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
+                ]
+                state.cancel_transitions_for_plan(owner_id="G4", reason="ROOF_CLEARANCE_INVALIDATED")
+                events_at_tick.append(f"D3_PLAN_INVALIDATED_ROOF_CLEARANCE@{up_to_time_s}s")
+                return None
         if state.power_reserve_w < 35000 or not state.deck_clear or td_t > dl_t:
             fired_d3_milestones.add("PLAN_INVALIDATED_INSUFFICIENT_POWER")
             state.firm_reserved_loads = [
                 fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
             ]
+            state.cancel_transitions_for_plan(owner_id="G4", reason="INSUFFICIENT_POWER_TOUCHDOWN")
             events_at_tick.append(
                 f"D3_TOUCHDOWN_ABORTED_POWER_{state.power_reserve_w}W_DEADLINE_{dl_t}S@{up_to_time_s}s"
             )
@@ -1016,13 +1219,83 @@ def _apply_due_d3_milestones(
         state.installed_guests["G4"].battery_pct = 20.0
         state.installed_guests["G4"].active_mode = "LAUNCH_RECOVERY_OPTICS"
         state.installed_guests["G4"].mode_elapsed_s = 0
+        state.request_transition(
+            transition_id=f"TRANS_G4_HANGAR_CHARGE_1200S_V{active_plan_version}",
+            resource_or_state_variable="G4.active_mode",
+            requested_state="STANDBY",
+            duration_s=charging_duration_s,
+            effective_state="LAUNCH_RECOVERY_OPTICS",
+            requested_at_s=td_t,
+            plan_version=active_plan_version,
+            owner_id="G4",
+        )
+        # Also schedule return to quiet survey course/speed after touchdown
+        ret_speed_id = f"TRANS_RETURN_SURVEY_SPEED_V{active_plan_version}"
+        ret_course_id = f"TRANS_RETURN_SURVEY_COURSE_V{active_plan_version}"
+        state.request_transition(
+            transition_id=ret_speed_id,
+            resource_or_state_variable="speed_kn",
+            requested_state=3.0,
+            duration_s=60,
+            effective_state=state.speed_kn,
+            requested_at_s=td_t,
+            plan_version=active_plan_version,
+            owner_id="VESSEL",
+        )
+        state.request_transition(
+            transition_id=ret_course_id,
+            resource_or_state_variable="heading_deg",
+            requested_state=90.0,
+            duration_s=90,
+            effective_state=state.heading_deg,
+            requested_at_s=td_t,
+            plan_version=active_plan_version,
+            owner_id="VESSEL",
+        )
+        state.request_transition(
+            transition_id=f"TRANS_ENTER_QUIET_SURVEY_V{active_plan_version}",
+            resource_or_state_variable="quiet_acoustic_state",
+            requested_state=True,
+            duration_s=180,
+            effective_state=False,
+            requested_at_s=td_t,
+            dependency_ids=[ret_speed_id, ret_course_id],
+            plan_version=active_plan_version,
+            owner_id="VESSEL",
+        )
+        state.advance_transitions(up_to_time_s, events_log=events_at_tick)
         events_at_tick.append(f"G4_TOUCHDOWN_AND_SECURED_IN_HANGAR@{td_t}s")
         events_at_tick.append(f"G4_STARTED_20MIN_35KW_HANGAR_CHARGE@{td_t}s")
+
+    # Step 5b: Resume G3 quiet survey once vessel quiet state re-entry completes (td_t + 90 + 180 = td_t + 270)
+    g3_resume_t = td_t + 270
+    if (
+        "TOUCHDOWN" in fired_d3_milestones
+        and up_to_time_s >= g3_resume_t
+        and "G3_RESUME_SURVEY" not in fired_d3_milestones
+    ):
+        state.advance_transitions(up_to_time_s, events_log=events_at_tick)
+        if state.quiet_acoustic_state and "G3" in state.installed_guests:
+            g3_inst = state.installed_guests["G3"]
+            if g3_inst.powered_on and g3_inst.active_mode == "HOLD_ACOUSTIC":
+                fired_d3_milestones.add("G3_RESUME_SURVEY")
+                aborted_s = int(arb_decision.get("survey_segment_aborted_s", 0))
+                g3_inst.active_mode = "SURVEY_QUIET"
+                g3_inst.mode_elapsed_s = 0
+                if aborted_s > 0:
+                    g3_inst.survey_leg_elapsed_s = 0
+                    g3_inst.survey_leg_aborted_count = int(getattr(g3_inst, "survey_leg_aborted_count", 0)) + 1
+                    g3_inst.survey_leg_status = "REPEATING_ABORTED_LEG"
+                    events_at_tick.append(f"G3_SURVEY_LEG_REPEAT_STARTED@{g3_resume_t}s")
+                else:
+                    g3_inst.survey_leg_status = "CONTINUING_FROM_WAYPOINT"
+                    events_at_tick.append(f"G3_SURVEY_RESUMED_FROM_WAYPOINT@{g3_resume_t}s")
 
     # Step 6: Complete 20-min 35 kW hangar charge and transition G4 to STANDBY
     if up_to_time_s >= chg_done_t and "CHARGE_COMPLETE" not in fired_d3_milestones:
         if "TOUCHDOWN" not in fired_d3_milestones:
             return touchdown_recorded
+        state.advance_transitions(up_to_time_s, events_log=events_at_tick)
         fired_d3_milestones.add("CHARGE_COMPLETE")
         arb_decision["executed_charging_complete_time_s"] = chg_done_t
         state.installed_guests["G4"].active_mode = "STANDBY"
@@ -1034,6 +1307,7 @@ def _apply_due_d3_milestones(
         events_at_tick.append(f"G4_COMPLETED_35KW_CHARGE_TO_STANDBY@{chg_done_t}s")
 
     return touchdown_recorded
+
 
 
 def run_full_campaign_suite(repo_root: Path) -> Dict[str, Any]:

@@ -8,6 +8,9 @@ __pycache__/
 src/*.egg-info/
 dist/
 build/
+node_modules/
+viz3d/node_modules/
+viz3d/dist/
 .DS_Store
 **/.DS_Store
 .python-version
@@ -18,7 +21,6 @@ build/
 /tmp_*/
 
 # Legacy prototypes & old handoff reproductions (kept locally on disk, excluded from GitHub)
-viz3d/
 research/
 v5.1*/
 
@@ -29,18 +31,20 @@ v5.1*/
 *INFORME*
 informe.md
 DEVELOPMENT_LOG.md
-STAGE_STATUS.json
-CORRECTIVE_STATUS.json
-CLOSURE_STATUS_V2.json
-FINAL_STATUS.md
+/STAGE_STATUS.json
+/CORRECTIVE_STATUS.json
+/CLOSURE_STATUS_V2.json
+/FINAL_STATUS.md
+/ALIGNMENT_STATUS.json
+/ALIGNMENT_RESULT.md
 docs/CORRECTION_LOG.md
 docs/CLOSURE_LOG_V2.md
+docs/alignment/
 artifacts/baseline_c0_audited/
 artifacts/review_v2_repro/
 artifacts/review_r8_repro/
+artifacts/validation_alignment_local/
+artifacts/_scratch_mutations/
 artifacts/audit_*/
 artifacts/*.zip
 tools/
-
-
-

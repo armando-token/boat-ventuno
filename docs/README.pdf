@@ -16,264 +16,289 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 18005 >>
+<< /Length 19829 >>
 stream
-q 0.10 0.21 0.36 rg 26.00 750.84 560.00 17.16 re f Q
-BT /F2 9.20 Tf 1.00 1.00 1.00 rg 34.00 756.32 Td (SDV Eight-Class Resource Governor \(sdv-resource-governor\)) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 26.00 738.04 Td (Deterministic, ontology-driven Admission \(D1\), Reconfiguration \(D2\), Live Arbitration \(D3\), Graceful Degradation \(D4\), Multi-Crew Scheduling \(D5\), and) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 26.00 729.24 Td (Fail-Closed Evidence Governance \(D6\) for a 72 m Offshore Software-Defined Vessel \(SDV\).) Tj ET
-BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 718.94 Td (1. Architecture Diagram & Data Flow) Tj ET
-q 0.75 0.82 0.90 rg 26.00 716.94 560.00 0.60 re f Q
-q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 536.06 560.00 177.80 re B Q
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 705.66 Td (+-----------------------+    +---------------------------+    +-------------------------+) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 698.46 Td (| Declarative YAML/JSON |--->| Strict Schema & Ontology  |--->| 8-Class Budget Engine   |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 691.26 Td (| - vessel_baseline     |    | Validator \(manifest.py\)   |    | \(budgets.py: Power,     |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 684.06 Td (| - guests G1..G6 \(+G7\) |    | - 7 JSON Schemas          |    |  Cooling, Compute, Mast,|) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 676.86 Td (| - mission_envelope    |    | - Brief errata overrides  |    |  Mass/Stab, LAN/SATCOM, |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 669.66 Td (| - priority_profiles   |    | - Provenance & freshness  |    |  Crew/Deck, Time\)       |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 662.46 Td (+-----------------------+    +---------------------------+    +------------+------------+) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 655.26 Td (                                                                           |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 648.06 Td (        +------------------------------------------------------------------+) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 640.86 Td (        v) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 633.66 Td (+---------------------------------------------------------------------------------------+) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 626.46 Td (| Deterministic Decision & Mission Clock Core \(Zero LLMs / Zero Randomness\)             |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 619.26 Td (| - D1 Admission & Trade-off Solver \(admission.py, placement.py, A.10 14-Day Envelope\)  |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 612.06 Td (| - D2/D3 Causal Arbitration \(arbitration.py: G3 Acoustic HOLD ACK -> Turn -> Recovery\) |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 604.86 Td (| - D4 Graceful Degradation & Reconnection Hysteresis \(degradation.py, scheduling.py\)   |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 597.66 Td (| - D5 Crew Regimes \(14/10/0\) & A' Window Planner | D6 28-Mutation Fail-Closed Verifier |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 590.46 Td (+-------------------------------------------+-------------------------------------------+) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 583.26 Td (                                            |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 576.06 Td (                                            v) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 568.86 Td (+---------------------------------------------------------------------------------------+) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 561.66 Td (| Stateful Session & Single-Screen 2D Operator Console \(server.py + ui/app.js\)          |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 554.46 Td (| - Monotonic clock \(/api/advance, /api/runner\), live perturbation \(/api/perturb\)       |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 547.26 Td (| - Transactional admission \(/api/admit_live\) & Mac arm64 <-> Ventuno Q aarch64 Parity  |) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 540.06 Td (+---------------------------------------------------------------------------------------+) Tj ET
-BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 524.26 Td (2. Deliverables, Objectives & Scope \(D1-D6: Mandatory vs. Desirable\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 522.26 560.00 0.60 re f Q
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 507.78 56.65 11.40 re B Q
-BT /F2 6.20 Tf 1.00 1.00 1.00 rg 29.00 510.78 Td (ID) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 82.65 507.78 130.11 11.40 re B Q
-BT /F2 6.20 Tf 1.00 1.00 1.00 rg 85.65 510.78 Td (Deliverable / Capability) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 212.76 507.78 56.65 11.40 re B Q
-BT /F2 6.20 Tf 1.00 1.00 1.00 rg 215.76 510.78 Td (Brief Tier) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 269.40 507.78 316.60 11.40 re B Q
-BT /F2 6.20 Tf 1.00 1.00 1.00 rg 272.40 510.78 Td (Status & Implementation Scope) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 488.98 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 499.38 Td (D1) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 82.65 488.98 130.11 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 499.38 Td (Guest Manifest Ontology & 7 Formal) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 491.98 Td (JSON Schemas) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 212.76 488.98 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 215.76 499.38 Td (Mandatory) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 269.40 488.98 316.60 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 499.38 Td (Implemented: schemas/*.schema.json, G1-G6 YAML cards + dynamic G7 card, bidirectional) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 491.98 Td (requires_guests / excludes_guests / conditional_excludes.) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 470.18 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 480.58 Td (D2) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 82.65 470.18 130.11 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 480.58 Td (Port Admission, Placement &) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 473.18 Td (Trade-off Solver \(Scenario A\)) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 212.76 470.18 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 215.76 480.58 Td (Mandatory) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 269.40 470.18 316.60 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 480.58 Td (Implemented: Exact 8-class + 14-day Mission Envelope A.10 solver \(YES / YES_IF /) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 473.18 Td (NOT_NOW / NO\), ranked displacements, atomic apply_yes_if commit gate.) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 451.38 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 461.78 Td (D3) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 82.65 451.38 130.11 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 461.78 Td (Live Conflict Arbitration & Causal) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 454.38 Td (Recovery \(Scenario B\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 212.76 451.38 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 215.76 461.78 Td (Mandatory) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 269.40 451.38 316.60 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 461.78 Td (Implemented: Causal state machine \(HOLD_CMD -> HOLD_ACK -> TURN_INTO_WIND ->) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 454.38 Td (RECOVERY_APPROACH -> TOUCHDOWN <= 1200 s\) under survey_primary & rescue_primary.) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 432.58 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 442.98 Td (D4) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 82.65 432.58 130.11 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 442.98 Td (Graceful Degradation, Thermal) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 435.58 Td (Inertia & Hysteresis) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 212.76 432.58 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 215.76 442.98 Td (Mandatory) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 269.40 432.58 316.60 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 442.98 Td (Implemented: 100 kW generator loss & 30  deg C / -40% cooling failure mitigation, 60 s) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 435.58 Td (thermal inertia \(1.8 MJ\), 60 s cooldown + 15 kW reconnection hysteresis.) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 413.78 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 424.18 Td (D5) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 82.65 413.78 130.11 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 424.18 Td (Single-Screen 2D Operator Console) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 416.78 Td (& Live What-If) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 212.76 413.78 56.65 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 215.76 424.18 Td (Mandatory) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 269.40 413.78 316.60 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 424.18 Td (Implemented: Zero-build 2D SVG/HTML/JS console \(http://127.0.0.1:8765\) bound to) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 416.78 Td (stateful GovernorSession \(/api/advance, /api/perturb, /api/admit_live\).) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 387.58 56.65 26.20 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 405.38 Td (D6) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 82.65 387.58 130.11 26.20 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 405.38 Td (Scenario C \(A', Multi-Crew) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 85.65 397.98 Td (14/10/0, Lost Feeds\) & Audit) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 212.76 387.58 56.65 26.20 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 215.76 405.38 Td (Desirable) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 269.40 387.58 316.60 26.20 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 405.38 Td (Implemented \(Real Scope\): Quantitative 14/10/0 crew table, A' earliest window) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 397.98 Td (\(T+1260s\), +20% overconsumption & stale-feed fallback, 28-mutation verifier, and Mac) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 272.40 390.58 Td (arm64 <-> Ventuno Q aarch64 parity.) Tj ET
-BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 375.28 Td (3. Clean / Offline Installation & Quickstart \(<= 5 minutes\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 373.28 560.00 0.60 re f Q
-q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 264.40 560.00 105.80 re B Q
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 362.00 Td (# 1. Create clean virtual environment \(offline wheelhouse or system site-packages supported\)) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 354.80 Td (python3 -m venv .venv --system-site-packages) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 347.60 Td (.venv/bin/pip install -r requirements-macos-arm64.lock) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 340.40 Td (.venv/bin/pip install --no-build-isolation --no-deps -e .) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 326.00 Td (# 2. Run the full automated test suite \(Mac arm64 or Linux aarch64\)) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 318.80 Td (.venv/bin/pytest -v) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 304.40 Td (# 3. Generate deterministic campaign bundle & run fail-closed verifier + 28 adversarial mutations) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 297.20 Td (.venv/bin/sdv-governor campaign --run-id demo_run --junit-xml artifacts/final_run/junit.xml) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 290.00 Td (.venv/bin/sdv-governor verify-evidence artifacts/demo_run --run-mutations) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 275.60 Td (# 4. Launch the interactive single-screen 2D Operator Console \(Ctrl+C to stop\)) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 268.40 Td (.venv/bin/sdv-governor serve --host 127.0.0.1 --port 8765) Tj ET
-BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 252.60 Td (4. Eight-Class Resource Model \(PHY-01..PHY-10\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 250.60 560.00 0.60 re f Q
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 236.12 105.39 11.40 re B Q
-BT /F2 6.20 Tf 1.00 1.00 1.00 rg 29.00 239.12 Td (Class) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 131.39 236.12 353.41 11.40 re B Q
-BT /F2 6.20 Tf 1.00 1.00 1.00 rg 134.39 239.12 Td (Physical / Operational Constraint) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 484.80 236.12 101.20 11.40 re B Q
-BT /F2 6.20 Tf 1.00 1.00 1.00 rg 487.80 239.12 Td (Source Module) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 224.72 105.39 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 227.72 Td (1. Power) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 131.39 224.72 353.41 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 227.72 Td (200 kW reserve \(LINE_A_FWD <= 110 kW, LINE_B_AFT <= 130 kW\), peak vs. sustained, firm reservations) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 484.80 224.72 101.20 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 487.80 227.72 Td (budgets.py) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 205.92 105.39 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 216.32 Td (2. Cooling) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 131.39 205.92 353.41 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 216.32 Td (Chilled water curve 160 kW @ <=12 deg C -> 120 kW @ 30 deg C \(-40% loop fault\), 1:1 heat, 30 kW x 60 s) Tj ET
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 208.92 Td (inertia) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 484.80 205.92 101.20 18.80 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 487.80 216.32 Td (budgets.py) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 194.52 105.39 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 197.52 Td (3. Compute) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 131.39 194.52 353.41 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 197.52 Td (Rack node_1 \(16c/64G/1 GPU\), node_2 \(16c/64G/1 GPU\), node_3 \(8c/32G/0 GPU\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 484.80 194.52 101.20 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 487.80 197.52 Td (placement.py) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 183.12 105.39 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 186.12 Td (4. Mast) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 131.39 183.12 353.41 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 186.12 Td (mast_3 single-slot exclusivity, <= 60 kg, <= 0.6 m^2, <= 2,000 W mast air cooling) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 484.80 183.12 101.20 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 487.80 186.12 Td (budgets.py) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 171.72 105.39 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 174.72 Td (5. Mass & Stability) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 131.39 171.72 353.41 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 174.72 Td (Global <= 10,000 kg and <= 12,000 kg-eq \(mass_kg x height_factor\); bay1 <= 8t, bay2 <= 4t) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 484.80 171.72 101.20 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 487.80 174.72 Td (budgets.py) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 160.32 105.39 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 163.32 Td (6. Data Links) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 131.39 160.32 353.41 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 163.32 Td (10 Gbps LAN \(<= 1 Gbps/port\), SATCOM 8 Mbps port / 6 Mbps offshore / 1.5 Mbps degraded, EMCON) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 484.80 160.32 101.20 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 487.80 163.32 Td (budgets.py) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 148.92 105.39 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 151.92 Td (7. Crew & Deck) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 131.39 148.92 353.41 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 151.92 Td (Regimes 14 \(9 avail\), 10 \(5 avail\), 0 \(USV, 0 avail\); flight_deck vs stern_ramp exclusivity) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 484.80 148.92 101.20 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 487.80 151.92 Td (scheduling.py) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 137.52 105.39 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 29.00 140.52 Td (8. Time) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 131.39 137.52 353.41 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 134.39 140.52 Td (1 Hz tick budget \(<= 1,000 ms\), Scenario A admission \(<= 30 s\), local urgent command \(<= 200 ms\)) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 484.80 137.52 101.20 11.40 re B Q
-BT /F1 6.20 Tf 0.10 0.14 0.20 rg 487.80 140.52 Td (replay.py) Tj ET
-BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 125.22 Td (5. Adding a New Guest \(G7\) Without Touching Code \(EXT-01\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 123.22 560.00 0.60 re f Q
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 26.00 111.34 Td (Any new guest payload is admitted purely from a declarative dictionary or YAML file:) Tj ET
-q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 32.84 560.00 77.00 re B Q
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 101.64 Td (import yaml) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 94.44 Td (from sdv_governor.manifest import parse_guest_manifest) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 80.04 Td (raw = yaml.safe_load\(""") Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 72.84 Td (schema_version: "sdv-guest-manifest/1.0") Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 65.64 Td (guest_id: "G7") Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 58.44 Td (name: "G7 - Compact Expendable Bathythermograph \(XBT\) Launcher") Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 51.24 Td (category: "AUXILIARY_PAYLOAD") Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 44.04 Td (safety_critical: false) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 36.84 Td (default_mode: "STANDBY") Tj ET
+q 0.10 0.21 0.36 rg 26.00 751.42 560.00 16.57 re f Q
+BT /F2 9.00 Tf 1.00 1.00 1.00 rg 34.00 756.71 Td (SDV Eight-Class Resource Governor \(sdv-resource-governor\)) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 26.00 738.92 Td (Deterministic, ontology-driven Admission \(D1\), Physical Placement & Trade-off Solver \(D2\), Live Conflict Arbitration \(D3\), Graceful Degradation \(D4\), Multi-Crew) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 26.00 730.42 Td (Regime Governance \(D5: 14/6/0\), and Physical Account & Fail-Closed Evidence Governance \(D6\), paired with a unified Operator Interface \(Single-Screen 2D Console) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 26.00 721.92 Td (& Synchronized 3D Vessel Twin\) for a 72 m Offshore Software-Defined Vessel \(SDV\).) Tj ET
+BT /F2 7.80 Tf 0.11 0.24 0.44 rg 26.00 711.92 Td (1. Architecture Diagram & Data Flow) Tj ET
+q 0.75 0.82 0.90 rg 26.00 709.92 560.00 0.60 re f Q
+q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 536.35 560.00 170.60 re B Q
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 699.05 Td (+-----------------------+    +---------------------------+    +-------------------------+) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 692.15 Td (| Declarative YAML/JSON |--->| Strict Schema & Ontology  |--->| 8-Class Budget Engine   |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 685.25 Td (| - vessel_baseline     |    | Validator \(manifest.py\)   |    | \(budgets.py: Power,     |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 678.35 Td (| - guests G1..G6 \(+G7\) |    | - 7 JSON Schemas          |    |  Cooling, Compute, Mast,|) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 671.45 Td (| - mission_envelope    |    | - Brief & Graziano errata |    |  Mass/Stab, LAN/SATCOM, |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 664.55 Td (| - priority_profiles   |    | - Provenance & freshness  |    |  Crew/Deck, Time\)       |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 657.65 Td (+-----------------------+    +---------------------------+    +------------+------------+) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 650.75 Td (                                                                           |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 643.85 Td (        +------------------------------------------------------------------+) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 636.95 Td (        v) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 630.05 Td (+---------------------------------------------------------------------------------------+) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 623.15 Td (| Deterministic Decision & Mission Clock Core \(Zero LLMs / Zero Randomness\)             |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 616.25 Td (| - D1/D2 Admission, Roof Clearance & Placement \(admission.py, placement.py, A.10 14d\)  |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 609.35 Td (| - D3 Causal Arbitration \(arbitration.py: G3 Acoustic HOLD ACK -> Turn -> Recovery\)    |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 602.45 Td (| - D4 Graceful Degradation & Hysteresis \(G1+G3+G4+G5: 106.5 -> 69.5 kW, 103.8 -> 67.5\) |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 595.55 Td (| - D5 Crew Regimes \(14/6/0\) & A' Window Planner | D6 Physical Account & 28-Mut Verifier|) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 588.65 Td (+-------------------------------------------+-------------------------------------------+) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 581.75 Td (                                            |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 574.85 Td (                                            v) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 567.95 Td (+---------------------------------------------------------------------------------------+) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 561.05 Td (| Operator Interface: Single-Screen 2D Console & 3D Vessel Twin \(server.py, ui/, viz3d/\)|) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 554.15 Td (| - Shared authoritative session \(/api/state, /api/advance, /api/perturb, /api/admit\)   |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 547.25 Td (| - Zero silent synthetic fallback in live 3D mode; Mac arm64 <-> Ventuno Q Parity      |) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 540.35 Td (+---------------------------------------------------------------------------------------+) Tj ET
+BT /F2 7.80 Tf 0.11 0.24 0.44 rg 26.00 524.85 Td (2. Deliverables, Objectives & Scope \(D1-D6 + Operator Interface\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 522.85 560.00 0.60 re f Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 508.67 47.30 11.20 re B Q
+BT /F2 6.00 Tf 1.00 1.00 1.00 rg 29.00 511.67 Td (ID) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 73.30 508.67 125.96 11.20 re B Q
+BT /F2 6.00 Tf 1.00 1.00 1.00 rg 76.30 511.67 Td (Deliverable / Capability) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 199.26 508.67 52.94 11.20 re B Q
+BT /F2 6.00 Tf 1.00 1.00 1.00 rg 202.26 511.67 Td (Brief Tier) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 252.19 508.67 333.81 11.20 re B Q
+BT /F2 6.00 Tf 1.00 1.00 1.00 rg 255.19 511.67 Td (Status & Implementation Scope) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 490.27 47.30 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 500.47 Td (D1) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 73.30 490.27 125.96 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 500.47 Td (Guest Manifest Ontology, 7 Formal) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 493.27 Td (JSON Schemas & Port Admission) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 199.26 490.27 52.94 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 500.47 Td (Mandatory) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 252.19 490.27 333.81 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 500.47 Td (Implemented: schemas/*.schema.json, G1-G6 YAML cards \(G4=990 kg per) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 493.27 Td (GRAZIANO_ROOF_AND_G4_MASS_0904\) + dynamic G7 card, YES / YES_IF / NOT_NOW / NO verdicts.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 464.67 47.30 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 482.07 Td (D2) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 73.30 464.67 125.96 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 482.07 Td (Physical Placement, Roof Clearance) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 474.87 Td (& Trade-off Solver \(Scenario A\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 199.26 464.67 52.94 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 482.07 Td (Mandatory) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 252.19 464.67 333.81 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 482.07 Td (Implemented: Exact 8-class + 14-day Mission Envelope A.10 placement solver) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 474.87 Td (\(ROOF_OUTSIDE_G4_RECOVERY_V1 conditional clearance for G5 antenna on hangar_roof\), ranked) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 467.67 Td (displacements, atomic apply_yes_if.) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 439.07 47.30 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 456.47 Td (D3) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 73.30 439.07 125.96 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 456.47 Td (Live Conflict Arbitration & Causal) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 449.27 Td (Recovery \(Scenario B: G1+G3+G4+G5\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 199.26 439.07 52.94 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 456.47 Td (Mandatory) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 252.19 439.07 333.81 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 456.47 Td (Implemented: Installed set G1+G3+G4+G5 \(9,560 kg, 9,853 kg-eq\); causal state machine \(HOLD_CMD) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 449.27 Td (-> HOLD_ACK -> TURN_INTO_WIND -> RECOVERY_APPROACH -> TOUCHDOWN <= 1200 s\) under survey_primary) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 442.07 Td (\(1095 s\) & rescue_primary \(855 s\).) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 413.47 47.30 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 430.87 Td (D4) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 73.30 413.47 125.96 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 430.87 Td (Graceful Degradation, Thermal) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 423.67 Td (Inertia & Hysteresis \(Scenario B\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 199.26 413.47 52.94 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 430.87 Td (Mandatory) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 252.19 413.47 333.81 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 430.87 Td (Implemented: At T=720 s \(100 kW generator reserve / 72 kW degraded water loop at 30 deg C\),) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 423.67 Td (steps down G5 \(45 -> 8 kW\), reducing committed power 106.5 kW -> 69.5 kW \(LINE_A_FWD=26.5 kW,) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 416.47 Td (LINE_B_AFT=80.0 -> 43.0 kW\) and committed chilled water 103.8 kW -> 67.5 kW <= 72 kW.) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 387.87 47.30 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 405.27 Td (D5) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 73.30 387.87 125.96 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 405.27 Td (Multi-Crew Regimes \(14/6/0\), A') Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 398.07 Td (Window & Fault Resilience) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 390.87 Td (\(Scenario C\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 199.26 387.87 52.94 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 405.27 Td (Mandatory /) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 398.07 Td (Desirable) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 252.19 387.87 333.81 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 405.27 Td (Implemented: Quantitative 14/6/0 crew dial \(30 s / 120 s / automated confirmation; 240 s / 600) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 398.07 Td (s / prohibited deck clearing\), A' earliest window \(T+1260 s\), G5 +20% \(54.0 kW = 52.8 kW water) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 390.87 Td (+ 1.2 kW air\) step-down, and stale-feed 30 deg C fallback.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 362.27 47.30 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 379.67 Td (D6) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 73.30 362.27 125.96 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 379.67 Td (Physical Account \(1p\), Assumption) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 372.47 Td (Register & Fail-Closed Verifier) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 199.26 362.27 52.94 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 379.67 Td (Mandatory) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 252.19 362.27 333.81 25.60 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 379.67 Td (Implemented: docs/PHYSICAL_ACCOUNT_D6.pdf \(1 page, 8 assumption families + mast_4) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 372.47 Td (counterfactual\), 28-mutation fail-closed verifier \(false_accepts=0\), and Mac arm64 <-> Ventuno) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 365.27 Td (Q aarch64 parity.) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 343.87 47.30 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 354.07 Td (UI) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 73.30 343.87 125.96 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 354.07 Td (Operator Interface \(Single-Screen) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 76.30 346.87 Td (2D Console & 3D Vessel Twin\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 199.26 343.87 52.94 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 354.07 Td (Operator) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 202.26 346.87 Td (Interface) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 252.19 343.87 333.81 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 354.07 Td (Implemented: Zero-build 2D console \(http://127.0.0.1:8765\) + Three.js 3D twin \(viz3d/\) bound to) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 255.19 346.87 Td (the same authoritative GovernorSession \(visible STALE / DESCONECTADO banner if disconnected\).) Tj ET
+BT /F2 7.80 Tf 0.11 0.24 0.44 rg 26.00 331.87 Td (3. Clean / Offline Installation & Quickstart \(<= 5 minutes\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 329.87 560.00 0.60 re f Q
+q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 225.30 560.00 101.60 re B Q
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 319.00 Td (# 1. Create clean virtual environment \(offline wheelhouse or system site-packages supported\)) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 312.10 Td (python3 -m venv .venv --system-site-packages) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 305.20 Td (.venv/bin/pip install -r requirements-macos-arm64.lock) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 298.30 Td (.venv/bin/pip install --no-build-isolation --no-deps -e .) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 284.50 Td (# 2. Run the full automated test suite \(Mac arm64 or Linux aarch64\)) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 277.60 Td (.venv/bin/pytest -v) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 263.80 Td (# 3. Generate deterministic campaign bundle & run fail-closed verifier + 28 adversarial mutations) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 256.90 Td (.venv/bin/sdv-governor campaign --run-id demo_run --junit-xml artifacts/final_run/junit.xml) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 250.00 Td (.venv/bin/sdv-governor verify-evidence artifacts/demo_run --run-mutations) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 236.20 Td (# 4. Launch the interactive single-screen 2D Operator Console \(Ctrl+C to stop\)) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 229.30 Td (.venv/bin/sdv-governor serve --host 127.0.0.1 --port 8765) Tj ET
+BT /F2 7.80 Tf 0.11 0.24 0.44 rg 26.00 213.80 Td (4. Eight-Class Resource Model \(PHY-01..PHY-10\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 211.80 560.00 0.60 re f Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 197.62 80.84 11.20 re B Q
+BT /F2 6.00 Tf 1.00 1.00 1.00 rg 29.00 200.62 Td (Class) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 106.84 197.62 401.53 11.20 re B Q
+BT /F2 6.00 Tf 1.00 1.00 1.00 rg 109.84 200.62 Td (Physical / Operational Constraint) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 508.37 197.62 77.63 11.20 re B Q
+BT /F2 6.00 Tf 1.00 1.00 1.00 rg 511.37 200.62 Td (Source Module) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 179.22 80.84 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 189.42 Td (1. Power) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 106.84 179.22 401.53 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 189.42 Td (200 kW net reserve \(LINE_A_FWD <= 150 kW, LINE_B_AFT <= 150 kW\), actual vs. committed firm reservations \(106.5 kW) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 182.22 Td (-> 69.5 kW\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 508.37 179.22 77.63 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 511.37 189.42 Td (budgets.py) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 160.82 80.84 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 171.02 Td (2. Cooling) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 106.84 160.82 401.53 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 171.02 Td (Chilled water 160 kW @ <=12 deg C -> 120 kW @ 30 deg C \(72 kW with -40% loop loss; 103.8 kW -> 67.5 kW\), 30 kW x 60) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 163.82 Td (s \(1.8 MJ\) inertia) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 508.37 160.82 77.63 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 511.37 171.02 Td (budgets.py) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 142.42 80.84 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 152.62 Td (3. Compute) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 106.84 142.42 401.53 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 152.62 Td (4 physical rack nodes \(node_1..node_4, 32c / 128 GiB / 1 acc each; 80% allocatable = 25c / 102.4 GiB per node, 3) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 145.42 Td (assignable discrete accelerators across cluster, 16 TB storage\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 508.37 142.42 77.63 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 511.37 152.62 Td (placement.py) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 124.02 80.84 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 134.22 Td (4. Mast & Roof) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 106.84 124.02 401.53 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 134.22 Td (mast_3 \(<= 60 kg, <= 0.6 m2, <= 2,000 W air\) + hangar_roof \(<= 150 kg, <= 2.0 m2, <= 2,000 W air, conditional) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 127.02 Td (ROOF_OUTSIDE_G4_RECOVERY_V1\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 508.37 124.02 77.63 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 511.37 134.22 Td (budgets.py) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 105.62 80.84 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 115.82 Td (5. Mass & Stability) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 106.84 105.62 401.53 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 115.82 Td (Global <= 10,000 kg and <= 12,000 kg-eq \(G1+G3+G4+G5 = 9,560 kg, 9,853 kg-eq, G3+G4+G5 = 9,515 kg ~= 9.52 t\); bay1) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 108.62 Td (<= 8t, bay2 <= 4t) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 508.37 105.62 77.63 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 511.37 115.82 Td (budgets.py) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 94.42 80.84 11.20 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 97.42 Td (6. Data Links) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 106.84 94.42 401.53 11.20 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 97.42 Td (10 Gbps LAN \(<= 1 Gbps/port\), SATCOM 10 Mbps port / 6 Mbps offshore / 2 Mbps degraded / 0 bps EMCON \(W4\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 508.37 94.42 77.63 11.20 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 511.37 97.42 Td (budgets.py) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 76.02 80.84 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 86.22 Td (7. Crew & Deck) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 106.84 76.02 401.53 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 86.22 Td (Regimes 14 \(9 deck avail, 30 s confirm, 240 s deck clear\), 6 \(2 deck avail, 120 s confirm, 600 s deck clear\), 0 \(0) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 79.02 Td (avail, manual evolutions prohibited\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 508.37 76.02 77.63 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 511.37 86.22 Td (scheduling.py) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 57.62 80.84 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 67.82 Td (8. Time) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 106.84 57.62 401.53 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 67.82 Td (1 Hz tick budget \(<= 1,000 ms\), Scenario A admission \(<= 30 s\), A.6 transition durations, local urgent command \(<=) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 109.84 60.62 Td (200 ms, < 1 ms measured\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 508.37 57.62 77.63 18.40 re B Q
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 511.37 67.82 Td (replay.py) Tj ET
+BT /F2 7.80 Tf 0.11 0.24 0.44 rg 26.00 45.62 Td (5. Adding a New Guest \(G7\) Without Touching Code \(EXT-01\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 43.62 560.00 0.60 re f Q
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 26.00 32.15 Td (Any new guest payload is admitted purely from a declarative dictionary or YAML file:) Tj ET
 endstream
 endobj
 7 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
 endobj
 8 0 obj
-<< /Length 8868 >>
+<< /Length 10044 >>
 stream
-q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 561.40 560.00 206.60 re B Q
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 759.80 Td (can_buffer_offline: true) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 752.60 Td (subcomponents:) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 745.40 Td (  - {subcomponent_id: "G7_DECK_LAUNCHER", part_of: "G7", name: "Stern XBT Pod", mass_kg: 180,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 738.20 Td (     footprint_m2: 1.2, wind_area_m2: 0.8, preferred_positions: ["bay1_b", "bay2"],) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 731.00 Td (     allowed_positions: ["bay1_b", "bay2", "bay1_a"], cooling_route: "CHILLED_WATER_LOOP",) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 723.80 Td (     requires_water_manifold: false, value_origin: "ASSUMED"}) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 716.60 Td (modes:) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 709.40 Td (  STANDBY:) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 702.20 Td (    {description: "Launcher indexed and heater idle", min_power_w: 200, nominal_power_w: 300,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 695.00 Td (     sustained_power_w: 300, sustained_duration_s: 3600, peak_power_w: 500, peak_duration_s: 10,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 687.80 Td (     cooling_water_w: 300, cooling_air_mast_w: 0, compute_cores: 1, compute_ram_mib: 1024,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 680.60 Td (     compute_accelerators: 0, shared_storage_gb: 20, backbone_lan_bps: 1000000, satcom_bps: 0,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 673.40 Td (     safety_critical: false, uninterruptible: false, min_done_duration_s: 0, min_cooldown_s: 0,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 666.20 Td (     forbids_emcon_silence: false, requires_deck_clear: false, requires_quiet_acoustic_state: false,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 659.00 Td (     capability_retention_ratio: 0.25, value_origin: "ASSUMED"}) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 651.80 Td (installation: {port_only: true, min_crew_required: 2, install_time_min: 30, remove_time_min: 20,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 644.60 Td (               sea_install_max_wind_kn: 0, sea_install_min_speed_kn: 0.0, sea_install_max_speed_kn: 0.0}) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 637.40 Td (vehicle_replacement: {supported_at_sea: false, min_crew_required: 0, swap_duration_min: 0,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 630.20 Td (                      min_speed_kn: 0.0, max_speed_kn: 0.0, max_wind_kn: 0, max_sea_state: 0}) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 623.00 Td (ship_state_constraints: {min_speed_kn_for_operation: 0.0, max_speed_kn_for_operation: 20.0,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 615.80 Td (  max_wind_kn_for_operation: 35, max_sea_state_for_operation: 6,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 608.60 Td (  requires_heading_into_wind_for_launch_recovery: false, forbids_deck_machinery_while_active: false,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 601.40 Td (  acoustic_hold_handshake_min_s: 0, acoustic_hold_handshake_max_s: 0, acoustic_hold_default_s: 0,) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 594.20 Td (  low_battery_threshold_pct: null, emergency_landing_deadline_s: null, max_flight_endurance_min: null}) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 587.00 Td (dependencies: {requires_guests: [], excludes_guests: [], conditional_excludes: []}) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 579.80 Td (mission_capabilities: {hydro_sampling_value: 20.0}) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 572.60 Td ("""\)) Tj ET
-BT /F3 6.10 Tf 0.14 0.18 0.26 rg 32.00 565.40 Td (manifest = parse_guest_manifest\(raw\)) Tj ET
-BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 549.60 Td (6. Explicit Limitations & Honest Operational Boundaries) Tj ET
-q 0.75 0.82 0.90 rg 26.00 547.60 560.00 0.60 re f Q
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 535.72 Td (* 1. Software Dispatch vs. Physical Ship Actuation \(< 1 ms vs. Physical Plant\): The < 1 ms \(~0.015 ms on Mac arm64, ~0.032 ms on Ventuno Q aarch64\)) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 526.92 Td (latency measured for URGENT_STOP / HOLD / SECURE reflects local Python governor state transition and command emission only \(<= 200 ms software budget\).) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 518.12 Td (Real vessel breaker opening, hydraulic winch braking, acoustic modem propagation \(10 s nominal delay modeled in D3\), and vessel heading stabilization) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 509.32 Td (\(90 s modeled in D3\) are physical plant processes governed by external PLC/PMS hardware.) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 499.02 Td (* 2. Discrete 20 s Simulation Resolution & Linearized Plant Curves: Scenario B executes at 20 s discrete ticks \(90 steps over 1800 s\) with) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 490.22 Td (piecewise-linear seawater cooling capacity \(160 kW -> 120 kW\) and a single-node lumped thermal inertia reservoir \(1.8 MJ, 600 s cooldown\) rather than a) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 481.42 Td (continuous CFD/pipe-network solver.) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 471.12 Td (* 3. Combinatorial Displacement Horizon: Port trade-off search bounds simultaneous displacements to k <= 3 installed guests \(O\(N^3\)\), which is exact for) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 462.32 Td (naval modular bays \(N <= 10\) without requiring an external MILP solver.) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 452.02 Td (* 4. Hardware Peripheral Scope: STM32H5 MCU real-time motor control is not required by the naval governor challenge; Ventuno Q \(training06, aarch64\)) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 443.22 Td (executes the full Python governor and verification suite over LAN \(ssh ardu\).) Tj ET
-BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 432.92 Td (7. What We Would Do With One More Week) Tj ET
-q 0.75 0.82 0.90 rg 26.00 430.92 560.00 0.60 re f Q
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 419.04 Td (* 1. Closed-LoopHIL Bus Integration \(Modbus TCP / NMEA 2000 / CAN\): Connect FeedReading telemetry and pending_commands directly to a) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 410.24 Td (hardware-in-the-loop PMS/winch simulator over NMEA 2000 and Modbus TCP with hardware watchdog heartbeats on the Ventuno Q STM32H5 co-processor.) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 399.94 Td (* 2. Continuous Multi-Compartment Thermal & Power Transient Model: Replace single-reservoir thermal inertia with per-bay chilled-water flow/temperature) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 391.14 Td (differential equations and generator governor droop curves during 35 kW UAV arrestor peaks.) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 380.84 Td (* 3. Rolling-Horizon Weather & Sea-State Forecast Arbitrator: Extend D3/D5 arbitration from a single 30-minute conflict window to a 72-hour rolling) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 372.04 Td (metocean forecast that pre-positions UAV recovery and battery charging before sea-state degradation.) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 361.74 Td (* 4. Cryptographic Signed Audit Ledger: Sign every evidence_manifest.json and live operator override \(URGENT_STOP, apply_yes_if\) with hardware-backed) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 352.94 Td (Ed25519 keys for maritime regulatory black-box compliance.) Tj ET
-BT /F2 8.00 Tf 0.11 0.24 0.44 rg 26.00 342.64 Td (8. Repository Structure) Tj ET
-q 0.75 0.82 0.90 rg 26.00 340.64 560.00 0.60 re f Q
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 328.76 Td (* src/sdv_governor/ -- Deterministic engine \(models.py, manifest.py, budgets.py, placement.py, admission.py, arbitration.py, degradation.py,) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 319.96 Td (scheduling.py, replay.py, evidence.py, server.py, cli.py, pdf_export.py\).) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 309.66 Td (* data/ & schemas/ -- Vessel baseline \(vessel_baseline.yaml, mission_envelope_a10.yaml\), guest manifests \(G1-G6\), priority profiles, scenarios, errata,) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 300.86 Td (and 7 JSON Schemas \(mirrored in src/sdv_governor/_bundled/\).) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 290.56 Td (* ui/ -- Single-screen 2D Operator Console \(index.html, styles.css, app.js\).) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 280.26 Td (* docs/ -- Submission documentation \(EXECUTIVE_SUMMARY.md, TECHNICAL_DOSSIER.md, OPERATOR_PLAYBOOK.md, PITCH_SLIDES.md, DEPLOYMENT_AND_BOM.md,) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 271.46 Td (KNOWN_LIMITATIONS.md + PDFs\).) Tj ET
-BT /F1 7.20 Tf 0.12 0.15 0.20 rg 36.00 261.16 Td (* tests/ & artifacts/ -- Unit, integration, and adversarial regression suites + verified release bundles \(release_s6, release_s6_patch1\).) Tj ET
+q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 500.80 560.00 267.20 re B Q
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 760.10 Td (import yaml) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 753.20 Td (from sdv_governor.manifest import parse_guest_manifest) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 739.40 Td (raw = yaml.safe_load\(""") Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 732.50 Td (schema_version: "sdv-guest-manifest/1.0") Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 725.60 Td (guest_id: "G7") Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 718.70 Td (name: "G7 - Compact Expendable Bathythermograph \(XBT\) Launcher") Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 711.80 Td (category: "AUXILIARY_PAYLOAD") Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 704.90 Td (safety_critical: false) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 698.00 Td (default_mode: "STANDBY") Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 691.10 Td (can_buffer_offline: true) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 684.20 Td (subcomponents:) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 677.30 Td (  - {subcomponent_id: "G7_DECK_LAUNCHER", part_of: "G7", name: "Stern XBT Pod", mass_kg: 180,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 670.40 Td (     footprint_m2: 1.2, wind_area_m2: 0.8, preferred_positions: ["bay1_b", "bay2"],) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 663.50 Td (     allowed_positions: ["bay1_b", "bay2", "bay1_a"], cooling_route: "CHILLED_WATER_LOOP",) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 656.60 Td (     requires_water_manifold: false, value_origin: "ASSUMED"}) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 649.70 Td (modes:) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 642.80 Td (  STANDBY:) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 635.90 Td (    {description: "Launcher indexed and heater idle", min_power_w: 200, nominal_power_w: 300,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 629.00 Td (     sustained_power_w: 300, sustained_duration_s: 3600, peak_power_w: 500, peak_duration_s: 10,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 622.10 Td (     cooling_water_w: 300, cooling_air_mast_w: 0, compute_cores: 1, compute_ram_mib: 1024,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 615.20 Td (     compute_accelerators: 0, shared_storage_gb: 20, backbone_lan_bps: 1000000, satcom_bps: 0,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 608.30 Td (     safety_critical: false, uninterruptible: false, min_done_duration_s: 0, min_cooldown_s: 0,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 601.40 Td (     forbids_emcon_silence: false, requires_deck_clear: false, requires_quiet_acoustic_state: false,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 594.50 Td (     capability_retention_ratio: 0.25, value_origin: "ASSUMED"}) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 587.60 Td (installation: {port_only: true, min_crew_required: 2, install_time_min: 30, remove_time_min: 20,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 580.70 Td (               sea_install_max_wind_kn: 0, sea_install_min_speed_kn: 0.0, sea_install_max_speed_kn: 0.0}) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 573.80 Td (vehicle_replacement: {supported_at_sea: false, min_crew_required: 0, swap_duration_min: 0,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 566.90 Td (                      min_speed_kn: 0.0, max_speed_kn: 0.0, max_wind_kn: 0, max_sea_state: 0}) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 560.00 Td (ship_state_constraints: {min_speed_kn_for_operation: 0.0, max_speed_kn_for_operation: 20.0,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 553.10 Td (  max_wind_kn_for_operation: 35, max_sea_state_for_operation: 6,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 546.20 Td (  requires_heading_into_wind_for_launch_recovery: false, forbids_deck_machinery_while_active: false,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 539.30 Td (  acoustic_hold_handshake_min_s: 0, acoustic_hold_handshake_max_s: 0, acoustic_hold_default_s: 0,) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 532.40 Td (  low_battery_threshold_pct: null, emergency_landing_deadline_s: null, max_flight_endurance_min: null}) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 525.50 Td (dependencies: {requires_guests: [], excludes_guests: [], conditional_excludes: []}) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 518.60 Td (mission_capabilities: {hydro_sampling_value: 20.0}) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 511.70 Td ("""\)) Tj ET
+BT /F3 5.90 Tf 0.14 0.18 0.26 rg 32.00 504.80 Td (manifest = parse_guest_manifest\(raw\)) Tj ET
+BT /F2 7.80 Tf 0.11 0.24 0.44 rg 26.00 489.30 Td (6. Explicit Limitations & Honest Operational Boundaries) Tj ET
+q 0.75 0.82 0.90 rg 26.00 487.30 560.00 0.60 re f Q
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 475.82 Td (* 1. Software Dispatch vs. Physical Ship Actuation \(< 1 ms vs. Physical Plant\): The < 1 ms \(~0.015 ms on Mac arm64, ~0.032 ms on Ventuno Q aarch64\) latency) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 467.32 Td (measured for URGENT_STOP / HOLD / SECURE reflects local Python governor state transition and command emission only \(<= 200 ms software budget\). Real vessel) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 458.82 Td (breaker opening, hydraulic winch braking, acoustic modem propagation \(15 s nominal delay modeled in D3\), and vessel heading stabilization \(90 s modeled in) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 450.32 Td (D3\) are physical plant processes governed by external PLC/PMS hardware.) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 440.32 Td (* 2. Discrete Simulation Resolution & Linearized Plant Curves: Scenario B executes at 20 s discrete ticks \(90 intervals / 91 ticks over 1800 s, with 1 Hz) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 431.82 Td (internal causal verification\) with piecewise-linear seawater cooling capacity \(160 kW -> 120 kW\) and a single-node lumped thermal inertia reservoir \(1.8 MJ,) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 423.32 Td (600 s cooldown\) rather than a continuous CFD/pipe-network solver.) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 413.32 Td (* 3. Live 90-Second Human Rehearsal Status \(DEFERRED_OWNER\): While the 90-second \(20x compressed\) Scenario B playback, API runner, and operator script) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 404.82 Td (\(docs/DEMO_SCRIPT_90S.md\) are fully implemented and verified by automated tests, the live human spoken rehearsal with the project owner is explicitly) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 396.32 Td (recorded as DEFERRED_OWNER.) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 386.32 Td (* 4. Hardware Peripheral Scope: STM32H5 MCU real-time motor control is not required by the naval governor challenge; Ventuno Q \(training06, aarch64\) executes) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 377.82 Td (the full Python governor and verification suite over LAN \(ssh ardu\).) Tj ET
+BT /F2 7.80 Tf 0.11 0.24 0.44 rg 26.00 367.82 Td (7. What We Would Do With One More Week) Tj ET
+q 0.75 0.82 0.90 rg 26.00 365.82 560.00 0.60 re f Q
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 354.35 Td (* 1. Closed-Loop HIL Bus Integration \(Modbus TCP / NMEA 2000 / CAN\): Connect FeedReading telemetry and pending_commands directly to a hardware-in-the-loop) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 345.85 Td (PMS/winch simulator over NMEA 2000 and Modbus TCP with hardware watchdog heartbeats on the Ventuno Q STM32H5 co-processor.) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 335.85 Td (* 2. Continuous Multi-Compartment Thermal & Power Transient Model: Replace single-reservoir thermal inertia with per-bay chilled-water flow/temperature) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 327.35 Td (differential equations and generator governor droop curves during 35 kW UAV arrestor peaks.) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 317.35 Td (* 3. Rolling-Horizon Weather & Sea-State Forecast Arbitrator: Extend D3/D5 arbitration from a single 30-minute conflict window to a 72-hour rolling metocean) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 308.85 Td (forecast that pre-positions UAV recovery and battery charging before sea-state degradation.) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 298.85 Td (* 4. Cryptographic Signed Audit Ledger: Sign every evidence_manifest.json and live operator override \(URGENT_STOP, apply_yes_if\) with hardware-backed Ed25519) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 290.35 Td (keys for maritime regulatory black-box compliance.) Tj ET
+BT /F2 7.80 Tf 0.11 0.24 0.44 rg 26.00 280.35 Td (8. Repository Structure) Tj ET
+q 0.75 0.82 0.90 rg 26.00 278.35 560.00 0.60 re f Q
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 266.87 Td (* src/sdv_governor/ -- Deterministic engine \(models.py, manifest.py, budgets.py, placement.py, admission.py, arbitration.py, degradation.py, scheduling.py,) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 258.37 Td (replay.py, evidence.py, server.py, cli.py, pdf_export.py\).) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 248.37 Td (* data/ & schemas/ -- Vessel baseline \(vessel_baseline.yaml, mission_envelope_a10.yaml\), guest manifests \(G1-G6\), priority profiles, scenarios,) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 239.87 Td (errata/clarifications, and 7 JSON Schemas \(mirrored in src/sdv_governor/_bundled/\).) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 229.87 Td (* ui/ & viz3d/ -- Single-screen 2D Operator Console \(ui/\) and synchronized Three.js 3D Vessel Twin \(viz3d/\).) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 219.87 Td (* docs/ -- Deliverables \(PHYSICAL_ACCOUNT.md / PHYSICAL_ACCOUNT_D6.md, MEMO_SCENARIO_C.md / SCENARIO_C_MEMO.md, PITCH_SLIDES.md / SLIDES_10.md,) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 211.37 Td (DEMO_SCRIPT_90S.md, DEPLOYMENT_AND_BOM.md + PDFs\).) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 201.37 Td (* tests/ & artifacts/ -- Unit, integration, and adversarial regression suites + verified release bundles \(release_s6, release_s6_patch1,) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 192.87 Td (release_alignment_graziano_v1\).) Tj ET
 endstream
 endobj
 9 0 obj
@@ -288,11 +313,11 @@ xref
 0000000197 00000 n 
 0000000272 00000 n 
 0000000340 00000 n 
-0000018398 00000 n 
-0000018544 00000 n 
-0000027464 00000 n 
+0000020222 00000 n 
+0000020368 00000 n 
+0000030465 00000 n 
 trailer
 << /Size 10 /Root 1 0 R >>
 startxref
-27610
+30611
 %%EOF

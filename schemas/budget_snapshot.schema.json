@@ -25,6 +25,21 @@
     "classes": {
       "type": "object",
       "required": ["power", "cooling", "positions", "mast", "mass_stability", "data", "compute", "time"]
-    }
+    },
+    "air_domains": { "type": "object" },
+    "air_total_actual_w": { "type": "integer", "minimum": 0 },
+    "air_total_committed_w": { "type": "integer", "minimum": 0 },
+    "all_air_domains_feasible": { "type": "boolean" },
+    "component_allocations": { "type": "object" },
+    "component_breakdown": { "type": ["object", "array"] },
+    "component_ledger": { "type": "object" },
+    "firm_reservations": { "type": ["array", "object"] },
+    "roof_clearance": { "type": "object" },
+    "roof_clearance_verification": { "type": "object" },
+    "pending_transitions": { "type": "array" },
+    "run_id": { "type": "string" },
+    "snapshot_version": { "type": "integer", "minimum": 0 },
+    "connection_state": { "type": "string" },
+    "source": { "type": "string" }
   }
 }

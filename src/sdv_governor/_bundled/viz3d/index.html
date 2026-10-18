@@ -2,200 +2,265 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" href="data:," />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SDV Digital Twin · Fincantieri 60 m · Resource Governor</title>
+  <title>SDV Resource Governor · one-screen jury console</title>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
-  <div id="boot"><div class="boot-card"><div class="spinner"></div><div id="bootMsg">Loading 3D engine (100% local air-gapped)…</div></div></div>
-  <div id="fatal" hidden><div class="fatal-card"><h3>The 3D view could not start</h3><pre id="fatalMsg"></pre><p id="fatalHelp"></p></div></div>
+  <div id="boot"><div class="boot-card"><div class="spinner"></div><div id="bootMsg">Loading ship schematic (local three.js)…</div></div></div>
+  <div id="fatal" hidden><div class="fatal-card"><h3>The 3D schematic could not start</h3><pre id="fatalMsg"></pre><p id="fatalHelp"></p></div></div>
 
   <div class="app">
     <header class="topbar">
       <div class="brand">
-        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 21h26l-3.5 5H7z"/><path d="M7 21v-5h9l4 5"/><path d="M11 16v-4h5"/><path d="M14 12V6"/><path d="M12 8h4"/>
         </svg>
-        <span><b>SDV Digital Twin</b><small>Fincantieri 60 m · D1–D6 Resource Governor</small></span>
+        <span><b>SDV Resource Governor</b><small>Fincantieri 60 m · decision engine</small></span>
       </div>
-      <div class="chips">
-        <span class="chip src" id="chipLink">● Connecting…</span>
-        <span class="chip mono" id="chipVersion">v1 · SNAP_V0001_T0000</span>
-        <span class="chip mono" id="chipClock">T+00:00</span>
-        <span class="chip opt" id="chipSea">Sea 2 · 24.0°C</span>
-        <span class="chip opt" id="chipWind">Wind 12 kn</span>
+      <span class="chip" id="chipLink">● Connecting…</span>
+      <span class="chip mono clockchip" id="chipClock">T+00:00</span>
+      <div class="envstrip" id="envStrip" title="Environment snapshot">
+        <span class="env-site">Golden Gate</span>
+        <span class="env-v" id="envSst">SST —</span>
+        <span class="env-v" id="envWind">Wind —</span>
+        <span class="env-v" id="envHs">Hs —</span>
+        <span class="env-v" id="envSs">SS —</span>
+        <span class="chip sm" id="envWin">A′ —</span>
       </div>
-      <div class="actions">
-        <div class="seg" id="segLivery"><button data-livery="naval" class="active">Naval</button><button data-livery="civil">Civil</button></div>
-        <div class="seg" id="segTime"><button data-time="day" class="active">Day</button><button data-time="golden">Golden</button><button data-time="night">Night</button></div>
-        <button class="btn" id="btnRec">● Record</button>
+      <span class="spacer"></span>
+      <div class="hgroup"><span class="hlbl">Priority</span>
+        <div class="seg" id="segProfile">
+          <button data-profile="survey_primary">Survey</button>
+          <button data-profile="rescue_primary">Rescue</button>
+          <button data-profile="custom" id="btnProfileCustom">Custom…</button>
+        </div>
       </div>
+      <div class="hgroup"><span class="hlbl">Crew</span>
+        <div class="seg" id="segCrew">
+          <button data-crew="14">14</button><button data-crew="6">6</button><button data-crew="0">0</button>
+        </div>
+        <button class="btn sm toggle on" id="btnDeck" title="Flight deck clear (Annex A.3 interlock)">Deck clear</button>
+      </div>
+      <div class="seg" id="segTime"><button data-time="day" class="active">Day</button><button data-time="night">Night</button></div>
+      <button class="btn sm" id="btnRec" title="Record the 3D schematic as WebM">● Rec</button>
     </header>
 
-    <div id="staleBanner" hidden style="background:#7f1d1d;color:#fecaca;padding:6px 16px;font-size:12px;font-weight:700;letter-spacing:0.04em;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ef4444;">
-      <span id="staleBannerText">⚠ STALE / DESCONECTADO — Authoritative Governor (:8765) unreachable. Controls disabled; showing last verified snapshot.</span>
+    <div id="staleBanner" hidden>
+      <span id="staleBannerText">⚠ STALE / DESCONECTADO — governor API unreachable. Controls disabled; showing the last verified snapshot (no local engine).</span>
       <span class="mono" id="staleBannerMeta">v0 · T+00:00</span>
     </div>
 
-    <main class="workspace">
+    <main class="main">
       <section class="stage" id="stage">
         <canvas id="gl"></canvas>
         <div id="labels"></div>
 
-        <div class="hud hud-tl">
-          <div class="glass kpi"><div class="lbl">Speed</div><div class="val mono" id="kSpeed">6.0<small>kn</small></div></div>
-          <div class="glass kpi"><div class="lbl">Heading</div><div class="val mono" id="kHdg">090<small>°</small></div></div>
-          <div class="glass kpi"><div class="lbl">Mode</div><div class="val sm" id="kMode">Quiet survey</div></div>
-          <div class="glass kpi"><div class="lbl">D3 Touchdown</div><div class="val sm mono" id="kTd">T+18:15 (1095s)</div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="lbl">Speed</div><div class="val mono" id="kSpeed">—</div></div>
+          <div class="kpi"><div class="lbl">Heading</div><div class="val mono" id="kHdg">—</div></div>
+          <div class="kpi"><div class="lbl">Seawater</div><div class="val mono" id="kSst">—</div></div>
+          <div class="kpi"><div class="lbl">Gensets</div><div class="val mono" id="kGen">—</div></div>
+          <div class="kpi wide"><div class="lbl">Vessel mode</div><div class="val sm" id="kMode">—</div></div>
         </div>
 
-        <div class="glass eventbar" id="eventbar">
-          <div class="mission-row">
-            <span class="t">SCENARIO B MILESTONES</span>
-            <div class="seg" id="segMission">
-              <button data-mission="survey" class="active">1 · T+00:00 Nominal Survey</button>
-              <button data-mission="sortie">2 · T+08:00 D3 Alert (18% UAV)</button>
-              <button data-mission="fault">3 · T+12:00 D4 Gen Loss (100 kW)</button>
-              <button data-mission="rtb">4 · T+18:15 UAV Touchdown</button>
+        <div class="stage-tr">
+          <button class="btn sm ghost" id="btnViews" aria-expanded="false">Views ▾</button>
+          <div class="menu glass" id="viewsMenu" hidden>
+            <div class="menu-t">Camera</div>
+            <div class="menu-grid" id="segCam">
+              <button data-cam="schematic" class="active">Schematic</button>
+              <button data-cam="hero">Hero</button>
+              <button data-cam="plan">Plan</button>
+              <button data-cam="deck">Mission deck</button>
+              <button data-cam="bridge">Mast</button>
+              <button data-cam="subsea">Subsea</button>
+            </div>
+            <div class="menu-t">Display</div>
+            <div class="menu-grid">
+              <button id="tXray">X-ray</button>
+              <button id="tLabels" class="on">Labels</button>
+              <button id="tEco" class="on">Eco</button>
+              <button id="tLivery">Civil livery</button>
             </div>
           </div>
-          <div class="m" id="eventMsg">Authoritative Governor Ready · T+00:00</div>
         </div>
 
-        <div class="glass dock" id="dock">
-          <div class="seg" id="segCam">
-            <button data-cam="hero" class="active">Hero</button>
-            <button data-cam="blueprint">Blueprint 1:1</button>
-            <button data-cam="subsea">Subsea (Motor &amp; AUV)</button>
-            <button data-cam="bow">Bow</button>
-            <button data-cam="bridge">Bridge</button>
-            <button data-cam="deck">Mission deck</button>
-            <button data-cam="stern">Stern</button>
-            <button data-cam="plan">Plan</button>
-          </div>
-          <span class="sep"></span>
-          <button class="btn sm" id="tXray">X-ray</button>
-          <button class="btn sm on" id="tLabels">Labels</button>
-          <button class="btn sm" id="tOrbit">Orbit</button>
-          <button class="btn sm" id="tEco">Eco</button>
+        <div class="milestones glass" id="milestones">
+          <span class="ms-t">Scenario B</span>
+          <div class="ms-track" id="msTrack"><i class="ms-fill" id="msFill"></i></div>
+          <span class="ms-sha mono" id="msSha"></span>
+        </div>
+
+        <div class="overlay glass" id="overlay" hidden>
+          <button class="ov-close" id="ovClose" title="Close">✕</button>
+          <div id="overlayBody"></div>
         </div>
       </section>
 
-      <aside class="rail">
-        <section class="card">
-          <h3>D1 · 8-Class Resource Governor <span class="chip ok" id="govState">Nominal</span></h3>
-          <div class="classes" id="classes"></div>
-          <div class="sub-pill" id="roofRuleBadge">
-            <span>ROOF_OUTSIDE_G4_RECOVERY_V1</span>
-            <span id="roofRuleState" style="color:var(--ok)">CLEAR</span>
-          </div>
+      <section class="card logpanel">
+        <h3><span>Decision log <em>decisions &amp; rationales · newest first</em></span><span class="chip sm" id="logCount">0</span></h3>
+        <div class="fcline" id="fcLine">Forecast (advisory only): —</div>
+        <ol class="log" id="log"></ol>
+      </section>
+
+      <aside class="right">
+        <section class="card gauges">
+          <h3><span>Eight gauges <em>committed / capacity · A.1–A.8</em></span><span class="chip sm" id="govState">—</span></h3>
+          <div id="gauges" class="gauge-list"></div>
         </section>
 
-        <section class="card">
-          <h3>D3/D4 · Causal Decision Log</h3>
-          <div class="sub-pill" id="d3Summary" style="margin-top:0;margin-bottom:8px;">
-            <span>Hold T+720s · ACK T+735s · Stab T+825s · TD T+1095s</span>
-          </div>
-          <div class="alerts" id="alerts"></div>
-        </section>
+        <section class="card tabs">
+          <nav class="tabbar" id="tabbar">
+            <button data-tab="jury" class="active">Jury test · A</button>
+            <button data-tab="shocks">Shocks · D4 / C</button>
+            <button data-tab="prio">Priority · D6</button>
+          </nav>
 
-        <section class="card">
-          <h3>D4 Perturb &amp; Scenario C Crew <button class="btn sm" id="btnClear">Reset</button></h3>
-          <label class="field">Scenario C · Crew Regime
-            <select id="crewRegime">
-              <option value="FULL_CREW_14">14 Crew · Full (9 avail · 30s confirm · 240s deck)</option>
-              <option value="REDUCED_CREW_6">6 Crew · Reduced (2 avail · 120s confirm · 600s deck)</option>
-              <option value="UNCREWED_0">0 Crew · Uncrewed (Auto 5s · Physical deck forbidden)</option>
-            </select>
-          </label>
-          <div class="check-row">
-            <label><input type="checkbox" id="deckClear" checked /> Flight Deck Clear (A' Interlock)</label>
-            <span class="mono" id="crewMeta" style="font-size:10.5px;color:var(--accent)">9 avail · 30s ACK</span>
-          </div>
-          <div class="grid2">
-            <button class="btn" data-inject="genLoss">⚡ D4 Gen Loss (100kW)</button>
-            <button class="btn" data-inject="coolLoss">❄ D4 Cool 30°C −40%</button>
-            <button class="btn" data-inject="overload">▲ ROB-02 G5 +20%</button>
-            <button class="btn" data-inject="tempFeed">🌡 ROB-03 Temp Fault</button>
-            <button class="btn danger" data-inject="hold">⏸ ROB-04 Hold G3</button>
-            <button class="btn danger" data-inject="stop">■ ROB-04 Stop G3</button>
-          </div>
-        </section>
+          <!-- ============================================ Jury test -->
+          <div class="tabpane" id="tab-jury">
+            <div class="tabscroll">
+              <div class="frow two">
+                <label class="field">Installed baseline
+                  <select id="admBase">
+                    <option value="LIVE">Live vessel (session)</option>
+                    <option value="G1,G2,G5" selected>G1+G2+G5 · Scenario A</option>
+                    <option value="G1,G3,G4,G5">G1+G3+G4+G5 · Scen. B</option>
+                    <option value="G1,G2,G3">G1+G2+G3</option>
+                    <option value="G1,G2">G1+G2</option>
+                    <option value="CUSTOM">Custom list…</option>
+                  </select>
+                </label>
+                <div class="field">Candidate card
+                  <div class="seg full" id="segCandMode"><button data-mode="catalog" class="active">Catalog</button><button data-mode="paste">Paste card</button></div>
+                </div>
+              </div>
+              <div class="frow" id="admBaseCustomWrap" hidden>
+                <label class="field grow">Installed guest ids (comma separated)
+                  <input type="text" id="admBaseCustom" value="G1,G2,G5" spellcheck="false" />
+                </label>
+              </div>
+              <div id="candCatalog" class="frow">
+                <label class="field grow">
+                  <select id="admCand">
+                    <option value="G4" selected>G4 · VTOL rescue drone + hangar</option>
+                    <option value="G1">G1 · Passive radio &amp; meteo mast sensor</option>
+                    <option value="G2">G2 · Ocean &amp; weather module</option>
+                    <option value="G3">G3 · Seabed inspection vehicle</option>
+                    <option value="G5">G5 · Emergency comms &amp; edge node</option>
+                    <option value="G6">G6 · Civil hydro &amp; eDNA sampler (own card)</option>
+                    <option value="G7">G7 · XBT launcher (example card → paste)</option>
+                  </select>
+                </label>
+              </div>
+              <div id="candPaste" class="frow" hidden>
+                <label class="field grow">Annex B card (YAML or JSON)
+                  <textarea id="admPaste" rows="5" spellcheck="false" placeholder="schema_version: &quot;sdv-guest-manifest/1.0&quot;&#10;guest_id: &quot;G7&quot; …"></textarea>
+                  <span class="hint" id="admPasteHint">JSON is sent as candidate_manifest; YAML as candidate_manifest_yaml.</span>
+                </label>
+              </div>
 
-        <section class="card">
-          <h3>D2 · Scenario A / A' Live Admission</h3>
-          <label class="field">Installed Baseline
-            <select id="admBase">
-              <option value="LIVE">Current Live Vessel State</option>
-              <option value="G1,G3,G4,G5">Scenario B Baseline: G1+G3+G4+G5 (9,560 kg)</option>
-              <option value="G1,G2,G4">Scenario A Port: G1+G2+G4 (4,535 kg)</option>
-              <option value="G1,G2,G3">High Mass Port: G1+G2+G3 (9,045 kg)</option>
-              <option value="G1,G2">Light Port: G1+G2 (3,545 kg)</option>
-            </select>
-          </label>
-          <label class="field">Candidate Guest Card
-            <select id="admCand">
-              <option value="G6">G6 · Civil eDNA Sampler (420 kg)</option>
-              <option value="G7">G7 · Declarative MetOcean Launcher (450 kg)</option>
-              <option value="G5">G5 · Comms &amp; Edge Container (3,025 kg)</option>
-              <option value="G4">G4 · VTOL Drone + Hangar (990 kg)</option>
-              <option value="G3">G3 · Seabed AUV &amp; LARS (5,500 kg)</option>
-              <option value="G2">G2 · Ocean &amp; Weather Lab (3,500 kg)</option>
-              <option value="G1">G1 · Mast Radio/EO-IR (45 kg)</option>
-            </select>
-          </label>
-          <div class="grid2" style="margin-bottom:6px;">
-            <label class="field" style="margin-bottom:0;">Preferred Slot
-              <select id="admSlot">
-                <option value="bay1_b">Bay 1B (Aux Deck)</option>
-                <option value="bay2">Bay 2 (10 ft)</option>
-                <option value="bay1">Bay 1 (20 ft)</option>
-                <option value="hangar">Hangar</option>
-                <option value="hangar_roof">Hangar roof</option>
-                <option value="mast_3">Mast slot 3</option>
-              </select>
-            </label>
-            <label class="field" style="margin-bottom:0;">Mass Override (kg)
-              <input type="number" id="admMass" placeholder="Default (e.g. 900)" min="10" max="25000" step="10" />
-            </label>
+              <div class="knobs">
+                <div class="knob">
+                  <div class="knob-h"><span>Seawater</span><b class="mono" id="sstVal">24 °C</b><button class="link" id="sstReset" hidden>default</button></div>
+                  <input type="range" id="admSst" min="12" max="32" step="1" value="24" />
+                  <span class="hint" id="sstNote">untouched → not sent</span>
+                </div>
+                <div class="knob">
+                  <div class="knob-h"><span>Generators online</span></div>
+                  <div class="seg full" id="segGen"><button data-gen="2" class="active">2 · 200 kW</button><button data-gen="1">1 · 100 kW</button></div>
+                </div>
+              </div>
+              <div class="frow four">
+                <label class="field">Wind kn<input type="number" id="admWind" min="0" max="80" step="1" placeholder="default" /></label>
+                <label class="field">Sea state<input type="number" id="admSea" min="0" max="9" step="1" placeholder="default" /></label>
+                <label class="field">Location
+                  <select id="admAtPort"><option value="1">At port</option><option value="0">At sea (A′)</option></select>
+                </label>
+                <label class="field">Roof clear
+                  <select id="admRoofOk"><option value="">Not verified (default)</option><option value="1">Verified</option></select>
+                </label>
+              </div>
+
+              <details class="sub" id="ovrDetails">
+                <summary>Change one number on the card (catalog only)</summary>
+                <div class="frow three">
+                  <label class="field">Mass kg<input type="number" id="ovMass" min="1" step="10" placeholder="card" /></label>
+                  <label class="field">Nominal W<input type="number" id="ovNom" min="0" step="100" placeholder="card" /></label>
+                  <label class="field">Sustained W<input type="number" id="ovSus" min="0" step="100" placeholder="card" /></label>
+                  <label class="field">Peak W<input type="number" id="ovPeak" min="0" step="100" placeholder="card" /></label>
+                  <label class="field">Cooling water W<input type="number" id="ovCool" min="0" step="100" placeholder="card" /></label>
+                  <label class="field">Position
+                    <select id="ovPos"><option value="">card</option><option value="bay1">bay1</option><option value="bay1_a">bay1_a</option><option value="bay1_b">bay1_b</option><option value="bay2">bay2</option><option value="hangar">hangar</option><option value="hangar_roof">hangar_roof</option><option value="flight_deck">flight_deck</option><option value="mast_3">mast_3</option></select>
+                  </label>
+                </div>
+              </details>
+
+              <details class="sub" id="c54Details">
+                <summary>Scenario A proof · C(5,4) 4-of-{G1..G5} (from engine)</summary>
+                <table class="c54-table" id="c54Table"><tbody><tr><td>waiting for engine…</td></tr></tbody></table>
+              </details>
+            </div>
+            <div class="tabactions">
+              <span class="hint" id="admStatus">≤ 30 s decision budget</span>
+              <button class="btn" id="admCommit">Admit &amp; commit</button>
+              <button class="btn primary" id="admRun">Evaluate</button>
+            </div>
           </div>
-          <div class="check-row">
-            <label><input type="checkbox" id="admAtPort" checked /> At Port (Uncheck = At Sea A')</label>
-            <label><input type="checkbox" id="admRoofOk" checked /> Roof EM Verified</label>
+
+          <!-- ============================================ Shocks -->
+          <div class="tabpane" id="tab-shocks" hidden>
+            <div class="tabscroll">
+              <div class="shock-grid">
+                <button class="shock" data-inject="genLoss"><b>Generator loss</b><span>−100 kW reserve (D4)</span></button>
+                <button class="shock" data-inject="coolLoss"><b>Cooling 30 °C −40 %</b><span>chilled-water derate</span></button>
+                <button class="shock" data-inject="overload"><b>G5 +20 %</b><span>overconsumption 54 kW</span></button>
+                <button class="shock" data-inject="tempFeed"><b>Lost SST feed</b><span>seawater sensor stale</span></button>
+                <button class="shock" id="btnLayered"><b>Water column layered</b><span id="layeredState">A.5 acoustic · OFF</span></button>
+                <button class="shock" id="btnQuietRadio"><b>Own radar policy</b><span id="radarState">TRANSMIT</span></button>
+                <button class="shock danger" data-inject="hold"><b>Urgent HOLD G3</b><span>≤ 200 ms</span></button>
+                <button class="shock danger" data-inject="stop"><b>Urgent STOP G3</b><span>≤ 200 ms</span></button>
+              </div>
+              <div class="crewbox" id="crewBox">Crew regime: —</div>
+              <div class="shock-out" id="shockOut">Each shock is executed by the governor; its causal sentence lands in the decision log.</div>
+            </div>
+            <div class="tabactions">
+              <span class="hint">Shocks act on the live session</span>
+              <button class="btn" id="btnClear">Reset session</button>
+            </div>
           </div>
-          <div class="grid2">
-            <button class="btn" id="admRun">Preview 3D</button>
-            <button class="btn primary" id="admCommit">Admit &amp; Commit</button>
+
+          <!-- ============================================ Priority D6 -->
+          <div class="tabpane" id="tab-prio" hidden>
+            <div class="tabscroll">
+              <p class="lead">Same code, same timeline, two different ships. Runs Scenario B under both priority files and compares the decisions side by side.</p>
+              <div class="prio-mini" id="prioMini"></div>
+              <details class="sub" id="customDetails">
+                <summary>Custom priority profile (YAML)</summary>
+                <textarea id="customProfile" rows="7" spellcheck="false" placeholder="schema_version: &quot;sdv-priority-profile/1.0&quot; …"></textarea>
+                <div class="frow end">
+                  <span class="hint grow" id="customStatus">Validated by the server (422 on error).</span>
+                  <button class="btn sm" id="btnSampleProfile">Load sample</button>
+                  <button class="btn sm primary" id="btnApplyProfile">Apply custom</button>
+                </div>
+              </details>
+            </div>
+            <div class="tabactions">
+              <span class="hint">GET /api/state?priority_profile=… (read-only)</span>
+              <button class="btn primary" id="btnRunBoth">Run both profiles</button>
+            </div>
           </div>
-          <div class="verdict" id="admOut"><b>Ready (≤ 30 s budget)</b>Pick baseline, candidate, or jury mass override (e.g. G6 = 900 kg).</div>
-          <details class="c54-details">
-            <summary>Scenario A · C(5,4) 4-of-{G1..G5} Proof (3 of 5 &gt; 10 t)</summary>
-            <table class="c54-table" id="c54Table">
-              <thead><tr><th>Combo</th><th>Mass</th><th>Stab</th><th>Verdict</th></tr></thead>
-              <tbody>
-                <tr><td>G1+G2+G3+G4</td><td>10,035 kg</td><td>10,813</td><td style="color:var(--alarm)">NO (+35kg)</td></tr>
-                <tr><td>G1+G2+G3+G5</td><td>12,070 kg</td><td>12,775</td><td style="color:var(--alarm)">NO (+2,070kg)</td></tr>
-                <tr><td>G2+G3+G4+G5</td><td>13,015 kg</td><td>13,708</td><td style="color:var(--alarm)">NO (+3,015kg)</td></tr>
-                <tr><td>G1+G2+G4+G5</td><td>7,560 kg</td><td>7,733</td><td style="color:var(--warn)">YES_IF (Roof)</td></tr>
-                <tr><td>G1+G3+G4+G5</td><td>9,560 kg</td><td>9,853</td><td style="color:var(--warn)">YES_IF (Scen B)</td></tr>
-              </tbody>
-            </table>
-          </details>
         </section>
       </aside>
     </main>
 
-    <footer class="timeline">
-      <button class="btn primary" id="btnPlay">▶ Play</button>
-      <button class="btn sm" id="btnStep">+20s</button>
+    <footer class="transport">
+      <button class="btn primary" id="btnPlay">▶ Play 90 s Scenario B</button>
+      <button class="btn" id="btnStep">+20 s</button>
       <button class="btn" id="btnReset">Reset</button>
-      <select id="profile">
-        <option value="survey_primary">SURVEY_PRIMARY (TD 1095s)</option>
-        <option value="rescue_primary">RESCUE_PRIMARY (TD 855s)</option>
-      </select>
-      <button class="btn sm" id="tDirector">Director</button>
       <input type="range" id="scrub" min="0" max="90" value="0" />
-      <span class="clock mono" id="tlLabel">00:00 / 30:00 (20×)</span>
+      <span class="clock mono" id="tlLabel">T+00:00 / 30:00 (20×)</span>
     </footer>
   </div>
 
@@ -232,7 +297,7 @@
         var i = 0;
         (function next() {
           if (i >= list.length) return done();
-          bootMsg.textContent = 'Building 3D vessel…';
+          bootMsg.textContent = 'Building ship schematic…';
           var s = document.createElement('script');
           s.src = basePrefix + list[i++];
           s.onload = next;
@@ -241,17 +306,17 @@
         })();
       }
       load([
+        basePrefix + 'vendor/three.min.js',
         'https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js',
         'https://unpkg.com/three@0.147.0/build/three.min.js',
-        'https://cdnjs.cloudflare.com/ajax/libs/three.js/r147/three.min.js',
-        basePrefix + 'vendor/three.min.js'
+        'https://cdnjs.cloudflare.com/ajax/libs/three.js/r147/three.min.js'
       ], function () {
-        seq(['js/util.js', 'js/env.js', 'js/vessel.js', 'js/data.js', 'js/app.js'], function () {
+        seq(['js/util.js', 'js/env.js', 'js/vessel.js', 'js/data.js', 'js/examples.js', 'js/fmt.js', 'js/panels.js', 'js/scene3d.js', 'js/jury.js', 'js/tabs.js', 'js/app.js'], function () {
           try { window.SDV.start(); } catch (err) { fatal(String(err && err.stack || err)); }
         });
       }, function () {
         fatal('three.js (r147) could not be loaded.',
-          'Check internet connection or save https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js as viz3d/vendor/three.min.js and reload.');
+          'viz3d/vendor/three.min.js is missing and no CDN is reachable. Restore the vendor file and reload.');
       });
     })();
   </script>

@@ -683,71 +683,71 @@
     return ls.getStatePayload();
   }
 
-  SDV.requestApi = async function (method, path, bodyObj) {
-    if (SDV.isPreviewSynthetic()) {
-      SDV.apiState.connectionState = 'PREVIEW_SYNTHETIC';
-      SDV.apiState.bridgeMode = 'PREVIEW_SYNTHETIC';
+  // Engine may not be mocked: the local engine only runs with an explicit ?preview=1 (or legacy ?mode=preview_synthetic).
+  SDV.isPreviewRequested = function () {
+    if (typeof window === 'undefined' || !window.location) return false;
+    const params = new URLSearchParams(window.location.search || '');
+    return params.get('preview') === '1' || SDV.isPreviewSynthetic();
+  };
+
+  function mergeStatePayload(data) {
+    const prev = SDV.apiState.lastPayload || {};
+    SDV.apiState.lastPayload = Object.assign({}, prev, data, {
+      scenario_B_replay: data.scenario_B_replay || prev.scenario_B_replay,
+      guest_manifests_raw: data.guest_manifests_raw || prev.guest_manifests_raw,
+      scenario_A_combinations: data.scenario_A_combinations || prev.scenario_A_combinations,
+      scenario_C_crew_regimes: data.scenario_C_crew_regimes || prev.scenario_C_crew_regimes,
+      priority_profiles_detail: data.priority_profiles_detail || prev.priority_profiles_detail,
+      executed_timeline_ticks: data.executed_timeline_ticks || prev.executed_timeline_ticks
+    });
+  }
+
+  // opts: { merge: bool (default true for state-shaped payloads), timeoutMs }
+  SDV.requestApi = async function (method, path, bodyObj, opts) {
+    opts = opts || {};
+    const merge = opts.merge !== false;
+    if (SDV.isPreviewRequested()) {
+      SDV.apiState.connectionState = 'PREVIEW';
+      SDV.apiState.bridgeMode = 'PREVIEW';
       const localData = handleLocalRequest(method, path, bodyObj);
-      SDV.apiState.lastPayload = localData;
-      return { ok: true, status: 200, data: localData, connectionState: 'PREVIEW_SYNTHETIC' };
+      if (merge && localData && (localData.live_operational_state || localData.current_budget_snapshot)) SDV.apiState.lastPayload = localData;
+      return { ok: true, status: 200, data: localData, connectionState: 'PREVIEW' };
     }
-    const bases = ['', 'http://127.0.0.1:8765'];
-    for (let i = 0; i < bases.length; i++) {
-      const base = bases[i];
-      if (base === '' && window.location.protocol === 'file:') continue;
-      try {
-        const ctl = new AbortController();
-        const timer = setTimeout(function () { ctl.abort(); }, 1500);
-        const opts = {
-          method: method,
-          signal: ctl.signal,
-          headers: bodyObj ? { 'Content-Type': 'application/json' } : {},
-          body: bodyObj ? JSON.stringify(bodyObj) : undefined
-        };
-        const res = await fetch(base + path, opts);
-        clearTimeout(timer);
-        if (res.status === 503) continue;
-        if (res.ok || res.status === 422 || res.status === 409) {
-          const data = await res.json();
-          SDV.apiState.activeBase = base;
-          SDV.apiState.connectionState = 'LIVE';
-          SDV.apiState.wasLive = true;
-          SDV.apiState.bridgeMode = res.headers.get('X-SDV-Bridge-Mode') || (base ? 'LIVE_8765' : 'LIVE_API');
-          SDV.apiState.disconnectedAtIso = null;
-          if (res.ok && data && (data.live_operational_state || data.current_budget_snapshot)) {
-            const prev = SDV.apiState.lastPayload || {};
-            SDV.apiState.lastPayload = Object.assign({}, prev, data, {
-              scenario_B_replay: data.scenario_B_replay || prev.scenario_B_replay,
-              guest_manifests_raw: data.guest_manifests_raw || prev.guest_manifests_raw,
-              scenario_A_combinations: data.scenario_A_combinations || prev.scenario_A_combinations,
-              executed_timeline_ticks: data.executed_timeline_ticks || prev.executed_timeline_ticks
-            });
-          }
-          return { ok: res.ok, status: res.status, data: SDV.apiState.lastPayload && res.ok && !data.decision ? SDV.apiState.lastPayload : data, connectionState: 'LIVE' };
-        }
-      } catch (_err) {
-        // try next candidate
+    const isFile = window.location && window.location.protocol === 'file:';
+    const base = isFile ? 'http://127.0.0.1:8765' : '';
+    const timeoutMs = opts.timeoutMs || (method === 'GET' ? 10000 : 30000);
+    const ctl = new AbortController();
+    const timer = setTimeout(function () { ctl.abort(); }, timeoutMs);
+    try {
+      const res = await fetch(base + path, {
+        method: method,
+        signal: ctl.signal,
+        headers: bodyObj ? { 'Content-Type': 'application/json' } : {},
+        body: bodyObj ? JSON.stringify(bodyObj) : undefined
+      });
+      let data = null;
+      try { data = await res.json(); } catch (_e) { data = null; }
+      clearTimeout(timer);
+      if (res.status >= 500 && res.status !== 503) throw new Error('HTTP ' + res.status);
+      if (res.status === 503) throw new Error('HTTP 503');
+      SDV.apiState.activeBase = base;
+      SDV.apiState.connectionState = 'LIVE';
+      SDV.apiState.wasLive = true;
+      SDV.apiState.bridgeMode = res.headers.get('X-SDV-Bridge-Mode') || 'LIVE_API';
+      SDV.apiState.disconnectedAtIso = null;
+      if (res.ok && merge && data && (data.live_operational_state || data.current_budget_snapshot) && !data.decision) {
+        mergeStatePayload(data);
       }
-    }
-    // ALIGN-T38: If we were connected to LIVE (:8765) or served from :8765 and backend disconnects, surface STALE banner without local fallback
-    if (SDV.apiState.wasLive || (window.location && window.location.port === '8765')) {
+      return { ok: res.ok, status: res.status, data: data, connectionState: 'LIVE' };
+    } catch (err) {
+      clearTimeout(timer);
       SDV.apiState.connectionState = 'STALE';
       SDV.apiState.bridgeMode = 'DISCONNECTED';
+      SDV.apiState.lastError = String(err && err.message || err);
       if (!SDV.apiState.disconnectedAtIso) SDV.apiState.disconnectedAtIso = new Date().toISOString();
       if (SDV.setConnectionState) SDV.setConnectionState('STALE');
-      return { ok: false, status: 503, data: SDV.apiState.lastPayload, connectionState: 'STALE' };
+      return { ok: false, status: 0, data: null, connectionState: 'STALE', error: SDV.apiState.lastError };
     }
-    // Standalone file:// or offline static preview when :8765 was never running
-    const fallbackData = handleLocalRequest(method, path, bodyObj);
-    SDV.apiState.connectionState = 'LOCAL_ENGINE';
-    SDV.apiState.bridgeMode = 'LOCAL_1TO1';
-    SDV.apiState.lastPayload = fallbackData;
-    return {
-      ok: true,
-      status: 200,
-      data: fallbackData,
-      connectionState: 'LOCAL_ENGINE'
-    };
   };
 
   // =========================================================================

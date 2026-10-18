@@ -1,6 +1,6 @@
 # SDV Resource Governor (`sdv-resource-governor`)
 
-**Run the demo (one command):** `./run_demo.sh` opens the operator console at `http://127.0.0.1:8765` (creates `.venv` and installs on first run). The same governor runs on the Arduino Ventuno Q (`http://10.0.0.130:8765`, trusted LAN only: the console is unauthenticated).
+**Run the demo (one command):** `./run_demo.sh` opens the single operator screen at `http://127.0.0.1:8765/` (ship schematic, eight gauges, decision log, jury test; legacy console at `/console/`) (creates `.venv` and installs on first run). The same governor runs on the Arduino Ventuno Q (`http://10.0.0.130:8765`, trusted LAN only: the console is unauthenticated).
 
 A deterministic resource governor for the 60-70 m reference vessel: it owns the eight Annex A budgets and decides **admission (D1), placement (D2), right of way (D3) and degradation (D4)**, treats **crew (D5: 14 / 6 / 0)** as a setting, and keeps every assumed number in the **Physical Account (D6)**. Every verdict names its binding constraint in one sentence built from the witness that bound it.
 
@@ -23,7 +23,7 @@ A deterministic resource governor for the 60-70 m reference vessel: it owns the 
 +-------------------------------------------+-------------------------------------------+
                                             v
 +---------------------------------------------------------------------------------------+
-| server.py: one authoritative session -> 2D console (ui/) and 3D twin (viz3d/)         |
+| server.py: one authoritative session -> single screen (viz3d/), console (ui/)         |
 | forecast/: advisory only, never changes a verdict                                     |
 +---------------------------------------------------------------------------------------+
 ```

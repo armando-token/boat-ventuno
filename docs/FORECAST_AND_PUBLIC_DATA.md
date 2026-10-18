@@ -7,8 +7,8 @@ This technical note documents the mathematical formulation, operational architec
 ## 1. Architectural Architecture & Non-Interference Boundary
 
 The forecasting and public environmental subsystem consists of two decoupled functional blocks designed for offline, deterministic naval governor execution:
-1. **Public Metocean Environment Replay (E1):** Offline coastal weather snapshot at Golden Gate Bar (`GG_BAR`: lat 37.788, lon -122.634) combining Open-Meteo marine models with NOAA NDBC buoy ground truth (`46237`). Injects verified sea surface temperature (SST), wave height ($H_s$), sea state (WMO Code Table 3700), and sustained wind into live replays (`envdata.py`), computing future viable operational windows (`env_windows.py`).
-2. **Predictive Consumption Advisory Observer (E2):** Recursive 1 Hz time-series forecaster with conformal uncertainty intervals and exact physical budget projections (`forecast/`). Issues early warnings to deck officers 10--45 s prior to reactive thermal/electrical shedding.
+1. **Public Metocean Environment Replay (E1):** Offline coastal weather snapshot at Golden Gate Bar (`GG_BAR`: lat 37.788, lon -122.634) combining Open-Meteo marine models with NOAA NDBC buoy ground truth (`46237`). Injects recorded sea surface temperature (SST), wave height ($H_s$), sea state (WMO Code Table 3700), and sustained wind into replays (`envdata.py`), and computes guarded, fail-closed operational windows over the 48 h outlook (`env_windows.py`); missing wind or sea state closes the window.
+2. **Predictive Consumption Advisory Observer (E2):** Recursive 1 Hz time-series forecaster with conformal uncertainty intervals and exact physical budget projections (`forecast/`). Issues advisory warnings ahead of reactive shedding (benchmark median lead 60.5 s; Golden Gate replay ~37 s).
 
 ```text
 +-----------------------+     +------------------------+     +-------------------------+
@@ -53,44 +53,49 @@ $$\hat{Y}_{t+h|t} = \left[\hat{y}_{t+h|t} + \text{declared\_w} \cdot q_h^{lo}, \
 
 ### 2.3 Three-Step Physical Budget Projection (`forecast/projector.py`)
 1. **Scalar Pre-Filter (Tick cycle):** Evaluates upper bound $\hat{y}_{hi}(h) > 1.10 \times \text{declared\_w}$ (`ASM-FCST-OVERRUN-THRESHOLD`). If unbreached, execution cost is $< 0.1\text{ ms}$.
-2. **Exact Budget Engine Bisection:** If overrun is detected, a cloned state is evaluated across the authoritative eight-class budget engine (`budgets.py`). Bisection over $h \in (0, 60]\text{ s}$ pinpoints the first infeasible horizon $h^*$ with at most 8 evaluations ($< 5.7\text{ ms}$ on Arduino Ventuno Q). Memoization skips re-evaluation if upper bound shifts $< 1\%$ (`ASM-FCST-CACHE`).
+2. **Exact Budget Engine Bisection:** If overrun is detected, a cloned state is evaluated across the authoritative eight-class budget engine (`budgets.py`). Bisection over $h \in (0, 60]\text{ s}$ on the upper 90% trajectory pinpoints the first infeasible horizon $h^*_{hi}$ with at most 8 evaluations; the point/lower crossings are found by a scalar scan against that verified level (no extra engine calls). If the point forecast never reaches it, the output says so (`point_forecast_crosses = false`).
 3. **Thermal Inertia Reservoir Depletion:** For cooling witnesses, steps the lumped reservoir model (`1.8 MJ`, $30\text{ kW} \times 60\text{ s}$ boost cap) to determine exhaustion second $t_{\text{exhaust}}$.
 
 ---
 
 ## 3. Pre-Registered Acceptance Gates & Empirical Results
 
-The subsystem is evaluated against 11 pre-registered acceptance gates across disjoint evaluation splits (`train`: seeds 1000--1239; `calib`: 2000--2079; `test`: 3000--3119; `ood`: 4000--4119; `control`: 5000--5005).
+Measured by `tools/bench_forecast.py --split both` on the **production** `ForecastObserver` (`on_sample` + `on_tick`), commit `880c0e9`, macOS arm64. Disjoint seeds: `train` 1000--1239, `calib` 2000--2079, `test` 3000--3119, `ood` 4000--4119, `control_steady_1h` 5000--5005. Full output: `docs/evidence/forecast_report_20261018.{md,json}`. Thresholds were not changed.
 
-| Gate ID | Target Requirement | Evaluation Split | Observed Metric | Status |
+| Gate ID | Requirement | Split | Measured | Status |
 |---|---|---|---|---|
-| **G-NI** | Bitwise campaign hash invariance (`NI-01..03`) | All scenarios | 0-bit hash difference | **PASS** |
-| **G-OFF** | Strict offline execution; zero socket requests | Entire suite | Air-gapped compliance | **PASS** |
-| **G-LAT** | Worst-case observer tick overhead $\le 50\text{ ms}$ | Arduino Ventuno Q | p99 = $5.7\text{ ms}$ ($< 6\text{ ms}$) | **PASS** |
-| **G-ACC-RAMP** | Ratio $\text{MAE}@30 \le 0.85$ vs constant baseline | Test (ramp/lag) | $0.78 \le 0.85$ | **PASS** |
-| **G-ACC-STEADY** | Ratio $\text{MAE}@30 \le 1.05$ vs constant baseline | Test (steady/spike)| $1.01 \le 1.05$ | **PASS** |
-| **G-COV** | Empirical coverage on 90% conformal band | Test (all horizons)| Coverage = $91.2\%$ ($[85\%, 95\%]$)| **PASS** |
-| **G-RECALL** | Breach advisory recall $\ge 0.90$ with lead $\ge 10\text{ s}$ | Test (breach cases)| Recall = $94.6\%$ | **PASS** |
-| **G-LEAD** | Warning advance time: median $\ge 20\text{ s}$, p10 $\ge 10\text{ s}$ | Test (breach cases)| Median = $38\text{ s}$, p10 = $19\text{ s}$ | **PASS** |
-| **G-FA** | False alarm rate $\le 1.0\text{ / hour}$ | Control (steady 1h)| $0.0\text{ alarms / hour}$ | **PASS** |
-| **G-OOD** | Out-of-distribution recall $\ge 0.75$, false alarms $\le 3\text{ / h}$ | OOD stress split | Recall = $81.4\%$, FA = $1.2\text{ / h}$ | **PASS** |
-| **G-ENV** | False-open operational windows $= 0$ with guard bands | 7-day backtest | $0\text{ false open windows}$ | **PASS** |
+| **G-NI** | Campaign decisions/hash unchanged with observer | pytest non-interference | 6 tests green; `ebff0e22…` unchanged | **PASS** |
+| **G-OFF** | Offline runtime, zero network | pytest `-k offline` | 2 tests green | **PASS** |
+| **G-LAT** | p99 full observer tick $\le 50$ ms | test | p99 = 0.83 ms (Mac), $\le 8$ engine evals/tick | **PASS** |
+| **G-ACC-RAMP** | ratio MAE@30 $\le 0.85$ | test | 0.785 | **PASS** |
+| **G-ACC-STEADY** | ratio MAE@30 $\le 1.05$ | test | 0.858 | **PASS** |
+| **G-COV** | 90% band coverage in [0.85, 0.95] | test | 0.908 | **PASS** |
+| **G-RECALL** | recall $\ge 0.90$ (WARN active at crossing) | test | 1.00 | **PASS** |
+| **G-LEAD** | median $\ge 20$ s, p10 $\ge 10$ s | test | median 60.5 s, p10 37.9 s | **PASS** |
+| **G-FA** | $\le 1.0$ false WARN / h | test + control 1 h | 0.173 / h (3 in 17.33 h) | **PASS** |
+| **G-OOD** | recall $\ge 0.75$ and FA $\le 3$ / h | ood | recall 0.95, **FA 9.7 / h** | **FAIL** |
+| **G-ENV** | false-open windows = 0 with guard | 7-day backtest, 169 h | 0 (guarded) vs 20 (raw) | **PASS** |
+
+**G-OOD fails** on false alarms under out-of-distribution profiles: the observer still warns (recall 0.95) but is noisy. All five gates required to publish E2 (G-NI, G-OFF, G-LAT, G-RECALL, G-FA) pass; the OOD failure is declared, not hidden.
 
 ---
 
-## 4. Operational Advisory Behavior & Demo Verification
+## 4. Golden Gate Replay (what the operator console shows)
 
-Under progressive guest overconsumption (e.g. G5 compute container ramping $+25.5\text{ W/s}$ from $45.0\text{ kW}$ towards $52.65\text{ kW}$ in Scenario B), the observer dynamically generates synthesized, non-canned advisory notifications:
+`GET /api/forecast` is a cached **REPLAY** of `scenario_B_golden_gate_recorded.yaml` with **SIMULATED** telemetry (labelled in the payload and UI), not a live feed. Actual alerts:
 
-> *"G5 Multibeam Sonar rising +26 W/s; projected to exceed 49.5 kW (110% of declared 45.0 kW) in ~38 s (90% band 31--47 s); binding: power G5 feeder 49.6/49.5 kW. Advisory only -- governor action unchanged."*
+> *"G5 Emergency Comms & Edge Compute Node rising +8 W/s; upper 90% bound reaches 49.5 kW (110% of declared 45.0 kW) in ~39 s; point forecast stays below within 60 s (90% band 39–>60 s); binding: power G5 feeder 49.5/49.5 kW. Advisory only — governor action unchanged."* (T = 260 s)
 
-At $T=297\text{ s}$, when true load reaches the physical breaker limit, the reactive governor fires `GUEST_OVERCONSUMPTION` identically to the unobserved baseline. The forecaster provides the deck officer with a 38-second advance advisory runway without altering vessel safety actions.
+The reactive `GUEST_OVERCONSUMPTION` fires at T = 297 s exactly as without the observer, so the real advance notice is **~37 s**, driven by the upper band (the point forecast alone would not have warned). A second WARN at T = 1540 s with a flat slope is a likely false alarm and is reported as such.
+
+Guarded windows from the base state show **no G4 window in the 48 h outlook**: `VEHICLE_REPLACEMENT_AT_SEA` is closed by weather (guarded sea state 4 > limit 3 every hour); `LAUNCH_RECOVERY` is closed in all 49 hours by operational blockers (G3 acoustic survey quiet, heading not into wind), plus wind > 25 kn in 18 hours. The API/UI print these reasons instead of a fabricated window.
 
 ---
 
 ## 5. Explicit Limitations & Mandatory Honest Disclosures
 
 1. **Recorded Public Data Snapshot & Offline Runtime:** Recorded public data snapshot (UTC 2026-10); runtime is offline with zero live network calls.
-2. **Coastal Model Resolution & Empirical Guard Bands:** Open-Meteo is a coastal model product at ~8 km resolution; validated against NDBC 46237/46026 with guard bands (+5 kn wind, +0.5 m $H_s$, +1.0 deg C SST).
-3. **Synthetic Telemetry & Advisory Non-Interference:** Consumption telemetry is synthetic (seeded); the forecaster is advisory and never changes the governor's decision.
+2. **Coastal Model Resolution & Empirical Guard Bands:** Open-Meteo is a coastal model product at ~8 km resolution; validated against NDBC 46237/46026/FTPC1 over 7 days (169 hourly pairs); guard bands are the derived 90% error quantiles: +7.34 kn wind, +0.24 m $H_s$, +0.51 deg C SST (`guard_bands.json`, status DERIVED). Without the guard the backtest gives 20 false-open hours; with it, 0.
+3. **Synthetic Telemetry & Advisory Non-Interference:** Consumption telemetry is synthetic (seeded); `/api/forecast` is a labelled replay. The forecaster is advisory and never changes the governor's decision.
 4. **Thermal Baseline Adherence:** At Golden Gate SST (~16 deg C), cooling is not the binding constraint; 14-day admission is still judged at 30 deg C design worst-case.
+5. **Known weakness:** G-OOD fails (9.7 false WARN / h on out-of-distribution profiles); G-LAT is measured on Mac in this report and re-measured on the Ventuno Q at deploy.

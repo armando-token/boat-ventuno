@@ -159,8 +159,8 @@ manifest = parse_guest_manifest(raw)
 Integrates offline recorded coastal metocean series at Golden Gate Bar (`GG_BAR`: lat 37.788, lon -122.634) with an advisory 1 Hz damped Holt-Winters guest power forecaster, split-conformal confidence bands, and exact physical budget projection.
 
 ### 8.1 What It Does & Operational Workflow
-- **Public Metocean Replay & Advisory Outlook:** Injects verified SST, wave height (Hs), sea state (WMO 3700), and sustained wind into live replays. Automatically computes future feasible operational windows (e.g. G4 recovery or G6 at-sea replacement) up to 48 hours ahead.
-- **Predictive Advisory Forecaster (E2):** Recursively estimates normalized power level and damped trend (phi = 0.90) at 1 Hz, projecting conformal bounds across h in {10, 20, 30, 45, 60} s. When projected upper bounds exceed 110% of declared load (`ASM-FCST-OVERRUN-THRESHOLD`), a bisection search over the 8-class budget engine identifies the binding bottleneck (<= 8 evaluations, < 6 ms overhead) and issues advisory alerts 10-45 s prior to reactive shedding.
+- **Public Metocean Replay & Advisory Outlook:** Injects a recorded (offline) snapshot of SST, wave height (Hs), sea state (WMO 3700) and wind into replays, and computes guarded, fail-closed operational windows over a 48 h outlook; when none exists it states why (weather or operational blockers).
+- **Predictive Advisory Forecaster (E2):** Recursively estimates normalized power level and damped trend (phi = 0.98) at 1 Hz, projecting conformal bounds across h in {10, 20, 30, 45, 60} s. When projected upper bounds exceed 110% of declared load (`ASM-FCST-OVERRUN-THRESHOLD`), a bisection search over the 8-class budget engine identifies the binding bottleneck (<= 8 evaluations; p99 full tick 0.83 ms on Mac) and issues advisory alerts before reactive shedding (benchmark median lead 60.5 s; Golden Gate replay ~37 s). `/api/forecast` is a labelled REPLAY with SIMULATED telemetry.
 - **Strict Non-Interference:** The forecaster runs outside the authoritative decision core (`observer=None` by default) and never modifies governor verdicts, priority shedding, or semantic hashes (`FC-INT-01..03`).
 
 ### 8.2 CLI & Quickstart
@@ -169,25 +169,29 @@ Integrates offline recorded coastal metocean series at Golden Gate Bar (`GG_BAR`
 .venv/bin/sdv-governor public-env-suite
 
 # Benchmark damped Holt forecaster against pre-registered acceptance gates
-.venv/bin/sdv-governor forecast-bench --split test
+.venv/bin/python tools/bench_forecast.py --split both   # or: sdv-governor forecast-bench
 ```
 
 ### 8.3 Pre-Registered Acceptance Gates & Validation Results
 
-| Gate | Target Metric & Split | Status | Operational Significance |
+Measured on the production observer (`docs/evidence/forecast_report_20261018.md`); thresholds unchanged.
+
+| Gate | Requirement | Measured | Status |
 |---|---|---|---|
-| **G-NI** | Bitwise semantic hash parity across full campaign (`NI-01..03`) | **PASS** | Proves forecaster cannot perturb authoritative decisions. |
-| **G-OFF** | Offline runtime execution; zero network requests (`ENV-INT-05`, `FC-INT-06`) | **PASS** | Safe deterministic onboard execution on Ventuno Q. |
-| **G-LAT** | Worst-case observer tick overhead <= 50 ms on Arduino (`PERF-02`) | **PASS** | Evaluated in < 6 ms, well inside 1,000 ms real-time cycle. |
-| **G-ACC-RAMP** | Ratio MAE@30 <= 0.85 vs constant baseline on ramp/lag | **PASS** | Anticipates trending overconsumption accurately. |
-| **G-COV** | Empirical coverage on 90% conformal band: [0.85, 0.95] | **PASS** | Well-calibrated risk envelopes for deck officers (~0.91). |
-| **G-RECALL** | Advisory warning recall >= 0.90 with lead time >= 10 s | **PASS** | Reliable early detection of impending breaches (> 0.92). |
-| **G-FA** | False alarm rate <= 1.0 / hour on steady/spike profiles | **PASS** | Zero nuisance alerts during normal operations (0.0 / h). |
-| **G-ENV** | False open operational windows = 0 with guard bands | **PASS** | Prevents premature launch into out-of-spec seas (0 false opens). |
+| **G-NI** | Campaign hash/decisions unchanged with observer | 6 tests; `ebff0e22…` unchanged | **PASS** |
+| **G-OFF** | Offline runtime, zero network | 2 tests | **PASS** |
+| **G-LAT** | p99 observer tick <= 50 ms | 0.83 ms (Mac); see deploy log for Ventuno Q | **PASS** |
+| **G-ACC-RAMP / STEADY** | ratio MAE@30 <= 0.85 / <= 1.05 | 0.785 / 0.858 | **PASS** |
+| **G-COV** | 90% band coverage in [0.85, 0.95] | 0.908 | **PASS** |
+| **G-RECALL / G-LEAD** | recall >= 0.90; lead median >= 20 s, p10 >= 10 s | 1.00; 60.5 s / 37.9 s | **PASS** |
+| **G-FA** | <= 1.0 false WARN / h | 0.173 / h | **PASS** |
+| **G-OOD** | OOD recall >= 0.75 and FA <= 3 / h | recall 0.95, FA 9.7 / h | **FAIL (declared)** |
+| **G-ENV** | 0 false-open windows with guard (7-day backtest) | 0 guarded vs 20 raw | **PASS** |
 
 ### 8.4 Honest Operational Disclosures & Verification Boundaries
 - "Recorded public data snapshot (UTC 2026-10); runtime is offline."
-- "Open-Meteo is a coastal model product at ~8 km; validated against NDBC 46237/46026 with guard bands."
+- "Open-Meteo is a coastal model product at ~8 km; validated against NDBC 46237/46026/FTPC1; derived guard bands +7.3 kn wind, +0.24 m Hs, +0.51 °C SST."
+- "The forecaster is noisy out of distribution (G-OOD FAIL, 9.7 false WARN / h); it is advisory only."
 - "Consumption telemetry is synthetic (seeded); the forecaster is advisory and never changes the governor's decision."
 - "At Golden Gate SST (~16 °C), cooling is not the binding constraint; 14-day admission is still judged at 30 °C."
 

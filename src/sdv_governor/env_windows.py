@@ -292,6 +292,12 @@ def describe_no_window(timeline: List[Dict[str, Any]], *, min_duration_s: int) -
         parts.append(f"wind {min(wind):.1f}–{max(wind):.1f} kn + {gb.wind_kn:.1f} kn guard vs limit {lim.get('max_wind_kn')} kn")
     if n_unavail:
         parts.append(f"{n_unavail} step(s) without data (fail-closed)")
+    # Reasons present in every closed step are the binding blockers (often operational, not weather).
+    closed = [r for r in timeline if not r.get("permitted")]
+    if closed:
+        common = [x for x in (closed[0].get("reasons") or []) if all(x in (r.get("reasons") or []) for r in closed[1:])]
+        if common:
+            parts.append(f"blocking in all {len(closed)} closed step(s): " + ", ".join(common))
     parts.append(f"{n_open} isolated open step(s) shorter than {min_duration_s // 60} min")
     return {
         "start_s": None,

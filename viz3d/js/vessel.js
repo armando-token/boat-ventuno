@@ -1487,7 +1487,9 @@
     const ghost = new THREE.Mesh(rboxGeo(1, 1, 1, 0.06, 2), M.ghost); ghost.visible = false; root.add(ghost);
     const SLOTS = {
       bay1: [-24.8, 4.18, 0, 6.2, 2.7, 2.6], bay2: [-18.2, 4.18, 0, 3.1, 2.7, 2.6], hangar: [-9.8, 4.75, 0, 4.6, 3.0, 3.2],
-      hangar_roof: [0.9, 7.6, 0, 3.2, 1.8, 3.2], mast_3: [5.85, 17.4, 0, 1.8, 1.8, 1.8]
+      hangar_roof: [0.9, 7.6, 0, 3.2, 1.8, 3.2], mast_3: [5.85, 17.4, 0, 1.8, 1.8, 1.8],
+      bay1_a: [-26.35, 4.18, 0, 3.1, 2.7, 2.6], bay1_b: [-23.25, 4.18, 0, 3.1, 2.7, 2.6],
+      flight_deck: [0.9, 7.6, 0, 5.0, 1.2, 5.0], stern_ramp: [-29.0, 3.2, 0, 2.4, 1.4, 4.0]
     };
 
     const anchors = {
@@ -1502,7 +1504,11 @@
       gun: [18.2, bowY + 2.5, 0],
       dg2: [-6.5, 0.2, 2.15],
       rack: [-9.6, 6.4, 0],
-      pods: [-23.8, -2.8, 1.65]
+      pods: [-23.8, -2.8, 1.65],
+      sternRamp: [-30.0, 3.2, 0],
+      flightDeck: [0.9, 7.6, 2.6],
+      hangar: [-9.8, 6.6, 0],
+      mast12: [7.2, 15.6, 0]
     };
 
     // ================================================================== Public API
@@ -1532,7 +1538,7 @@
       if (!slot || !SLOTS[slot]) { ghost.visible = false; return; }
       const s = SLOTS[slot];
       ghost.position.set(s[0], s[1], s[2]); ghost.scale.set(s[3], s[4], s[5]);
-      M.ghost.color.set(verdict === 'YES' ? 0x22c55e : verdict === 'YES_IF' ? 0xf59e0b : 0xef4444);
+      M.ghost.color.set(verdict === 'YES' ? 0x22c55e : verdict === 'YES_IF' ? 0xf59e0b : verdict === 'NOT_NOW' ? 0x38bdf8 : verdict === 'PREVIEW' ? 0x22d3ee : 0xef4444);
       ghost.visible = true;
     };
 

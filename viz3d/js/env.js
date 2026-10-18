@@ -240,7 +240,7 @@
     '  col += uSunColor * spec * (1.0 - 0.6 * uNight) * (0.25 + 0.75 * F) * 5.5;',
     '',
     '  // Wave whitecaps + 60m hull contact foam ring + bow wave + Kelvin V-wake arms',
-    '  vec2 s = vWorld.xz; float az = abs(s.z);',
+    '  vec2 s = vWorld.xz; float az = abs(s.y);',
     '  float hw = hullHalf(s.x);',
     '  float inHull = step(-30.0, s.x) * step(s.x, 29.5);',
     '  float wlRing = inHull * smoothstep(hw - 0.40, hw + 0.12, az) * (1.0 - smoothstep(hw + 0.12, hw + 1.95, az));',

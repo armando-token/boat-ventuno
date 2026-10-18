@@ -1,42 +1,41 @@
 # SDV 3D Digital Twin & IEC 62288 Maritime Bridge Console (`viz3d/`)
 
-Gemelo digital 3D en tiempo real a **escala 1:1 (`LOA = 60.0 m`, `Manga = 11.0 m`, `Calado = 3.2 m`)** del **Software Defined Vessel** para el **Fincantieri Maritime Dual-Use Hackathon (San Francisco, 16–18 Oct 2026)**, acoplado en vivo al motor determinista `sdv-resource-governor` sin modificar ni una sola línea del backend.
+Real-time **1:1 scale (`LOA = 60.0 m`, `Beam = 11.0 m`, `Draft = 3.2 m`)** 3D digital twin of the **Software-Defined Vessel** for the **Fincantieri Maritime Dual-Use Hackathon (San Francisco, Oct 16–18, 2026)**, coupled live to the deterministic `sdv-resource-governor` engine without modifying a single line of backend solver logic.
 
 ---
 
-## 1. Arranque en 1 Comando (MacBook Pro M1 Pro — Modo Eco-Battery 60 FPS)
+## 1. One-Command Launch (Eco-Battery 60 FPS Mode)
 
-Desde la raíz del proyecto (`/Users/armandosilva/DATA/Hack-Ardui/sdv-resource-governor`), ejecuta en tu terminal:
+From the repository root, run:
 
 ```bash
 PYTHONPATH=src .venv/bin/python viz3d/serve_viz3d.py --port 5173
 ```
 
-Luego abre en **Google Chrome**:
-👉 **`http://127.0.0.1:5173`**
+Or launch the unified operator server directly via `./run_demo.sh` (`http://127.0.0.1:8765/`).
 
-> **Nota sobre la conexión con el Backend (`:8765`):**
-> - Si ya tienes corriendo `PYTHONPATH=src .venv/bin/python -m sdv_governor.cli serve-ui --port 8765`, `serve_viz3d.py` hace **proxy transparente** de todas las llamadas `/api/*` a `:8765` (`LIVE_PROXY_8765`).
-> - Si `:8765` no está corriendo, `serve_viz3d.py` invoca **directamente en memoria** `dispatch_api_request()` del motor Python (`LIVE_DIRECT_ENGINE`), garantizando que cada tick, admisión D1, arbitraje D3 y degradación D4 provienen **100% del solver real**.
+> **Backend Connection Note (`:8765`):**
+> - When `PYTHONPATH=src .venv/bin/python -m sdv_governor.cli serve-ui --port 8765` is running, `serve_viz3d.py` acts as a **strict transparent proxy** forwarding all `/api/*` requests to `:8765` (`LIVE_PROXY_8765`).
+> - Every tick, D1 admission, D3 arbitration, and D4 degradation verdict comes **100% from the authoritative Python solver**.
 
 ---
 
-## 2. Qué Incluye el Gemelo Digital 3D (`viz3d/`)
+## 2. Key Features of the 3D Digital Twin (`viz3d/`)
 
-1. **Geometría Naval Lofted 1:1 Fiel al Plano de Fincantieri (Cero "Cajas"):**
-   - Casco construido mediante 25 estaciones transversales con **proa de bulbo hidrodinámica**, túnel de `bow thruster`, codillo, obra viva en rojo antiincrustante, línea de flotación y obra muerta en **Gris Naval Fincantieri con franja diagonal Dual-Use** (conmutable en vivo a **Blanco/Azul Civil Survey**).
-   - **2× Pods Azimutales en popa (`PROPULSION 2x POD`)** con hélices de bronce animadas + rampa de popa articulada (`POS_stern_ramp`) + cubierta de vuelo de `12 × 8 m` (`POS_flight_deck`) con marcas normativas **CAP 437**.
-   - **Nicho central con RHIB en pescantes**, grúa hidráulica articulada de cubierta, puente de mando 360° en 2 niveles (`BRIDGE DECK`) con luces de navegación **COLREG Anexo I** y mástil integrado (`POS_mast_1` radar X-band, `POS_mast_2` radomo SATCOM, `POS_mast_3` slot libre guest $\le 60\text{ kg}$).
-2. **Océano Físico JONSWAP + Estela Kelvin ($19.47^\circ$) + Bahía de San Francisco:**
-   - Superficie oceánica animada por espectro direccional **JONSWAP/Gerstner de 6 cascadas**, espuma por determinante Jacobiano en las crestas, estela Kelvin detrás del espejo y lavado de los pods.
-   - **8 sondas hidrostáticas 6DOF** que calculan arfada (*heave*), cabeceo (*pitch*), balance (*roll*) y la inmersión física real ($\text{TPC} = 4.94\text{ t/cm} \rightarrow 1.93\text{ cm}$ para $9,515\text{ kg}$, con botón `Hydro ×20` rotulado como `VISUAL ONLY`).
-   - Silueta 3D a escala del **puente Golden Gate** (*International Orange*) y Marin Headlands al horizonte.
-3. **Modo Rayos X (`🔍 Rayos X`) y Actores G1–G6:**
-   - **Energía (`Power`)**: `DG1 (450 kW)`, `DG2 (450 kW)` (cambia a rojo cuando cae en el minuto 12 a `100 kW`), `HARBOUR (150 kW)` y los conductos `LINE_A_FWD` y `LINE_B_AFT`.
-   - **Refrigeración (`Cooling`)**: Colector de agua helada conforme a **ISO 14726** y enfriamiento por aire en mástil ($\le 2\text{ kW}$).
-   - **Cómputo (`Compute Rack`)**: Los 4 nodos (`node_1..node_4`) con uso de cores y aceleradores.
-   - **Actores animados**: `G3` (Cuna 20ft en `Bay 1` + AUV submarino con cono sonar y anillos acústicos que pasan de cian en `SURVEY_QUIET` a ámbar en `HOLD_ACOUSTIC`), `G4` (Dron VTOL SAR de 4 rotores patrullando, descendiendo con alarma $<20\%$ y aterrizando en cubierta antes de `T+1200s`), `G5` (Contenedor 10ft en `Bay 2` + antena en `mast_3` o `hangar_roof` con haz SATCOM que se atenúa de `45 kW` a `8 kW`), y previsualización **Ghost 3D** para la admisión en vivo del **Escenario A (D1)**.
-4. **Consola de Puente Marítimo Normalizada:**
-   - **IEC 62288:2021**: Conmutador de paletas **Dusk / Day / Night** (`◐ IEC Dusk`).
-   - **IEC 62923 / IMO MSC.302(87) (BAM)**: Lista central de alertas con prioridades `▲ ALARM`, `◆ WARNING`, `● CAUTION` y botón de reconocimiento `ACK ALL`.
-   - **Grabador de Vídeo Integrado (`⏺ Rec Video`)**: Exporta directamente el canvas 3D en `.webm`/`.mp4` a 30/60 FPS con consumo mínimo de batería.
+1. **1:1 Lofted Naval Geometry Faithful to the Fincantieri Blueprint (Zero "Boxes"):**
+   - Hull lofted across 25 transverse stations with a **hydrodynamic bulbous bow**, `bow thruster` tunnel, chine, anti-fouling red lower hull, waterline boot top, and upper hull in **Fincantieri Naval Grey with Dual-Use diagonal stripe** (live-switchable to **White/Blue Civil Survey livery**).
+   - **2x Aft Azimuth Pods (`PROPULSION 2x POD`)** with animated bronze propellers + articulated stern ramp (`POS_stern_ramp`) + `12 x 8 m` flight deck (`POS_flight_deck`) with standard **CAP 437** markings.
+   - **Midships RHIB boat recess on davits**, articulated hydraulic deck crane, 2-tier 360-degree bridge (`BRIDGE DECK`) with **COLREG Annex I** navigation lights, and integrated mast (`POS_mast_1` X-band radar, `POS_mast_2` SATCOM radome, `POS_mast_3` free guest slot `<= 60 kg`).
+2. **Physical JONSWAP Ocean + Kelvin Wake (`19.47 deg`) + San Francisco Bay:**
+   - Ocean surface driven by a **6-cascade directional JONSWAP/Gerstner spectrum**, Jacobian-determinant crest foam, Kelvin wake astern of the transom, and pod prop-wash.
+   - **8 hydrostatic 6DOF probes** computing heave, pitch, roll, and physical sinkage (`TPC = 4.94 t/cm -> 1.93 cm` for `9,515 kg`, with a `Hydro x20` toggle labeled `VISUAL ONLY`).
+   - Scale 3D silhouette of the **Golden Gate Bridge** (*International Orange*) and Marin Headlands on the horizon.
+3. **X-Ray Mode (`X-ray`) and G1–G6 Guest Actors:**
+   - **Power**: `DG1 (450 kW)`, `DG2 (450 kW)` (turns red when tripping at minute 12 to `100 kW` net reserve), `HARBOUR (150 kW)`, and feeders `LINE_A_FWD` and `LINE_B_AFT`.
+   - **Cooling**: Chilled-water manifold per **ISO 14726** and mast/roof air cooling (`<= 2 kW` per domain).
+   - **Compute (`Compute Rack`)**: All 4 nodes (`node_1..node_4`) showing core and accelerator utilization.
+   - **Animated Actors**: `G3` (20 ft cradle in `Bay 1` + subsea AUV with sonar cone and acoustic rings shifting from cyan in `SURVEY_QUIET` to amber in `HOLD_ACOUSTIC`), `G4` (4-rotor VTOL SAR drone patrolling, descending on `< 20%` battery alert, and touching down on the flight deck before `T+1200s`), `G5` (10 ft container in `Bay 2` + antenna on `mast_3` or `hangar_roof` with SATCOM beam stepping down from `45 kW` to `8 kW`), and **3D Ghost** placement preview for live **Scenario A (D1)** admission.
+4. **Standardized Maritime Bridge Console:**
+   - **IEC 62288:2021**: **Day / Night** palette switcher.
+   - **IEC 62923 / IMO MSC.302(87) (BAM)**: Alert management and decision log bound directly to solver witnesses.
+   - **Integrated Video Recorder (`Rec`)**: Exports the 3D canvas directly to `.webm` at 30/60 FPS with minimal battery draw.

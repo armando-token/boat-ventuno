@@ -155,7 +155,7 @@ BT /F1 8.20 Tf 0.10 0.14 0.20 rg 119.10 142.10 Td (Every assumed number traceabl
 BT /F1 8.20 Tf 0.10 0.14 0.20 rg 119.10 132.83 Td (uses it.) Tj ET
 q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 357.78 120.56 228.22 31.81 re B Q
 BT /F1 8.20 Tf 0.10 0.14 0.20 rg 360.78 142.10 Td (docs/PHYSICAL_ACCOUNT.pdf, ASSUMPTIONS.yaml,) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 360.78 132.83 Td (evidence verifier \(28 mutations, 0 false) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 360.78 132.83 Td (evidence verifier \(37 mutations, 0 false) Tj ET
 BT /F1 8.20 Tf 0.10 0.14 0.20 rg 360.78 123.56 Td (accepts\).) Tj ET
 BT /F2 9.50 Tf 0.11 0.24 0.44 rg 26.00 106.79 Td (3. Quickstart \(offline, < 5 minutes\)) Tj ET
 q 0.75 0.82 0.90 rg 26.00 104.79 560.00 0.60 re f Q

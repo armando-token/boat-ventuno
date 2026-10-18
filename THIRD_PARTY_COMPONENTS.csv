@@ -12,7 +12,7 @@ iniconfig,https://github.com/pytest-dev/iniconfig,MIT,2.3.1,macOS arm64 & Linux 
 packaging,https://github.com/pypa/packaging,Apache-2.0 OR BSD-2-Clause,26.3,macOS arm64 & Linux aarch64,Transitive dependency of pytest for version/specifier handling,no
 pluggy,https://github.com/pytest-dev/pluggy,MIT,1.7.0,macOS arm64 & Linux aarch64,Transitive dependency of pytest for plugin management,no
 Pygments,https://github.com/pygments/pygments,BSD-2-Clause,2.21.0,macOS arm64 & Linux aarch64,Transitive dependency of pytest for terminal output formatting,no
-three.js,https://github.com/mrdoob/three.js,MIT,0.160.0 (viz3d),Browser / macOS arm64,"WebGL 3D rendering library used by the optional synchronized 3D Vessel Twin (viz3d/) bound to /api/state",yes (in viz3d bundle)
+three.js,https://github.com/mrdoob/three.js,MIT,0.147.0 (viz3d/vendor/three.min.js sha256 f34446bf…),Browser,"WebGL rendering of the ship schematic in the single operator screen (viz3d/), bound to /api/state; vendored so the demo runs offline",yes (viz3d/vendor)
 vite,https://github.com/vitejs/vite,MIT,5.x (dev-only),macOS arm64 (dev-only),"Frontend development bundler used offline to build viz3d/dist; NOT required at runtime by serve_viz3d.py or sdv-governor",no
 Blender,https://www.blender.org/,GPL-3.0-or-later,4.x (external offline tool),macOS arm64 (offline asset authoring),"External offline 3D modeling tool used to export static GLB vessel/payload meshes in viz3d; NOT linked or invoked at runtime",no
 Arduino_RouterBridge,https://github.com/arduino-libraries/Arduino_RouterBridge,MPL-2.0,0.4.3 (board system),Linux aarch64 / Zephyr MCU,"Historical/system reference on board only; NOT imported or required by sdv-resource-governor deterministic engine",no

@@ -924,7 +924,7 @@ def main() -> int:
         if proc.returncode == 0:
             git_commit = proc.stdout.strip()
             dirty = subprocess.run(
-                ["git", "status", "--porcelain", "--untracked-files=no"], cwd=str(REPO_ROOT),
+                ["git", "status", "--porcelain", "--untracked-files=no", "--", ".", ":(exclude)docs/evidence"], cwd=str(REPO_ROOT),
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False,
             ).stdout.strip()
             if dirty:

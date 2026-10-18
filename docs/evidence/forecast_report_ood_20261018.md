@@ -1,7 +1,7 @@
 # Benchmark Report: Predictive Consumption Observer (E2)
-**Date:** 2026-10-18T04:12:04.170219+00:00
+**Date:** 2026-10-18T05:22:28.083559+00:00
 **Host / Device:** Mac
-**Code Revision:** `c6c1052fee860961f902c967f8210dc2ac1447cb`
+**Code Revision:** `7c5b31ae4276c4095674e8976fd79805c926f0fe-dirty`
 **Evaluated Splits:** ood
 
 ---
@@ -10,13 +10,11 @@
 
 | Gate ID | Description | Split | Threshold | Measured Value | Result |
 |---|---|---|---|---|---|
-| `G-OOD` | Robustness on out-of-distribution episodes (2x faster, 3x noise) | `ood` | `recall >= 0.75 and false_alarms_per_h <= 3.0` | recall=0.9500, FA=9.706/h | ❌ **FAIL** |
-| `G-LAT` | Observer execution latency p99 per tick | `ood` | `p99_on_tick_ms <= 50.0 ms` | 0.933 ms (full observer tick, max evals/tick 8) | **PASS** |
-| `G-NI` | Non-interference NI-01..03 (campaign hash, payload, state) | `all` | `selected tests green` | 6 passed in 1.44s | **PASS** |
-| `G-OFF` | Offline runtime ENV-INT-05 + FC-INT-06 (sockets blocked) | `all` | `selected tests green` | 2 passed, 11 deselected in 0.59s | **PASS** |
+| `G-OOD` | Robustness on out-of-distribution episodes (2x faster, 3x noise) | `ood` | `recall >= 0.75 and false_alarms_per_h <= 3.0` | recall=0.9000, FA=1.500/h | **PASS** |
+| `G-LAT` | Observer execution latency p99 per tick | `ood` | `p99_on_tick_ms <= 50.0 ms` | 1.141 ms (full observer tick, max evals/tick 16) | **PASS** |
 | `G-ENV` | Guarded false-open windows in 7-day backtest | `backtest` | `false_open = 0 with guard (DERIVED)` | guard DERIVED, backtest PASS, false_open_guarded={'AT_SEA_INSTALL': 0, 'G3_LAUNCH_RECOVERY': 0, 'G4_LAUNCH_RECOVERY': 0, 'VEHICLE_REPLACEMENT_AT_SEA': 0} | **PASS** |
 
-**Overall Verdict:** **SOME GATES FAILED (See baseline check)**
+**Overall Verdict:** **ALL GATES PASSED**
 
 ---
 
@@ -41,10 +39,10 @@
 
 ### Advisory & Alarm Metrics
 
-- **Alarm Recall (Anticipation $\ge 10$s):** `95.00%` (52 breach episodes)
-- **Lead Time:** Median = `47.0 s`, 10th percentile = `22.0 s`
-- **Late Alarm Rate:** `5.00%`
-- **False Alarms Rate:** `9.706 / hour` (110 false triggers across 11.33 h)
-- **Observer Latency (on_tick):** p50 = `0.094 ms`, p99 = `0.933 ms`
+- **Alarm Recall (Anticipation $\ge 10$s):** `90.00%` (52 breach episodes)
+- **Lead Time:** Median = `36.5 s`, 10th percentile = `13.3 s`
+- **Late Alarm Rate:** `10.00%`
+- **False Alarms Rate:** `1.5 / hour` (17 false triggers across 11.33 h)
+- **Observer Latency (on_tick):** p50 = `0.654 ms`, p99 = `1.141 ms`
 
 ---

@@ -1,7 +1,7 @@
 {
   "schema_version": "sdv-forecast-benchmark/1.0",
-  "timestamp_utc": "2026-10-18T04:12:04.170219+00:00",
-  "git_commit": "c6c1052fee860961f902c967f8210dc2ac1447cb",
+  "timestamp_utc": "2026-10-18T05:22:28.083559+00:00",
+  "git_commit": "7c5b31ae4276c4095674e8976fd79805c926f0fe-dirty",
   "device": "Mac",
   "splits_evaluated": [
     "ood"
@@ -89,31 +89,31 @@
         "coverage@45": 0.5902,
         "coverage@60": 0.6301
       },
-      "recall_alarm": 0.95,
-      "late_alarm_rate": 0.05,
+      "recall_alarm": 0.9,
+      "late_alarm_rate": 0.1,
       "lead_time_s": {
-        "median": 47.0,
-        "p10": 22.0,
+        "median": 36.5,
+        "p10": 13.3,
         "count": 40
       },
       "all_crosses": {
         "episodes_count": 52,
         "alarm_hits": 38,
         "recall_alarm": 0.7308,
-        "median_lead_s": 38.5,
-        "p10_lead_s": -5.0
+        "median_lead_s": 31.5,
+        "p10_lead_s": -9.8
       },
-      "false_alarms_per_h": 9.706,
-      "total_false_alarms": 110,
+      "false_alarms_per_h": 1.5,
+      "total_false_alarms": 17,
       "latency_ms": {
         "scope": "production ForecastObserver.on_sample + on_tick (Holt, bands, projector bisection, advisory)",
-        "p50": 0.094,
-        "p99": 0.933,
-        "max": 1.334,
+        "p50": 0.654,
+        "p99": 1.141,
+        "max": 3.659,
         "ticks_measured": 72000
       },
-      "evals_per_tick_max": 8,
-      "warn_cleared_before_cross": 47
+      "evals_per_tick_max": 16,
+      "warn_cleared_before_cross": 1
     }
   },
   "acceptance_gates": [
@@ -122,31 +122,15 @@
       "description": "Robustness on out-of-distribution episodes (2x faster, 3x noise)",
       "split": "ood",
       "threshold": "recall >= 0.75 and false_alarms_per_h <= 3.0",
-      "measured": "recall=0.9500, FA=9.706/h",
-      "status": "FAIL"
+      "measured": "recall=0.9000, FA=1.500/h",
+      "status": "PASS"
     },
     {
       "gate_id": "G-LAT",
       "description": "Observer execution latency p99 per tick",
       "split": "ood",
       "threshold": "p99_on_tick_ms <= 50.0 ms",
-      "measured": "0.933 ms (full observer tick, max evals/tick 8)",
-      "status": "PASS"
-    },
-    {
-      "gate_id": "G-NI",
-      "description": "Non-interference NI-01..03 (campaign hash, payload, state)",
-      "split": "all",
-      "threshold": "selected tests green",
-      "measured": "6 passed in 1.44s",
-      "status": "PASS"
-    },
-    {
-      "gate_id": "G-OFF",
-      "description": "Offline runtime ENV-INT-05 + FC-INT-06 (sockets blocked)",
-      "split": "all",
-      "threshold": "selected tests green",
-      "measured": "2 passed, 11 deselected in 0.59s",
+      "measured": "1.141 ms (full observer tick, max evals/tick 16)",
       "status": "PASS"
     },
     {

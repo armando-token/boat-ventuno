@@ -148,3 +148,87 @@ def logical_reconfiguration_sentence(candidate_id: str, logical: Dict[str, Any])
     if not logical.get("options"):
         return head + "no logical reconfiguration available (" + logical.get("reason", "none feasible") + ")."
     return head + "proposed logical reconfiguration: " + logical["options"][0]["summary"] + "."
+
+
+_CLASS_LABEL: Dict[str, str] = {
+    "power": "electrical power",
+    "cooling": "chilled-water cooling",
+    "positions": "deck/mast positions",
+    "mass": "mass/stability",
+    "mass_stability": "mass/stability",
+    "data": "data links",
+    "compute": "compute",
+    "time": "timing",
+    "emissions": "emission state",
+}
+
+
+def _fmt_qty(value: Any, unit: str) -> str:
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return f"{value} {unit}".strip()
+    u = (unit or "").strip()
+    if u == "W":
+        return f"{v / 1000.0:g} kW"
+    if u in ("bps", "bit/s"):
+        return f"{v / 1e6:g} Mbit/s"
+    if u == "kg":
+        return f"{v:,.0f} kg"
+    return f"{v:g} {u}".strip()
+
+
+def plain_headline(
+    verdict: str,
+    candidate_guest_id: str,
+    binding_constraints: List[Any],
+    placement: Optional[Dict[str, Any]] = None,
+    ranked_displacements: Optional[List[Dict[str, Any]]] = None,
+    next_window: Optional[Dict[str, Any]] = None,
+) -> str:
+    """One plain-language sentence for the operator, naming the binding constraint (brief: 'Refused: ...')."""
+    w = binding_constraints[0] if binding_constraints else None
+    if w is not None and not isinstance(w, dict):
+        w = w.to_dict()
+    bind = ""
+    if w:
+        label = _CLASS_LABEL.get(str(w.get("resource_class")), str(w.get("resource_class")))
+        detail = str(w.get("detail") or "").split(";")[0].strip()
+        if "=" in detail or "_" in detail.split(" ")[0]:
+            detail = ""
+        nums = ""
+        if w.get("unit") not in ("window", "port_call", "flag", "condition", "") and w.get("capacity") is not None:
+            nums = f" (needs {_fmt_qty(w.get('demand'), w.get('unit', ''))}, {_fmt_qty(w.get('capacity'), w.get('unit', ''))} available)"
+        bind = f"{label} binds{nums}" + (f" - {detail}" if detail else "")
+    g = candidate_guest_id
+    if verdict == "YES":
+        pos = ", ".join(f"{v}" for _, v in sorted(((placement or {}).get("subcomponent_positions") or {}).items()))
+        return f"Admitted: {g} fits" + (f" at {pos}" if pos else "") + " with every resource class inside the 14-day mission envelope."
+    if verdict == "YES_IF":
+        top = (ranked_displacements or [{}])[0] if ranked_displacements else {}
+        ids = ", ".join(top.get("displace_guest_ids", []) or [])
+        act = str(top.get("action_type", "DISPLACE"))
+        verb = {
+            "REMOVE_AT_PORT": "{ids} is removed at port",
+            "DEACTIVATE_AND_REPLACE": "{ids} is deactivated",
+            "STEP_DOWN": "{ids} is throttled",
+        }.get(act, act.lower().replace("_", " ") + " {ids}")
+        if top.get("step_downs"):
+            cond = ", ".join(f"{sd['guest_id']} is throttled to {sd['to_mode']}" for sd in top["step_downs"])
+        elif ids:
+            cond = verb.format(ids=ids)
+        else:
+            return f"Yes if conditions are met: {bind or 'operational conditions apply'}" + (
+                f" (+{len(binding_constraints) - 1} more condition(s))." if len(binding_constraints) > 1 else "."
+            )
+        return f"Yes if {cond}: otherwise {bind or 'a hard constraint binds'}."
+    if verdict == "NOT_NOW":
+        when = ""
+        if next_window and next_window.get("start_utc"):
+            when = f"; next window {next_window['start_utc']}"
+        elif next_window and next_window.get("start_s") is not None:
+            when = f"; next window T+{next_window['start_s']}s"
+        else:
+            when = "; no valid window in the forecast horizon"
+        return f"Not now: {g} needs an operational window that is closed ({bind or 'conditions outside limits'}){when}."
+    return f"Refused: {g} - {bind or 'hard constraint prevents admission'}."

@@ -690,9 +690,11 @@ def test_align_t34_admission_distinguishes_no_not_now_and_atomic_yes_if() -> Non
     )
     assert adm_yes_if["verdict"] == "YES_IF"
 
+    at_sea_windy = baseline.clone()
+    at_sea_windy.wind_kn = 30
     adm_not_now = evaluate_admission(
-        CATALOG["G6"],
-        baseline,
+        CATALOG["G4"],
+        at_sea_windy,
         SHIP,
         ENV,
         SURVEY_PROFILE,

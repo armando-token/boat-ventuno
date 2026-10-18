@@ -1,48 +1,39 @@
-# Operational Memo -- Scenario C (D5): Governance Across 14 / 6 / 0 Crew Regimes
+# Scenario C Memo (D5) -- One implicit rule across 14 / 6 / 0 crew
 
-**To:** SDV Program Office & Vessel Operations Command
-**From:** Principal Systems Architect, `sdv-resource-governor`
-**Subject:** Deterministic Resource, Deck-Safety, Implicit Timing & Autonomy Rules Under Crew Regimes **14 / 6 / 0**
+**To:** Fincantieri SDV jury
+**From:** sdv-resource-governor team
+**Subject:** "Nobody on the flight deck during recovery", written down and run by the engine at 14, 6 and 0 aboard
 
----
+## 1. The rule
+Today a deck officer enforces it by common sense: nobody and nothing stays on the flight deck while the drone comes in. The brief lists it as an example rule for Scenario C ("nobody on the flight deck during recovery"); Annex A.3 makes "deck clear" a flight-deck condition and the Glossary says the flight deck "Must be free of people and obstacles". We write it as: **G4 may not start its recovery approach until the flight deck is verified clear, and clearing the deck is a crew task whose duration depends on how many people are aboard.**
 
-## 1. Executive Summary
-A Software-Defined Vessel (SDV) cannot treat human crew availability (`14 / 6 / 0`) as a mere scheduling annotation: crew regime directly governs **which physical payload transitions are admissible**, **how long manual confirmation and flight-deck clearing take (`30 s` vs. `120 s` confirmation; `240 s` vs. `600 s` deck clearing; prohibited if occupied under `0`)**, **whether at-sea vehicle replacement (A' window) is physically safe**, and **how fault recovery escalates when telemetry degrades or a payload overconsumes**. In `sdv-resource-governor`, the `14 / 6 / 0` crew dial, flight-deck clearance (`deck_clear`), and port-only installation constraints are enforced as hard operational guards inside `scheduling.py`, `admission.py`, `degradation.py`, and `replay.py`.
+- **Trigger:** G4 asks to land (Scenario B min 8: battery 18 %, wind 22 kn). Annex B: "below 20 % battery: land within 12 min or ditch", so the alert at T=480 s sets a hard touchdown deadline of T=1200 s (720 s later).
+- **Effect:** the recovery plan cannot be ready before max(ship manoeuvre done, human confirmation done, deck verified clear); touchdown follows after a 270 s approach. If that lands after the deadline, the plan is infeasible: the governor refuses it, names the binding constraint and escalates to the captain. It never plans a landing on an occupied deck.
+- **Crew-dependent numbers (A.6 crew response, our mid-range picks):** confirmation 30 s at 14 (brief 15-60 s), 120 s at 6 (1-3 min), none at 0 (impossible uncrewed: automatic or forbidden). Clearing an occupied deck 240 s at 14 (3-5 min), 600 s at 6 (8-12 min), impossible at 0 ("uncrewed only if already clear"). G4 recovery needs 2 deck crew (ASSUMED).
 
----
+## 2. Where the code encodes it
+- `src/sdv_governor/scheduling.py` -- `DEFAULT_TRANSITION_TIMING_POLICY` (`deck_clear_crew_14_s=240`, `deck_clear_crew_6_s=600`, `deck_clear_crew_0_s=None`, `human_confirm_crew_14_s=30`, `human_confirm_crew_6_s=120`, `human_confirm_crew_0_s=0`; same values in `data/ship/transition_timing_policy.yaml`), `compute_deck_clear_duration_s`, `compute_human_confirmation_duration_s`.
+- `src/sdv_governor/arbitration.py` -- `_evaluate_candidate_feasibility_and_score`: `t_ready_s = max(maneuver_ready_s, human_confirm_done_s, deck_ready_s)`; witnesses `flight_deck_clear_for_recovery`, `g4_battery_emergency_touchdown_deadline_s` and `g4_recovery_min_crew`. `arbitrate_live_conflict` keeps only feasible candidates, else returns verdict NO with "the governor refuses and escalates to the captain".
+- Crew level is a state input (`crew_count`, `crew_regime`, `available_crew`); `replay.py` changes it on `CREW_REGIME_CHANGE` events (Scenario C replay).
 
-## 2. Quantitative Regime Comparison (`14 / 6 / 0` Crew Dial: `FULL_CREW_14` vs. `REDUCED_CREW_6` vs. `UNCREWED_0`)
+## 3. Engine results (Scenario B state, alert T=480 s, deadline T=1200 s; times after the alert)
+Measured with `arbitrate_live_conflict` on `scenario_B_arbitration_degradation.yaml`, varying only `crew_count` / `crew_regime` / `available_crew` and `deck_clear`. Every decision took < 2 ms.
 
-| Operational Dimension | Regime 1: 14 Crew (`FULL_CREW_14`) | Regime 2: 6 Crew (`REDUCED_CREW_6`) | Regime 3: 0 Crew (`UNCREWED_0`) |
+| Crew, deck | survey_primary | rescue_primary |
+|---|---|---|
+| 14, deck clear | YES: confirm 30 s, touchdown +615 s (105 s margin) | YES: touchdown +375 s |
+| 14, deck occupied | YES: deck clear 240 s, touchdown +645 s | YES: touchdown +525 s |
+| 6, deck clear | YES: confirm 120 s, touchdown +615 s | YES: touchdown +390 s (confirmation is now the slowest step) |
+| 6, deck occupied | NO: earliest touchdown +885 s > 720 s; binds time / touchdown deadline and flight_deck_clear_for_recovery; escalates | NO: same, +885 s > 720 s |
+| 0, deck clear or occupied | NO: positions / g4_recovery_min_crew binds (2 crew needed, 0 aboard); recovery refused | NO: same |
+
+## 4. What each crew level confirms, automates, and loses
+
+| | 14 aboard | 6 aboard | 0 aboard |
 |---|---|---|---|
-| Bridge & Engine Watch | 5 personnel | 4 personnel | 0 (Remote Shore Control + Onboard Autonomy) |
-| Available Deck/Payload Crew | 9 personnel | 2 personnel | 0 personnel |
-| Max Concurrent Manual Deck Teams | 2 teams (for non-conflicting manual tasks) | 1 team (strictly serialized) | 0 manual deck evolutions |
-| Non-Urgent Operator Confirmation (`Trigger -> Effect -> Confirmation`) | `30 s` nominal (`15-60 s` local bridge watch confirmation) | `120 s` nominal (`60-180 s` watch handover confirmation) | `0 s` human confirmation: automated software mode transitions permitted; physical/manual deck evolutions strictly PROHIBITED |
-| Flight-Deck Clearing Latency (when `deck_clear=false`) | `240 s` (`4 min` with dedicated deck crew) | `600 s` (`10 min` serialized single-team deck clearing) | PROHIBITED if deck is occupied (`0` crew cannot manually clear deck equipment at sea) |
-| G4 UAV Launch / Recovery (`5-12 kn` into wind, `wind <= 25 kn`, `SS <= 4`, `deck_clear=true`) | PERMITTED (`2` deck crew; `30 s` confirmation; `240 s` deck clear if needed) | PERMITTED (`2` deck crew; `120 s` confirmation; `600 s` deck clear if needed) | FORBIDDEN for manual deck handling; if deck occupied, recovery is PROHIBITED (`0` crew) |
-| G2 Winch / Probe Deployment (`0-5 kn`, `wind <= 20 kn`, `SS <= 4`, `deck_clear=true`) | PERMITTED (`2` deck crew; cannot overlap G4 flight ops) | PERMITTED (`2` deck crew; serialized) | FORBIDDEN (requires umbilical/winch deck handling) |
-| Simultaneous G2 Winch + G4 Flight Ops | FORBIDDEN (Annex A.5 requires flight deck clear during G4 ops; `0-5 kn` vs `5-12 kn` only touch at `5.0 kn` with conflicting heading vs station-keeping) | FORBIDDEN (insufficient crew + Annex A.5 deck clearance + conflicting heading/station-keeping profiles) | FORBIDDEN (`0` crew) |
-| At-Sea Vehicle Replacement A' (`4-8 kn`, `wind <= 20 kn`, `SS <= 3`; G4: `3` crew/`30m`, G3: `4` crew/`45m`) | PERMITTED (`available_crew=9 >= 4` for G3 and `>= 3` for G4; earliest window `T+1260 s`) | BLOCKED (`available_crew=2 < 3` for G4 and `< 4` for G3 safe replacement at sea) | FORBIDDEN (`0` crew; all vehicle replacements deferred to port) |
-| At-Sea Bay/Mast or `>250 kg` Module Install (G5, G6 `420 kg` in `bay2`/`bay1_a`) | FORBIDDEN AT SEA (Annex A.5 bay/mast installs are port-only; Annex A.4 limits at-sea packages to `<= 250 kg`) | FORBIDDEN AT SEA (port-only bay/mast + `>250 kg` + `available_crew=2 < 4`) | FORBIDDEN AT SEA (`CRW-02`: zero physical installations at sea) |
+| Human confirms | Bridge confirms the contested plan (30 s) and the deck team verifies the deck clear (240 s if occupied) | Same two acts, slower: 120 s confirmation, 600 s clearing | Nothing: no one can confirm |
+| Automatic | D3 decision in < 2 s; G3 acoustic HOLD; speed/course requests; 35 kW charge reservation; D4 shedding | Same | D3, G3 HOLD and D4 shedding still run (they need no hands) |
+| Impossible | Nothing within the deadline: clear or occupied, both priority sets land G4 | Recovering onto an occupied deck: 600 s clearing misses the 12-min battery deadline | Any G4 recovery, and clearing the deck at all |
 
----
-
-## 3. Concrete Implicit Rule (`Trigger -> Effect -> Confirmation`) & Physical Interlocks Enforced by the Solver
-1. **Concrete Implicit Rule (`Trigger -> Effect -> Confirmation` Across `14 / 6 / 0`)**:
-   - **Trigger**: Any operational event requiring deck state change, mode escalation, or recovery window preparation (e.g., `G4` `18%` battery recovery alert or `deck_clear=false` prior to flight operations).
-   - **Effect**: Urgent safety/protection actions (`STOP`, `HOLD`, `SECURE <= 200 ms`, `G3` `ACOUSTIC_HOLD`, or `G5` overload step-down) execute **autonomously without waiting for human confirmation** across all `14 / 6 / 0` regimes. For non-urgent manual evolutions and physical deck preparation, crew regime dictates both **confirmation latency** (`30 s` under `14` crew vs. `120 s` under `6` crew vs. **automated software-only / physical evolution prohibited** under `0` crew) and **flight-deck clearing time** (`240 s` under `14` crew vs. `600 s` under `6` crew vs. **strictly prohibited if occupied** under `0` crew).
-   - **Confirmation & Precondition Gate**: In Scenario B (`14` crew default), `G4` recovery adds confirmation + acoustic hold handshake (`15 s` nominal, `[10, 60] s` valid window) + vessel turn/stabilization (`90 s`) + approach/landing (`240 s`). If switched to `6` crew with an occupied deck (`600 s` deck clearing + `120 s` confirmation), total preparation exceeds the `720 s` (`12 min`) battery emergency window (`480 + 600 + 120 + 90 + 240 = 1,530 s > 1,200 s`), causing the solver to flag the plan as infeasible unless the deck is pre-cleared! Under `0` crew, any evolution requiring manual deck clearing (`deck_clear=false`) or manual vehicle handling is immediately rejected (`PROHIBITED`).
-2. **Why G2 and G4 Cannot Execute Simultaneous Deck Operations Even With 14 Crew (`Annex A.5`)**:
-   - While **14 crew** provides `9` deck/payload personnel (enough to staff two manual handling teams for non-conflicting tasks), **G2 ROV/winch deployment and G4 UAV launch/recovery are physically incompatible**: (a) Annex A.5 mandates that *"Launch or recovery of a drone requires the flight deck to be clear of other ongoing deck operations"* (`state.deck_clear == True`), and (b) **G2** requires low-speed station-keeping (`0-5 kn`) whereas **G4** requires `5-12 kn` with vessel heading aligned within `+/- 15 deg` of the wind (their speed ranges only touch at the single `5.0 kn` boundary, where `deck_clear` and heading/winch-handling rules still strictly forbid overlap).
-3. **Why G6 (`420 kg`, `bay2`/`bay1_a`) Is Strictly Port-Only Across All `14 / 6 / 0` Crew Regimes (`Annex A.4 & A.5`)**:
-   - Annex A.5 specifies that payload installation in **Bays 1-2** and **Mast Positions 1-3** is a **port-only operation**, and Annex A.4 restricts at-sea A' package installation to light deck packages **`<= 250 kg`** in `Sea State <= 3`, `wind <= 20 kn`, and `4-8 kn`. Because **G6** weighs `420 kg > 250 kg` and installs into `bay2` / `bay1_a`, `G6` has `port_only: true` and is rejected (`NO` / `NOT_NOW`) for at-sea installation under **14**, **6**, and **0** crew alike.
-4. **Acoustic Survey Deck-Machinery Lockout (`G3` `forbids_deck_machinery_while_active=True`)**:
-   - Across `14 / 6 / 0` crew regimes, while **G3** is in `SURVEY_QUIET` (`1 kW`, `2-6 kn`), hydraulic A-frames, winches (**G2**), and flight-deck handling gear (**G4**) are locked out to prevent acoustic corruption of the seabed survey sonar until `ACOUSTIC_HOLD_CONFIRMED` ACK is verified.
-
----
-
-## 4. Fault Governance & Component-Split Overconsumption Under `14 / 6 / 0` Regimes
-- **Urgent Safety Commands (`STOP`, `HOLD`, `SECURE <= 200 ms`, `SAF-01`)**: Routed strictly over the dual `10 Gbps` local shipboard LAN (`< 5 ms` transport latency), never over `600-800 ms` SATCOM. Measured software dispatch latency on both MacBook Pro (`arm64`) and the live Arduino Ventuno Q (`training06`, `aarch64`) is **`< 1 ms`** (`<< 200 ms` deadline).
-- **Guest Overconsumption (`+20%` Component-Split Accounting, `RUN-04`, §6.5)**: Because none of `G1`-`G5` is safety-critical by design, if **G5** (`45.0 kW` nominal = `43.8 kW` container chilled-water + `1.2 kW` roof-antenna air) overconsumes by `+20%` to **`54.0 kW` electrical** (`+9.0 kW` surge absorbed by the `3,000 kg` compute container -> **`52.8 kW` chilled-water + `1.2 kW` roof air**), the chilled-water ledger immediately reflects the `+9.0 kW` thermal spike and the governor autonomously throttles **G5** to `DEGRADED_70PCT_LOSS` (`8.0 kW` electrical = `7.5 kW` water + `0.5 kW` roof air, retaining `30%` capability) while protecting active uninterruptible/recovery tasks (**G3** recharge, **G4** flight/recovery).
-- **Lost or Stale Telemetry Feeds (`RUN-03`)**: If `seawater_temp_c` exceeds its TTL (`STALE` / `UNAVAILABLE`), the governor never extrapolates optimistic cooling; it clamps to the conservative **`30 deg C` (`120 kW` nominal / `72 kW` degraded)** thermal bound until sensor freshness is restored.
+## 5. What this means for the operator
+At 14 the rule costs time but never the drone. At 6 the same rule turns the deck state at the moment of the alert into the deciding fact: keep the deck clear whenever G4 is airborne, or accept that a low-battery G4 will be lost. At 0 the governor does not pretend: it refuses the recovery, names `g4_recovery_min_crew`, and the cost to the loser is the drone. The jury can check this by changing only the crew level and deck state: no other code path or priority changes.

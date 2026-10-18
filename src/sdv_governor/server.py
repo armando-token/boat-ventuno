@@ -206,6 +206,7 @@ def _apply_crew_and_deck_updates(
                 "crew_count",
             )
         regime_name, avail_crew = CREW_COUNT_TO_REGIME[crew_count]
+        live_state.crew_count = crew_count
         live_state.crew_regime = regime_name
         live_state.available_crew = avail_crew
         tags.append(f"CREW_REGIME:{regime_name}")
@@ -1007,7 +1008,8 @@ def _calculate_admit_next_window(
         snap = envdata.load_active_snapshot(repo_root)
     except (StrictValidationError, OSError, ValueError):
         return None
-    op = "VEHICLE_REPLACEMENT_AT_SEA" if cand_manifest.guest_id in ("G3", "G4") else "AT_SEA_INSTALL"
+    vr = getattr(cand_manifest, "vehicle_replacement", None)
+    op = "VEHICLE_REPLACEMENT_AT_SEA" if vr is not None and getattr(vr, "supported_at_sea", False) else "AT_SEA_INSTALL"
     min_dur, _src = env_windows.operation_min_duration_s(cand_manifest, op)
     timeline = env_windows.availability_timeline(
         cand_manifest,
@@ -2070,7 +2072,7 @@ def dispatch_api_request(
                         f"Generator loss reduced power reserve to {state.power_reserve_w} W: "
                         + (
                             ", ".join(
-                                f"{a.get('action')} {a.get('guest_id')} ({a.get('from_mode')}->{a.get('to_mode')})"
+                                f"{a.get('action') or a.get('action_type') or 'STEP_DOWN'} {a.get('guest_id')} ({a.get('from_mode')}->{a.get('to_mode')})"
                                 for a in acts
                             )
                             if acts
@@ -2121,7 +2123,7 @@ def dispatch_api_request(
                         f"Cooling loop failure at {state.seawater_temp_c}C derated chilled-water capacity to {snap_after['classes']['cooling']['degraded_capacity']} W: "
                         + (
                             ", ".join(
-                                f"{a.get('action')} {a.get('guest_id')} ({a.get('from_mode')}->{a.get('to_mode')})"
+                                f"{a.get('action') or a.get('action_type') or 'STEP_DOWN'} {a.get('guest_id')} ({a.get('from_mode')}->{a.get('to_mode')})"
                                 for a in acts
                             )
                             if acts

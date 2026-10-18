@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from itertools import combinations
+from itertools import combinations, product as _product
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
 from .acoustic import guests_requiring_acoustic_command_link
 from .budgets import evaluate_eight_class_budgets
-from .explanations import build_decision_rationale, logical_reconfiguration_sentence
+from .explanations import build_decision_rationale, logical_reconfiguration_sentence, plain_headline
 from .reconfiguration import propose_logical_reconfiguration
 from .models import (
     StrictValidationError,
@@ -369,6 +369,70 @@ def evaluate_mission_envelope_a10(
                 cond_state,
                 hangar_roof_clearance_verified=hangar_roof_clearance_verified,
             )
+            installed_step_txt = ""
+            if not snap_cond["feasible"] and not is_degraded_or_heavy_window:
+                # Nominal window still short (e.g. shared SATCOM narrowed to 6 Mbit/s): try the minimum step-down of
+                # installed non-protected guests too, instead of blaming the candidate for a shared-resource squeeze.
+                best_state: Optional[ShipOperationalState] = None
+                best_key: Optional[Tuple[float, int, Tuple[str, ...]]] = None
+                options: Dict[str, List[str]] = {}
+                for gid, ginst in sorted(cond_state.installed_guests.items()):
+                    if gid == candidate.guest_id:
+                        continue
+                    g_man = aug_catalog[gid]
+                    cur_m = g_man.modes[ginst.active_mode]
+                    if g_man.safety_critical or cur_m.safety_critical or cur_m.uninterruptible:
+                        continue
+                    options[gid] = sorted(
+                        (m for m, md in g_man.modes.items() if md.capability_retention_ratio < cur_m.capability_retention_ratio),
+                        key=lambda m, gm=g_man: (-gm.modes[m].capability_retention_ratio, m),
+                    )
+                for k_n in range(1, len(options) + 1):
+                    for gids in combinations(sorted(options), k_n):
+                        for combo in _product(*[options[g] for g in gids]):
+                            trial = cond_state.clone()
+                            loss = 0.0
+                            for gid, m in zip(gids, combo):
+                                g_man = aug_catalog[gid]
+                                loss += (
+                                    g_man.modes[trial.installed_guests[gid].active_mode].capability_retention_ratio
+                                    - g_man.modes[m].capability_retention_ratio
+                                )
+                                trial.installed_guests[gid].active_mode = m
+                            key = (round(loss, 6), k_n, tuple(f"{g}:{m}" for g, m in zip(gids, combo)))
+                            if best_key is not None and key >= best_key:
+                                continue
+                            if evaluate_eight_class_budgets(
+                                ship_profile, aug_catalog, trial, hangar_roof_clearance_verified=hangar_roof_clearance_verified
+                            )["feasible"]:
+                                best_state, best_key = trial, key
+                if best_state is not None:
+                    keep_cand = best_state.clone()
+                    keep_cand.installed_guests[candidate.guest_id].active_mode = (
+                        w_state.installed_guests[candidate.guest_id].active_mode
+                    )
+                    if evaluate_eight_class_budgets(
+                        ship_profile, aug_catalog, keep_cand, hangar_roof_clearance_verified=hangar_roof_clearance_verified
+                    )["feasible"]:
+                        best_state = keep_cand
+                    min_state = best_state
+                    others = [
+                        sd for sd in _modes_step_down_diff(w_state, min_state, aug_catalog)
+                        if sd["guest_id"] != candidate.guest_id
+                    ]
+                    cond_state = min_state
+                    snap_cond = evaluate_eight_class_budgets(
+                        ship_profile, aug_catalog, cond_state, hangar_roof_clearance_verified=hangar_roof_clearance_verified
+                    )
+                    base_state = w_state.clone()
+                    base_state.installed_guests.pop(candidate.guest_id, None)
+                    base_ok = evaluate_eight_class_budgets(
+                        ship_profile, aug_catalog, base_state, hangar_roof_clearance_verified=hangar_roof_clearance_verified
+                    )["feasible"]
+                    installed_step_txt = (
+                        " and " + ", ".join(f"{sd['guest_id']}->{sd['to_mode']}" for sd in others)
+                        + ("" if base_ok else f" (pre-existing: the installed set already exceeds {wid} without {candidate.guest_id})")
+                    ) if others else ""
             if snap_cond["feasible"]:
                 window_passed = True
                 conditioned_for_window = True
@@ -385,7 +449,10 @@ def evaluate_mission_envelope_a10(
                     }
                 )
                 if not is_degraded_or_heavy_window:
-                    cond_txt = f"Window {wid} requires {candidate.guest_id} mode step-down to {cond_mode_used}"
+                    if installed_step_txt and cond_mode_used == w_state.installed_guests[candidate.guest_id].active_mode:
+                        cond_txt = f"Window {wid} requires{installed_step_txt[4:]}"
+                    else:
+                        cond_txt = f"Window {wid} requires {candidate.guest_id} mode step-down to {cond_mode_used}{installed_step_txt}"
                     nominal_offshore_mode_conditions.append(cond_txt)
                     failing = sorted({str(bw["resource_class"]) for bw in snap["binding_witnesses"]})
                     nominal_offshore_condition_classes[cond_txt] = "+".join(failing) if failing else "unknown"
@@ -501,7 +568,13 @@ def evaluate_admission(
             decision["logical_reconfiguration"] = logical
             return decision
 
-        a_prime_check = evaluate_a_prime_window(candidate, "AT_SEA_INSTALL", state, aug_catalog)
+        vr_spec = getattr(candidate, "vehicle_replacement", None)
+        a_prime_op = (
+            "VEHICLE_REPLACEMENT_AT_SEA"
+            if vr_spec is not None and getattr(vr_spec, "supported_at_sea", False)
+            else "AT_SEA_INSTALL"
+        )
+        a_prime_check = evaluate_a_prime_window(candidate, a_prime_op, state, aug_catalog)
         if not a_prime_check["permitted"]:
             witness = BindingConstraintWitness(
                 resource_class="time",
@@ -514,11 +587,32 @@ def evaluate_admission(
                 provenance="DERIVED",
                 detail="; ".join(a_prime_check["blocking_reasons"]),
             )
-            verdict = "NOT_NOW" if defer_if_temporary_operational_block else "NO"
+            permanent = list(a_prime_check.get("permanent_blocking_reasons") or [])
+            if permanent:
+                # Annex A.11: bays/mast/heavy packages change only in port -> a permanent NO at sea, not a deferral.
+                witness = BindingConstraintWitness(
+                    resource_class="positions",
+                    constraint_id="a11_port_only_installation",
+                    state_label=f"T+{state.sim_time_s}s:AT_SEA",
+                    demand=1,
+                    capacity=0,
+                    margin=-1,
+                    unit="port_call",
+                    provenance="DERIVED",
+                    detail="; ".join(permanent),
+                )
+                verdict = "NO"
+            else:
+                verdict = "NOT_NOW" if defer_if_temporary_operational_block else "NO"
             elapsed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
             rationale = build_decision_rationale(
                 verdict, candidate.guest_id, [witness], {}, [], [], next_window=next_window
             )
+            if permanent:
+                rationale = (
+                    f"Refused at sea: {permanent[0]}; {candidate.guest_id} can only be installed at the next port call "
+                    f"(14 days without a port call in the mission envelope). " + rationale
+                )
             return _format_admission_decision(
                 verdict=verdict,
                 candidate=candidate,
@@ -823,8 +917,118 @@ def evaluate_admission(
                     }
                 )
 
+    # Throttle options (brief: "ranked list of what is displaced or throttled"): step installed guests down to a
+    # declared lower mode instead of removing them; ranked together with removals by capability score lost.
+    if allow_displacement and installed_ids and not dep_witnesses:
+        throttle_opts: Dict[str, List[str]] = {}
+        for gid in installed_ids:
+            g_man = aug_catalog[gid]
+            cur = state.installed_guests[gid].active_mode
+            if g_man.safety_critical or cur not in g_man.modes:
+                continue
+            if g_man.modes[cur].safety_critical or g_man.modes[cur].uninterruptible:
+                continue
+            r_cur = g_man.modes[cur].capability_retention_ratio
+            lower = sorted(
+                (m for m, md in g_man.modes.items() if m != cur and md.capability_retention_ratio < r_cur),
+                key=lambda m: (-g_man.modes[m].capability_retention_ratio, m),
+            )
+            if lower:
+                throttle_opts[gid] = lower
+        seen_feasible: List[frozenset] = []
+        for k in range(1, min(2, len(throttle_opts)) + 1):
+            for gids in combinations(sorted(throttle_opts), k):
+                mode_lists = [throttle_opts[g] for g in gids]
+                for modes_combo in _product(*mode_lists):
+                    if any(fs <= frozenset(zip(gids, modes_combo)) for fs in seen_feasible):
+                        continue
+                    sub_state = state.clone()
+                    for gid, m in zip(gids, modes_combo):
+                        sub_state.installed_guests[gid].active_mode = m
+                    sub_place = find_feasible_placement(
+                        candidate, sub_state, ship_profile, aug_catalog, hangar_roof_clearance_verified=True
+                    )
+                    if not sub_place["feasible"]:
+                        continue
+                    env_trial = sub_state.clone()
+                    env_trial.installed_guests[candidate.guest_id] = InstalledGuestState(
+                        guest_id=candidate.guest_id,
+                        active_mode=sub_place["initial_mode"],
+                        powered_on=True,
+                        placements=sub_place["subcomponent_positions"],
+                        compute_node=sub_place["compute_node"],
+                    )
+                    sub_env = evaluate_mission_envelope_a10(
+                        candidate, env_trial, ship_profile, mission_envelope, aug_catalog,
+                        hangar_roof_clearance_verified=True,
+                    )
+                    if not sub_env["envelope_feasible"]:
+                        continue
+                    seen_feasible.append(frozenset(zip(gids, modes_combo)))
+                    cand_ret, _ = effective_capability_retention(
+                        candidate, env_trial.installed_guests[candidate.guest_id], env_trial, ship_profile,
+                        mode_name=candidate.default_mode,
+                    )
+                    t_cand_score = compute_guest_capability_score(
+                        candidate, candidate.default_mode, priority_profile, cand_ret
+                    )
+                    lost_items: List[Dict[str, Any]] = []
+                    step_downs: List[Dict[str, Any]] = []
+                    t_lost = 0.0
+                    for gid, m in zip(gids, modes_combo):
+                        g_man = aug_catalog[gid]
+                        inst = state.installed_guests[gid]
+                        r0, _ = effective_capability_retention(g_man, inst, state, ship_profile)
+                        r1, _ = effective_capability_retention(g_man, inst, state, ship_profile, mode_name=m)
+                        lost = round(
+                            compute_guest_capability_score(g_man, inst.active_mode, priority_profile, r0)
+                            - compute_guest_capability_score(g_man, m, priority_profile, r1),
+                            4,
+                        )
+                        t_lost += lost
+                        step_downs.append({"guest_id": gid, "from_mode": inst.active_mode, "to_mode": m})
+                        lost_items.append(
+                            {
+                                "guest_id": gid,
+                                "displaced_from_mode": inst.active_mode,
+                                "throttled_to_mode": m,
+                                "score_lost": lost,
+                                "mass_freed_kg": 0,
+                                "capability_lost_description": (
+                                    f"{g_man.name} throttled {inst.active_mode}->{m} "
+                                    f"(retention {r0:.2f} -> {r1:.2f})"
+                                ),
+                            }
+                        )
+                    ranked_displacements.append(
+                        {
+                            "action_type": "STEP_DOWN",
+                            "displace_guest_ids": [],
+                            "throttle_guest_ids": list(gids),
+                            "step_downs": step_downs,
+                            "displaced_count": 0,
+                            "total_score_lost": round(t_lost, 4),
+                            "candidate_score_gained": t_cand_score,
+                            "net_capability_delta": round(t_cand_score - t_lost, 4),
+                            "resulting_placement": {
+                                "initial_mode": sub_place["initial_mode"],
+                                "subcomponent_positions": sub_place["subcomponent_positions"],
+                                "compute_node": sub_place["compute_node"],
+                            },
+                            "conditioned_availability": sub_env,
+                            "capability_lost_breakdown": lost_items,
+                        }
+                    )
+                    d2_by_drop.setdefault(("STEP_DOWN",) + tuple(gids), {k2: sub_place[k2] for k2 in D2_REPORT_KEYS if k2 in sub_place})
+
     ranked_displacements.sort(
-        key=lambda d: (d["total_score_lost"], d["displaced_count"], d["displace_guest_ids"])
+        key=lambda d: (
+            d["total_score_lost"],
+            d["displaced_count"],
+            d["action_type"] != "STEP_DOWN",
+            d["displace_guest_ids"],
+            d.get("throttle_guest_ids", []),
+        )
     )
 
     elapsed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
@@ -833,7 +1037,12 @@ def evaluate_admission(
         cap_lost = top_disp["capability_lost_breakdown"]
         placement_out = {
             **top_disp["resulting_placement"],
-            **d2_by_drop.get(tuple(top_disp["displace_guest_ids"]), {}),
+            **d2_by_drop.get(
+                ("STEP_DOWN",) + tuple(top_disp.get("throttle_guest_ids", []))
+                if top_disp["action_type"] == "STEP_DOWN"
+                else tuple(top_disp["displace_guest_ids"]),
+                {},
+            ),
         }
         cond_avail = top_disp.get("conditioned_availability", {"conditioned": False, "restricted_windows": []})
         rationale = build_decision_rationale(
@@ -1139,6 +1348,9 @@ def _format_admission_decision(
         "conditioned_availability": conditioned_availability,
         "one_genset_down": conditioned_availability.get("one_genset_down"),
         "next_window": next_window,
+        "headline": plain_headline(
+            verdict, candidate.guest_id, binding_constraints, clean_placement, ranked_displacements, next_window
+        ),
         "rationale": rationale,
         "calculation_elapsed_ms": elapsed_ms,
         "within_30s_deadline": elapsed_ms <= 30000.0,
@@ -1270,6 +1482,20 @@ def apply_admission_decision_atomically(
         work_state.firm_reserved_loads = [
             fl for fl in work_state.firm_reserved_loads if fl.guest_id not in displaced_set
         ]
+
+    if verdict == "YES_IF" and action_type == "STEP_DOWN":
+        for sd in (decision.get("ranked_displacements") or [{}])[0].get("step_downs", []):
+            gid_sd = str(sd.get("guest_id"))
+            to_mode = str(sd.get("to_mode"))
+            if gid_sd not in work_state.installed_guests or to_mode not in aug_catalog[gid_sd].modes:
+                return {
+                    "applied": False,
+                    "reason": f"INVALID_STEP_DOWN:{gid_sd}->{to_mode}",
+                    "applied_plan": None,
+                    "displaced_guest_ids": [],
+                    "state": base_state,
+                }
+            work_state.installed_guests[gid_sd].active_mode = to_mode
 
     initial_mode = str(placement.get("initial_mode") or candidate.default_mode)
     compute_node = str(placement.get("compute_node") or "node_1")

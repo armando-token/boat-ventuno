@@ -1832,6 +1832,13 @@ def serve_operator_ui(repo_root: Path, host: str = "127.0.0.1", port: int = 8765
                 return
 
             clean_path = urlparse(self.path).path
+            if clean_path == "/viz3d":
+                self.send_response(302)
+                self._send_cors_and_source_headers()
+                self.send_header("Location", "/viz3d/")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
             if clean_path in ("/", "/index.html"):
                 target = ui_dir / "index.html"
             elif clean_path == "/app.js":

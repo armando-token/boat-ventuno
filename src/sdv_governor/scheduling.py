@@ -413,11 +413,12 @@ def evaluate_a_prime_window(
     Explicitly separates normal flight launch/recovery window (5-12 kn, wind <= 25 kn) from the
     stricter A' at-sea vehicle replacement / installation window (4-8 kn, wind <= 20 kn, sea_state <= 3),
     enforces flight deck clearance (`state.deck_clear` and `deck_clear_verified`), stern ramp exclusivity,
-    at-sea package mass limit (`<= 250 kg`), port-only bay/mast installation rules (Annex A.4, A.5),
+    at-sea package mass limit (`<= 250 kg`), port-only bay/mast installation rules (Annex A.11),
     acoustic survey deck-machinery lockout (`G3` `forbids_deck_machinery_while_active`), `hangar_roof_drone_clearance`
     for `G4` launch/recovery, `quiet_acoustic_state` for `G3` `SURVEY_START`, and pending transition completion guards.
     """
     reasons: List[str] = []
+    permanent_reasons: List[str] = []
     sc = guest.ship_state_constraints
 
     # 0. Check pending / in-progress transitions on state.pending_transitions (a requested transition does NOT satisfy a guard until COMPLETED)
@@ -449,27 +450,27 @@ def evaluate_a_prime_window(
             active_blocking_transitions.append(f"{tr_id}({tr_status})")
             reasons.append(f"pending_transition_not_completed: {tr_id} status={tr_status} (guard requires COMPLETED)")
 
-    # 1. Flight deck / working deck clearance check (Annex A.5 & A.6)
+    # 1. Flight deck / working deck clearance check (Annex A.3 & A.6)
     deck_verified = bool(getattr(state, "deck_clear_verified", state.deck_clear))
     if operation_type in ("LAUNCH_RECOVERY", "VEHICLE_REPLACEMENT_AT_SEA", "AT_SEA_INSTALL"):
         if not state.deck_clear or not deck_verified:
-            reasons.append("flight_deck_not_clear: state.deck_clear is False or deck_clear_verified is False (Annex A.5/A.6)")
+            reasons.append("flight_deck_not_clear: state.deck_clear is False or deck_clear_verified is False (Annex A.3/A.6)")
 
-    # 2. Stern ramp & flight deck exclusivity check (Annex A.5)
+    # 2. Stern ramp & flight deck exclusivity check (Annex A.3)
     if sc.requires_stern_ramp_free or sc.launch_recovery_area in exclusive_areas(ship_profile):
         for other_gid, other_inst in state.installed_guests.items():
             if other_gid == guest.guest_id:
                 continue
             for _, pos in other_inst.placements.items():
                 if pos == "stern_ramp":
-                    reasons.append(f"stern_ramp occupied by {other_gid} (Annex A.5 exclusivity)")
+                    reasons.append(f"stern_ramp occupied by {other_gid} (Annex A.3 exclusivity)")
     if operation_type == "LAUNCH_RECOVERY" and sc.launch_recovery_area != "none":
         active_ops = active_area_operations(state, catalog)
         for partner in partner_areas(sc.launch_recovery_area, ship_profile):
             other_gid = active_ops.get(partner)
             if other_gid is not None and other_gid != guest.guest_id:
                 reasons.append(
-                    f"area_mutual_exclusion: {sc.launch_recovery_area} blocked while {other_gid} operates on {partner} (Annex A.5 exclusivity)"
+                    f"area_mutual_exclusion: {sc.launch_recovery_area} blocked while {other_gid} operates on {partner} (Annex A.3 exclusivity)"
                 )
 
     # 3. Check if any active guest forbids deck machinery (e.g. G3 in SURVEY_QUIET)
@@ -539,22 +540,25 @@ def evaluate_a_prime_window(
         port_only_positions = {"bay1", "bay1_a", "bay1_b", "bay2", "mast_1", "mast_2", "mast_3"}
         if inst.port_only:
             reasons.append(f"guest {guest.guest_id} is port_only=True")
+            permanent_reasons.append(f"{guest.guest_id} is a port-only installation (Annex A.11: at sea no bays, no mast)")
         for subc in guest.subcomponents:
             if all(p in port_only_positions for p in subc.allowed_positions):
                 reasons.append(
-                    f"subcomponent {subc.subcomponent_id} requires bay/mast position {subc.allowed_positions} which is port-only (Annex A.5)"
+                    f"subcomponent {subc.subcomponent_id} requires bay/mast position {subc.allowed_positions} which is port-only (Annex A.11)"
                 )
+                permanent_reasons.append(f"{subc.subcomponent_id} needs a bay/mast position, port-only (Annex A.11)")
         if guest.total_mass_kg > 250:
             reasons.append(
-                f"guest {guest.guest_id} total_mass_kg {guest.total_mass_kg} kg > 250 kg at-sea package install limit (Annex A.4)"
+                f"guest {guest.guest_id} total_mass_kg {guest.total_mass_kg} kg > 250 kg at-sea package install limit (Annex A.11)"
             )
+            permanent_reasons.append(f"{guest.total_mass_kg:g} kg exceeds the 250 kg at-sea portable-module limit (Annex A.11)")
         if state.sea_state > 3:
-            reasons.append(f"sea_state {state.sea_state} > 3 A' at-sea install limit (Annex A.4)")
+            reasons.append(f"sea_state {state.sea_state} > 3 A' at-sea install limit (Annex A.11)")
         eff_max_wind = min(20, inst.sea_install_max_wind_kn) if inst.sea_install_max_wind_kn > 0 else 20
         if state.wind_kn > eff_max_wind:
-            reasons.append(f"wind {state.wind_kn} kn > A' install max {eff_max_wind} kn (Annex A.4)")
+            reasons.append(f"wind {state.wind_kn} kn > A' install max {eff_max_wind} kn (Annex A.11)")
         if not (4.0 <= state.speed_kn <= 8.0):
-            reasons.append(f"speed {state.speed_kn} kn outside A' at-sea install window [4.0, 8.0] kn (Annex A.4)")
+            reasons.append(f"speed {state.speed_kn} kn outside A' at-sea install window [4.0, 8.0] kn (Annex A.11)")
         if not inst.port_only and not (inst.sea_install_min_speed_kn <= state.speed_kn <= inst.sea_install_max_speed_kn):
             reasons.append(
                 f"speed {state.speed_kn} kn outside guest install window [{inst.sea_install_min_speed_kn}, {inst.sea_install_max_speed_kn}] kn"
@@ -569,6 +573,7 @@ def evaluate_a_prime_window(
         "operation_type": operation_type,
         "permitted": len(reasons) == 0,
         "blocking_reasons": reasons,
+        "permanent_blocking_reasons": permanent_reasons,
         "pending_transitions_blocking": active_blocking_transitions,
         "roof_clearance_satisfied": roof_clearance_satisfied,
         "vessel_speed_kn": state.speed_kn,
@@ -628,7 +633,7 @@ def evaluate_crew_regimes_comparison(
         deck_clear_s = compute_deck_clear_duration_s(crew_total, deck_already_clear=False, policy=timing_policy)
         human_confirm_s = compute_human_confirmation_duration_s(crew_total, policy=timing_policy)
 
-        # Under Annex A.5, G4 launch/recovery requires flight_deck clear of other ongoing deck operations,
+        # Under Annex A.3, G4 launch/recovery requires flight_deck clear of other ongoing deck operations,
         # and G2 ([0, 5] kn) vs G4 ([5, 12] kn into wind) have disjoint operational envelopes.
         regime_reports[regime_id] = {
             "crew_total": crew_total,
@@ -658,7 +663,7 @@ def evaluate_crew_regimes_comparison(
             "g6_at_sea_install_permitted": g6_sea_install["permitted"],
             "simultaneous_g2_and_g4_deck_ops_permitted": False,
             "simultaneous_g2_g4_block_reason": (
-                "Annex A.5 requires flight deck clear of other ongoing deck operations during G4 launch/recovery, "
+                "Annex A.3 requires flight deck clear of other ongoing deck operations during G4 launch/recovery, "
                 "and G2 winch window (0-5 kn) conflicts with G4 flight recovery window (5-12 kn into wind)."
             ),
             "autonomous_guests_always_operational": ["G1", "G3", "G5", "G6"],

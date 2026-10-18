@@ -7,6 +7,28 @@ import re
 import textwrap
 from typing import Any, Dict, List, Optional, Tuple
 
+# Legibility floor, expressed as rendered glyph-box height (what `pdftotext -bbox` reports):
+# body text >= 8.0 pt, tables and code >= 7.5 pt. The box is 0.925 em for Helvetica and
+# 0.786 em for Courier (Adobe AFM ascender - descender), so the nominal font sizes are larger.
+# Documents that do not fit their page limit at these sizes must be condensed: the
+# generator raises PDF_PAGE_OVERFLOW / PDF_FONT_FLOOR instead of shrinking the text.
+HELVETICA_GLYPH_EM = 0.925
+COURIER_GLYPH_EM = 0.786
+MIN_BODY_GLYPH_PT = 8.0
+MIN_TABLE_GLYPH_PT = 7.5
+MIN_CODE_GLYPH_PT = 7.5
+MIN_BODY_FONT_PT = round(MIN_BODY_GLYPH_PT / HELVETICA_GLYPH_EM + 0.05, 1)  # 8.7
+MIN_TABLE_FONT_PT = round(MIN_TABLE_GLYPH_PT / HELVETICA_GLYPH_EM + 0.05, 1)  # 8.2
+MIN_CODE_FONT_PT = round(MIN_CODE_GLYPH_PT / COURIER_GLYPH_EM + 0.05, 1)  # 9.6
+
+
+def _check_font_floor(body_font_size: float, table_font_size: float) -> None:
+    if body_font_size < MIN_BODY_FONT_PT or table_font_size < MIN_TABLE_FONT_PT:
+        raise ValueError(
+            f"PDF_FONT_FLOOR: body {body_font_size} pt / table {table_font_size} pt is below the legibility "
+            f"floor ({MIN_BODY_FONT_PT} / {MIN_TABLE_FONT_PT} pt); condense the Markdown instead of shrinking the font"
+        )
+
 
 def _escape_pdf_text(s: str) -> str:
     """Convert common unicode symbols and any residual LaTeX tokens to clean ASCII equivalents for Type1 Helvetica/Courier."""
@@ -192,6 +214,7 @@ def write_multi_page_pdf(
     min_bottom_y: int = 24,
 ) -> None:
     """Write a valid PDF-1.4 file with exact page count `len(pages_lines)` and fail-closed overflow protection."""
+    _check_font_floor(font_size, font_size)
     max_lines_per_page = max(1, (start_y - min_bottom_y) // max(1, leading))
     for page_idx, lines in enumerate(pages_lines, start=1):
         if len(lines) > max_lines_per_page:
@@ -228,20 +251,21 @@ class _PageCanvas:
         margin_x: float = 28.0,
         top_y: float = 764.0,
         bottom_y: float = 26.0,
-        body_font_size: float = 7.5,
-        body_leading: float = 9.5,
-        table_font_size: float = 6.5,
-        table_leading: float = 8.0,
+        body_font_size: float = MIN_BODY_FONT_PT,
+        body_leading: Optional[float] = None,
+        table_font_size: float = MIN_TABLE_FONT_PT,
+        table_leading: Optional[float] = None,
     ) -> None:
+        _check_font_floor(body_font_size, table_font_size)
         self.max_pages = max_pages
         self.margin_x = margin_x
         self.content_w = 612.0 - 2.0 * margin_x
         self.top_y = top_y
         self.bottom_y = bottom_y
         self.body_font_size = body_font_size
-        self.body_leading = body_leading
+        self.body_leading = body_leading if body_leading is not None else round(body_font_size * 1.18, 2)
         self.table_font_size = table_font_size
-        self.table_leading = table_leading
+        self.table_leading = table_leading if table_leading is not None else round(table_font_size * 1.13, 2)
         self.pages: List[List[str]] = [[]]
         self.y = top_y
 
@@ -357,9 +381,9 @@ class _PageCanvas:
         self.y -= 1.5
 
     def render_code_block(self, lines: List[str]) -> None:
-        code_size = max(5.6, self.body_font_size - 1.1)
-        code_leading = max(6.8, self.body_leading - 1.6)
-        chars_per_line = max(50, int((self.content_w - 12.0) / (code_size * 0.58)))
+        code_size = max(MIN_CODE_FONT_PT, self.body_font_size - 1.1)
+        code_leading = round(code_size * 1.06, 2)
+        chars_per_line = max(50, int((self.content_w - 12.0) / (code_size * 0.60)))
         wrapped_all: List[str] = []
         for raw_ln in lines:
             clean_ln = raw_ln.rstrip()
@@ -409,6 +433,30 @@ class _PageCanvas:
             self.y -= box_h + 3.0
             idx += len(chunk)
 
+    def _fit_column_widths(self, rows: List[List[str]], weights: List[float]) -> List[float]:
+        """Share the width by `weights`, but give every column room for its longest unbreakable token when possible."""
+        char_w = self.table_font_size * 0.57
+        need = [
+            min(
+                max((len(tok) for r in rows for tok in r[c].split()), default=1) * char_w + 7.5,
+                0.30 * self.content_w,
+            )
+            for c in range(len(weights))
+        ]
+        if sum(need) > self.content_w:
+            total = sum(weights)
+            return [self.content_w * (w / total) for w in weights]
+        fixed: Dict[int, float] = {}
+        while True:
+            free_w = self.content_w - sum(fixed.values())
+            free_weight = sum(w for c, w in enumerate(weights) if c not in fixed)
+            widths = [fixed.get(c, free_w * w / free_weight) for c, w in enumerate(weights)]
+            short = [c for c in range(len(weights)) if c not in fixed and widths[c] < need[c]]
+            if not short:
+                return widths
+            for c in short:
+                fixed[c] = need[c]
+
     def render_table(self, rows: List[List[str]], col_weights: Optional[List[float]] = None) -> None:
         if not rows:
             return
@@ -420,8 +468,7 @@ class _PageCanvas:
             for c in range(num_cols):
                 max_len = max(len(r[c]) for r in norm_rows)
                 raw_weights.append(max(8.0, min(62.0, float(max_len) ** 0.72)))
-            total_w = sum(raw_weights)
-            col_widths = [self.content_w * (w / total_w) for w in raw_weights]
+            col_widths = self._fit_column_widths(norm_rows, raw_weights)
         else:
             total_w = sum(col_weights)
             col_widths = [self.content_w * (w / total_w) for w in col_weights]
@@ -432,10 +479,14 @@ class _PageCanvas:
             for c_idx, cell_text in enumerate(row):
                 cw = col_widths[c_idx] - 7.0
                 char_cap = max(8, int(cw / (self.table_font_size * 0.57)))
+                # Identifiers longer than the column are split (after "::" first) rather than drawn across the border.
+                cell_text = " ".join(
+                    tok.replace("::", ":: ") if len(tok) > char_cap else tok for tok in cell_text.split()
+                )
                 w_lines = textwrap.wrap(
                     cell_text,
                     width=char_cap,
-                    break_long_words=False,
+                    break_long_words=True,
                     break_on_hyphens=False,
                 )
                 wrapped_cells.append(w_lines if w_lines else [""])
@@ -483,10 +534,10 @@ def render_markdown_document_to_pdf(
     out_path: Path,
     *,
     max_pages: int,
-    body_font_size: float = 7.4,
-    body_leading: float = 9.2,
-    table_font_size: float = 6.3,
-    table_leading: float = 7.6,
+    body_font_size: float = MIN_BODY_FONT_PT,
+    body_leading: Optional[float] = None,
+    table_font_size: float = MIN_TABLE_FONT_PT,
+    table_leading: Optional[float] = None,
 ) -> None:
     """Render a structured Markdown document with tables, headings, and code blocks to a visual PDF."""
     blocks = _parse_markdown_blocks(md_path.read_text(encoding="utf-8"))
@@ -642,6 +693,7 @@ def verify_pdf_contains_markdown_lines(md_path: Path, pdf_path: Path, width: int
     full_rendered_text = " ".join(rendered_chunks)
     # Normalize escaped parens
     full_rendered_norm = re.sub(r"\s+", " ", full_rendered_text.replace("\\(", "(").replace("\\)", ")")).strip()
+    full_rendered_compact = full_rendered_norm.replace(" ", "")
 
     blocks = _parse_markdown_blocks(md_path.read_text(encoding="utf-8"))
     for blk in blocks:
@@ -652,11 +704,12 @@ def verify_pdf_contains_markdown_lines(md_path: Path, pdf_path: Path, width: int
             if expected_norm and expected_norm not in full_rendered_norm:
                 return False
         elif btype == "table":
+            # Cells may split an over-long identifier across lines, so compare them whitespace-free.
             for row in blk["rows"]:
                 for cell in row:
                     expected = _escape_pdf_text(cell).replace("\\(", "(").replace("\\)", ")")
-                    expected_norm = re.sub(r"\s+", " ", expected).strip()
-                    if expected_norm and expected_norm not in full_rendered_norm:
+                    expected_compact = re.sub(r"\s+", "", expected)
+                    if expected_compact and expected_compact not in full_rendered_compact:
                         return False
     return True
 
@@ -673,10 +726,6 @@ def generate_all_deliverable_pdfs(repo_root: Path) -> None:
                 md_p,
                 pdf_p,
                 max_pages=1,
-                body_font_size=5.3,
-                body_leading=6.3,
-                table_font_size=4.8,
-                table_leading=5.6,
             )
             if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
                 raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")
@@ -690,10 +739,6 @@ def generate_all_deliverable_pdfs(repo_root: Path) -> None:
                 md_p,
                 pdf_p,
                 max_pages=2,
-                body_font_size=7.0,
-                body_leading=8.6,
-                table_font_size=5.9,
-                table_leading=7.1,
             )
             if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
                 raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")
@@ -716,10 +761,6 @@ def generate_all_deliverable_pdfs(repo_root: Path) -> None:
                 md_p,
                 pdf_p,
                 max_pages=2,
-                body_font_size=7.2,
-                body_leading=8.8,
-                table_font_size=6.1,
-                table_leading=7.3,
             )
             if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
                 raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")
@@ -731,10 +772,6 @@ def generate_all_deliverable_pdfs(repo_root: Path) -> None:
             readme_md_path,
             repo_root / "README.pdf",
             max_pages=3,
-            body_font_size=7.0,
-            body_leading=8.5,
-            table_font_size=6.0,
-            table_leading=7.2,
         )
         (docs_dir / "README.pdf").write_bytes((repo_root / "README.pdf").read_bytes())
         if not verify_pdf_contains_markdown_lines(readme_md_path, repo_root / "README.pdf"):
@@ -749,10 +786,6 @@ def generate_all_deliverable_pdfs(repo_root: Path) -> None:
             md_p,
             pdf_p,
             max_pages=2,
-            body_font_size=6.8,
-            body_leading=8.3,
-            table_font_size=5.8,
-            table_leading=7.0,
         )
         if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
             raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")

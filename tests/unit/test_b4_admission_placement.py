@@ -164,14 +164,27 @@ def test_adm_04_four_verdicts_complete() -> None:
     d_no = evaluate_admission(catalog["G4"], state, ship, env, prof, catalog, at_port=True, allow_displacement=False)
     assert d_no["verdict"] == "NO"
 
-    # 4. NOT_NOW: port-only guest requested at sea with defer_if_temporary_operational_block=True
+    # 4. NOT_NOW: flight-deck guest (G4 drone swap, A.11) under way with wind above its window
+    sea_state_obj = state.clone()
+    sea_state_obj.wind_kn = 30
     d_not_now = evaluate_admission(
-        catalog["G5"], state, ship, env, prof, catalog,
+        catalog["G4"], sea_state_obj, ship, env, prof, catalog,
         at_port=False, defer_if_temporary_operational_block=True,
-        next_window={"start_s": 86400, "reason": "Next scheduled port call"}
+        next_window={"start_s": 86400, "reason": "wind back under the A.11 limit"}
     )
     assert d_not_now["verdict"] == "NOT_NOW"
     assert d_not_now["next_window"]["start_s"] == 86400
+
+    # 5. A': port-only guest (G5 bay) under way is a permanent NO until the next port call, not a deferral
+    d_port_only = evaluate_admission(
+        catalog["G5"], state, ship, env, prof, catalog,
+        at_port=False, defer_if_temporary_operational_block=True,
+        next_window={"start_s": 86400, "reason": "irrelevant"}
+    )
+    assert d_port_only["verdict"] == "NO"
+    assert d_port_only["binding_constraints"][0]["constraint_id"] == "a11_port_only_installation"
+    assert "next port call" in d_port_only["rationale"]
+    assert d_port_only["next_window"] is None
 
 
 def test_adm_05_not_now_null_window_when_unknown() -> None:
@@ -179,7 +192,7 @@ def test_adm_05_not_now_null_window_when_unknown() -> None:
     catalog, ship, env, prof = _setup_adm()
     state = ShipOperationalState(vessel_mode="QUIET_SURVEY", ship_speed_kn=3.0, wind_kn=18)
     d_not_now = evaluate_admission(
-        catalog["G5"], state, ship, env, prof, catalog,
+        catalog["G4"], state, ship, env, prof, catalog,
         at_port=False, defer_if_temporary_operational_block=True, next_window=None
     )
     assert d_not_now["verdict"] == "NOT_NOW"

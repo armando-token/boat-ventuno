@@ -67,7 +67,7 @@ modes:
     compute_accelerators: 1
     shared_storage_gb: 3000
     backbone_lan_bps: 20000000
-    satcom_bps: 1500000
+    satcom_bps: 0
     safety_critical: false
     uninterruptible: false
     min_done_duration_s: 1200
@@ -85,7 +85,7 @@ modes:
       backbone_lan_bps: "OFFICIAL_BRIEF"
       forbids_emcon_silence: "OFFICIAL_BRIEF"
       requires_deck_clear: "OFFICIAL_BRIEF"
-      satcom_bps: "ASSUMED"
+      satcom_bps: "OFFICIAL_BRIEF"
       compute_cores: "ASSUMED"
       compute_ram_mib: "ASSUMED"
       compute_accelerators: "ASSUMED"
@@ -104,7 +104,7 @@ modes:
     compute_accelerators: 1
     shared_storage_gb: 3000
     backbone_lan_bps: 20000000
-    satcom_bps: 1000000
+    satcom_bps: 0
     safety_critical: false
     uninterruptible: false
     min_done_duration_s: 300

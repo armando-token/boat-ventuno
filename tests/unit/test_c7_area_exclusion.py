@@ -20,8 +20,8 @@ from sdv_governor.scheduling import evaluate_a_prime_window
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
 
-PINNED_B_SURVEY_HASH = "90a2ce1137b0d5729c466f2c313b143d0d189ab21ae9d13093b5d3e380b94a6d"
-PINNED_B_RESCUE_HASH = "d5b36570f0b6bf0ee068dff610a96e382a6c2192458f1cc93e31cc2fcfaf4c7a"
+PINNED_B_SURVEY_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["scenario_B_survey_primary_sha256"]
+PINNED_B_RESCUE_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["scenario_B_rescue_primary_sha256"]
 PINNED_CAMPAIGN_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["campaign_semantic_sha256"]
 
 

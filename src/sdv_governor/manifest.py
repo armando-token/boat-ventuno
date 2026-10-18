@@ -51,7 +51,10 @@ TOP_LEVEL_GUEST_KEYS: Set[str] = {
     "ship_state_constraints",
     "dependencies",
     "mission_capabilities",
+    "logical_workload",
 }
+
+LOGICAL_WORKLOAD_KEYS: Set[str] = {"description", "compute", "satcom_bps", "capability_fraction", "provenance"}
 
 SUBCOMPONENT_KEYS: Set[str] = {
     "subcomponent_id",
@@ -347,7 +350,7 @@ def parse_guest_manifest(
     require_dict(
         raw,
         "guest_manifest",
-        required_keys=TOP_LEVEL_GUEST_KEYS - {"component_allocations", "derivation_metadata"},
+        required_keys=TOP_LEVEL_GUEST_KEYS - {"component_allocations", "derivation_metadata", "logical_workload"},
         allowed_keys=TOP_LEVEL_GUEST_KEYS,
     )
 
@@ -1010,7 +1013,42 @@ def parse_guest_manifest(
         can_buffer_offline=can_buffer_offline,
         source_sha256=source_sha256,
         derivation_metadata=derivation_metadata,
+        logical_workload=_parse_logical_workload(raw.get("logical_workload")),
     )
+
+
+def _parse_logical_workload(raw: Any) -> Optional[Dict[str, Any]]:
+    """Strictly validate the optional software-only variant of a guest ('at sea only logical: new analytics workload')."""
+    if raw is None:
+        return None
+    p = "guest_manifest.logical_workload"
+    lw = require_dict(raw, p, required_keys=LOGICAL_WORKLOAD_KEYS, allowed_keys=LOGICAL_WORKLOAD_KEYS)
+    comp = require_dict(
+        lw["compute"], f"{p}.compute",
+        required_keys={"cores", "memory_gib", "accelerators"}, allowed_keys={"cores", "memory_gib", "accelerators"},
+    )
+    prov = require_dict(
+        lw["provenance"], f"{p}.provenance",
+        required_keys={"compute", "capability_fraction"}, allowed_keys={"compute", "capability_fraction"},
+    )
+    return {
+        "description": require_str(lw["description"], f"{p}.description"),
+        "compute": {
+            "cores": require_int(comp["cores"], f"{p}.compute.cores", min_value=1, max_value=1024),
+            "memory_gib": require_int(comp["memory_gib"], f"{p}.compute.memory_gib", min_value=1, max_value=4096),
+            "accelerators": require_int(comp["accelerators"], f"{p}.compute.accelerators", min_value=0, max_value=16),
+        },
+        "satcom_bps": require_int(lw["satcom_bps"], f"{p}.satcom_bps", min_value=0),
+        "capability_fraction": require_finite_number(
+            lw["capability_fraction"], f"{p}.capability_fraction", min_value=0.01, max_value=1.0
+        ),
+        "provenance": {
+            "compute": require_str(prov["compute"], f"{p}.provenance.compute", allowed_enum=VALID_VALUE_ORIGINS),
+            "capability_fraction": require_str(
+                prov["capability_fraction"], f"{p}.provenance.capability_fraction", allowed_enum=VALID_VALUE_ORIGINS
+            ),
+        },
+    }
 
 
 def validate_dependency_graph(catalog: Dict[str, GuestManifest]) -> None:
@@ -1237,6 +1275,7 @@ def validate_ship_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
         "roof_drone_clearance_policy",
         "layout_version",
         "transition_timing_policy",
+        "own_radar",
     }
     require_dict(
         raw,
@@ -1268,6 +1307,20 @@ def validate_ship_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
             require_int(dom_spec[cap_key], f"{dp}.{cap_key}", min_value=0)
             if "value_origin" in dom_spec:
                 require_str(dom_spec["value_origin"], f"{dp}.value_origin", allowed_enum=VALID_VALUE_ORIGINS)
+
+    if "own_radar" in raw and raw["own_radar"] is not None:
+        orad = require_dict(
+            raw["own_radar"],
+            "ship_profile.own_radar",
+            required_keys={"exposed_positions", "value_origin", "assumption_ref"},
+            allowed_keys={"exposed_positions", "value_origin", "assumption_ref"},
+        )
+        require_str(orad["value_origin"], "ship_profile.own_radar.value_origin", allowed_enum=VALID_VALUE_ORIGINS)
+        require_str(orad["assumption_ref"], "ship_profile.own_radar.assumption_ref")
+        if not isinstance(orad["exposed_positions"], list):
+            raise StrictValidationError("TYPE_ERROR", "exposed_positions must be a list", "ship_profile.own_radar.exposed_positions")
+        for i, pos in enumerate(orad["exposed_positions"]):
+            require_str(pos, f"ship_profile.own_radar.exposed_positions[{i}]", allowed_enum=VALID_POSITIONS)
 
     if "roof_drone_clearance_policy" in raw and raw["roof_drone_clearance_policy"] is not None:
         rcp = require_dict(raw["roof_drone_clearance_policy"], "ship_profile.roof_drone_clearance_policy")
@@ -1328,6 +1381,14 @@ def validate_mission_envelope(raw: Dict[str, Any]) -> Dict[str, Any]:
         require_bool(st["cooling_loop_degraded"], f"{p}.cooling_loop_degraded")
         require_int(st["satcom_available_bps"], f"{p}.satcom_available_bps", min_value=0)
         require_bool(st["emcon_silence"], f"{p}.emcon_silence")
+        if "represents" in st:
+            require_str(st["represents"], f"{p}.represents", allowed_enum={"SINGLE_GENSET_LOSS"})
+    if not any(st.get("represents") == "SINGLE_GENSET_LOSS" and not st["is_pier_only"] for st in states):
+        raise StrictValidationError(
+            "MISSING_SINGLE_GENSET_LOSS_WINDOW",
+            "mission envelope must declare a non-pier window with represents: SINGLE_GENSET_LOSS (Scenario A: holds with one genset down)",
+            "mission_envelope.envelope_states",
+        )
     return raw
 
 

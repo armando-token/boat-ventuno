@@ -199,6 +199,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         res["installed_before"] = list(state.installed_guests.keys())
         res["baseline_conflicts"] = baseline_conflicts
         print(json.dumps(res, indent=2, sort_keys=True))
+        genset_down = res.get("one_genset_down")
+        if genset_down:
+            print(f"\u26a1 One genset down [{genset_down['holds']}]: {genset_down['sentence']}", file=sys.stderr)
         return 0
 
     if args.command == "arbitrate":

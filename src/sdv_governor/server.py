@@ -1358,9 +1358,20 @@ def dispatch_api_request(
                     eval_prof_obj,
                     scenario_file_override=req_scen if req_scen != sess.scenario_file else None,
                 )
-                combos_res = evaluate_four_guest_combinations(
-                    sess.session_catalog, ship_profile, mission_envelope, eval_prof_obj
-                )
+                combos_key = hashlib.sha256(
+                    repr((sess.session_catalog, ship_profile, mission_envelope, eval_prof_obj)).encode("utf-8")
+                ).hexdigest()
+                combos_cache = getattr(sess, "_combos_cache", None)
+                if combos_cache is None:
+                    combos_cache = {}
+                    setattr(sess, "_combos_cache", combos_cache)
+                if combos_key not in combos_cache:
+                    if len(combos_cache) > 8:
+                        combos_cache.clear()
+                    combos_cache[combos_key] = evaluate_four_guest_combinations(
+                        sess.session_catalog, ship_profile, mission_envelope, eval_prof_obj
+                    )
+                combos_res = copy.deepcopy(combos_cache[combos_key])
                 current_budget = evaluate_eight_class_budgets(ship_profile, sess.session_catalog, sess.live_state)
                 current_budget["snapshot_id"] = sess.snapshot_id
                 crew_comp = evaluate_crew_regimes_comparison(sess.session_catalog, sess.live_state)
@@ -1433,6 +1444,7 @@ def dispatch_api_request(
                         "seawater_temp_c",
                         "power_reserve_w",
                         "candidate_manifest",
+                        "candidate_manifest_yaml",
                         "candidate_guest_id",
                         "overrides",
                         "next_window",
@@ -1506,7 +1518,14 @@ def dispatch_api_request(
                     if "power_reserve_w" in req:
                         trial_state.power_reserve_w = require_int(req["power_reserve_w"], "power_reserve_w", min_value=0)
 
-                if "candidate_manifest" in req:
+                if "candidate_manifest_yaml" in req:
+                    yaml_text = require_str(req["candidate_manifest_yaml"], "candidate_manifest_yaml")
+                    try:
+                        parsed_card = yaml.safe_load(yaml_text)
+                    except yaml.YAMLError as exc:
+                        raise StrictValidationError("INVALID_YAML", f"candidate_manifest_yaml is not valid YAML: {exc}", "candidate_manifest_yaml")
+                    raw_cand = copy.deepcopy(require_dict(parsed_card, "candidate_manifest_yaml"))
+                elif "candidate_manifest" in req:
                     raw_cand = copy.deepcopy(require_dict(req["candidate_manifest"], "candidate_manifest"))
                 else:
                     base_gid = require_str(req.get("candidate_guest_id", "G6"), "candidate_guest_id")
@@ -1672,11 +1691,34 @@ def dispatch_api_request(
                         cand_manifest, trial_state, aug_cat, ship_profile, repo_root
                     )
 
+                # Jury "change one number on the ship": a requested reserve or water temperature is a ship
+                # condition for the whole mission, so it is imposed on every A.10 window (reserve capped,
+                # water at least that warm) instead of only on the instant state.
+                eval_envelope = mission_envelope
+                jury_ship_overrides: Dict[str, Any] = {}
+                if "power_reserve_w" in req:
+                    jury_ship_overrides["power_reserve_w"] = int(trial_state.power_reserve_w)
+                if "seawater_temp_c" in req:
+                    jury_ship_overrides["seawater_temp_c"] = float(trial_state.seawater_temp_c)
+                if jury_ship_overrides:
+                    eval_envelope = copy.deepcopy(mission_envelope)
+                    for w_def in eval_envelope.get("envelope_states", []):
+                        if w_def.get("is_pier_only", False):
+                            continue
+                        if "power_reserve_w" in jury_ship_overrides:
+                            w_def["power_reserve_w"] = min(
+                                int(w_def.get("power_reserve_w", 200000)), jury_ship_overrides["power_reserve_w"]
+                            )
+                        if "seawater_temp_c" in jury_ship_overrides:
+                            w_def["seawater_temp_c"] = max(
+                                float(w_def.get("seawater_temp_c", 24.0)), jury_ship_overrides["seawater_temp_c"]
+                            )
+
                 decision = evaluate_admission(
                     cand_manifest,
                     trial_state,
                     ship_profile,
-                    mission_envelope,
+                    eval_envelope,
                     priority_profile,
                     aug_cat,
                     at_port=at_port,
@@ -1685,6 +1727,17 @@ def dispatch_api_request(
                     next_window=req_next_window,
                     hangar_roof_clearance_verified=hangar_roof_verified,
                 )
+
+                if jury_ship_overrides:
+                    notes = []
+                    if "power_reserve_w" in jury_ship_overrides:
+                        notes.append(f"power reserve capped at {jury_ship_overrides['power_reserve_w'] / 1000.0:g} kW")
+                    if "seawater_temp_c" in jury_ship_overrides:
+                        notes.append(f"seawater at least {jury_ship_overrides['seawater_temp_c']:g} \u00b0C")
+                    decision["jury_ship_overrides"] = dict(
+                        jury_ship_overrides,
+                        note="Applied to every 14-day A.10 window: " + ", ".join(notes) + ".",
+                    )
 
                 verdict = decision["verdict"]
                 binding_w = decision.get("binding_constraints") or decision.get("binding_witnesses") or []
@@ -1700,7 +1753,7 @@ def dispatch_api_request(
                     cand_manifest,
                     trial_state,
                     ship_profile,
-                    mission_envelope,
+                    eval_envelope,
                     sess.session_catalog,
                     at_port=at_port,
                     apply_if_admitted=apply_if_admitted,
@@ -2448,6 +2501,13 @@ def serve_operator_ui(repo_root: Path, host: str = "127.0.0.1", port: int = 8765
                 self.end_headers()
                 return
             if clean_path in ("/", "/index.html"):
+                self.send_response(302)
+                self._send_cors_and_source_headers()
+                self.send_header("Location", "/viz3d/")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            if clean_path in ("/console", "/console/", "/console/index.html"):
                 target = ui_dir / "index.html"
             elif clean_path == "/app.js":
                 target = ui_dir / "app.js"

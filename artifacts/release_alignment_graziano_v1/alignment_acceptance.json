@@ -1,0 +1,440 @@
+{
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "obligations": [
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/admission_certificates.json",
+      "case": "Load effective catalog from source & wheel",
+      "command_or_test": "pytest tests/unit/test_b2_manifests_and_errata.py",
+      "id": "ALIGN-T01",
+      "observation": "G4=990 kg (140 vehicle + 850 hangar) with ORGANIZER_ERRATA & DERIV-G4-STATION-MASS-850KG provenance",
+      "section": "14.1",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "Load Scenario B across CLI, campaign, and UI",
+      "command_or_test": "sdv-governor replay --scenario scenario_B_arbitration_degradation.yaml",
+      "id": "ALIGN-T02",
+      "observation": "Scenario B installed_guests=['G1', 'G3', 'G4', 'G5']; G1 at mast_3, G5 antenna at hangar_roof",
+      "section": "14.1",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/decisions.json",
+      "case": "Enumerate 5 combinations of 4 guests among G1..G5",
+      "command_or_test": "sdv-governor combinations",
+      "id": "ALIGN-T03",
+      "observation": "Exact 3 of 5 combinations exceed 10,000 kg; G1+G3+G4+G5 = 9,560 kg fits mass, bays, and mast",
+      "section": "14.1",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "Same installation with verified roof clearance",
+      "command_or_test": "pytest tests/unit/test_b4_admission_placement.py",
+      "id": "ALIGN-T04",
+      "observation": "G1 on mast_3 + G5 antenna on hangar_roof with G4 verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1",
+      "section": "14.1",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/decisions.json",
+      "case": "Pending clearance and atomic YES_IF execution guard",
+      "command_or_test": "pytest tests/integration/test_s6_audit_regressions.py",
+      "id": "ALIGN-T05",
+      "observation": "Unverified roof clearance returns YES_IF and refuses atomic state commit without mutating live_state",
+      "section": "14.1",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "Absolute conflict policy on G4 + roof antenna",
+      "command_or_test": "pytest tests/unit/test_b4_admission_placement.py",
+      "id": "ALIGN-T06",
+      "observation": "compatibility=CONFLICT denies hangar_roof + G4 with explicit envelope witness even if boolean flag is true",
+      "section": "14.1",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "Layout or envelope version change invalidates clearance stamp",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T07",
+      "observation": "Changing layout_version or g4_recovery_envelope_version invalidates stamp and blocks G4 recovery",
+      "section": "14.1",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "Move G5 antenna between hangar_roof and mast_3 at port",
+      "command_or_test": "pytest tests/unit/test_b4_admission_placement.py",
+      "id": "ALIGN-T08",
+      "observation": "Simultaneously updates stability (x1.2 vs x3.0), feeder (LINE_B_AFT vs LINE_A_FWD), air domain, and slot exclusivity",
+      "section": "14.1",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "Scenario B nominal mass & stability snapshot",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T09",
+      "observation": "Total mass = 9,560 kg (margin 440 kg), stability = 9,853 kg-eq (margin 2,147 kg-eq)",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "G5 shed/standby preserves physical mass, stability, and slot occupancy",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T10",
+      "observation": "Mass 9,560 kg and stability 9,853 kg-eq remain invariant across G5 mode step-down or power-off",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "Scenario B nominal air cooling across two domains",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T11",
+      "observation": "mast_3=1,500 W (<=2,000 W), hangar_roof=1,200 W (<=2,000 W), aggregate=2,700 W feasible per domain",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/verification_report.json",
+      "case": "Inject 2,500 W air cooling on mast_3 with empty roof",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T12",
+      "observation": "Rejected locally on mast_3 (2,500 W > 2,000 W) even though aggregate < 4,000 W",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/verification_report.json",
+      "case": "Overload hangar_roof air cooling with slack on mast_3",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T13",
+      "observation": "Rejected on hangar_roof with ASSUMED provenance witness",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "G5 full/degraded and G4 declared mode component conservation",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T14",
+      "observation": "G5 45 kW = 43.8 kW water (bay2/LINE_B_AFT) + 1.2 kW air (roof/LINE_B_AFT); 8 kW = 7.5 kW + 0.5 kW",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "Scenario B actual & committed power/cooling before & after G4 35 kW reservation",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T15",
+      "observation": "Nominal 57.5 kW actual / 81.5 kW committed (G3 +24 kW net delta, no 25+1 double count); +25 kW G4 delta -> 106.5 kW",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "Idempotent G4 reservation, 10->35 kW transition, and cancellation",
+      "command_or_test": "pytest tests/unit/test_b5_arbitration.py",
+      "id": "ALIGN-T16",
+      "observation": "Duplicate reservation is idempotent; delta transitions 25 kW -> 0 W upon 35 kW active mode and clears after charge/abort",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/verification_report.json",
+      "case": "Global power slack with single feeder > 150 kW",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T17",
+      "observation": "Local feeder limit (LINE_A_FWD / LINE_B_AFT <= 150,000 W) rejects/degrades independently of global 200 kW reserve",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "Generator loss to 100 kW with G5 full then degraded to 8 kW",
+      "command_or_test": "pytest tests/unit/test_b6_degradation.py",
+      "id": "ALIGN-T18",
+      "observation": "106.5 kW committed > 100 kW triggers D4 step-down of G5 (45->8 kW), yielding 69.5 kW committed (<= 100 kW) and 20.5 kW actual",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+      "case": "30 C seawater + 40% cooling loop loss (72 kW capacity)",
+      "command_or_test": "pytest tests/unit/test_b6_degradation.py",
+      "id": "ALIGN-T19",
+      "observation": "103.8 kW committed water > 72 kW triggers D4 step-down of G5 (43.8->7.5 kW water), yielding 67.5 kW committed water <= 72 kW",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/decisions.json",
+      "case": "G5 +20% overconsumption (54 kW = 52.8 kW water + 1.2 kW air)",
+      "command_or_test": "pytest tests/unit/test_b7_crew_and_faults.py",
+      "id": "ALIGN-T20",
+      "observation": "9,000 W overrun applied once to primary water compute container (52,800 W water + 1,200 W air = 54,000 W)",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "Thermal inertia continuous overrun / second pulse without cooldown",
+      "command_or_test": "pytest tests/unit/test_b3_simulator_budgets.py",
+      "id": "ALIGN-T21",
+      "observation": "60 s / 1.2 MJ thermal inertia cannot mask sustained > 60 s deficits or back-to-back pulses without recharge",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/decisions.json",
+      "case": "Compute rack nodes, 3-accelerator pool, LAN, SATCOM, and EMCON",
+      "command_or_test": "pytest tests/unit/test_b4_admission_placement.py",
+      "id": "ALIGN-T22",
+      "observation": "Per-node (25 cores, 100 GiB, 1 accel) and cluster (3 accel, 4 TB) limits and EMCON RF silence strictly enforced",
+      "section": "14.2",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/transition_policy_snapshot.json",
+      "case": "Causal transition state machine for course, speed, and quiet state",
+      "command_or_test": "pytest tests/unit/test_b5_arbitration.py",
+      "id": "ALIGN-T23",
+      "observation": "Effective state changes only upon transition completion (course 90 s, speed 60 s intra-band, quiet 180 s)",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "Delayed, lost, and deadline-boundary G3 acoustic HOLD ACK",
+      "command_or_test": "pytest tests/unit/test_s1_s6_closure_r8.py",
+      "id": "ALIGN-T24",
+      "observation": "Late ACK shifts turn/approach/touchdown causally; lost or post-deadline ACK aborts recovery without fake touchdown",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/transition_policy_snapshot.json",
+      "case": "Intra-band (3->5 kn) vs inter-band speed transition durations",
+      "command_or_test": "pytest tests/unit/test_b5_arbitration.py",
+      "id": "ALIGN-T25",
+      "observation": "Intra-band 3->5 kn uses 60 s (ASSUMED); inter-band uses 180 s per band (>= 120 s official A.6 minimum)",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/decisions.json",
+      "case": "Deck clear vs occupied across crew regimes 14 / 6 / 0",
+      "command_or_test": "pytest tests/unit/test_b7_crew_and_faults.py",
+      "id": "ALIGN-T26",
+      "observation": "0 s additional only if already clear & verified; 240 s (crew 14) / 600 s (crew 6) to clear; occupied + crew 0 forbidden",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/arbitration_comparison.json",
+      "case": "D3 arbitration under survey_primary, rescue_primary, and validated custom profile",
+      "command_or_test": "pytest tests/unit/test_b5_arbitration.py",
+      "id": "ALIGN-T27",
+      "observation": "survey_primary touchdown=1095s (preserves 240s waypoint) vs rescue_primary touchdown=855s (immediate turn); invalid profile rejected",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/arbitration_comparison.json",
+      "case": "Infeasible recovery before 1,200 s deadline",
+      "command_or_test": "pytest tests/unit/test_b5_arbitration.py",
+      "id": "ALIGN-T28",
+      "observation": "Explicitly reports infeasibility and aborts recovery when readiness + approach exceeds hard deadline",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "G3 survey resume and aborted-leg repeat after quiet re-entry",
+      "command_or_test": "pytest tests/unit/test_b5_arbitration.py",
+      "id": "ALIGN-T29",
+      "observation": "G3 waits 90 s course + 180 s quiet re-entry after touchdown before resuming/repeating 2,400 s leg",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "G4 35 kW hangar charge over 1,200 s across 1,800 s and extended horizons",
+      "command_or_test": "pytest tests/unit/test_b5_arbitration.py",
+      "id": "ALIGN-T30",
+      "observation": "At t=1800s G4 charge remains PENDING_HORIZON (completes at t=2295s / 2055s in extended horizon)",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "Urgent STOP before vs after G4 touchdown",
+      "command_or_test": "pytest tests/integration/test_s6_audit_regressions.py",
+      "id": "ALIGN-T31",
+      "observation": "STOP before touchdown cancels pending recovery & reservation; STOP after touchdown preserves historical touchdown",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "Urgent override on active D3 plan & simultaneous events determinism",
+      "command_or_test": "pytest tests/unit/test_b6_degradation.py",
+      "id": "ALIGN-T32",
+      "observation": "Cleans up superseded transitions and firm reservations deterministically with zero orphan reservations",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/admission_certificates.json",
+      "case": "Scenario A fourth guest card with perturbed parameter against A.10",
+      "command_or_test": "pytest tests/unit/test_b4_admission_placement.py",
+      "id": "ALIGN-T33",
+      "observation": "Live numeric override resynchronizes component allocations and updates binding witness without code edits",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/admission_certificates.json",
+      "case": "Scenario A NO / BLOCKED / YES_IF atomic state behavior",
+      "command_or_test": "pytest tests/integration/test_s6_audit_regressions.py",
+      "id": "ALIGN-T34",
+      "observation": "NO/BLOCKED leave state untouched; satisfied YES_IF applies displacement and installation atomically",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/decisions.json",
+      "case": "D4 safety-critical and protected uninterruptible load guards",
+      "command_or_test": "pytest tests/unit/test_b6_degradation.py",
+      "id": "ALIGN-T35",
+      "observation": "Safety-critical and active G4 recovery / G3 recharge loads are never automatically shed",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "Generator power restoration vs at-sea cooling loop repair prohibition (Annex A.6)",
+      "command_or_test": "pytest tests/unit/test_b6_degradation.py",
+      "id": "ALIGN-T36",
+      "observation": "Generator reserve can restore after 780 s restart, whereas degraded cooling loop cannot be repaired at sea",
+      "section": "14.3",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/ui_verification/ui_state_verification.json",
+      "case": "2D Operator Console and 3D Vessel Twin observe identical authoritative state",
+      "command_or_test": "pytest tests/integration/test_b10_ui_server.py",
+      "id": "ALIGN-T37",
+      "observation": "Shared /api/state and /api/viz3d/state match run_id, snapshot_version, sim_time_s, G1+G3+G4+G5, and 8-class budgets",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/ui_verification/ui_state_verification.json",
+      "case": "Backend disconnect in live mode enters visible STALE state",
+      "command_or_test": "pytest tests/integration/test_b10_ui_server.py",
+      "id": "ALIGN-T38",
+      "observation": "UI/3D display DISCONNECTED_STALE banner, identify last valid snapshot, disable controls, and never fabricate decisions",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/ui_verification/ui_state_verification.json",
+      "case": "Pause, reset, and multi-client single-clock synchronization",
+      "command_or_test": "pytest tests/integration/test_b10_ui_server.py",
+      "id": "ALIGN-T39",
+      "observation": "Single server-side session clock prevents duplicate advancement and invalidates stale client interpolation on reset",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/ui_verification/ui_state_verification.json",
+      "case": "Single-screen layout with 8 gauges, positions, profile selector, dial, log, and WebGL fallback",
+      "command_or_test": "pytest tests/integration/test_b10_ui_server.py",
+      "id": "ALIGN-T40",
+      "observation": "2D console remains 100% functional if WebGL/3D is unavailable",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/evidence_manifest.json",
+      "case": "Offline wheel installation outside repository with zero CDN dependencies",
+      "command_or_test": "pytest tests/integration/test_b11_parity_and_offline.py",
+      "id": "ALIGN-T41",
+      "observation": "Bundled _bundled/{data,schemas,ui,viz3d} assets match repo root and run offline in isolated venv",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/replay_timeline.json",
+      "case": "Deterministic replay repeatability across consecutive runs",
+      "command_or_test": "sdv-governor replay --runs 2",
+      "id": "ALIGN-T42",
+      "observation": "Identical semantic_sha256=7b09e01c6ed415d1c1c5a9fda4d3762efbf336956da902a5000d526bc9566c2f across runs",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/verification_report.json",
+      "case": "Independent semantic verifier rejects budget/clearance/component mutations with rehashed manifest",
+      "command_or_test": "sdv-governor verify-evidence artifacts/release_alignment_graziano_v1 --run-mutations",
+      "id": "ALIGN-T43",
+      "observation": "All 37 adversarial mutations (28 baseline + 9 \u00a714.5 semantic mutations with recomputed hashes) rejected fail-closed",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/document_verification.json",
+      "case": "Current JUnit XML, deliverable PDF page limits, status files, and preserved history",
+      "command_or_test": "pytest tests/unit/test_s1_s6_closure_r8.py",
+      "id": "ALIGN-T44",
+      "observation": "JUnit tests=154 (0 failures); PDFs obey 1/2/3/10 page limits; historical bundles untouched",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/performance_metrics.json",
+      "case": "D1 (<=30 s) and D3 (<=2 s) host benchmark on demo machine",
+      "command_or_test": "pytest tests/integration/test_b9_acceptance_matrix.py",
+      "id": "ALIGN-T45",
+      "observation": "D1 and D3 worst-case and median calculation latencies well within 30,000 ms and 2,000 ms ceilings",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/performance_metrics.json",
+      "case": "D4 degradation (first action <=5 s, sequence <=60 s) and urgent command (<=200 ms) benchmarks",
+      "command_or_test": "pytest tests/integration/test_b9_acceptance_matrix.py",
+      "id": "ALIGN-T46",
+      "observation": "Both host software dispatch latency (<=200 ms) and simulated mission-clock delta (0 s <= 5 s / 60 s) recorded",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/ALIGNMENT_STATUS.json",
+      "case": "Remote board parity on Arduino Ventuno Q (ssh ardu) or honest BLOCKED_CONNECTION",
+      "command_or_test": "sdv-governor doctor --ssh-target ardu",
+      "id": "ALIGN-T47",
+      "observation": "Remote parity verified on board",
+      "section": "14.4",
+      "status": "VERIFIED"
+    },
+    {
+      "artifact_ref": "artifacts/release_alignment_graziano_v1/ALIGNMENT_STATUS.json",
+      "case": "Honest AI provenance disclosure and separation of external pending items",
+      "command_or_test": "pytest tests/integration/test_b9_acceptance_matrix.py",
+      "id": "ALIGN-T48",
+      "observation": "AI_ELIGIBILITY=NOT_VERIFIED_EXTERNAL_LIST_MISSING and LIVE_90S_REHEARSAL=DEFERRED_OWNER explicitly separated from technical PASS",
+      "section": "14.4",
+      "status": "VERIFIED_DISCLOSED_PENDING_EXTERNAL"
+    }
+  ],
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-alignment-acceptance/1.0",
+  "total_obligations": 48
+}

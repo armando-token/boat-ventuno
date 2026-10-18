@@ -1,0 +1,141 @@
+{
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "policy": {
+    "cooling_loop_at_sea_repair_allowed": false,
+    "course_settle_s": 90,
+    "deadline_boundary_inclusive": true,
+    "deck_clear_crew_0_s": null,
+    "deck_clear_crew_14_s": 240,
+    "deck_clear_crew_6_s": 600,
+    "enter_quiet_state_s": 180,
+    "exit_quiet_state_s": 0,
+    "generator_restart_s": 780,
+    "human_confirm_crew_0_s": 0,
+    "human_confirm_crew_14_s": 30,
+    "human_confirm_crew_6_s": 120,
+    "parameter_provenance": {
+      "cooling_loop_at_sea_repair_allowed": {
+        "official_range": "Not supported at sea (Annex A.6)",
+        "source_ref": "ANNEX_A_6",
+        "unit": "boolean",
+        "value": false,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "course_settle_s": {
+        "official_range": "60..180 s (Annex A.6)",
+        "source_ref": "ANNEX_A_6",
+        "unit": "s",
+        "value": 90,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "deck_clear_crew_0_s": {
+        "official_range": "Only if already clear before departure; forbidden if occupied",
+        "source_ref": "ANNEX_A_6_A_8",
+        "unit": "s",
+        "value": null,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "deck_clear_crew_14_s": {
+        "official_range": "180..300 s (0 s additional if already clear and verified)",
+        "source_ref": "ANNEX_A_6_A_8",
+        "unit": "s",
+        "value": 240,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "deck_clear_crew_6_s": {
+        "official_range": "480..720 s (Annex A.6 / A.8)",
+        "source_ref": "ANNEX_A_6_A_8",
+        "unit": "s",
+        "value": 600,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "enter_quiet_state_s": {
+        "official_range": "120..240 s (Annex A.6)",
+        "source_ref": "ANNEX_A_6",
+        "unit": "s",
+        "value": 180,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "exit_quiet_state_s": {
+        "official_range": "Instantaneous (Annex A.6)",
+        "source_ref": "ANNEX_A_6",
+        "unit": "s",
+        "value": 0,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "generator_restart_s": {
+        "official_range": "300..900 s (5..15 min, Annex A.6 / A.9)",
+        "source_ref": "ANNEX_A_6_A_9",
+        "unit": "s",
+        "value": 780,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "human_confirm_crew_0_s": {
+        "official_range": "Pre-authorized automatic or forbidden by rule; no human ACK",
+        "source_ref": "ANNEX_A_8",
+        "unit": "s",
+        "value": 0,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "human_confirm_crew_14_s": {
+        "official_range": "15..60 s (Annex A.8)",
+        "source_ref": "ANNEX_A_8",
+        "unit": "s",
+        "value": 30,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "human_confirm_crew_6_s": {
+        "official_range": "60..180 s (Annex A.8)",
+        "source_ref": "ANNEX_A_8",
+        "unit": "s",
+        "value": 120,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "recovery_target_speed_kn": {
+        "assumption_ref": "ASM-A6-INTRABAND-SPEED-3-TO-5KN",
+        "official_range": "5.0..12.0 kn (G4 flight operation) & 3.0..5.0 kn (slow band)",
+        "unit": "kn",
+        "value": 5.0,
+        "value_origin": "ASSUMED"
+      },
+      "speed_inter_band_per_band_s": {
+        "official_range": "120..300 s per band (Annex A.6)",
+        "source_ref": "ANNEX_A_6",
+        "unit": "s",
+        "value": 180,
+        "value_origin": "OFFICIAL_BRIEF"
+      },
+      "speed_intra_band_s": {
+        "assumption_ref": "ASM-A6-INTRABAND-SPEED-3-TO-5KN",
+        "official_range": "Not quantified in Annex A.6 (3->5 kn intra-band)",
+        "unit": "s",
+        "value": 60,
+        "value_origin": "ASSUMED"
+      }
+    },
+    "policy_id": "ANNEX_A6_CAUSAL_TIMING_POLICY_V1",
+    "policy_version": 1,
+    "recovery_target_speed_kn": 5.0,
+    "schema_version": "sdv-transition-timing-policy/1.0",
+    "speed_bands_kn": {
+      "fast_dash": {
+        "max_kn": 25.0,
+        "min_kn": 18.0
+      },
+      "patrol_transit": {
+        "max_kn": 14.0,
+        "min_kn": 10.0
+      },
+      "slow_survey": {
+        "max_kn": 5.0,
+        "min_kn": 3.0
+      }
+    },
+    "speed_inter_band_per_band_s": 180,
+    "speed_intra_band_s": 60
+  },
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-transition-policy-snapshot/1.0",
+  "source_file": "data/ship/transition_timing_policy.yaml",
+  "source_sha256": "6a6bacba7dbb5b6d4dfe46b9b2947918e343bf79172c3adf9b9a5f0a9c94eb5e"
+}

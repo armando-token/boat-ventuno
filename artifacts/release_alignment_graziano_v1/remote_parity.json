@@ -1,0 +1,32 @@
+{
+  "campaign_semantic_sha256_match": true,
+  "code_sha256_match": true,
+  "local_execution": {
+    "campaign_semantic_sha256": "7b09e01c6ed415d1c1c5a9fda4d3762efbf336956da902a5000d526bc9566c2f",
+    "code_sha256": "98e4719f5fb715cabfb6bb67503089e7094854217d344d6baf09bf5b6a3da5b9",
+    "hostname": "MacBook-Pro-7.local",
+    "machine": "arm64",
+    "pid": 37825,
+    "python_version": "3.13.15",
+    "rss_kib": 70144,
+    "system": "Darwin",
+    "wall_elapsed_ms": 392.554
+  },
+  "parity_verified": true,
+  "remote_execution": {
+    "campaign_semantic_sha256": "7b09e01c6ed415d1c1c5a9fda4d3762efbf336956da902a5000d526bc9566c2f",
+    "code_sha256": "98e4719f5fb715cabfb6bb67503089e7094854217d344d6baf09bf5b6a3da5b9",
+    "hostname": "training06",
+    "machine": "aarch64",
+    "pid": 514561,
+    "python_version": "3.12.3",
+    "rss_kib": 38516,
+    "ssh_target": "ardu",
+    "system": "Linux",
+    "wall_elapsed_ms": 1082.943
+  },
+  "scenario_B_cooling_limited_match": true,
+  "scenario_B_rescue_primary_match": true,
+  "scenario_B_survey_primary_match": true,
+  "status": "PASS"
+}

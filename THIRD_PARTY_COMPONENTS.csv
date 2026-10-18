@@ -1,6 +1,6 @@
 component,url,license,version_or_commit,platform,usage_in_sdv_resource_governor,vendored
 Python Standard Library,https://docs.python.org/3/library/,PSF-2.0,3.13.15 (macOS) / 3.12.3 (Linux aarch64),macOS arm64 & Linux aarch64,"Core runtime, typing, dataclasses, decimal, fractions, hashlib, sqlite3, http.server, unittest/subprocess",no
-PyYAML,https://github.com/yaml/pyyaml,MIT,6.0.3,macOS arm64 & Linux aarch64,"Declarative loading of vessel baseline, guest manifests G1-G6, priority profiles, scenarios, and brief errata overrides",no
+PyYAML,https://github.com/yaml/pyyaml,MIT,6.0.3,macOS arm64 & Linux aarch64,"Declarative loading of vessel baseline, guest manifests G1-G6, priority profiles, scenarios, and brief/organizer errata overrides",no
 pytest,https://github.com/pytest-dev/pytest,MIT,9.1.1,macOS arm64 & Linux aarch64,"Test runner and JUnit XML evidence generation for unit, integration, and adversarial gates",no
 jsonschema,https://github.com/python-jsonschema/jsonschema,MIT,4.26.0 (macOS) / 4.10.3 (Linux aarch64),macOS arm64 & Linux aarch64,"Validation of the 7 formal JSON Schemas in schemas/*.schema.json during test/validation runs",no
 attrs,https://github.com/python-attrs/attrs,MIT,26.1.0 (macOS) / 23.2.0 (Linux aarch64),macOS arm64 & Linux aarch64,Transitive dependency of jsonschema for schema validation classes,no
@@ -12,5 +12,9 @@ iniconfig,https://github.com/pytest-dev/iniconfig,MIT,2.3.1,macOS arm64 & Linux 
 packaging,https://github.com/pypa/packaging,Apache-2.0 OR BSD-2-Clause,26.3,macOS arm64 & Linux aarch64,Transitive dependency of pytest for version/specifier handling,no
 pluggy,https://github.com/pytest-dev/pluggy,MIT,1.7.0,macOS arm64 & Linux aarch64,Transitive dependency of pytest for plugin management,no
 Pygments,https://github.com/pygments/pygments,BSD-2-Clause,2.21.0,macOS arm64 & Linux aarch64,Transitive dependency of pytest for terminal output formatting,no
+three.js,https://github.com/mrdoob/three.js,MIT,0.160.0 (viz3d),Browser / macOS arm64,"WebGL 3D rendering library used by the optional synchronized 3D Vessel Twin (viz3d/) bound to /api/state",yes (in viz3d bundle)
+vite,https://github.com/vitejs/vite,MIT,5.x (dev-only),macOS arm64 (dev-only),"Frontend development bundler used offline to build viz3d/dist; NOT required at runtime by serve_viz3d.py or sdv-governor",no
+Blender,https://www.blender.org/,GPL-3.0-or-later,4.x (external offline tool),macOS arm64 (offline asset authoring),"External offline 3D modeling tool used to export static GLB vessel/payload meshes in viz3d; NOT linked or invoked at runtime",no
 Arduino_RouterBridge,https://github.com/arduino-libraries/Arduino_RouterBridge,MPL-2.0,0.4.3 (board system),Linux aarch64 / Zephyr MCU,"Historical/system reference on board only; NOT imported or required by sdv-resource-governor deterministic engine",no
 arduino-router,https://github.com/arduino/arduino-router,GPL-3.0-or-later,system-installed (/var/run/arduino-router.sock),Linux aarch64,"System daemon observed on board during hardware inventory; NOT linked or bundled in sdv-resource-governor",no
+Legacy Board & Handoff Models Audit (jeff-sdv-q8_0.gguf / YOLOX & synthetic *.onnx / factory containers),N/A (pre-existing on loaned board /home/arduino outside repo),N/A (audit entry only),pre-existing external files,Linux aarch64 (/home/arduino),"Audit disclosure only: pre-existing files in /home/arduino/sdv-change-review-pilot and /home/arduino/aegis-q-uno on loaned board; ZERO use, import, or execution in sdv-resource-governor",no

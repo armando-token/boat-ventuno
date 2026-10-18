@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>WebGL check</title>
+<style>body{font:15px -apple-system,system-ui,sans-serif;background:#0b1424;color:#e6edf5;padding:32px;max-width:760px}
+.ok{color:#4ade80}.bad{color:#f87171}code{background:#1c2a40;padding:2px 6px;border-radius:4px}li{margin:6px 0}</style></head>
+<body><h2>WebGL diagnostic</h2><ul id="out"></ul>
+<p>If both say <b class="bad">NO</b>: Edge → <code>edge://settings/system</code> → enable "Use graphics acceleration when available" → restart. Then open <code>edge://gpu</code>. Or just open the twin in Chrome / Safari.</p>
+<script>
+var out=document.getElementById('out');
+function row(t,ok,extra){var li=document.createElement('li');li.innerHTML=t+': <b class="'+(ok?'ok':'bad')+'">'+(ok?'YES':'NO')+'</b> '+(extra||'');out.appendChild(li);}
+['webgl2','webgl','experimental-webgl'].forEach(function(n){
+  var c=document.createElement('canvas'),g=null;try{g=c.getContext(n);}catch(e){}
+  var info='';
+  if(g){var d=g.getExtension('WEBGL_debug_renderer_info');info=d?'— '+g.getParameter(d.UNMASKED_RENDERER_WEBGL):'';}
+  row(n,!!g,info);
+});
+</script></body></html>

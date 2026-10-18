@@ -1,0 +1,2783 @@
+{
+  "cooling_limited_30c": {
+    "decisions": [
+      {
+        "decision": {
+          "action_sequence": [
+            {
+              "command": "CONTINUE_QUIET_SURVEY_TO_WAYPOINT",
+              "duration_s": 240,
+              "reason": "Priority profile SURVEY_PRIMARY preserves 240s survey sub-segment while keeping G4 touchdown at T+1095s <= deadline T+1200s",
+              "target": "G3",
+              "time_s": 480
+            },
+            {
+              "command": "ACOUSTIC_HOLD",
+              "expected_ack_time_s": 735,
+              "handshake_window_s": [
+                10,
+                60
+              ],
+              "reason": "Command G3 AUV to enter submerged acoustic HOLD loiter before ship alters course/speed",
+              "target": "G3",
+              "time_s": 720
+            },
+            {
+              "command": "TURN_INTO_WIND_FOR_RECOVERY",
+              "course_settle_s": 90,
+              "new_vessel_mode": "UAV_RECOVERY_HEADING",
+              "reason": "Acoustic HOLD confirmed; turn vessel into wind (5-12 kn window at 5.0 kn) and stabilize roll for G4 landing",
+              "speed_change_s": 60,
+              "target": "VESSEL_NAVIGATION",
+              "target_speed_kn": 5.0,
+              "time_s": 735
+            },
+            {
+              "command": "ACTIVATE_RECOVERY_APPROACH",
+              "expected_touchdown_time_s": 1095,
+              "new_mode": "LAUNCH_RECOVERY_OPTICS",
+              "power_Allocated_w": 35000,
+              "reason": "Recover G4 drone safely onto flight deck by T+1095s (<= hard deadline T+1200s)",
+              "target": "G4",
+              "time_s": 825
+            },
+            {
+              "charging_complete_time_s": 2295,
+              "charging_duration_s": 1200,
+              "command": "CONFIRM_TOUCHDOWN_AND_START_35KW_CHARGE",
+              "new_mode": "LAUNCH_RECOVERY_OPTICS",
+              "reason": "G4 landed and secured on deck before 12-min battery deadline; start 20-min (1200 s) 35 kW hangar recharge",
+              "target": "G4",
+              "time_s": 1095
+            }
+          ],
+          "alert_time_s": 480,
+          "binding_constraints": [],
+          "charging_complete_time_s": 2295,
+          "course_settle_s": 90,
+          "decision_type": "D3_LIVE_ARBITRATION",
+          "deck_clear_duration_s": 0,
+          "deck_ready_s": 480,
+          "evaluated_candidates": [
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_WAYPOINT_PRESERVING_RECOVERY",
+              "displacement_cost": 140.0,
+              "feasible": true,
+              "safety_margin_s": 105,
+              "strategy_label": "MINIMAL_RECOVERABLE_PAUSE",
+              "t_ready_s": 825,
+              "touchdown_time_s": 1095,
+              "utility_score": 152.375
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_PARTIAL_WAYPOINT_RECOVERY",
+              "displacement_cost": 260.0,
+              "feasible": true,
+              "safety_margin_s": 225,
+              "strategy_label": "PARTIAL_WAYPOINT_PAUSE",
+              "t_ready_s": 705,
+              "touchdown_time_s": 975,
+              "utility_score": 33.375
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_IMMEDIATE_RECOVERY_TURN",
+              "displacement_cost": 260.0,
+              "feasible": true,
+              "safety_margin_s": 345,
+              "strategy_label": "IMMEDIATE_FULL_SUSPENSION",
+              "t_ready_s": 585,
+              "touchdown_time_s": 855,
+              "utility_score": -28.625
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_IMMEDIATE_RECOVERY_WITH_G5_STEPDOWN",
+              "displacement_cost": 330.0,
+              "feasible": true,
+              "safety_margin_s": 345,
+              "strategy_label": "IMMEDIATE_FULL_SUSPENSION",
+              "t_ready_s": 585,
+              "touchdown_time_s": 855,
+              "utility_score": -49.625
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_WAYPOINT_PRESERVING_WITH_G5_STEPDOWN",
+              "displacement_cost": 210.0,
+              "feasible": true,
+              "safety_margin_s": 105,
+              "strategy_label": "MINIMAL_RECOVERABLE_PAUSE",
+              "t_ready_s": 825,
+              "touchdown_time_s": 1095,
+              "utility_score": 131.375
+            },
+            {
+              "binding_witnesses": [
+                {
+                  "capacity": 1200,
+                  "constraint_id": "g4_battery_emergency_touchdown_deadline_s",
+                  "demand": 2775,
+                  "detail": "Candidate CAND_FULL_LEG_COMPLETION_UNSAFE touchdown at T+2775s exceeds hard battery deadline T+1200s",
+                  "margin": -1575,
+                  "provenance": "DERIVED",
+                  "resource_class": "time",
+                  "state_label": "T+480s:CAND_FULL_LEG_COMPLETION_UNSAFE",
+                  "unit": "s"
+                }
+              ],
+              "candidate_id": "CAND_FULL_LEG_COMPLETION_UNSAFE",
+              "displacement_cost": 140.0,
+              "feasible": false,
+              "safety_margin_s": -1575,
+              "strategy_label": "DEFER_UNTIL_LEG_END",
+              "t_ready_s": 2505,
+              "touchdown_time_s": 2775,
+              "utility_score": -309.625
+            }
+          ],
+          "executed_charging_complete_time_s": null,
+          "executed_hold_ack_time_s": 735,
+          "executed_hold_cmd_time_s": 720,
+          "executed_stabilized_time_s": 825,
+          "executed_touchdown_time_s": 1095,
+          "executed_turn_into_wind_time_s": 735,
+          "g3_leg_repeat_complete_s": 3045,
+          "g3_quiet_ready_s": 1365,
+          "g3_return_course_speed_ready_s": 1185,
+          "handshake_latency_s": 15,
+          "hard_safety_satisfied": true,
+          "hard_touchdown_deadline_s": 1200,
+          "hold_ack_time_s": 735,
+          "hold_cmd_time_s": 720,
+          "human_confirm_done_s": 510,
+          "human_confirmation_s": 30,
+          "losing_mission_cost": {
+            "acoustic_handshake_wait_s": 15,
+            "g3_leg_repeat_complete_s": 3045,
+            "g3_mode_during_recovery": "HOLD_ACOUSTIC",
+            "g3_quiet_ready_s": 1365,
+            "g5_pre_stepped_down": false,
+            "losing_guest_id": "G3",
+            "reposition_penalty_min": 0.0,
+            "survey_segment_aborted_s": 0,
+            "survey_segment_preserved_s": 240,
+            "total_survey_interruption_min": 14.0
+          },
+          "plan_version": 1,
+          "planned_charging_complete_time_s": 2295,
+          "planned_hold_ack_time_s": 735,
+          "planned_hold_cmd_time_s": 720,
+          "planned_stabilized_time_s": 825,
+          "planned_touchdown_time_s": 1095,
+          "planned_transitions": [
+            {
+              "duration_s": 30,
+              "end_time_s": 510,
+              "from_value": "PENDING",
+              "owner_id": "BRIDGE_WATCH",
+              "start_time_s": 480,
+              "status": "PLANNED",
+              "to_value": "CONFIRMED",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:HUMAN_CONFIRM",
+              "transition_type": "HUMAN_CONFIRMATION"
+            },
+            {
+              "duration_s": 15,
+              "end_time_s": 735,
+              "from_value": "SURVEY_QUIET",
+              "owner_id": "G3",
+              "start_time_s": 720,
+              "status": "PLANNED",
+              "to_value": "HOLD_ACOUSTIC",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:G3_ACOUSTIC_HOLD",
+              "transition_type": "ACOUSTIC_HOLD_HANDSHAKE"
+            },
+            {
+              "duration_s": 0,
+              "end_time_s": 735,
+              "from_value": true,
+              "owner_id": "VESSEL",
+              "start_time_s": 735,
+              "status": "PLANNED",
+              "to_value": false,
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:EXIT_QUIET",
+              "transition_type": "EXIT_QUIET_STATE"
+            },
+            {
+              "duration_s": 60,
+              "end_time_s": 795,
+              "from_value": 3.0,
+              "owner_id": "VESSEL",
+              "start_time_s": 735,
+              "status": "PLANNED",
+              "to_value": 5.0,
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:SPEED_TO_5KN",
+              "transition_type": "SPEED_CHANGE"
+            },
+            {
+              "duration_s": 90,
+              "end_time_s": 825,
+              "from_value": 90.0,
+              "owner_id": "VESSEL",
+              "start_time_s": 735,
+              "status": "PLANNED",
+              "to_value": 270.0,
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:COURSE_INTO_WIND",
+              "transition_type": "COURSE_SETTLE"
+            },
+            {
+              "duration_s": 0,
+              "end_time_s": 480,
+              "from_value": true,
+              "owner_id": "DECK_CREW",
+              "start_time_s": 480,
+              "status": "PLANNED",
+              "to_value": true,
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:DECK_CLEAR",
+              "transition_type": "DECK_CLEAR_VERIFICATION"
+            },
+            {
+              "duration_s": 270,
+              "end_time_s": 1095,
+              "from_value": "FLIGHT_PATROL",
+              "owner_id": "G4",
+              "start_time_s": 825,
+              "status": "PLANNED",
+              "to_value": "TOUCHDOWN_HANGAR",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:G4_RECOVERY_APPROACH",
+              "transition_type": "UAV_RECOVERY_APPROACH"
+            },
+            {
+              "duration_s": 1200,
+              "end_time_s": 2295,
+              "from_value": "LAUNCH_RECOVERY_OPTICS",
+              "owner_id": "G4",
+              "start_time_s": 1095,
+              "status": "PLANNED",
+              "to_value": "STANDBY",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:G4_HANGAR_CHARGE",
+              "transition_type": "UAV_HANGAR_CHARGE_1200S"
+            },
+            {
+              "duration_s": 270,
+              "end_time_s": 1365,
+              "from_value": "UAV_RECOVERY_HEADING",
+              "owner_id": "VESSEL",
+              "start_time_s": 1095,
+              "status": "PLANNED",
+              "to_value": "QUIET_SURVEY",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:RETURN_QUIET_SURVEY",
+              "transition_type": "ENTER_QUIET_STATE"
+            }
+          ],
+          "planned_turn_into_wind_time_s": 735,
+          "priority_profile_id": "SURVEY_PRIMARY",
+          "priority_profile_sha256": "67a60217dc9bef2b12eb91b39a88ceb52824757a69e39d72bd292b2d84698b82",
+          "rationale": "D3 Arbitration under profile=SURVEY_PRIMARY selected candidate=CAND_WAYPOINT_PRESERVING_RECOVERY (utility_score=152.375): G4 battery=18.0% (<20%) imposes hard landing deadline T+1200s. Issued ACOUSTIC_HOLD to G3 at T+720s, confirmed at T+735s (15s acoustic latency), vessel turns into wind at T+735s (target 5.0 kn, ready at T+825s), G4 touchdown at T+1095s (margin=105s), followed by 1200s 35 kW hangar charge until T+2295s and G3 quiet survey resume at T+1365s. Losing mission cost on G3: interruption=14.0 min, aborted_segment=0s.",
+          "selected_candidate_id": "CAND_WAYPOINT_PRESERVING_RECOVERY",
+          "selected_utility_score": 152.375,
+          "simulated_transition_to_touchdown_s": 615,
+          "speed_change_s": 60,
+          "stabilized_time_s": 825,
+          "state_hash_before": "2d7e291ddbb33052759344b6976ac7ae9bfb46c392120f3dac4b7a33c9289347",
+          "status": "FEASIBLE",
+          "strategy_applied": "MINIMAL_RECOVERABLE_PAUSE",
+          "t_ready_s": 825,
+          "target_recovery_speed_kn": 5.0,
+          "tie_break_rule": "HIGHER_CAPABILITY_SCORE_THEN_LEXICOGRAPHIC",
+          "touchdown_time_s": 1095,
+          "turn_into_wind_time_s": 735,
+          "uav_battery_pct": 18.0,
+          "verdict": "YES",
+          "verdict_code": "FEASIBLE",
+          "within_2s_deadline": true
+        },
+        "event_time_s": 480,
+        "phase": "D3_ARBITRATION",
+        "plan_version": 1,
+        "sim_time_s": 480,
+        "tick": 24
+      },
+      {
+        "decision": {
+          "actions_taken": [
+            {
+              "action_type": "MODE_STEP_DOWN",
+              "capability_retention_ratio": 0.3,
+              "cooling_air_saved_w": 700,
+              "cooling_water_saved_w": 36300,
+              "from_mode": "FULL_SPECTRUM",
+              "guest_id": "G5",
+              "min_cooldown_before_reconnect_s": 60,
+              "post_step_cooling_actual_w": 43500,
+              "post_step_cooling_committed_w": 67500,
+              "post_step_feasible": true,
+              "post_step_power_actual_w": 45500,
+              "post_step_power_committed_w": 69500,
+              "power_saved_w": 37000,
+              "required_hysteresis_margin_w": 15000,
+              "step_index": 1,
+              "to_mode": "DEGRADED_70PCT_LOSS"
+            }
+          ],
+          "balance_after_each_step": [
+            {
+              "action_type": "MODE_STEP_DOWN",
+              "capability_retention_ratio": 0.3,
+              "cooling_air_saved_w": 700,
+              "cooling_water_saved_w": 36300,
+              "from_mode": "FULL_SPECTRUM",
+              "guest_id": "G5",
+              "min_cooldown_before_reconnect_s": 60,
+              "post_step_cooling_actual_w": 43500,
+              "post_step_cooling_committed_w": 67500,
+              "post_step_feasible": true,
+              "post_step_power_actual_w": 45500,
+              "post_step_power_committed_w": 69500,
+              "power_saved_w": 37000,
+              "required_hysteresis_margin_w": 15000,
+              "step_index": 1,
+              "to_mode": "DEGRADED_70PCT_LOSS"
+            }
+          ],
+          "decision_type": "D4_GRACEFUL_DEGRADATION",
+          "deficit_analysis": {
+            "cooling_actual_deficit_w": 7800,
+            "cooling_capacity_w": 72000,
+            "cooling_committed_deficit_w": 31800,
+            "initial_cooling_actual_w": 79800,
+            "initial_cooling_committed_w": 103800,
+            "initial_power_actual_w": 82500,
+            "initial_power_committed_w": 106500,
+            "power_actual_deficit_w": 0,
+            "power_capacity_w": 100000,
+            "power_committed_deficit_w": 6500
+          },
+          "final_budget_snapshot": {
+            "binding_witnesses": [],
+            "classes": {
+              "compute": {
+                "actual": 22,
+                "capacity": 100,
+                "committed": 22,
+                "degraded_capacity": 100,
+                "feasible": true,
+                "free": 78,
+                "local_limits": {
+                  "cluster_accelerators": {
+                    "allocatable": 3,
+                    "feasible": true,
+                    "free": 2,
+                    "used": 1
+                  },
+                  "nodes": {
+                    "node_1": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 0,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_2": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 21,
+                      "free_ram_mib": 86016,
+                      "used_accelerators": 0,
+                      "used_cores": 4,
+                      "used_ram_mib": 16384
+                    },
+                    "node_3": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 0,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 1,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_4": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 23,
+                      "free_ram_mib": 98304,
+                      "used_accelerators": 0,
+                      "used_cores": 2,
+                      "used_ram_mib": 4096
+                    }
+                  },
+                  "shared_storage_gb": {
+                    "allocatable_gb": 16000,
+                    "feasible": true,
+                    "free_gb": 3800,
+                    "used_gb": 12200
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "cores"
+              },
+              "cooling": {
+                "actual": 43500,
+                "capacity": 120000,
+                "committed": 67500,
+                "degraded_capacity": 72000,
+                "feasible": true,
+                "free": 4500,
+                "local_limits": {
+                  "air_cooling_domains": {
+                    "hangar_roof": {
+                      "actual_w": 500,
+                      "capacity_w": 2000,
+                      "committed_w": 500,
+                      "feasible": true,
+                      "free_w": 1500,
+                      "occupants": [
+                        "G5:G5_MAST_ANTENNA"
+                      ],
+                      "value_origin": "ASSUMED"
+                    },
+                    "mast_3": {
+                      "actual_w": 1500,
+                      "capacity_w": 2000,
+                      "committed_w": 1500,
+                      "feasible": true,
+                      "free_w": 500,
+                      "occupants": [
+                        "G1:G1_MAST_SENSOR_HEAD"
+                      ],
+                      "value_origin": "OFFICIAL_BRIEF"
+                    }
+                  },
+                  "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C+LOOP_DEGRADED_40PCT",
+                  "effective_water_cap_with_inertia_w": 72000,
+                  "hangar_roof_air_cooling": {
+                    "actual_w": 500,
+                    "capacity_w": 2000,
+                    "committed_w": 500,
+                    "feasible": true,
+                    "free_w": 1500
+                  },
+                  "mast_air_cooling": {
+                    "actual_w": 1500,
+                    "capacity_w": 2000,
+                    "committed_w": 1500,
+                    "feasible": true,
+                    "free_w": 500
+                  },
+                  "seawater_temp_c": 30.0,
+                  "thermal_inertia_available_boost_w": 0,
+                  "total_thermal_dissipation_w": 45500
+                },
+                "provenance": "SIMULATED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "data": {
+                "actual": 3200000,
+                "capacity": 8000000,
+                "committed": 3200000,
+                "degraded_capacity": 8000000,
+                "feasible": true,
+                "free": 4800000,
+                "local_limits": {
+                  "backbone_lan_bps": {
+                    "actual_total_bps": 470000000,
+                    "feasible": true,
+                    "highest_port_bps": 300000000,
+                    "max_per_port_bps": 1000000000,
+                    "max_total_bps": 10000000000
+                  },
+                  "satcom_bps": {
+                    "actual_bps": 3200000,
+                    "available_bps": 8000000,
+                    "emcon_silence": false,
+                    "emcon_violated": false,
+                    "free_bps": 4800000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "bps"
+              },
+              "mass_stability": {
+                "actual": 9560,
+                "capacity": 10000,
+                "committed": 9560,
+                "degraded_capacity": 10000,
+                "feasible": true,
+                "free": 440,
+                "local_limits": {
+                  "bay1_mass_kg": {
+                    "actual_kg": 5500,
+                    "feasible": true,
+                    "free_kg": 2500,
+                    "max_kg": 8000
+                  },
+                  "bay2_mass_kg": {
+                    "actual_kg": 3000,
+                    "feasible": true,
+                    "free_kg": 1000,
+                    "max_kg": 4000
+                  },
+                  "mass_margin_kg": {
+                    "actual_kg": 9560,
+                    "feasible": true,
+                    "free_kg": 440,
+                    "max_kg": 10000
+                  },
+                  "stability_equivalent_kg": {
+                    "actual_kg_eq": 9853.0,
+                    "feasible": true,
+                    "free_kg_eq": 2147.0,
+                    "max_kg_eq": 12000.0
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "kg"
+              },
+              "mast": {
+                "actual": 1,
+                "capacity": 1,
+                "committed": 1,
+                "degraded_capacity": 1,
+                "feasible": true,
+                "free": 0,
+                "local_limits": {
+                  "fixed_occupied": [
+                    "mast_1",
+                    "mast_2"
+                  ],
+                  "guest_allocatable_slots": 1,
+                  "guest_slot_mast_3": {
+                    "air_cooling_w": 1500,
+                    "footprint_m2": 0.5,
+                    "mass_kg": 45,
+                    "max_air_cooling_w": 2000,
+                    "max_footprint_m2": 0.6,
+                    "max_mass_kg": 60,
+                    "owner": "G1:G1_MAST_SENSOR_HEAD"
+                  },
+                  "ship_reserved_slots": 2,
+                  "total_physical_slots": 3
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "positions": {
+                "actual": 4,
+                "capacity": 5,
+                "committed": 4,
+                "degraded_capacity": 5,
+                "feasible": true,
+                "free": 2,
+                "local_limits": {
+                  "bay1_20ft": [
+                    "G3:G3_AUV_CRADLE_BAY1_20FT"
+                  ],
+                  "bay1_a_10ft": [],
+                  "bay1_b_10ft": [],
+                  "bay1_max_mass_kg": 8000,
+                  "bay1_total_mass_kg": 5500,
+                  "bay2_10ft": [
+                    "G5:G5_COMPUTE_CONTAINER"
+                  ],
+                  "bay2_max_mass_kg": 4000,
+                  "bay2_total_mass_kg": 3000,
+                  "flight_deck": [
+                    "G4:G4_DRONE_VEHICLE"
+                  ],
+                  "hangar": [
+                    "G4:G4_HANGAR_STATION"
+                  ],
+                  "hangar_max_mass_kg": 1000,
+                  "hangar_roof": [
+                    "G5:G5_MAST_ANTENNA"
+                  ],
+                  "hangar_roof_drone_clearance": {
+                    "compatibility": "CONDITIONAL",
+                    "constraint_id": "hangar_roof_drone_clearance",
+                    "feasible": true,
+                    "g4_installed": true,
+                    "hangar_roof_occupants": [
+                      "G5:G5_MAST_ANTENNA"
+                    ],
+                    "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+                    "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+                    "policy_version": 1,
+                    "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+                    "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+                    "requires_clearance": true,
+                    "satisfied": true,
+                    "status": "VERIFIED_COMPATIBLE",
+                    "verified": true,
+                    "witness": null
+                  },
+                  "hangar_total_mass_kg": 990,
+                  "stern_ramp": []
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "power": {
+                "actual": 45500,
+                "capacity": 200000,
+                "committed": 69500,
+                "degraded_capacity": 100000,
+                "feasible": true,
+                "free": 30500,
+                "local_limits": {
+                  "LINE_A_FWD": {
+                    "actual_w": 2500,
+                    "committed_w": 26500,
+                    "feasible": true,
+                    "free_w": 123500,
+                    "max_power_w": 150000
+                  },
+                  "LINE_B_AFT": {
+                    "actual_w": 43000,
+                    "committed_w": 43000,
+                    "feasible": true,
+                    "free_w": 107000,
+                    "max_power_w": 150000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "time": {
+                "actual": 0.0434,
+                "capacity": 200.0,
+                "committed": 0.0434,
+                "degraded_capacity": 200.0,
+                "feasible": true,
+                "free": 199.9566,
+                "local_limits": {
+                  "scenario_a_admission_deadline_ms": 30000.0,
+                  "scenario_b_arbitration_deadline_ms": 2000.0,
+                  "tick_deadline_ms": 200.0
+                },
+                "provenance": "MEASURED",
+                "source_time_ns": "0",
+                "unit": "ms"
+              }
+            },
+            "component_breakdown": {
+              "G1_MAST_SENSOR_HEAD": {
+                "active_mode": "NOMINAL",
+                "actual_power_w": 1500,
+                "air_cooling_domain": "mast_3",
+                "assumption_ref": null,
+                "committed_power_w": 1500,
+                "cooling_air_actual_w": 1500,
+                "cooling_air_committed_w": 1500,
+                "cooling_route": "MAST_AIR_2KW",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G1",
+                "mass_kg": 45,
+                "nominal_power_w": 1500,
+                "peak_power_w": 1500,
+                "position": "mast_3",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "OFFICIAL_BRIEF",
+                "stability_eq_kg": 135.0,
+                "stability_multiplier": 3.0,
+                "subcomponent_id": "G1_MAST_SENSOR_HEAD"
+              },
+              "G3_AUV_CRADLE_BAY1_20FT": {
+                "active_mode": "SURVEY_QUIET",
+                "actual_power_w": 1000,
+                "air_cooling_domain": null,
+                "assumption_ref": null,
+                "committed_power_w": 25000,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 1000,
+                "cooling_water_committed_w": 25000,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G3",
+                "mass_kg": 5500,
+                "nominal_power_w": 1000,
+                "peak_power_w": 1000,
+                "position": "bay1",
+                "powered_on": true,
+                "reserved_delta_w": 24000,
+                "source_kind": "OFFICIAL_BRIEF",
+                "stability_eq_kg": 5500.0,
+                "stability_multiplier": 1.0,
+                "subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+              },
+              "G4_DRONE_VEHICLE": {
+                "active_mode": "LAUNCH_RECOVERY_OPTICS",
+                "actual_power_w": 0,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+                "committed_power_w": 0,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "PASSIVE_NO_COOLING",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "mass_kg": 140,
+                "nominal_power_w": 0,
+                "peak_power_w": 0,
+                "position": "flight_deck",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 168.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G4_DRONE_VEHICLE"
+              },
+              "G4_HANGAR_STATION": {
+                "active_mode": "LAUNCH_RECOVERY_OPTICS",
+                "actual_power_w": 35000,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+                "committed_power_w": 35000,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 35000,
+                "cooling_water_committed_w": 35000,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "mass_kg": 850,
+                "nominal_power_w": 35000,
+                "peak_power_w": 35000,
+                "position": "hangar",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 1020.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G4_HANGAR_STATION"
+              },
+              "G5_COMPUTE_CONTAINER": {
+                "active_mode": "DEGRADED_70PCT_LOSS",
+                "actual_power_w": 7500,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+                "committed_power_w": 7500,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 7500,
+                "cooling_water_committed_w": 7500,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G5",
+                "mass_kg": 3000,
+                "nominal_power_w": 7500,
+                "peak_power_w": 7500,
+                "position": "bay2",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 3000.0,
+                "stability_multiplier": 1.0,
+                "subcomponent_id": "G5_COMPUTE_CONTAINER"
+              },
+              "G5_MAST_ANTENNA": {
+                "active_mode": "DEGRADED_70PCT_LOSS",
+                "actual_power_w": 500,
+                "air_cooling_domain": "hangar_roof",
+                "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+                "committed_power_w": 500,
+                "cooling_air_actual_w": 500,
+                "cooling_air_committed_w": 500,
+                "cooling_route": "MAST_AIR_2KW",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G5",
+                "mass_kg": 25,
+                "nominal_power_w": 500,
+                "peak_power_w": 500,
+                "position": "hangar_roof",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 30.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G5_MAST_ANTENNA"
+              }
+            },
+            "feasible": true,
+            "firm_reservations_ledger": [
+              {
+                "activation_condition": "SCHEDULED_MODE_TRANSITION",
+                "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+                "created_at_s": 0,
+                "current_committed_before_reservation_w": 1000,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G3",
+                "net_envelope_delta_w": 24000,
+                "origin": "SCENARIO_OR_ARBITRATION",
+                "reason": "Guaranteed post-leg uninterruptible AUV battery recharge reservation",
+                "reservation_id": "RES-G3-RECHARGE-CRADLE",
+                "reserved_power_w": 25000,
+                "target_subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+              },
+              {
+                "activation_condition": "SCHEDULED_MODE_TRANSITION",
+                "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+                "created_at_s": 0,
+                "current_committed_before_reservation_w": 35000,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "net_envelope_delta_w": 0,
+                "origin": "SCENARIO_OR_ARBITRATION",
+                "reason": "D3 committed UAV recovery approach and 20-min hangar charge (35 kW)",
+                "reservation_id": "D3_PLAN_V1_G4_RECOVERY",
+                "reserved_power_w": 35000,
+                "target_subcomponent_id": "G4_HANGAR_STATION"
+              }
+            ],
+            "infeasible_protected_load": false,
+            "infeasible_reason": null,
+            "roof_clearance_evaluation": {
+              "compatibility": "CONDITIONAL",
+              "constraint_id": "hangar_roof_drone_clearance",
+              "feasible": true,
+              "g4_installed": true,
+              "hangar_roof_occupants": [
+                "G5:G5_MAST_ANTENNA"
+              ],
+              "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+              "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+              "policy_version": 1,
+              "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "requires_clearance": true,
+              "satisfied": true,
+              "status": "VERIFIED_COMPATIBLE",
+              "verified": true,
+              "witness": null
+            },
+            "sim_time_s": 720,
+            "tick_seq": 36,
+            "vessel_mode": "DEGRADED_THERMAL"
+          },
+          "infeasible_protected_load": false,
+          "plan_version": 2,
+          "priority_profile_id": "SURVEY_PRIMARY",
+          "status": "FEASIBLE_AFTER_DEGRADATION",
+          "verdict": "YES",
+          "within_5s_first_shed_deadline": true,
+          "within_60s_sequence_deadline": true
+        },
+        "event_time_s": 720,
+        "phase": "D4_DEGRADATION",
+        "plan_version": 2,
+        "sim_time_s": 720,
+        "tick": 36
+      }
+    ],
+    "executed_touchdown_time_s": 1095,
+    "horizon_obligations_summary": {
+      "g3_survey_leg_2400s": {
+        "leg_elapsed_s": 1170,
+        "leg_target_s": 2400,
+        "legs_completed": 0,
+        "remaining_s_at_horizon": 1230,
+        "status": "PENDING_HORIZON"
+      },
+      "g4_charging_1200s": {
+        "expected_complete_time_s": 2295,
+        "remaining_s_at_horizon": 495,
+        "status": "PENDING_HORIZON",
+        "touchdown_time_s": 1095
+      },
+      "horizon_end_sim_time_s": 1800
+    },
+    "semantic_sha256": "7a6bb4e76b76313cf31c1b5483483c01ab1757480e3769d6d91e83e9ccc69ba5"
+  },
+  "distinct_outcomes_verified": true,
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "profiles_compared": [
+    "SURVEY_PRIMARY",
+    "RESCUE_PRIMARY"
+  ],
+  "rescue_primary": {
+    "decisions": [
+      {
+        "decision": {
+          "action_sequence": [
+            {
+              "command": "ACOUSTIC_HOLD",
+              "expected_ack_time_s": 495,
+              "handshake_window_s": [
+                10,
+                60
+              ],
+              "reason": "Command G3 AUV to enter submerged acoustic HOLD loiter before ship alters course/speed",
+              "target": "G3",
+              "time_s": 480
+            },
+            {
+              "command": "TURN_INTO_WIND_FOR_RECOVERY",
+              "course_settle_s": 90,
+              "new_vessel_mode": "UAV_RECOVERY_HEADING",
+              "reason": "Acoustic HOLD confirmed; turn vessel into wind (5-12 kn window at 5.0 kn) and stabilize roll for G4 landing",
+              "speed_change_s": 60,
+              "target": "VESSEL_NAVIGATION",
+              "target_speed_kn": 5.0,
+              "time_s": 495
+            },
+            {
+              "command": "ACTIVATE_RECOVERY_APPROACH",
+              "expected_touchdown_time_s": 855,
+              "new_mode": "LAUNCH_RECOVERY_OPTICS",
+              "power_Allocated_w": 35000,
+              "reason": "Recover G4 drone safely onto flight deck by T+855s (<= hard deadline T+1200s)",
+              "target": "G4",
+              "time_s": 585
+            },
+            {
+              "charging_complete_time_s": 2055,
+              "charging_duration_s": 1200,
+              "command": "CONFIRM_TOUCHDOWN_AND_START_35KW_CHARGE",
+              "new_mode": "LAUNCH_RECOVERY_OPTICS",
+              "reason": "G4 landed and secured on deck before 12-min battery deadline; start 20-min (1200 s) 35 kW hangar recharge",
+              "target": "G4",
+              "time_s": 855
+            }
+          ],
+          "alert_time_s": 480,
+          "binding_constraints": [],
+          "charging_complete_time_s": 2055,
+          "course_settle_s": 90,
+          "decision_type": "D3_LIVE_ARBITRATION",
+          "deck_clear_duration_s": 0,
+          "deck_ready_s": 480,
+          "evaluated_candidates": [
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_WAYPOINT_PRESERVING_RECOVERY",
+              "displacement_cost": 140.0,
+              "feasible": true,
+              "safety_margin_s": 105,
+              "strategy_label": "MINIMAL_RECOVERABLE_PAUSE",
+              "t_ready_s": 825,
+              "touchdown_time_s": 1095,
+              "utility_score": 109.7083
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_PARTIAL_WAYPOINT_RECOVERY",
+              "displacement_cost": 260.0,
+              "feasible": true,
+              "safety_margin_s": 225,
+              "strategy_label": "PARTIAL_WAYPOINT_PAUSE",
+              "t_ready_s": 705,
+              "touchdown_time_s": 975,
+              "utility_score": 119.375
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_IMMEDIATE_RECOVERY_TURN",
+              "displacement_cost": 260.0,
+              "feasible": true,
+              "safety_margin_s": 345,
+              "strategy_label": "IMMEDIATE_FULL_SUSPENSION",
+              "t_ready_s": 585,
+              "touchdown_time_s": 855,
+              "utility_score": 151.5417
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_IMMEDIATE_RECOVERY_WITH_G5_STEPDOWN",
+              "displacement_cost": 330.0,
+              "feasible": true,
+              "safety_margin_s": 345,
+              "strategy_label": "IMMEDIATE_FULL_SUSPENSION",
+              "t_ready_s": 585,
+              "touchdown_time_s": 855,
+              "utility_score": 95.5417
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_WAYPOINT_PRESERVING_WITH_G5_STEPDOWN",
+              "displacement_cost": 210.0,
+              "feasible": true,
+              "safety_margin_s": 105,
+              "strategy_label": "MINIMAL_RECOVERABLE_PAUSE",
+              "t_ready_s": 825,
+              "touchdown_time_s": 1095,
+              "utility_score": 53.7083
+            },
+            {
+              "binding_witnesses": [
+                {
+                  "capacity": 1200,
+                  "constraint_id": "g4_battery_emergency_touchdown_deadline_s",
+                  "demand": 2775,
+                  "detail": "Candidate CAND_FULL_LEG_COMPLETION_UNSAFE touchdown at T+2775s exceeds hard battery deadline T+1200s",
+                  "margin": -1575,
+                  "provenance": "DERIVED",
+                  "resource_class": "time",
+                  "state_label": "T+480s:CAND_FULL_LEG_COMPLETION_UNSAFE",
+                  "unit": "s"
+                }
+              ],
+              "candidate_id": "CAND_FULL_LEG_COMPLETION_UNSAFE",
+              "displacement_cost": 140.0,
+              "feasible": false,
+              "safety_margin_s": -1575,
+              "strategy_label": "DEFER_UNTIL_LEG_END",
+              "t_ready_s": 2505,
+              "touchdown_time_s": 2775,
+              "utility_score": -865.625
+            }
+          ],
+          "executed_charging_complete_time_s": null,
+          "executed_hold_ack_time_s": 495,
+          "executed_hold_cmd_time_s": 480,
+          "executed_stabilized_time_s": 585,
+          "executed_touchdown_time_s": 855,
+          "executed_turn_into_wind_time_s": 495,
+          "g3_leg_repeat_complete_s": 3885,
+          "g3_quiet_ready_s": 1125,
+          "g3_return_course_speed_ready_s": 945,
+          "handshake_latency_s": 15,
+          "hard_safety_satisfied": true,
+          "hard_touchdown_deadline_s": 1200,
+          "hold_ack_time_s": 495,
+          "hold_cmd_time_s": 480,
+          "human_confirm_done_s": 510,
+          "human_confirmation_s": 30,
+          "losing_mission_cost": {
+            "acoustic_handshake_wait_s": 15,
+            "g3_leg_repeat_complete_s": 3885,
+            "g3_mode_during_recovery": "HOLD_ACOUSTIC",
+            "g3_quiet_ready_s": 1125,
+            "g5_pre_stepped_down": false,
+            "losing_guest_id": "G3",
+            "reposition_penalty_min": 6.0,
+            "survey_segment_aborted_s": 240,
+            "survey_segment_preserved_s": 0,
+            "total_survey_interruption_min": 26.0
+          },
+          "plan_version": 1,
+          "planned_charging_complete_time_s": 2055,
+          "planned_hold_ack_time_s": 495,
+          "planned_hold_cmd_time_s": 480,
+          "planned_stabilized_time_s": 585,
+          "planned_touchdown_time_s": 855,
+          "planned_transitions": [
+            {
+              "duration_s": 30,
+              "end_time_s": 510,
+              "from_value": "PENDING",
+              "owner_id": "BRIDGE_WATCH",
+              "start_time_s": 480,
+              "status": "PLANNED",
+              "to_value": "CONFIRMED",
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:HUMAN_CONFIRM",
+              "transition_type": "HUMAN_CONFIRMATION"
+            },
+            {
+              "duration_s": 15,
+              "end_time_s": 495,
+              "from_value": "SURVEY_QUIET",
+              "owner_id": "G3",
+              "start_time_s": 480,
+              "status": "PLANNED",
+              "to_value": "HOLD_ACOUSTIC",
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:G3_ACOUSTIC_HOLD",
+              "transition_type": "ACOUSTIC_HOLD_HANDSHAKE"
+            },
+            {
+              "duration_s": 0,
+              "end_time_s": 495,
+              "from_value": true,
+              "owner_id": "VESSEL",
+              "start_time_s": 495,
+              "status": "PLANNED",
+              "to_value": false,
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:EXIT_QUIET",
+              "transition_type": "EXIT_QUIET_STATE"
+            },
+            {
+              "duration_s": 60,
+              "end_time_s": 555,
+              "from_value": 3.0,
+              "owner_id": "VESSEL",
+              "start_time_s": 495,
+              "status": "PLANNED",
+              "to_value": 5.0,
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:SPEED_TO_5KN",
+              "transition_type": "SPEED_CHANGE"
+            },
+            {
+              "duration_s": 90,
+              "end_time_s": 585,
+              "from_value": 90.0,
+              "owner_id": "VESSEL",
+              "start_time_s": 495,
+              "status": "PLANNED",
+              "to_value": 270.0,
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:COURSE_INTO_WIND",
+              "transition_type": "COURSE_SETTLE"
+            },
+            {
+              "duration_s": 0,
+              "end_time_s": 480,
+              "from_value": true,
+              "owner_id": "DECK_CREW",
+              "start_time_s": 480,
+              "status": "PLANNED",
+              "to_value": true,
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:DECK_CLEAR",
+              "transition_type": "DECK_CLEAR_VERIFICATION"
+            },
+            {
+              "duration_s": 270,
+              "end_time_s": 855,
+              "from_value": "FLIGHT_PATROL",
+              "owner_id": "G4",
+              "start_time_s": 585,
+              "status": "PLANNED",
+              "to_value": "TOUCHDOWN_HANGAR",
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:G4_RECOVERY_APPROACH",
+              "transition_type": "UAV_RECOVERY_APPROACH"
+            },
+            {
+              "duration_s": 1200,
+              "end_time_s": 2055,
+              "from_value": "LAUNCH_RECOVERY_OPTICS",
+              "owner_id": "G4",
+              "start_time_s": 855,
+              "status": "PLANNED",
+              "to_value": "STANDBY",
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:G4_HANGAR_CHARGE",
+              "transition_type": "UAV_HANGAR_CHARGE_1200S"
+            },
+            {
+              "duration_s": 270,
+              "end_time_s": 1125,
+              "from_value": "UAV_RECOVERY_HEADING",
+              "owner_id": "VESSEL",
+              "start_time_s": 855,
+              "status": "PLANNED",
+              "to_value": "QUIET_SURVEY",
+              "transition_id": "CAND_IMMEDIATE_RECOVERY_TURN:RETURN_QUIET_SURVEY",
+              "transition_type": "ENTER_QUIET_STATE"
+            }
+          ],
+          "planned_turn_into_wind_time_s": 495,
+          "priority_profile_id": "RESCUE_PRIMARY",
+          "priority_profile_sha256": "372057467a260c4a5d816b0f6a6d392c02e23774a9ba8b4004419936d5c6c794",
+          "rationale": "D3 Arbitration under profile=RESCUE_PRIMARY selected candidate=CAND_IMMEDIATE_RECOVERY_TURN (utility_score=151.5417): G4 battery=18.0% (<20%) imposes hard landing deadline T+1200s. Issued ACOUSTIC_HOLD to G3 at T+480s, confirmed at T+495s (15s acoustic latency), vessel turns into wind at T+495s (target 5.0 kn, ready at T+585s), G4 touchdown at T+855s (margin=345s), followed by 1200s 35 kW hangar charge until T+2055s and G3 quiet survey resume at T+1125s. Losing mission cost on G3: interruption=26.0 min, aborted_segment=240s.",
+          "selected_candidate_id": "CAND_IMMEDIATE_RECOVERY_TURN",
+          "selected_utility_score": 151.5417,
+          "simulated_transition_to_touchdown_s": 375,
+          "speed_change_s": 60,
+          "stabilized_time_s": 585,
+          "state_hash_before": "d668a65a3e17e8e0739229f6c6887021531a2d19a75a0b4876b3ffb02473434c",
+          "status": "FEASIBLE",
+          "strategy_applied": "IMMEDIATE_FULL_SUSPENSION",
+          "t_ready_s": 585,
+          "target_recovery_speed_kn": 5.0,
+          "tie_break_rule": "LOWER_DISPLACEMENT_COST_THEN_LEXICOGRAPHIC",
+          "touchdown_time_s": 855,
+          "turn_into_wind_time_s": 495,
+          "uav_battery_pct": 18.0,
+          "verdict": "YES",
+          "verdict_code": "FEASIBLE",
+          "within_2s_deadline": true
+        },
+        "event_time_s": 480,
+        "phase": "D3_ARBITRATION",
+        "plan_version": 1,
+        "sim_time_s": 480,
+        "tick": 24
+      },
+      {
+        "decision": {
+          "actions_taken": [
+            {
+              "action_type": "MODE_STEP_DOWN",
+              "capability_retention_ratio": 0.3,
+              "cooling_air_saved_w": 700,
+              "cooling_water_saved_w": 36300,
+              "from_mode": "FULL_SPECTRUM",
+              "guest_id": "G5",
+              "min_cooldown_before_reconnect_s": 60,
+              "post_step_cooling_actual_w": 43500,
+              "post_step_cooling_committed_w": 67500,
+              "post_step_feasible": true,
+              "post_step_power_actual_w": 45500,
+              "post_step_power_committed_w": 69500,
+              "power_saved_w": 37000,
+              "required_hysteresis_margin_w": 15000,
+              "step_index": 1,
+              "to_mode": "DEGRADED_70PCT_LOSS"
+            }
+          ],
+          "balance_after_each_step": [
+            {
+              "action_type": "MODE_STEP_DOWN",
+              "capability_retention_ratio": 0.3,
+              "cooling_air_saved_w": 700,
+              "cooling_water_saved_w": 36300,
+              "from_mode": "FULL_SPECTRUM",
+              "guest_id": "G5",
+              "min_cooldown_before_reconnect_s": 60,
+              "post_step_cooling_actual_w": 43500,
+              "post_step_cooling_committed_w": 67500,
+              "post_step_feasible": true,
+              "post_step_power_actual_w": 45500,
+              "post_step_power_committed_w": 69500,
+              "power_saved_w": 37000,
+              "required_hysteresis_margin_w": 15000,
+              "step_index": 1,
+              "to_mode": "DEGRADED_70PCT_LOSS"
+            }
+          ],
+          "decision_type": "D4_GRACEFUL_DEGRADATION",
+          "deficit_analysis": {
+            "cooling_actual_deficit_w": 0,
+            "cooling_capacity_w": 133333,
+            "cooling_committed_deficit_w": 0,
+            "initial_cooling_actual_w": 79800,
+            "initial_cooling_committed_w": 103800,
+            "initial_power_actual_w": 82500,
+            "initial_power_committed_w": 106500,
+            "power_actual_deficit_w": 0,
+            "power_capacity_w": 100000,
+            "power_committed_deficit_w": 6500
+          },
+          "final_budget_snapshot": {
+            "binding_witnesses": [],
+            "classes": {
+              "compute": {
+                "actual": 18,
+                "capacity": 100,
+                "committed": 18,
+                "degraded_capacity": 100,
+                "feasible": true,
+                "free": 82,
+                "local_limits": {
+                  "cluster_accelerators": {
+                    "allocatable": 3,
+                    "feasible": true,
+                    "free": 2,
+                    "used": 1
+                  },
+                  "nodes": {
+                    "node_1": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 21,
+                      "free_ram_mib": 86016,
+                      "used_accelerators": 0,
+                      "used_cores": 4,
+                      "used_ram_mib": 16384
+                    },
+                    "node_2": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 21,
+                      "free_ram_mib": 86016,
+                      "used_accelerators": 0,
+                      "used_cores": 4,
+                      "used_ram_mib": 16384
+                    },
+                    "node_3": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 0,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 1,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_4": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 23,
+                      "free_ram_mib": 98304,
+                      "used_accelerators": 0,
+                      "used_cores": 2,
+                      "used_ram_mib": 4096
+                    }
+                  },
+                  "shared_storage_gb": {
+                    "allocatable_gb": 16000,
+                    "feasible": true,
+                    "free_gb": 3800,
+                    "used_gb": 12200
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "cores"
+              },
+              "cooling": {
+                "actual": 43500,
+                "capacity": 133333,
+                "committed": 67500,
+                "degraded_capacity": 133333,
+                "feasible": true,
+                "free": 65833,
+                "local_limits": {
+                  "air_cooling_domains": {
+                    "hangar_roof": {
+                      "actual_w": 500,
+                      "capacity_w": 2000,
+                      "committed_w": 500,
+                      "feasible": true,
+                      "free_w": 1500,
+                      "occupants": [
+                        "G5:G5_MAST_ANTENNA"
+                      ],
+                      "value_origin": "ASSUMED"
+                    },
+                    "mast_3": {
+                      "actual_w": 1500,
+                      "capacity_w": 2000,
+                      "committed_w": 1500,
+                      "feasible": true,
+                      "free_w": 500,
+                      "occupants": [
+                        "G1:G1_MAST_SENSOR_HEAD"
+                      ],
+                      "value_origin": "OFFICIAL_BRIEF"
+                    }
+                  },
+                  "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C",
+                  "effective_water_cap_with_inertia_w": 133333,
+                  "hangar_roof_air_cooling": {
+                    "actual_w": 500,
+                    "capacity_w": 2000,
+                    "committed_w": 500,
+                    "feasible": true,
+                    "free_w": 1500
+                  },
+                  "mast_air_cooling": {
+                    "actual_w": 1500,
+                    "capacity_w": 2000,
+                    "committed_w": 1500,
+                    "feasible": true,
+                    "free_w": 500
+                  },
+                  "seawater_temp_c": 24.0,
+                  "thermal_inertia_available_boost_w": 0,
+                  "total_thermal_dissipation_w": 45500
+                },
+                "provenance": "SIMULATED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "data": {
+                "actual": 3200000,
+                "capacity": 8000000,
+                "committed": 3200000,
+                "degraded_capacity": 8000000,
+                "feasible": true,
+                "free": 4800000,
+                "local_limits": {
+                  "backbone_lan_bps": {
+                    "actual_total_bps": 380000000,
+                    "feasible": true,
+                    "highest_port_bps": 300000000,
+                    "max_per_port_bps": 1000000000,
+                    "max_total_bps": 10000000000
+                  },
+                  "satcom_bps": {
+                    "actual_bps": 3200000,
+                    "available_bps": 8000000,
+                    "emcon_silence": false,
+                    "emcon_violated": false,
+                    "free_bps": 4800000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "bps"
+              },
+              "mass_stability": {
+                "actual": 9560,
+                "capacity": 10000,
+                "committed": 9560,
+                "degraded_capacity": 10000,
+                "feasible": true,
+                "free": 440,
+                "local_limits": {
+                  "bay1_mass_kg": {
+                    "actual_kg": 5500,
+                    "feasible": true,
+                    "free_kg": 2500,
+                    "max_kg": 8000
+                  },
+                  "bay2_mass_kg": {
+                    "actual_kg": 3000,
+                    "feasible": true,
+                    "free_kg": 1000,
+                    "max_kg": 4000
+                  },
+                  "mass_margin_kg": {
+                    "actual_kg": 9560,
+                    "feasible": true,
+                    "free_kg": 440,
+                    "max_kg": 10000
+                  },
+                  "stability_equivalent_kg": {
+                    "actual_kg_eq": 9853.0,
+                    "feasible": true,
+                    "free_kg_eq": 2147.0,
+                    "max_kg_eq": 12000.0
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "kg"
+              },
+              "mast": {
+                "actual": 1,
+                "capacity": 1,
+                "committed": 1,
+                "degraded_capacity": 1,
+                "feasible": true,
+                "free": 0,
+                "local_limits": {
+                  "fixed_occupied": [
+                    "mast_1",
+                    "mast_2"
+                  ],
+                  "guest_allocatable_slots": 1,
+                  "guest_slot_mast_3": {
+                    "air_cooling_w": 1500,
+                    "footprint_m2": 0.5,
+                    "mass_kg": 45,
+                    "max_air_cooling_w": 2000,
+                    "max_footprint_m2": 0.6,
+                    "max_mass_kg": 60,
+                    "owner": "G1:G1_MAST_SENSOR_HEAD"
+                  },
+                  "ship_reserved_slots": 2,
+                  "total_physical_slots": 3
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "positions": {
+                "actual": 4,
+                "capacity": 5,
+                "committed": 4,
+                "degraded_capacity": 5,
+                "feasible": true,
+                "free": 2,
+                "local_limits": {
+                  "bay1_20ft": [
+                    "G3:G3_AUV_CRADLE_BAY1_20FT"
+                  ],
+                  "bay1_a_10ft": [],
+                  "bay1_b_10ft": [],
+                  "bay1_max_mass_kg": 8000,
+                  "bay1_total_mass_kg": 5500,
+                  "bay2_10ft": [
+                    "G5:G5_COMPUTE_CONTAINER"
+                  ],
+                  "bay2_max_mass_kg": 4000,
+                  "bay2_total_mass_kg": 3000,
+                  "flight_deck": [
+                    "G4:G4_DRONE_VEHICLE"
+                  ],
+                  "hangar": [
+                    "G4:G4_HANGAR_STATION"
+                  ],
+                  "hangar_max_mass_kg": 1000,
+                  "hangar_roof": [
+                    "G5:G5_MAST_ANTENNA"
+                  ],
+                  "hangar_roof_drone_clearance": {
+                    "compatibility": "CONDITIONAL",
+                    "constraint_id": "hangar_roof_drone_clearance",
+                    "feasible": true,
+                    "g4_installed": true,
+                    "hangar_roof_occupants": [
+                      "G5:G5_MAST_ANTENNA"
+                    ],
+                    "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+                    "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+                    "policy_version": 1,
+                    "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+                    "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+                    "requires_clearance": true,
+                    "satisfied": true,
+                    "status": "VERIFIED_COMPATIBLE",
+                    "verified": true,
+                    "witness": null
+                  },
+                  "hangar_total_mass_kg": 990,
+                  "stern_ramp": []
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "power": {
+                "actual": 45500,
+                "capacity": 200000,
+                "committed": 69500,
+                "degraded_capacity": 100000,
+                "feasible": true,
+                "free": 30500,
+                "local_limits": {
+                  "LINE_A_FWD": {
+                    "actual_w": 2500,
+                    "committed_w": 26500,
+                    "feasible": true,
+                    "free_w": 123500,
+                    "max_power_w": 150000
+                  },
+                  "LINE_B_AFT": {
+                    "actual_w": 43000,
+                    "committed_w": 43000,
+                    "feasible": true,
+                    "free_w": 107000,
+                    "max_power_w": 150000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "time": {
+                "actual": 0.0439,
+                "capacity": 200.0,
+                "committed": 0.0439,
+                "degraded_capacity": 200.0,
+                "feasible": true,
+                "free": 199.9561,
+                "local_limits": {
+                  "scenario_a_admission_deadline_ms": 30000.0,
+                  "scenario_b_arbitration_deadline_ms": 2000.0,
+                  "tick_deadline_ms": 200.0
+                },
+                "provenance": "MEASURED",
+                "source_time_ns": "0",
+                "unit": "ms"
+              }
+            },
+            "component_breakdown": {
+              "G1_MAST_SENSOR_HEAD": {
+                "active_mode": "NOMINAL",
+                "actual_power_w": 1500,
+                "air_cooling_domain": "mast_3",
+                "assumption_ref": null,
+                "committed_power_w": 1500,
+                "cooling_air_actual_w": 1500,
+                "cooling_air_committed_w": 1500,
+                "cooling_route": "MAST_AIR_2KW",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G1",
+                "mass_kg": 45,
+                "nominal_power_w": 1500,
+                "peak_power_w": 1500,
+                "position": "mast_3",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "OFFICIAL_BRIEF",
+                "stability_eq_kg": 135.0,
+                "stability_multiplier": 3.0,
+                "subcomponent_id": "G1_MAST_SENSOR_HEAD"
+              },
+              "G3_AUV_CRADLE_BAY1_20FT": {
+                "active_mode": "HOLD_ACOUSTIC",
+                "actual_power_w": 1000,
+                "air_cooling_domain": null,
+                "assumption_ref": null,
+                "committed_power_w": 25000,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 1000,
+                "cooling_water_committed_w": 25000,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G3",
+                "mass_kg": 5500,
+                "nominal_power_w": 1000,
+                "peak_power_w": 1000,
+                "position": "bay1",
+                "powered_on": true,
+                "reserved_delta_w": 24000,
+                "source_kind": "OFFICIAL_BRIEF",
+                "stability_eq_kg": 5500.0,
+                "stability_multiplier": 1.0,
+                "subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+              },
+              "G4_DRONE_VEHICLE": {
+                "active_mode": "LAUNCH_RECOVERY_OPTICS",
+                "actual_power_w": 0,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+                "committed_power_w": 0,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "PASSIVE_NO_COOLING",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "mass_kg": 140,
+                "nominal_power_w": 0,
+                "peak_power_w": 0,
+                "position": "flight_deck",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 168.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G4_DRONE_VEHICLE"
+              },
+              "G4_HANGAR_STATION": {
+                "active_mode": "LAUNCH_RECOVERY_OPTICS",
+                "actual_power_w": 35000,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+                "committed_power_w": 35000,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 35000,
+                "cooling_water_committed_w": 35000,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "mass_kg": 850,
+                "nominal_power_w": 35000,
+                "peak_power_w": 35000,
+                "position": "hangar",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 1020.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G4_HANGAR_STATION"
+              },
+              "G5_COMPUTE_CONTAINER": {
+                "active_mode": "DEGRADED_70PCT_LOSS",
+                "actual_power_w": 7500,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+                "committed_power_w": 7500,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 7500,
+                "cooling_water_committed_w": 7500,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G5",
+                "mass_kg": 3000,
+                "nominal_power_w": 7500,
+                "peak_power_w": 7500,
+                "position": "bay2",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 3000.0,
+                "stability_multiplier": 1.0,
+                "subcomponent_id": "G5_COMPUTE_CONTAINER"
+              },
+              "G5_MAST_ANTENNA": {
+                "active_mode": "DEGRADED_70PCT_LOSS",
+                "actual_power_w": 500,
+                "air_cooling_domain": "hangar_roof",
+                "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+                "committed_power_w": 500,
+                "cooling_air_actual_w": 500,
+                "cooling_air_committed_w": 500,
+                "cooling_route": "MAST_AIR_2KW",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G5",
+                "mass_kg": 25,
+                "nominal_power_w": 500,
+                "peak_power_w": 500,
+                "position": "hangar_roof",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 30.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G5_MAST_ANTENNA"
+              }
+            },
+            "feasible": true,
+            "firm_reservations_ledger": [
+              {
+                "activation_condition": "SCHEDULED_MODE_TRANSITION",
+                "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+                "created_at_s": 0,
+                "current_committed_before_reservation_w": 1000,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G3",
+                "net_envelope_delta_w": 24000,
+                "origin": "SCENARIO_OR_ARBITRATION",
+                "reason": "Guaranteed post-leg uninterruptible AUV battery recharge reservation",
+                "reservation_id": "RES-G3-RECHARGE-CRADLE",
+                "reserved_power_w": 25000,
+                "target_subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+              },
+              {
+                "activation_condition": "SCHEDULED_MODE_TRANSITION",
+                "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+                "created_at_s": 0,
+                "current_committed_before_reservation_w": 35000,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "net_envelope_delta_w": 0,
+                "origin": "SCENARIO_OR_ARBITRATION",
+                "reason": "D3 committed UAV recovery approach and 20-min hangar charge (35 kW)",
+                "reservation_id": "D3_PLAN_V1_G4_RECOVERY",
+                "reserved_power_w": 35000,
+                "target_subcomponent_id": "G4_HANGAR_STATION"
+              }
+            ],
+            "infeasible_protected_load": false,
+            "infeasible_reason": null,
+            "roof_clearance_evaluation": {
+              "compatibility": "CONDITIONAL",
+              "constraint_id": "hangar_roof_drone_clearance",
+              "feasible": true,
+              "g4_installed": true,
+              "hangar_roof_occupants": [
+                "G5:G5_MAST_ANTENNA"
+              ],
+              "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+              "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+              "policy_version": 1,
+              "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "requires_clearance": true,
+              "satisfied": true,
+              "status": "VERIFIED_COMPATIBLE",
+              "verified": true,
+              "witness": null
+            },
+            "sim_time_s": 720,
+            "tick_seq": 36,
+            "vessel_mode": "DEGRADED_POWER"
+          },
+          "infeasible_protected_load": false,
+          "plan_version": 2,
+          "priority_profile_id": "RESCUE_PRIMARY",
+          "status": "FEASIBLE_AFTER_DEGRADATION",
+          "verdict": "YES",
+          "within_5s_first_shed_deadline": true,
+          "within_60s_sequence_deadline": true
+        },
+        "event_time_s": 720,
+        "phase": "D4_DEGRADATION",
+        "plan_version": 2,
+        "sim_time_s": 720,
+        "tick": 36
+      },
+      {
+        "decision": {
+          "guest_id": "G5",
+          "plan_version": 3,
+          "post_reconnect_cooling_free_w": 29533,
+          "post_reconnect_power_free_w": 93500,
+          "reason": "COOLDOWN_AND_HYSTERESIS_SATISFIED",
+          "reconnect_allowed": true,
+          "target_mode": "FULL_SPECTRUM"
+        },
+        "event_time_s": 1500,
+        "phase": "D4_RECONNECTION",
+        "plan_version": 3,
+        "sim_time_s": 1500,
+        "tick": 75
+      }
+    ],
+    "executed_touchdown_time_s": 855,
+    "horizon_obligations_summary": {
+      "g3_survey_leg_2400s": {
+        "leg_elapsed_s": 1170,
+        "leg_target_s": 2400,
+        "legs_completed": 0,
+        "remaining_s_at_horizon": 1230,
+        "status": "PENDING_HORIZON"
+      },
+      "g4_charging_1200s": {
+        "expected_complete_time_s": 2055,
+        "remaining_s_at_horizon": 255,
+        "status": "PENDING_HORIZON",
+        "touchdown_time_s": 855
+      },
+      "horizon_end_sim_time_s": 1800
+    },
+    "semantic_sha256": "cda17575ab4788ccc2326318c3e19930796f651342e23865b244c370daedf49f"
+  },
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-arbitration-comparison/1.0",
+  "survey_primary": {
+    "decisions": [
+      {
+        "decision": {
+          "action_sequence": [
+            {
+              "command": "CONTINUE_QUIET_SURVEY_TO_WAYPOINT",
+              "duration_s": 240,
+              "reason": "Priority profile SURVEY_PRIMARY preserves 240s survey sub-segment while keeping G4 touchdown at T+1095s <= deadline T+1200s",
+              "target": "G3",
+              "time_s": 480
+            },
+            {
+              "command": "ACOUSTIC_HOLD",
+              "expected_ack_time_s": 735,
+              "handshake_window_s": [
+                10,
+                60
+              ],
+              "reason": "Command G3 AUV to enter submerged acoustic HOLD loiter before ship alters course/speed",
+              "target": "G3",
+              "time_s": 720
+            },
+            {
+              "command": "TURN_INTO_WIND_FOR_RECOVERY",
+              "course_settle_s": 90,
+              "new_vessel_mode": "UAV_RECOVERY_HEADING",
+              "reason": "Acoustic HOLD confirmed; turn vessel into wind (5-12 kn window at 5.0 kn) and stabilize roll for G4 landing",
+              "speed_change_s": 60,
+              "target": "VESSEL_NAVIGATION",
+              "target_speed_kn": 5.0,
+              "time_s": 735
+            },
+            {
+              "command": "ACTIVATE_RECOVERY_APPROACH",
+              "expected_touchdown_time_s": 1095,
+              "new_mode": "LAUNCH_RECOVERY_OPTICS",
+              "power_Allocated_w": 35000,
+              "reason": "Recover G4 drone safely onto flight deck by T+1095s (<= hard deadline T+1200s)",
+              "target": "G4",
+              "time_s": 825
+            },
+            {
+              "charging_complete_time_s": 2295,
+              "charging_duration_s": 1200,
+              "command": "CONFIRM_TOUCHDOWN_AND_START_35KW_CHARGE",
+              "new_mode": "LAUNCH_RECOVERY_OPTICS",
+              "reason": "G4 landed and secured on deck before 12-min battery deadline; start 20-min (1200 s) 35 kW hangar recharge",
+              "target": "G4",
+              "time_s": 1095
+            }
+          ],
+          "alert_time_s": 480,
+          "binding_constraints": [],
+          "charging_complete_time_s": 2295,
+          "course_settle_s": 90,
+          "decision_type": "D3_LIVE_ARBITRATION",
+          "deck_clear_duration_s": 0,
+          "deck_ready_s": 480,
+          "evaluated_candidates": [
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_WAYPOINT_PRESERVING_RECOVERY",
+              "displacement_cost": 140.0,
+              "feasible": true,
+              "safety_margin_s": 105,
+              "strategy_label": "MINIMAL_RECOVERABLE_PAUSE",
+              "t_ready_s": 825,
+              "touchdown_time_s": 1095,
+              "utility_score": 152.375
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_PARTIAL_WAYPOINT_RECOVERY",
+              "displacement_cost": 260.0,
+              "feasible": true,
+              "safety_margin_s": 225,
+              "strategy_label": "PARTIAL_WAYPOINT_PAUSE",
+              "t_ready_s": 705,
+              "touchdown_time_s": 975,
+              "utility_score": 33.375
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_IMMEDIATE_RECOVERY_TURN",
+              "displacement_cost": 260.0,
+              "feasible": true,
+              "safety_margin_s": 345,
+              "strategy_label": "IMMEDIATE_FULL_SUSPENSION",
+              "t_ready_s": 585,
+              "touchdown_time_s": 855,
+              "utility_score": -28.625
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_IMMEDIATE_RECOVERY_WITH_G5_STEPDOWN",
+              "displacement_cost": 330.0,
+              "feasible": true,
+              "safety_margin_s": 345,
+              "strategy_label": "IMMEDIATE_FULL_SUSPENSION",
+              "t_ready_s": 585,
+              "touchdown_time_s": 855,
+              "utility_score": -49.625
+            },
+            {
+              "binding_witnesses": [],
+              "candidate_id": "CAND_WAYPOINT_PRESERVING_WITH_G5_STEPDOWN",
+              "displacement_cost": 210.0,
+              "feasible": true,
+              "safety_margin_s": 105,
+              "strategy_label": "MINIMAL_RECOVERABLE_PAUSE",
+              "t_ready_s": 825,
+              "touchdown_time_s": 1095,
+              "utility_score": 131.375
+            },
+            {
+              "binding_witnesses": [
+                {
+                  "capacity": 1200,
+                  "constraint_id": "g4_battery_emergency_touchdown_deadline_s",
+                  "demand": 2775,
+                  "detail": "Candidate CAND_FULL_LEG_COMPLETION_UNSAFE touchdown at T+2775s exceeds hard battery deadline T+1200s",
+                  "margin": -1575,
+                  "provenance": "DERIVED",
+                  "resource_class": "time",
+                  "state_label": "T+480s:CAND_FULL_LEG_COMPLETION_UNSAFE",
+                  "unit": "s"
+                }
+              ],
+              "candidate_id": "CAND_FULL_LEG_COMPLETION_UNSAFE",
+              "displacement_cost": 140.0,
+              "feasible": false,
+              "safety_margin_s": -1575,
+              "strategy_label": "DEFER_UNTIL_LEG_END",
+              "t_ready_s": 2505,
+              "touchdown_time_s": 2775,
+              "utility_score": -309.625
+            }
+          ],
+          "executed_charging_complete_time_s": null,
+          "executed_hold_ack_time_s": 735,
+          "executed_hold_cmd_time_s": 720,
+          "executed_stabilized_time_s": 825,
+          "executed_touchdown_time_s": 1095,
+          "executed_turn_into_wind_time_s": 735,
+          "g3_leg_repeat_complete_s": 3045,
+          "g3_quiet_ready_s": 1365,
+          "g3_return_course_speed_ready_s": 1185,
+          "handshake_latency_s": 15,
+          "hard_safety_satisfied": true,
+          "hard_touchdown_deadline_s": 1200,
+          "hold_ack_time_s": 735,
+          "hold_cmd_time_s": 720,
+          "human_confirm_done_s": 510,
+          "human_confirmation_s": 30,
+          "losing_mission_cost": {
+            "acoustic_handshake_wait_s": 15,
+            "g3_leg_repeat_complete_s": 3045,
+            "g3_mode_during_recovery": "HOLD_ACOUSTIC",
+            "g3_quiet_ready_s": 1365,
+            "g5_pre_stepped_down": false,
+            "losing_guest_id": "G3",
+            "reposition_penalty_min": 0.0,
+            "survey_segment_aborted_s": 0,
+            "survey_segment_preserved_s": 240,
+            "total_survey_interruption_min": 14.0
+          },
+          "plan_version": 1,
+          "planned_charging_complete_time_s": 2295,
+          "planned_hold_ack_time_s": 735,
+          "planned_hold_cmd_time_s": 720,
+          "planned_stabilized_time_s": 825,
+          "planned_touchdown_time_s": 1095,
+          "planned_transitions": [
+            {
+              "duration_s": 30,
+              "end_time_s": 510,
+              "from_value": "PENDING",
+              "owner_id": "BRIDGE_WATCH",
+              "start_time_s": 480,
+              "status": "PLANNED",
+              "to_value": "CONFIRMED",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:HUMAN_CONFIRM",
+              "transition_type": "HUMAN_CONFIRMATION"
+            },
+            {
+              "duration_s": 15,
+              "end_time_s": 735,
+              "from_value": "SURVEY_QUIET",
+              "owner_id": "G3",
+              "start_time_s": 720,
+              "status": "PLANNED",
+              "to_value": "HOLD_ACOUSTIC",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:G3_ACOUSTIC_HOLD",
+              "transition_type": "ACOUSTIC_HOLD_HANDSHAKE"
+            },
+            {
+              "duration_s": 0,
+              "end_time_s": 735,
+              "from_value": true,
+              "owner_id": "VESSEL",
+              "start_time_s": 735,
+              "status": "PLANNED",
+              "to_value": false,
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:EXIT_QUIET",
+              "transition_type": "EXIT_QUIET_STATE"
+            },
+            {
+              "duration_s": 60,
+              "end_time_s": 795,
+              "from_value": 3.0,
+              "owner_id": "VESSEL",
+              "start_time_s": 735,
+              "status": "PLANNED",
+              "to_value": 5.0,
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:SPEED_TO_5KN",
+              "transition_type": "SPEED_CHANGE"
+            },
+            {
+              "duration_s": 90,
+              "end_time_s": 825,
+              "from_value": 90.0,
+              "owner_id": "VESSEL",
+              "start_time_s": 735,
+              "status": "PLANNED",
+              "to_value": 270.0,
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:COURSE_INTO_WIND",
+              "transition_type": "COURSE_SETTLE"
+            },
+            {
+              "duration_s": 0,
+              "end_time_s": 480,
+              "from_value": true,
+              "owner_id": "DECK_CREW",
+              "start_time_s": 480,
+              "status": "PLANNED",
+              "to_value": true,
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:DECK_CLEAR",
+              "transition_type": "DECK_CLEAR_VERIFICATION"
+            },
+            {
+              "duration_s": 270,
+              "end_time_s": 1095,
+              "from_value": "FLIGHT_PATROL",
+              "owner_id": "G4",
+              "start_time_s": 825,
+              "status": "PLANNED",
+              "to_value": "TOUCHDOWN_HANGAR",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:G4_RECOVERY_APPROACH",
+              "transition_type": "UAV_RECOVERY_APPROACH"
+            },
+            {
+              "duration_s": 1200,
+              "end_time_s": 2295,
+              "from_value": "LAUNCH_RECOVERY_OPTICS",
+              "owner_id": "G4",
+              "start_time_s": 1095,
+              "status": "PLANNED",
+              "to_value": "STANDBY",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:G4_HANGAR_CHARGE",
+              "transition_type": "UAV_HANGAR_CHARGE_1200S"
+            },
+            {
+              "duration_s": 270,
+              "end_time_s": 1365,
+              "from_value": "UAV_RECOVERY_HEADING",
+              "owner_id": "VESSEL",
+              "start_time_s": 1095,
+              "status": "PLANNED",
+              "to_value": "QUIET_SURVEY",
+              "transition_id": "CAND_WAYPOINT_PRESERVING_RECOVERY:RETURN_QUIET_SURVEY",
+              "transition_type": "ENTER_QUIET_STATE"
+            }
+          ],
+          "planned_turn_into_wind_time_s": 735,
+          "priority_profile_id": "SURVEY_PRIMARY",
+          "priority_profile_sha256": "67a60217dc9bef2b12eb91b39a88ceb52824757a69e39d72bd292b2d84698b82",
+          "rationale": "D3 Arbitration under profile=SURVEY_PRIMARY selected candidate=CAND_WAYPOINT_PRESERVING_RECOVERY (utility_score=152.375): G4 battery=18.0% (<20%) imposes hard landing deadline T+1200s. Issued ACOUSTIC_HOLD to G3 at T+720s, confirmed at T+735s (15s acoustic latency), vessel turns into wind at T+735s (target 5.0 kn, ready at T+825s), G4 touchdown at T+1095s (margin=105s), followed by 1200s 35 kW hangar charge until T+2295s and G3 quiet survey resume at T+1365s. Losing mission cost on G3: interruption=14.0 min, aborted_segment=0s.",
+          "selected_candidate_id": "CAND_WAYPOINT_PRESERVING_RECOVERY",
+          "selected_utility_score": 152.375,
+          "simulated_transition_to_touchdown_s": 615,
+          "speed_change_s": 60,
+          "stabilized_time_s": 825,
+          "state_hash_before": "d668a65a3e17e8e0739229f6c6887021531a2d19a75a0b4876b3ffb02473434c",
+          "status": "FEASIBLE",
+          "strategy_applied": "MINIMAL_RECOVERABLE_PAUSE",
+          "t_ready_s": 825,
+          "target_recovery_speed_kn": 5.0,
+          "tie_break_rule": "HIGHER_CAPABILITY_SCORE_THEN_LEXICOGRAPHIC",
+          "touchdown_time_s": 1095,
+          "turn_into_wind_time_s": 735,
+          "uav_battery_pct": 18.0,
+          "verdict": "YES",
+          "verdict_code": "FEASIBLE",
+          "within_2s_deadline": true
+        },
+        "event_time_s": 480,
+        "phase": "D3_ARBITRATION",
+        "plan_version": 1,
+        "sim_time_s": 480,
+        "tick": 24
+      },
+      {
+        "decision": {
+          "actions_taken": [
+            {
+              "action_type": "MODE_STEP_DOWN",
+              "capability_retention_ratio": 0.3,
+              "cooling_air_saved_w": 700,
+              "cooling_water_saved_w": 36300,
+              "from_mode": "FULL_SPECTRUM",
+              "guest_id": "G5",
+              "min_cooldown_before_reconnect_s": 60,
+              "post_step_cooling_actual_w": 18500,
+              "post_step_cooling_committed_w": 67500,
+              "post_step_feasible": true,
+              "post_step_power_actual_w": 20500,
+              "post_step_power_committed_w": 69500,
+              "power_saved_w": 37000,
+              "required_hysteresis_margin_w": 15000,
+              "step_index": 1,
+              "to_mode": "DEGRADED_70PCT_LOSS"
+            }
+          ],
+          "balance_after_each_step": [
+            {
+              "action_type": "MODE_STEP_DOWN",
+              "capability_retention_ratio": 0.3,
+              "cooling_air_saved_w": 700,
+              "cooling_water_saved_w": 36300,
+              "from_mode": "FULL_SPECTRUM",
+              "guest_id": "G5",
+              "min_cooldown_before_reconnect_s": 60,
+              "post_step_cooling_actual_w": 18500,
+              "post_step_cooling_committed_w": 67500,
+              "post_step_feasible": true,
+              "post_step_power_actual_w": 20500,
+              "post_step_power_committed_w": 69500,
+              "power_saved_w": 37000,
+              "required_hysteresis_margin_w": 15000,
+              "step_index": 1,
+              "to_mode": "DEGRADED_70PCT_LOSS"
+            }
+          ],
+          "decision_type": "D4_GRACEFUL_DEGRADATION",
+          "deficit_analysis": {
+            "cooling_actual_deficit_w": 0,
+            "cooling_capacity_w": 133333,
+            "cooling_committed_deficit_w": 0,
+            "initial_cooling_actual_w": 54800,
+            "initial_cooling_committed_w": 103800,
+            "initial_power_actual_w": 57500,
+            "initial_power_committed_w": 106500,
+            "power_actual_deficit_w": 0,
+            "power_capacity_w": 100000,
+            "power_committed_deficit_w": 6500
+          },
+          "final_budget_snapshot": {
+            "binding_witnesses": [],
+            "classes": {
+              "compute": {
+                "actual": 22,
+                "capacity": 100,
+                "committed": 22,
+                "degraded_capacity": 100,
+                "feasible": true,
+                "free": 78,
+                "local_limits": {
+                  "cluster_accelerators": {
+                    "allocatable": 3,
+                    "feasible": true,
+                    "free": 2,
+                    "used": 1
+                  },
+                  "nodes": {
+                    "node_1": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 0,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_2": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 21,
+                      "free_ram_mib": 86016,
+                      "used_accelerators": 0,
+                      "used_cores": 4,
+                      "used_ram_mib": 16384
+                    },
+                    "node_3": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 0,
+                      "free_cores": 17,
+                      "free_ram_mib": 69632,
+                      "used_accelerators": 1,
+                      "used_cores": 8,
+                      "used_ram_mib": 32768
+                    },
+                    "node_4": {
+                      "allocatable_accelerators": 1,
+                      "allocatable_cores": 25,
+                      "allocatable_ram_mib": 102400,
+                      "free_accelerators": 1,
+                      "free_cores": 23,
+                      "free_ram_mib": 98304,
+                      "used_accelerators": 0,
+                      "used_cores": 2,
+                      "used_ram_mib": 4096
+                    }
+                  },
+                  "shared_storage_gb": {
+                    "allocatable_gb": 16000,
+                    "feasible": true,
+                    "free_gb": 3800,
+                    "used_gb": 12200
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "cores"
+              },
+              "cooling": {
+                "actual": 18500,
+                "capacity": 133333,
+                "committed": 67500,
+                "degraded_capacity": 133333,
+                "feasible": true,
+                "free": 65833,
+                "local_limits": {
+                  "air_cooling_domains": {
+                    "hangar_roof": {
+                      "actual_w": 500,
+                      "capacity_w": 2000,
+                      "committed_w": 500,
+                      "feasible": true,
+                      "free_w": 1500,
+                      "occupants": [
+                        "G5:G5_MAST_ANTENNA"
+                      ],
+                      "value_origin": "ASSUMED"
+                    },
+                    "mast_3": {
+                      "actual_w": 1500,
+                      "capacity_w": 2000,
+                      "committed_w": 1500,
+                      "feasible": true,
+                      "free_w": 500,
+                      "occupants": [
+                        "G1:G1_MAST_SENSOR_HEAD"
+                      ],
+                      "value_origin": "OFFICIAL_BRIEF"
+                    }
+                  },
+                  "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C",
+                  "effective_water_cap_with_inertia_w": 133333,
+                  "hangar_roof_air_cooling": {
+                    "actual_w": 500,
+                    "capacity_w": 2000,
+                    "committed_w": 500,
+                    "feasible": true,
+                    "free_w": 1500
+                  },
+                  "mast_air_cooling": {
+                    "actual_w": 1500,
+                    "capacity_w": 2000,
+                    "committed_w": 1500,
+                    "feasible": true,
+                    "free_w": 500
+                  },
+                  "seawater_temp_c": 24.0,
+                  "thermal_inertia_available_boost_w": 0,
+                  "total_thermal_dissipation_w": 20500
+                },
+                "provenance": "SIMULATED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "data": {
+                "actual": 2700000,
+                "capacity": 8000000,
+                "committed": 2700000,
+                "degraded_capacity": 8000000,
+                "feasible": true,
+                "free": 5300000,
+                "local_limits": {
+                  "backbone_lan_bps": {
+                    "actual_total_bps": 470000000,
+                    "feasible": true,
+                    "highest_port_bps": 300000000,
+                    "max_per_port_bps": 1000000000,
+                    "max_total_bps": 10000000000
+                  },
+                  "satcom_bps": {
+                    "actual_bps": 2700000,
+                    "available_bps": 8000000,
+                    "emcon_silence": false,
+                    "emcon_violated": false,
+                    "free_bps": 5300000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "bps"
+              },
+              "mass_stability": {
+                "actual": 9560,
+                "capacity": 10000,
+                "committed": 9560,
+                "degraded_capacity": 10000,
+                "feasible": true,
+                "free": 440,
+                "local_limits": {
+                  "bay1_mass_kg": {
+                    "actual_kg": 5500,
+                    "feasible": true,
+                    "free_kg": 2500,
+                    "max_kg": 8000
+                  },
+                  "bay2_mass_kg": {
+                    "actual_kg": 3000,
+                    "feasible": true,
+                    "free_kg": 1000,
+                    "max_kg": 4000
+                  },
+                  "mass_margin_kg": {
+                    "actual_kg": 9560,
+                    "feasible": true,
+                    "free_kg": 440,
+                    "max_kg": 10000
+                  },
+                  "stability_equivalent_kg": {
+                    "actual_kg_eq": 9853.0,
+                    "feasible": true,
+                    "free_kg_eq": 2147.0,
+                    "max_kg_eq": 12000.0
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "kg"
+              },
+              "mast": {
+                "actual": 1,
+                "capacity": 1,
+                "committed": 1,
+                "degraded_capacity": 1,
+                "feasible": true,
+                "free": 0,
+                "local_limits": {
+                  "fixed_occupied": [
+                    "mast_1",
+                    "mast_2"
+                  ],
+                  "guest_allocatable_slots": 1,
+                  "guest_slot_mast_3": {
+                    "air_cooling_w": 1500,
+                    "footprint_m2": 0.5,
+                    "mass_kg": 45,
+                    "max_air_cooling_w": 2000,
+                    "max_footprint_m2": 0.6,
+                    "max_mass_kg": 60,
+                    "owner": "G1:G1_MAST_SENSOR_HEAD"
+                  },
+                  "ship_reserved_slots": 2,
+                  "total_physical_slots": 3
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "positions": {
+                "actual": 4,
+                "capacity": 5,
+                "committed": 4,
+                "degraded_capacity": 5,
+                "feasible": true,
+                "free": 2,
+                "local_limits": {
+                  "bay1_20ft": [
+                    "G3:G3_AUV_CRADLE_BAY1_20FT"
+                  ],
+                  "bay1_a_10ft": [],
+                  "bay1_b_10ft": [],
+                  "bay1_max_mass_kg": 8000,
+                  "bay1_total_mass_kg": 5500,
+                  "bay2_10ft": [
+                    "G5:G5_COMPUTE_CONTAINER"
+                  ],
+                  "bay2_max_mass_kg": 4000,
+                  "bay2_total_mass_kg": 3000,
+                  "flight_deck": [
+                    "G4:G4_DRONE_VEHICLE"
+                  ],
+                  "hangar": [
+                    "G4:G4_HANGAR_STATION"
+                  ],
+                  "hangar_max_mass_kg": 1000,
+                  "hangar_roof": [
+                    "G5:G5_MAST_ANTENNA"
+                  ],
+                  "hangar_roof_drone_clearance": {
+                    "compatibility": "CONDITIONAL",
+                    "constraint_id": "hangar_roof_drone_clearance",
+                    "feasible": true,
+                    "g4_installed": true,
+                    "hangar_roof_occupants": [
+                      "G5:G5_MAST_ANTENNA"
+                    ],
+                    "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+                    "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+                    "policy_version": 1,
+                    "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+                    "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+                    "requires_clearance": true,
+                    "satisfied": true,
+                    "status": "VERIFIED_COMPATIBLE",
+                    "verified": true,
+                    "witness": null
+                  },
+                  "hangar_total_mass_kg": 990,
+                  "stern_ramp": []
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "slots"
+              },
+              "power": {
+                "actual": 20500,
+                "capacity": 200000,
+                "committed": 69500,
+                "degraded_capacity": 100000,
+                "feasible": true,
+                "free": 30500,
+                "local_limits": {
+                  "LINE_A_FWD": {
+                    "actual_w": 2500,
+                    "committed_w": 26500,
+                    "feasible": true,
+                    "free_w": 123500,
+                    "max_power_w": 150000
+                  },
+                  "LINE_B_AFT": {
+                    "actual_w": 18000,
+                    "committed_w": 43000,
+                    "feasible": true,
+                    "free_w": 107000,
+                    "max_power_w": 150000
+                  }
+                },
+                "provenance": "DERIVED",
+                "source_time_ns": "0",
+                "unit": "W"
+              },
+              "time": {
+                "actual": 0.0474,
+                "capacity": 200.0,
+                "committed": 0.0474,
+                "degraded_capacity": 200.0,
+                "feasible": true,
+                "free": 199.9526,
+                "local_limits": {
+                  "scenario_a_admission_deadline_ms": 30000.0,
+                  "scenario_b_arbitration_deadline_ms": 2000.0,
+                  "tick_deadline_ms": 200.0
+                },
+                "provenance": "MEASURED",
+                "source_time_ns": "0",
+                "unit": "ms"
+              }
+            },
+            "component_breakdown": {
+              "G1_MAST_SENSOR_HEAD": {
+                "active_mode": "NOMINAL",
+                "actual_power_w": 1500,
+                "air_cooling_domain": "mast_3",
+                "assumption_ref": null,
+                "committed_power_w": 1500,
+                "cooling_air_actual_w": 1500,
+                "cooling_air_committed_w": 1500,
+                "cooling_route": "MAST_AIR_2KW",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G1",
+                "mass_kg": 45,
+                "nominal_power_w": 1500,
+                "peak_power_w": 1500,
+                "position": "mast_3",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "OFFICIAL_BRIEF",
+                "stability_eq_kg": 135.0,
+                "stability_multiplier": 3.0,
+                "subcomponent_id": "G1_MAST_SENSOR_HEAD"
+              },
+              "G3_AUV_CRADLE_BAY1_20FT": {
+                "active_mode": "SURVEY_QUIET",
+                "actual_power_w": 1000,
+                "air_cooling_domain": null,
+                "assumption_ref": null,
+                "committed_power_w": 25000,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 1000,
+                "cooling_water_committed_w": 25000,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G3",
+                "mass_kg": 5500,
+                "nominal_power_w": 1000,
+                "peak_power_w": 1000,
+                "position": "bay1",
+                "powered_on": true,
+                "reserved_delta_w": 24000,
+                "source_kind": "OFFICIAL_BRIEF",
+                "stability_eq_kg": 5500.0,
+                "stability_multiplier": 1.0,
+                "subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+              },
+              "G4_DRONE_VEHICLE": {
+                "active_mode": "FLIGHT_PATROL",
+                "actual_power_w": 0,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+                "committed_power_w": 0,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "PASSIVE_NO_COOLING",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "mass_kg": 140,
+                "nominal_power_w": 0,
+                "peak_power_w": 0,
+                "position": "flight_deck",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 168.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G4_DRONE_VEHICLE"
+              },
+              "G4_HANGAR_STATION": {
+                "active_mode": "FLIGHT_PATROL",
+                "actual_power_w": 10000,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+                "committed_power_w": 35000,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 10000,
+                "cooling_water_committed_w": 35000,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "mass_kg": 850,
+                "nominal_power_w": 10000,
+                "peak_power_w": 10000,
+                "position": "hangar",
+                "powered_on": true,
+                "reserved_delta_w": 25000,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 1020.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G4_HANGAR_STATION"
+              },
+              "G5_COMPUTE_CONTAINER": {
+                "active_mode": "DEGRADED_70PCT_LOSS",
+                "actual_power_w": 7500,
+                "air_cooling_domain": null,
+                "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+                "committed_power_w": 7500,
+                "cooling_air_actual_w": 0,
+                "cooling_air_committed_w": 0,
+                "cooling_route": "CHILLED_WATER_LOOP",
+                "cooling_water_actual_w": 7500,
+                "cooling_water_committed_w": 7500,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G5",
+                "mass_kg": 3000,
+                "nominal_power_w": 7500,
+                "peak_power_w": 7500,
+                "position": "bay2",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 3000.0,
+                "stability_multiplier": 1.0,
+                "subcomponent_id": "G5_COMPUTE_CONTAINER"
+              },
+              "G5_MAST_ANTENNA": {
+                "active_mode": "DEGRADED_70PCT_LOSS",
+                "actual_power_w": 500,
+                "air_cooling_domain": "hangar_roof",
+                "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+                "committed_power_w": 500,
+                "cooling_air_actual_w": 500,
+                "cooling_air_committed_w": 500,
+                "cooling_route": "MAST_AIR_2KW",
+                "cooling_water_actual_w": 0,
+                "cooling_water_committed_w": 0,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G5",
+                "mass_kg": 25,
+                "nominal_power_w": 500,
+                "peak_power_w": 500,
+                "position": "hangar_roof",
+                "powered_on": true,
+                "reserved_delta_w": 0,
+                "source_kind": "ASSUMED",
+                "stability_eq_kg": 30.0,
+                "stability_multiplier": 1.2,
+                "subcomponent_id": "G5_MAST_ANTENNA"
+              }
+            },
+            "feasible": true,
+            "firm_reservations_ledger": [
+              {
+                "activation_condition": "SCHEDULED_MODE_TRANSITION",
+                "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+                "created_at_s": 0,
+                "current_committed_before_reservation_w": 1000,
+                "feeder_line": "LINE_A_FWD",
+                "guest_id": "G3",
+                "net_envelope_delta_w": 24000,
+                "origin": "SCENARIO_OR_ARBITRATION",
+                "reason": "Guaranteed post-leg uninterruptible AUV battery recharge reservation",
+                "reservation_id": "RES-G3-RECHARGE-CRADLE",
+                "reserved_power_w": 25000,
+                "target_subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+              },
+              {
+                "activation_condition": "SCHEDULED_MODE_TRANSITION",
+                "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+                "created_at_s": 0,
+                "current_committed_before_reservation_w": 10000,
+                "feeder_line": "LINE_B_AFT",
+                "guest_id": "G4",
+                "net_envelope_delta_w": 25000,
+                "origin": "SCENARIO_OR_ARBITRATION",
+                "reason": "D3 committed UAV recovery approach and 20-min hangar charge (35 kW)",
+                "reservation_id": "D3_PLAN_V1_G4_RECOVERY",
+                "reserved_power_w": 35000,
+                "target_subcomponent_id": "G4_HANGAR_STATION"
+              }
+            ],
+            "infeasible_protected_load": false,
+            "infeasible_reason": null,
+            "roof_clearance_evaluation": {
+              "compatibility": "CONDITIONAL",
+              "constraint_id": "hangar_roof_drone_clearance",
+              "feasible": true,
+              "g4_installed": true,
+              "hangar_roof_occupants": [
+                "G5:G5_MAST_ANTENNA"
+              ],
+              "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+              "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+              "policy_version": 1,
+              "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "requires_clearance": true,
+              "satisfied": true,
+              "status": "VERIFIED_COMPATIBLE",
+              "verified": true,
+              "witness": null
+            },
+            "sim_time_s": 720,
+            "tick_seq": 36,
+            "vessel_mode": "DEGRADED_POWER"
+          },
+          "infeasible_protected_load": false,
+          "plan_version": 2,
+          "priority_profile_id": "SURVEY_PRIMARY",
+          "status": "FEASIBLE_AFTER_DEGRADATION",
+          "verdict": "YES",
+          "within_5s_first_shed_deadline": true,
+          "within_60s_sequence_deadline": true
+        },
+        "event_time_s": 720,
+        "phase": "D4_DEGRADATION",
+        "plan_version": 2,
+        "sim_time_s": 720,
+        "tick": 36
+      },
+      {
+        "decision": {
+          "guest_id": "G5",
+          "plan_version": 3,
+          "post_reconnect_cooling_free_w": 29533,
+          "post_reconnect_power_free_w": 93500,
+          "reason": "COOLDOWN_AND_HYSTERESIS_SATISFIED",
+          "reconnect_allowed": true,
+          "target_mode": "FULL_SPECTRUM"
+        },
+        "event_time_s": 1500,
+        "phase": "D4_RECONNECTION",
+        "plan_version": 3,
+        "sim_time_s": 1500,
+        "tick": 75
+      }
+    ],
+    "executed_touchdown_time_s": 1095,
+    "horizon_obligations_summary": {
+      "g3_survey_leg_2400s": {
+        "leg_elapsed_s": 1170,
+        "leg_target_s": 2400,
+        "legs_completed": 0,
+        "remaining_s_at_horizon": 1230,
+        "status": "PENDING_HORIZON"
+      },
+      "g4_charging_1200s": {
+        "expected_complete_time_s": 2295,
+        "remaining_s_at_horizon": 495,
+        "status": "PENDING_HORIZON",
+        "touchdown_time_s": 1095
+      },
+      "horizon_end_sim_time_s": 1800
+    },
+    "semantic_sha256": "0285ad160124342d44129cbc8f659982470ebf14af12033657dacd476ef4ab39"
+  }
+}

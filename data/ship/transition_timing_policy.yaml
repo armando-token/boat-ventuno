@@ -1,0 +1,116 @@
+# data/ship/transition_timing_policy.yaml — Política Causal de Tiempos de Transición A.6 (Sección 9.2)
+schema_version: "sdv-transition-timing-policy/1.0"
+policy_id: "ANNEX_A6_CAUSAL_TIMING_POLICY_V1"
+policy_version: 1
+recovery_target_speed_kn: 5.0
+course_settle_s: 90
+speed_inter_band_per_band_s: 180
+speed_intra_band_s: 60
+enter_quiet_state_s: 180
+exit_quiet_state_s: 0
+deck_clear_crew_14_s: 240
+deck_clear_crew_6_s: 600
+deck_clear_crew_0_s: null
+human_confirm_crew_14_s: 30
+human_confirm_crew_6_s: 120
+human_confirm_crew_0_s: 0
+generator_restart_s: 780
+cooling_loop_at_sea_repair_allowed: false
+deadline_boundary_inclusive: true
+
+speed_bands_kn:
+  slow_survey:
+    min_kn: 3.0
+    max_kn: 5.0
+  patrol_transit:
+    min_kn: 10.0
+    max_kn: 14.0
+  fast_dash:
+    min_kn: 18.0
+    max_kn: 25.0
+
+parameter_provenance:
+  recovery_target_speed_kn:
+    unit: "kn"
+    value: 5.0
+    official_range: "5.0..12.0 kn (G4 flight operation) & 3.0..5.0 kn (slow band)"
+    value_origin: "ASSUMED"
+    assumption_ref: "ASM-A6-INTRABAND-SPEED-3-TO-5KN"
+  course_settle_s:
+    unit: "s"
+    value: 90
+    official_range: "60..180 s (Annex A.6)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6"
+  speed_inter_band_per_band_s:
+    unit: "s"
+    value: 180
+    official_range: "120..300 s per band (Annex A.6)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6"
+  speed_intra_band_s:
+    unit: "s"
+    value: 60
+    official_range: "Not quantified in Annex A.6 (3->5 kn intra-band)"
+    value_origin: "ASSUMED"
+    assumption_ref: "ASM-A6-INTRABAND-SPEED-3-TO-5KN"
+  enter_quiet_state_s:
+    unit: "s"
+    value: 180
+    official_range: "120..240 s (Annex A.6)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6"
+  exit_quiet_state_s:
+    unit: "s"
+    value: 0
+    official_range: "Instantaneous (Annex A.6)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6"
+  deck_clear_crew_14_s:
+    unit: "s"
+    value: 240
+    official_range: "180..300 s (0 s additional if already clear and verified)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6_A_8"
+  deck_clear_crew_6_s:
+    unit: "s"
+    value: 600
+    official_range: "480..720 s (Annex A.6 / A.8)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6_A_8"
+  deck_clear_crew_0_s:
+    unit: "s"
+    value: null
+    official_range: "Only if already clear before departure; forbidden if occupied"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6_A_8"
+  human_confirm_crew_14_s:
+    unit: "s"
+    value: 30
+    official_range: "15..60 s (Annex A.8)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_8"
+  human_confirm_crew_6_s:
+    unit: "s"
+    value: 120
+    official_range: "60..180 s (Annex A.8)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_8"
+  human_confirm_crew_0_s:
+    unit: "s"
+    value: 0
+    official_range: "Pre-authorized automatic or forbidden by rule; no human ACK"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_8"
+  generator_restart_s:
+    unit: "s"
+    value: 780
+    official_range: "300..900 s (5..15 min, Annex A.6 / A.9)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6_A_9"
+  cooling_loop_at_sea_repair_allowed:
+    unit: "boolean"
+    value: false
+    official_range: "Not supported at sea (Annex A.6)"
+    value_origin: "OFFICIAL_BRIEF"
+    source_ref: "ANNEX_A_6"

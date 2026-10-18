@@ -1,0 +1,2617 @@
+{
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "key_snapshots": {
+    "cooling_limited_30c_t720_d4_thermal_72kw": {
+      "binding_witnesses": [],
+      "classes": {
+        "compute": {
+          "actual": 22,
+          "capacity": 100,
+          "committed": 22,
+          "degraded_capacity": 100,
+          "feasible": true,
+          "free": 78,
+          "local_limits": {
+            "cluster_accelerators": {
+              "allocatable": 3,
+              "feasible": true,
+              "free": 2,
+              "used": 1
+            },
+            "nodes": {
+              "node_1": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 0,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_2": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 21,
+                "free_ram_mib": 86016,
+                "used_accelerators": 0,
+                "used_cores": 4,
+                "used_ram_mib": 16384
+              },
+              "node_3": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 0,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 1,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_4": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 23,
+                "free_ram_mib": 98304,
+                "used_accelerators": 0,
+                "used_cores": 2,
+                "used_ram_mib": 4096
+              }
+            },
+            "shared_storage_gb": {
+              "allocatable_gb": 16000,
+              "feasible": true,
+              "free_gb": 3800,
+              "used_gb": 12200
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "36000000000",
+          "unit": "cores"
+        },
+        "cooling": {
+          "actual": 43500,
+          "capacity": 120000,
+          "committed": 67500,
+          "degraded_capacity": 72000,
+          "feasible": true,
+          "free": 4500,
+          "local_limits": {
+            "air_cooling_domains": {
+              "hangar_roof": {
+                "actual_w": 500,
+                "capacity_w": 2000,
+                "committed_w": 500,
+                "feasible": true,
+                "free_w": 1500,
+                "occupants": [
+                  "G5:G5_MAST_ANTENNA"
+                ],
+                "value_origin": "ASSUMED"
+              },
+              "mast_3": {
+                "actual_w": 1500,
+                "capacity_w": 2000,
+                "committed_w": 1500,
+                "feasible": true,
+                "free_w": 500,
+                "occupants": [
+                  "G1:G1_MAST_SENSOR_HEAD"
+                ],
+                "value_origin": "OFFICIAL_BRIEF"
+              }
+            },
+            "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C+LOOP_DEGRADED_40PCT",
+            "effective_water_cap_with_inertia_w": 72000,
+            "hangar_roof_air_cooling": {
+              "actual_w": 500,
+              "capacity_w": 2000,
+              "committed_w": 500,
+              "feasible": true,
+              "free_w": 1500
+            },
+            "mast_air_cooling": {
+              "actual_w": 1500,
+              "capacity_w": 2000,
+              "committed_w": 1500,
+              "feasible": true,
+              "free_w": 500
+            },
+            "seawater_temp_c": 30.0,
+            "thermal_inertia_available_boost_w": 0,
+            "total_thermal_dissipation_w": 45500
+          },
+          "provenance": "SIMULATED",
+          "source_time_ns": "36000000000",
+          "unit": "W"
+        },
+        "data": {
+          "actual": 3200000,
+          "capacity": 8000000,
+          "committed": 3200000,
+          "degraded_capacity": 8000000,
+          "feasible": true,
+          "free": 4800000,
+          "local_limits": {
+            "backbone_lan_bps": {
+              "actual_total_bps": 470000000,
+              "feasible": true,
+              "highest_port_bps": 300000000,
+              "max_per_port_bps": 1000000000,
+              "max_total_bps": 10000000000
+            },
+            "satcom_bps": {
+              "actual_bps": 3200000,
+              "available_bps": 8000000,
+              "emcon_silence": false,
+              "emcon_violated": false,
+              "free_bps": 4800000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "36000000000",
+          "unit": "bps"
+        },
+        "mass_stability": {
+          "actual": 9560,
+          "capacity": 10000,
+          "committed": 9560,
+          "degraded_capacity": 10000,
+          "feasible": true,
+          "free": 440,
+          "local_limits": {
+            "bay1_mass_kg": {
+              "actual_kg": 5500,
+              "feasible": true,
+              "free_kg": 2500,
+              "max_kg": 8000
+            },
+            "bay2_mass_kg": {
+              "actual_kg": 3000,
+              "feasible": true,
+              "free_kg": 1000,
+              "max_kg": 4000
+            },
+            "mass_margin_kg": {
+              "actual_kg": 9560,
+              "feasible": true,
+              "free_kg": 440,
+              "max_kg": 10000
+            },
+            "stability_equivalent_kg": {
+              "actual_kg_eq": 9853.0,
+              "feasible": true,
+              "free_kg_eq": 2147.0,
+              "max_kg_eq": 12000.0
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "36000000000",
+          "unit": "kg"
+        },
+        "mast": {
+          "actual": 1,
+          "capacity": 1,
+          "committed": 1,
+          "degraded_capacity": 1,
+          "feasible": true,
+          "free": 0,
+          "local_limits": {
+            "fixed_occupied": [
+              "mast_1",
+              "mast_2"
+            ],
+            "guest_allocatable_slots": 1,
+            "guest_slot_mast_3": {
+              "air_cooling_w": 1500,
+              "footprint_m2": 0.5,
+              "mass_kg": 45,
+              "max_air_cooling_w": 2000,
+              "max_footprint_m2": 0.6,
+              "max_mass_kg": 60,
+              "owner": "G1:G1_MAST_SENSOR_HEAD"
+            },
+            "ship_reserved_slots": 2,
+            "total_physical_slots": 3
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "36000000000",
+          "unit": "slots"
+        },
+        "positions": {
+          "actual": 4,
+          "capacity": 5,
+          "committed": 4,
+          "degraded_capacity": 5,
+          "feasible": true,
+          "free": 2,
+          "local_limits": {
+            "bay1_20ft": [
+              "G3:G3_AUV_CRADLE_BAY1_20FT"
+            ],
+            "bay1_a_10ft": [],
+            "bay1_b_10ft": [],
+            "bay1_max_mass_kg": 8000,
+            "bay1_total_mass_kg": 5500,
+            "bay2_10ft": [
+              "G5:G5_COMPUTE_CONTAINER"
+            ],
+            "bay2_max_mass_kg": 4000,
+            "bay2_total_mass_kg": 3000,
+            "flight_deck": [
+              "G4:G4_DRONE_VEHICLE"
+            ],
+            "hangar": [
+              "G4:G4_HANGAR_STATION"
+            ],
+            "hangar_max_mass_kg": 1000,
+            "hangar_roof": [
+              "G5:G5_MAST_ANTENNA"
+            ],
+            "hangar_roof_drone_clearance": {
+              "compatibility": "CONDITIONAL",
+              "constraint_id": "hangar_roof_drone_clearance",
+              "feasible": true,
+              "g4_installed": true,
+              "hangar_roof_occupants": [
+                "G5:G5_MAST_ANTENNA"
+              ],
+              "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+              "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+              "policy_version": 1,
+              "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "requires_clearance": true,
+              "satisfied": true,
+              "status": "VERIFIED_COMPATIBLE",
+              "verified": true,
+              "witness": null
+            },
+            "hangar_total_mass_kg": 990,
+            "stern_ramp": []
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "36000000000",
+          "unit": "slots"
+        },
+        "power": {
+          "actual": 45500,
+          "capacity": 200000,
+          "committed": 69500,
+          "degraded_capacity": 100000,
+          "feasible": true,
+          "free": 30500,
+          "local_limits": {
+            "LINE_A_FWD": {
+              "actual_w": 2500,
+              "committed_w": 26500,
+              "feasible": true,
+              "free_w": 123500,
+              "max_power_w": 150000
+            },
+            "LINE_B_AFT": {
+              "actual_w": 43000,
+              "committed_w": 43000,
+              "feasible": true,
+              "free_w": 107000,
+              "max_power_w": 150000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "36000000000",
+          "unit": "W"
+        },
+        "time": {
+          "actual": 0.4224,
+          "capacity": 200.0,
+          "committed": 0.4224,
+          "degraded_capacity": 200.0,
+          "feasible": true,
+          "free": 199.5776,
+          "local_limits": {
+            "scenario_a_admission_deadline_ms": 30000.0,
+            "scenario_b_arbitration_deadline_ms": 2000.0,
+            "tick_deadline_ms": 200.0
+          },
+          "provenance": "MEASURED",
+          "source_time_ns": "36000000000",
+          "unit": "ms"
+        }
+      },
+      "component_breakdown": {
+        "G1_MAST_SENSOR_HEAD": {
+          "active_mode": "NOMINAL",
+          "actual_power_w": 1500,
+          "air_cooling_domain": "mast_3",
+          "assumption_ref": null,
+          "committed_power_w": 1500,
+          "cooling_air_actual_w": 1500,
+          "cooling_air_committed_w": 1500,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G1",
+          "mass_kg": 45,
+          "nominal_power_w": 1500,
+          "peak_power_w": 1500,
+          "position": "mast_3",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 135.0,
+          "stability_multiplier": 3.0,
+          "subcomponent_id": "G1_MAST_SENSOR_HEAD"
+        },
+        "G3_AUV_CRADLE_BAY1_20FT": {
+          "active_mode": "SURVEY_QUIET",
+          "actual_power_w": 1000,
+          "air_cooling_domain": null,
+          "assumption_ref": null,
+          "committed_power_w": 25000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 1000,
+          "cooling_water_committed_w": 25000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "mass_kg": 5500,
+          "nominal_power_w": 1000,
+          "peak_power_w": 1000,
+          "position": "bay1",
+          "powered_on": true,
+          "reserved_delta_w": 24000,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 5500.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        "G4_DRONE_VEHICLE": {
+          "active_mode": "LAUNCH_RECOVERY_OPTICS",
+          "actual_power_w": 0,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 0,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "PASSIVE_NO_COOLING",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 140,
+          "nominal_power_w": 0,
+          "peak_power_w": 0,
+          "position": "flight_deck",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 168.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_DRONE_VEHICLE"
+        },
+        "G4_HANGAR_STATION": {
+          "active_mode": "LAUNCH_RECOVERY_OPTICS",
+          "actual_power_w": 35000,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 35000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 35000,
+          "cooling_water_committed_w": 35000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 850,
+          "nominal_power_w": 35000,
+          "peak_power_w": 35000,
+          "position": "hangar",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 1020.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_HANGAR_STATION"
+        },
+        "G5_COMPUTE_CONTAINER": {
+          "active_mode": "DEGRADED_70PCT_LOSS",
+          "actual_power_w": 7500,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 7500,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 7500,
+          "cooling_water_committed_w": 7500,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 3000,
+          "nominal_power_w": 7500,
+          "peak_power_w": 7500,
+          "position": "bay2",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 3000.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G5_COMPUTE_CONTAINER"
+        },
+        "G5_MAST_ANTENNA": {
+          "active_mode": "DEGRADED_70PCT_LOSS",
+          "actual_power_w": 500,
+          "air_cooling_domain": "hangar_roof",
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 500,
+          "cooling_air_actual_w": 500,
+          "cooling_air_committed_w": 500,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 25,
+          "nominal_power_w": 500,
+          "peak_power_w": 500,
+          "position": "hangar_roof",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 30.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G5_MAST_ANTENNA"
+        }
+      },
+      "feasible": true,
+      "firm_reservations_ledger": [
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 1000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "net_envelope_delta_w": 24000,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "Guaranteed post-leg uninterruptible AUV battery recharge reservation",
+          "reservation_id": "RES-G3-RECHARGE-CRADLE",
+          "reserved_power_w": 25000,
+          "target_subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 35000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "net_envelope_delta_w": 0,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "D3 committed UAV recovery approach and 20-min hangar charge (35 kW)",
+          "reservation_id": "D3_PLAN_V1_G4_RECOVERY",
+          "reserved_power_w": 35000,
+          "target_subcomponent_id": "G4_HANGAR_STATION"
+        }
+      ],
+      "infeasible_protected_load": false,
+      "infeasible_reason": null,
+      "roof_clearance_evaluation": {
+        "compatibility": "CONDITIONAL",
+        "constraint_id": "hangar_roof_drone_clearance",
+        "feasible": true,
+        "g4_installed": true,
+        "hangar_roof_occupants": [
+          "G5:G5_MAST_ANTENNA"
+        ],
+        "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+        "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+        "policy_version": 1,
+        "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "requires_clearance": true,
+        "satisfied": true,
+        "status": "VERIFIED_COMPATIBLE",
+        "verified": true,
+        "witness": null
+      },
+      "sim_time_s": 720,
+      "tick_seq": 36,
+      "vessel_mode": "DEGRADED_THERMAL"
+    },
+    "survey_primary_t0_nominal": {
+      "binding_witnesses": [],
+      "classes": {
+        "compute": {
+          "actual": 26,
+          "capacity": 100,
+          "committed": 26,
+          "degraded_capacity": 100,
+          "feasible": true,
+          "free": 74,
+          "local_limits": {
+            "cluster_accelerators": {
+              "allocatable": 3,
+              "feasible": true,
+              "free": 1,
+              "used": 2
+            },
+            "nodes": {
+              "node_1": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 0,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_2": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 0,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 1,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_3": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 0,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 1,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_4": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 23,
+                "free_ram_mib": 98304,
+                "used_accelerators": 0,
+                "used_cores": 2,
+                "used_ram_mib": 4096
+              }
+            },
+            "shared_storage_gb": {
+              "allocatable_gb": 16000,
+              "feasible": true,
+              "free_gb": 3800,
+              "used_gb": 12200
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "0",
+          "unit": "cores"
+        },
+        "cooling": {
+          "actual": 54800,
+          "capacity": 133333,
+          "committed": 78800,
+          "degraded_capacity": 133333,
+          "feasible": true,
+          "free": 54533,
+          "local_limits": {
+            "air_cooling_domains": {
+              "hangar_roof": {
+                "actual_w": 1200,
+                "capacity_w": 2000,
+                "committed_w": 1200,
+                "feasible": true,
+                "free_w": 800,
+                "occupants": [
+                  "G5:G5_MAST_ANTENNA"
+                ],
+                "value_origin": "ASSUMED"
+              },
+              "mast_3": {
+                "actual_w": 1500,
+                "capacity_w": 2000,
+                "committed_w": 1500,
+                "feasible": true,
+                "free_w": 500,
+                "occupants": [
+                  "G1:G1_MAST_SENSOR_HEAD"
+                ],
+                "value_origin": "OFFICIAL_BRIEF"
+              }
+            },
+            "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C",
+            "effective_water_cap_with_inertia_w": 133333,
+            "hangar_roof_air_cooling": {
+              "actual_w": 1200,
+              "capacity_w": 2000,
+              "committed_w": 1200,
+              "feasible": true,
+              "free_w": 800
+            },
+            "mast_air_cooling": {
+              "actual_w": 1500,
+              "capacity_w": 2000,
+              "committed_w": 1500,
+              "feasible": true,
+              "free_w": 500
+            },
+            "seawater_temp_c": 24.0,
+            "thermal_inertia_available_boost_w": 0,
+            "total_thermal_dissipation_w": 57500
+          },
+          "provenance": "SIMULATED",
+          "source_time_ns": "0",
+          "unit": "W"
+        },
+        "data": {
+          "actual": 7200000,
+          "capacity": 8000000,
+          "committed": 7200000,
+          "degraded_capacity": 8000000,
+          "feasible": true,
+          "free": 800000,
+          "local_limits": {
+            "backbone_lan_bps": {
+              "actual_total_bps": 1170000000,
+              "feasible": true,
+              "highest_port_bps": 1000000000,
+              "max_per_port_bps": 1000000000,
+              "max_total_bps": 10000000000
+            },
+            "satcom_bps": {
+              "actual_bps": 7200000,
+              "available_bps": 8000000,
+              "emcon_silence": false,
+              "emcon_violated": false,
+              "free_bps": 800000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "0",
+          "unit": "bps"
+        },
+        "mass_stability": {
+          "actual": 9560,
+          "capacity": 10000,
+          "committed": 9560,
+          "degraded_capacity": 10000,
+          "feasible": true,
+          "free": 440,
+          "local_limits": {
+            "bay1_mass_kg": {
+              "actual_kg": 5500,
+              "feasible": true,
+              "free_kg": 2500,
+              "max_kg": 8000
+            },
+            "bay2_mass_kg": {
+              "actual_kg": 3000,
+              "feasible": true,
+              "free_kg": 1000,
+              "max_kg": 4000
+            },
+            "mass_margin_kg": {
+              "actual_kg": 9560,
+              "feasible": true,
+              "free_kg": 440,
+              "max_kg": 10000
+            },
+            "stability_equivalent_kg": {
+              "actual_kg_eq": 9853.0,
+              "feasible": true,
+              "free_kg_eq": 2147.0,
+              "max_kg_eq": 12000.0
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "0",
+          "unit": "kg"
+        },
+        "mast": {
+          "actual": 1,
+          "capacity": 1,
+          "committed": 1,
+          "degraded_capacity": 1,
+          "feasible": true,
+          "free": 0,
+          "local_limits": {
+            "fixed_occupied": [
+              "mast_1",
+              "mast_2"
+            ],
+            "guest_allocatable_slots": 1,
+            "guest_slot_mast_3": {
+              "air_cooling_w": 1500,
+              "footprint_m2": 0.5,
+              "mass_kg": 45,
+              "max_air_cooling_w": 2000,
+              "max_footprint_m2": 0.6,
+              "max_mass_kg": 60,
+              "owner": "G1:G1_MAST_SENSOR_HEAD"
+            },
+            "ship_reserved_slots": 2,
+            "total_physical_slots": 3
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "0",
+          "unit": "slots"
+        },
+        "positions": {
+          "actual": 4,
+          "capacity": 5,
+          "committed": 4,
+          "degraded_capacity": 5,
+          "feasible": true,
+          "free": 2,
+          "local_limits": {
+            "bay1_20ft": [
+              "G3:G3_AUV_CRADLE_BAY1_20FT"
+            ],
+            "bay1_a_10ft": [],
+            "bay1_b_10ft": [],
+            "bay1_max_mass_kg": 8000,
+            "bay1_total_mass_kg": 5500,
+            "bay2_10ft": [
+              "G5:G5_COMPUTE_CONTAINER"
+            ],
+            "bay2_max_mass_kg": 4000,
+            "bay2_total_mass_kg": 3000,
+            "flight_deck": [
+              "G4:G4_DRONE_VEHICLE"
+            ],
+            "hangar": [
+              "G4:G4_HANGAR_STATION"
+            ],
+            "hangar_max_mass_kg": 1000,
+            "hangar_roof": [
+              "G5:G5_MAST_ANTENNA"
+            ],
+            "hangar_roof_drone_clearance": {
+              "compatibility": "CONDITIONAL",
+              "constraint_id": "hangar_roof_drone_clearance",
+              "feasible": true,
+              "g4_installed": true,
+              "hangar_roof_occupants": [
+                "G5:G5_MAST_ANTENNA"
+              ],
+              "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+              "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+              "policy_version": 1,
+              "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "requires_clearance": true,
+              "satisfied": true,
+              "status": "VERIFIED_COMPATIBLE",
+              "verified": true,
+              "witness": null
+            },
+            "hangar_total_mass_kg": 990,
+            "stern_ramp": []
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "0",
+          "unit": "slots"
+        },
+        "power": {
+          "actual": 57500,
+          "capacity": 200000,
+          "committed": 81500,
+          "degraded_capacity": 200000,
+          "feasible": true,
+          "free": 118500,
+          "local_limits": {
+            "LINE_A_FWD": {
+              "actual_w": 2500,
+              "committed_w": 26500,
+              "feasible": true,
+              "free_w": 123500,
+              "max_power_w": 150000
+            },
+            "LINE_B_AFT": {
+              "actual_w": 55000,
+              "committed_w": 55000,
+              "feasible": true,
+              "free_w": 95000,
+              "max_power_w": 150000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "0",
+          "unit": "W"
+        },
+        "time": {
+          "actual": 0.0732,
+          "capacity": 200.0,
+          "committed": 0.0732,
+          "degraded_capacity": 200.0,
+          "feasible": true,
+          "free": 199.9268,
+          "local_limits": {
+            "scenario_a_admission_deadline_ms": 30000.0,
+            "scenario_b_arbitration_deadline_ms": 2000.0,
+            "tick_deadline_ms": 200.0
+          },
+          "provenance": "MEASURED",
+          "source_time_ns": "0",
+          "unit": "ms"
+        }
+      },
+      "component_breakdown": {
+        "G1_MAST_SENSOR_HEAD": {
+          "active_mode": "NOMINAL",
+          "actual_power_w": 1500,
+          "air_cooling_domain": "mast_3",
+          "assumption_ref": null,
+          "committed_power_w": 1500,
+          "cooling_air_actual_w": 1500,
+          "cooling_air_committed_w": 1500,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G1",
+          "mass_kg": 45,
+          "nominal_power_w": 1500,
+          "peak_power_w": 1500,
+          "position": "mast_3",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 135.0,
+          "stability_multiplier": 3.0,
+          "subcomponent_id": "G1_MAST_SENSOR_HEAD"
+        },
+        "G3_AUV_CRADLE_BAY1_20FT": {
+          "active_mode": "SURVEY_QUIET",
+          "actual_power_w": 1000,
+          "air_cooling_domain": null,
+          "assumption_ref": null,
+          "committed_power_w": 25000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 1000,
+          "cooling_water_committed_w": 25000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "mass_kg": 5500,
+          "nominal_power_w": 1000,
+          "peak_power_w": 1000,
+          "position": "bay1",
+          "powered_on": true,
+          "reserved_delta_w": 24000,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 5500.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        "G4_DRONE_VEHICLE": {
+          "active_mode": "FLIGHT_PATROL",
+          "actual_power_w": 0,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 0,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "PASSIVE_NO_COOLING",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 140,
+          "nominal_power_w": 0,
+          "peak_power_w": 0,
+          "position": "flight_deck",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 168.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_DRONE_VEHICLE"
+        },
+        "G4_HANGAR_STATION": {
+          "active_mode": "FLIGHT_PATROL",
+          "actual_power_w": 10000,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 10000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 10000,
+          "cooling_water_committed_w": 10000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 850,
+          "nominal_power_w": 10000,
+          "peak_power_w": 10000,
+          "position": "hangar",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 1020.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_HANGAR_STATION"
+        },
+        "G5_COMPUTE_CONTAINER": {
+          "active_mode": "FULL_SPECTRUM",
+          "actual_power_w": 43800,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 43800,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 43800,
+          "cooling_water_committed_w": 43800,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 3000,
+          "nominal_power_w": 43800,
+          "peak_power_w": 43800,
+          "position": "bay2",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 3000.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G5_COMPUTE_CONTAINER"
+        },
+        "G5_MAST_ANTENNA": {
+          "active_mode": "FULL_SPECTRUM",
+          "actual_power_w": 1200,
+          "air_cooling_domain": "hangar_roof",
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 1200,
+          "cooling_air_actual_w": 1200,
+          "cooling_air_committed_w": 1200,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 25,
+          "nominal_power_w": 1200,
+          "peak_power_w": 1200,
+          "position": "hangar_roof",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 30.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G5_MAST_ANTENNA"
+        }
+      },
+      "feasible": true,
+      "firm_reservations_ledger": [
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 1000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "net_envelope_delta_w": 24000,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "Guaranteed post-leg uninterruptible AUV battery recharge reservation",
+          "reservation_id": "RES-G3-RECHARGE-CRADLE",
+          "reserved_power_w": 25000,
+          "target_subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        }
+      ],
+      "infeasible_protected_load": false,
+      "infeasible_reason": null,
+      "roof_clearance_evaluation": {
+        "compatibility": "CONDITIONAL",
+        "constraint_id": "hangar_roof_drone_clearance",
+        "feasible": true,
+        "g4_installed": true,
+        "hangar_roof_occupants": [
+          "G5:G5_MAST_ANTENNA"
+        ],
+        "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+        "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+        "policy_version": 1,
+        "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "requires_clearance": true,
+        "satisfied": true,
+        "status": "VERIFIED_COMPATIBLE",
+        "verified": true,
+        "witness": null
+      },
+      "sim_time_s": 0,
+      "tick_seq": 0,
+      "vessel_mode": "QUIET_SURVEY"
+    },
+    "survey_primary_t1100_post_touchdown_35kw_charge": {
+      "binding_witnesses": [],
+      "classes": {
+        "compute": {
+          "actual": 18,
+          "capacity": 100,
+          "committed": 18,
+          "degraded_capacity": 100,
+          "feasible": true,
+          "free": 82,
+          "local_limits": {
+            "cluster_accelerators": {
+              "allocatable": 3,
+              "feasible": true,
+              "free": 2,
+              "used": 1
+            },
+            "nodes": {
+              "node_1": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 21,
+                "free_ram_mib": 86016,
+                "used_accelerators": 0,
+                "used_cores": 4,
+                "used_ram_mib": 16384
+              },
+              "node_2": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 21,
+                "free_ram_mib": 86016,
+                "used_accelerators": 0,
+                "used_cores": 4,
+                "used_ram_mib": 16384
+              },
+              "node_3": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 0,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 1,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_4": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 23,
+                "free_ram_mib": 98304,
+                "used_accelerators": 0,
+                "used_cores": 2,
+                "used_ram_mib": 4096
+              }
+            },
+            "shared_storage_gb": {
+              "allocatable_gb": 16000,
+              "feasible": true,
+              "free_gb": 3800,
+              "used_gb": 12200
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "55000000000",
+          "unit": "cores"
+        },
+        "cooling": {
+          "actual": 43500,
+          "capacity": 133333,
+          "committed": 67500,
+          "degraded_capacity": 133333,
+          "feasible": true,
+          "free": 65833,
+          "local_limits": {
+            "air_cooling_domains": {
+              "hangar_roof": {
+                "actual_w": 500,
+                "capacity_w": 2000,
+                "committed_w": 500,
+                "feasible": true,
+                "free_w": 1500,
+                "occupants": [
+                  "G5:G5_MAST_ANTENNA"
+                ],
+                "value_origin": "ASSUMED"
+              },
+              "mast_3": {
+                "actual_w": 1500,
+                "capacity_w": 2000,
+                "committed_w": 1500,
+                "feasible": true,
+                "free_w": 500,
+                "occupants": [
+                  "G1:G1_MAST_SENSOR_HEAD"
+                ],
+                "value_origin": "OFFICIAL_BRIEF"
+              }
+            },
+            "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C",
+            "effective_water_cap_with_inertia_w": 133333,
+            "hangar_roof_air_cooling": {
+              "actual_w": 500,
+              "capacity_w": 2000,
+              "committed_w": 500,
+              "feasible": true,
+              "free_w": 1500
+            },
+            "mast_air_cooling": {
+              "actual_w": 1500,
+              "capacity_w": 2000,
+              "committed_w": 1500,
+              "feasible": true,
+              "free_w": 500
+            },
+            "seawater_temp_c": 24.0,
+            "thermal_inertia_available_boost_w": 0,
+            "total_thermal_dissipation_w": 45500
+          },
+          "provenance": "SIMULATED",
+          "source_time_ns": "55000000000",
+          "unit": "W"
+        },
+        "data": {
+          "actual": 3200000,
+          "capacity": 8000000,
+          "committed": 3200000,
+          "degraded_capacity": 8000000,
+          "feasible": true,
+          "free": 4800000,
+          "local_limits": {
+            "backbone_lan_bps": {
+              "actual_total_bps": 380000000,
+              "feasible": true,
+              "highest_port_bps": 300000000,
+              "max_per_port_bps": 1000000000,
+              "max_total_bps": 10000000000
+            },
+            "satcom_bps": {
+              "actual_bps": 3200000,
+              "available_bps": 8000000,
+              "emcon_silence": false,
+              "emcon_violated": false,
+              "free_bps": 4800000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "55000000000",
+          "unit": "bps"
+        },
+        "mass_stability": {
+          "actual": 9560,
+          "capacity": 10000,
+          "committed": 9560,
+          "degraded_capacity": 10000,
+          "feasible": true,
+          "free": 440,
+          "local_limits": {
+            "bay1_mass_kg": {
+              "actual_kg": 5500,
+              "feasible": true,
+              "free_kg": 2500,
+              "max_kg": 8000
+            },
+            "bay2_mass_kg": {
+              "actual_kg": 3000,
+              "feasible": true,
+              "free_kg": 1000,
+              "max_kg": 4000
+            },
+            "mass_margin_kg": {
+              "actual_kg": 9560,
+              "feasible": true,
+              "free_kg": 440,
+              "max_kg": 10000
+            },
+            "stability_equivalent_kg": {
+              "actual_kg_eq": 9853.0,
+              "feasible": true,
+              "free_kg_eq": 2147.0,
+              "max_kg_eq": 12000.0
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "55000000000",
+          "unit": "kg"
+        },
+        "mast": {
+          "actual": 1,
+          "capacity": 1,
+          "committed": 1,
+          "degraded_capacity": 1,
+          "feasible": true,
+          "free": 0,
+          "local_limits": {
+            "fixed_occupied": [
+              "mast_1",
+              "mast_2"
+            ],
+            "guest_allocatable_slots": 1,
+            "guest_slot_mast_3": {
+              "air_cooling_w": 1500,
+              "footprint_m2": 0.5,
+              "mass_kg": 45,
+              "max_air_cooling_w": 2000,
+              "max_footprint_m2": 0.6,
+              "max_mass_kg": 60,
+              "owner": "G1:G1_MAST_SENSOR_HEAD"
+            },
+            "ship_reserved_slots": 2,
+            "total_physical_slots": 3
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "55000000000",
+          "unit": "slots"
+        },
+        "positions": {
+          "actual": 4,
+          "capacity": 5,
+          "committed": 4,
+          "degraded_capacity": 5,
+          "feasible": true,
+          "free": 2,
+          "local_limits": {
+            "bay1_20ft": [
+              "G3:G3_AUV_CRADLE_BAY1_20FT"
+            ],
+            "bay1_a_10ft": [],
+            "bay1_b_10ft": [],
+            "bay1_max_mass_kg": 8000,
+            "bay1_total_mass_kg": 5500,
+            "bay2_10ft": [
+              "G5:G5_COMPUTE_CONTAINER"
+            ],
+            "bay2_max_mass_kg": 4000,
+            "bay2_total_mass_kg": 3000,
+            "flight_deck": [],
+            "hangar": [
+              "G4:G4_DRONE_VEHICLE",
+              "G4:G4_HANGAR_STATION"
+            ],
+            "hangar_max_mass_kg": 1000,
+            "hangar_roof": [
+              "G5:G5_MAST_ANTENNA"
+            ],
+            "hangar_roof_drone_clearance": {
+              "compatibility": "CONDITIONAL",
+              "constraint_id": "hangar_roof_drone_clearance",
+              "feasible": true,
+              "g4_installed": true,
+              "hangar_roof_occupants": [
+                "G5:G5_MAST_ANTENNA"
+              ],
+              "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+              "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+              "policy_version": 1,
+              "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "requires_clearance": true,
+              "satisfied": true,
+              "status": "VERIFIED_COMPATIBLE",
+              "verified": true,
+              "witness": null
+            },
+            "hangar_total_mass_kg": 990,
+            "stern_ramp": []
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "55000000000",
+          "unit": "slots"
+        },
+        "power": {
+          "actual": 45500,
+          "capacity": 200000,
+          "committed": 69500,
+          "degraded_capacity": 100000,
+          "feasible": true,
+          "free": 30500,
+          "local_limits": {
+            "LINE_A_FWD": {
+              "actual_w": 2500,
+              "committed_w": 26500,
+              "feasible": true,
+              "free_w": 123500,
+              "max_power_w": 150000
+            },
+            "LINE_B_AFT": {
+              "actual_w": 43000,
+              "committed_w": 43000,
+              "feasible": true,
+              "free_w": 107000,
+              "max_power_w": 150000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "55000000000",
+          "unit": "W"
+        },
+        "time": {
+          "actual": 0.25,
+          "capacity": 200.0,
+          "committed": 0.25,
+          "degraded_capacity": 200.0,
+          "feasible": true,
+          "free": 199.75,
+          "local_limits": {
+            "scenario_a_admission_deadline_ms": 30000.0,
+            "scenario_b_arbitration_deadline_ms": 2000.0,
+            "tick_deadline_ms": 200.0
+          },
+          "provenance": "MEASURED",
+          "source_time_ns": "55000000000",
+          "unit": "ms"
+        }
+      },
+      "component_breakdown": {
+        "G1_MAST_SENSOR_HEAD": {
+          "active_mode": "NOMINAL",
+          "actual_power_w": 1500,
+          "air_cooling_domain": "mast_3",
+          "assumption_ref": null,
+          "committed_power_w": 1500,
+          "cooling_air_actual_w": 1500,
+          "cooling_air_committed_w": 1500,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G1",
+          "mass_kg": 45,
+          "nominal_power_w": 1500,
+          "peak_power_w": 1500,
+          "position": "mast_3",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 135.0,
+          "stability_multiplier": 3.0,
+          "subcomponent_id": "G1_MAST_SENSOR_HEAD"
+        },
+        "G3_AUV_CRADLE_BAY1_20FT": {
+          "active_mode": "HOLD_ACOUSTIC",
+          "actual_power_w": 1000,
+          "air_cooling_domain": null,
+          "assumption_ref": null,
+          "committed_power_w": 25000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 1000,
+          "cooling_water_committed_w": 25000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "mass_kg": 5500,
+          "nominal_power_w": 1000,
+          "peak_power_w": 1000,
+          "position": "bay1",
+          "powered_on": true,
+          "reserved_delta_w": 24000,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 5500.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        "G4_DRONE_VEHICLE": {
+          "active_mode": "LAUNCH_RECOVERY_OPTICS",
+          "actual_power_w": 0,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 0,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "PASSIVE_NO_COOLING",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 140,
+          "nominal_power_w": 0,
+          "peak_power_w": 0,
+          "position": "hangar",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 168.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_DRONE_VEHICLE"
+        },
+        "G4_HANGAR_STATION": {
+          "active_mode": "LAUNCH_RECOVERY_OPTICS",
+          "actual_power_w": 35000,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 35000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 35000,
+          "cooling_water_committed_w": 35000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 850,
+          "nominal_power_w": 35000,
+          "peak_power_w": 35000,
+          "position": "hangar",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 1020.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_HANGAR_STATION"
+        },
+        "G5_COMPUTE_CONTAINER": {
+          "active_mode": "DEGRADED_70PCT_LOSS",
+          "actual_power_w": 7500,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 7500,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 7500,
+          "cooling_water_committed_w": 7500,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 3000,
+          "nominal_power_w": 7500,
+          "peak_power_w": 7500,
+          "position": "bay2",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 3000.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G5_COMPUTE_CONTAINER"
+        },
+        "G5_MAST_ANTENNA": {
+          "active_mode": "DEGRADED_70PCT_LOSS",
+          "actual_power_w": 500,
+          "air_cooling_domain": "hangar_roof",
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 500,
+          "cooling_air_actual_w": 500,
+          "cooling_air_committed_w": 500,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 25,
+          "nominal_power_w": 500,
+          "peak_power_w": 500,
+          "position": "hangar_roof",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 30.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G5_MAST_ANTENNA"
+        }
+      },
+      "feasible": true,
+      "firm_reservations_ledger": [
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 1000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "net_envelope_delta_w": 24000,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "Guaranteed post-leg uninterruptible AUV battery recharge reservation",
+          "reservation_id": "RES-G3-RECHARGE-CRADLE",
+          "reserved_power_w": 25000,
+          "target_subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 35000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "net_envelope_delta_w": 0,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "D3 committed UAV recovery approach and 20-min hangar charge (35 kW)",
+          "reservation_id": "D3_PLAN_V1_G4_RECOVERY",
+          "reserved_power_w": 35000,
+          "target_subcomponent_id": "G4_HANGAR_STATION"
+        }
+      ],
+      "infeasible_protected_load": false,
+      "infeasible_reason": null,
+      "roof_clearance_evaluation": {
+        "compatibility": "CONDITIONAL",
+        "constraint_id": "hangar_roof_drone_clearance",
+        "feasible": true,
+        "g4_installed": true,
+        "hangar_roof_occupants": [
+          "G5:G5_MAST_ANTENNA"
+        ],
+        "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+        "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+        "policy_version": 1,
+        "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "requires_clearance": true,
+        "satisfied": true,
+        "status": "VERIFIED_COMPATIBLE",
+        "verified": true,
+        "witness": null
+      },
+      "sim_time_s": 1100,
+      "tick_seq": 55,
+      "vessel_mode": "DEGRADED_POWER"
+    },
+    "survey_primary_t480_d3_reserved": {
+      "binding_witnesses": [],
+      "classes": {
+        "compute": {
+          "actual": 26,
+          "capacity": 100,
+          "committed": 26,
+          "degraded_capacity": 100,
+          "feasible": true,
+          "free": 74,
+          "local_limits": {
+            "cluster_accelerators": {
+              "allocatable": 3,
+              "feasible": true,
+              "free": 1,
+              "used": 2
+            },
+            "nodes": {
+              "node_1": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 0,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_2": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 0,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 1,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_3": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 0,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 1,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_4": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 23,
+                "free_ram_mib": 98304,
+                "used_accelerators": 0,
+                "used_cores": 2,
+                "used_ram_mib": 4096
+              }
+            },
+            "shared_storage_gb": {
+              "allocatable_gb": 16000,
+              "feasible": true,
+              "free_gb": 3800,
+              "used_gb": 12200
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "24000000000",
+          "unit": "cores"
+        },
+        "cooling": {
+          "actual": 54800,
+          "capacity": 133333,
+          "committed": 103800,
+          "degraded_capacity": 133333,
+          "feasible": true,
+          "free": 29533,
+          "local_limits": {
+            "air_cooling_domains": {
+              "hangar_roof": {
+                "actual_w": 1200,
+                "capacity_w": 2000,
+                "committed_w": 1200,
+                "feasible": true,
+                "free_w": 800,
+                "occupants": [
+                  "G5:G5_MAST_ANTENNA"
+                ],
+                "value_origin": "ASSUMED"
+              },
+              "mast_3": {
+                "actual_w": 1500,
+                "capacity_w": 2000,
+                "committed_w": 1500,
+                "feasible": true,
+                "free_w": 500,
+                "occupants": [
+                  "G1:G1_MAST_SENSOR_HEAD"
+                ],
+                "value_origin": "OFFICIAL_BRIEF"
+              }
+            },
+            "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C",
+            "effective_water_cap_with_inertia_w": 133333,
+            "hangar_roof_air_cooling": {
+              "actual_w": 1200,
+              "capacity_w": 2000,
+              "committed_w": 1200,
+              "feasible": true,
+              "free_w": 800
+            },
+            "mast_air_cooling": {
+              "actual_w": 1500,
+              "capacity_w": 2000,
+              "committed_w": 1500,
+              "feasible": true,
+              "free_w": 500
+            },
+            "seawater_temp_c": 24.0,
+            "thermal_inertia_available_boost_w": 0,
+            "total_thermal_dissipation_w": 57500
+          },
+          "provenance": "SIMULATED",
+          "source_time_ns": "24000000000",
+          "unit": "W"
+        },
+        "data": {
+          "actual": 7200000,
+          "capacity": 8000000,
+          "committed": 7200000,
+          "degraded_capacity": 8000000,
+          "feasible": true,
+          "free": 800000,
+          "local_limits": {
+            "backbone_lan_bps": {
+              "actual_total_bps": 1170000000,
+              "feasible": true,
+              "highest_port_bps": 1000000000,
+              "max_per_port_bps": 1000000000,
+              "max_total_bps": 10000000000
+            },
+            "satcom_bps": {
+              "actual_bps": 7200000,
+              "available_bps": 8000000,
+              "emcon_silence": false,
+              "emcon_violated": false,
+              "free_bps": 800000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "24000000000",
+          "unit": "bps"
+        },
+        "mass_stability": {
+          "actual": 9560,
+          "capacity": 10000,
+          "committed": 9560,
+          "degraded_capacity": 10000,
+          "feasible": true,
+          "free": 440,
+          "local_limits": {
+            "bay1_mass_kg": {
+              "actual_kg": 5500,
+              "feasible": true,
+              "free_kg": 2500,
+              "max_kg": 8000
+            },
+            "bay2_mass_kg": {
+              "actual_kg": 3000,
+              "feasible": true,
+              "free_kg": 1000,
+              "max_kg": 4000
+            },
+            "mass_margin_kg": {
+              "actual_kg": 9560,
+              "feasible": true,
+              "free_kg": 440,
+              "max_kg": 10000
+            },
+            "stability_equivalent_kg": {
+              "actual_kg_eq": 9853.0,
+              "feasible": true,
+              "free_kg_eq": 2147.0,
+              "max_kg_eq": 12000.0
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "24000000000",
+          "unit": "kg"
+        },
+        "mast": {
+          "actual": 1,
+          "capacity": 1,
+          "committed": 1,
+          "degraded_capacity": 1,
+          "feasible": true,
+          "free": 0,
+          "local_limits": {
+            "fixed_occupied": [
+              "mast_1",
+              "mast_2"
+            ],
+            "guest_allocatable_slots": 1,
+            "guest_slot_mast_3": {
+              "air_cooling_w": 1500,
+              "footprint_m2": 0.5,
+              "mass_kg": 45,
+              "max_air_cooling_w": 2000,
+              "max_footprint_m2": 0.6,
+              "max_mass_kg": 60,
+              "owner": "G1:G1_MAST_SENSOR_HEAD"
+            },
+            "ship_reserved_slots": 2,
+            "total_physical_slots": 3
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "24000000000",
+          "unit": "slots"
+        },
+        "positions": {
+          "actual": 4,
+          "capacity": 5,
+          "committed": 4,
+          "degraded_capacity": 5,
+          "feasible": true,
+          "free": 2,
+          "local_limits": {
+            "bay1_20ft": [
+              "G3:G3_AUV_CRADLE_BAY1_20FT"
+            ],
+            "bay1_a_10ft": [],
+            "bay1_b_10ft": [],
+            "bay1_max_mass_kg": 8000,
+            "bay1_total_mass_kg": 5500,
+            "bay2_10ft": [
+              "G5:G5_COMPUTE_CONTAINER"
+            ],
+            "bay2_max_mass_kg": 4000,
+            "bay2_total_mass_kg": 3000,
+            "flight_deck": [
+              "G4:G4_DRONE_VEHICLE"
+            ],
+            "hangar": [
+              "G4:G4_HANGAR_STATION"
+            ],
+            "hangar_max_mass_kg": 1000,
+            "hangar_roof": [
+              "G5:G5_MAST_ANTENNA"
+            ],
+            "hangar_roof_drone_clearance": {
+              "compatibility": "CONDITIONAL",
+              "constraint_id": "hangar_roof_drone_clearance",
+              "feasible": true,
+              "g4_installed": true,
+              "hangar_roof_occupants": [
+                "G5:G5_MAST_ANTENNA"
+              ],
+              "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+              "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+              "policy_version": 1,
+              "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "requires_clearance": true,
+              "satisfied": true,
+              "status": "VERIFIED_COMPATIBLE",
+              "verified": true,
+              "witness": null
+            },
+            "hangar_total_mass_kg": 990,
+            "stern_ramp": []
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "24000000000",
+          "unit": "slots"
+        },
+        "power": {
+          "actual": 57500,
+          "capacity": 200000,
+          "committed": 106500,
+          "degraded_capacity": 200000,
+          "feasible": true,
+          "free": 93500,
+          "local_limits": {
+            "LINE_A_FWD": {
+              "actual_w": 2500,
+              "committed_w": 26500,
+              "feasible": true,
+              "free_w": 123500,
+              "max_power_w": 150000
+            },
+            "LINE_B_AFT": {
+              "actual_w": 55000,
+              "committed_w": 80000,
+              "feasible": true,
+              "free_w": 70000,
+              "max_power_w": 150000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "24000000000",
+          "unit": "W"
+        },
+        "time": {
+          "actual": 1.4055,
+          "capacity": 200.0,
+          "committed": 1.4055,
+          "degraded_capacity": 200.0,
+          "feasible": true,
+          "free": 198.5945,
+          "local_limits": {
+            "scenario_a_admission_deadline_ms": 30000.0,
+            "scenario_b_arbitration_deadline_ms": 2000.0,
+            "tick_deadline_ms": 200.0
+          },
+          "provenance": "MEASURED",
+          "source_time_ns": "24000000000",
+          "unit": "ms"
+        }
+      },
+      "component_breakdown": {
+        "G1_MAST_SENSOR_HEAD": {
+          "active_mode": "NOMINAL",
+          "actual_power_w": 1500,
+          "air_cooling_domain": "mast_3",
+          "assumption_ref": null,
+          "committed_power_w": 1500,
+          "cooling_air_actual_w": 1500,
+          "cooling_air_committed_w": 1500,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G1",
+          "mass_kg": 45,
+          "nominal_power_w": 1500,
+          "peak_power_w": 1500,
+          "position": "mast_3",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 135.0,
+          "stability_multiplier": 3.0,
+          "subcomponent_id": "G1_MAST_SENSOR_HEAD"
+        },
+        "G3_AUV_CRADLE_BAY1_20FT": {
+          "active_mode": "SURVEY_QUIET",
+          "actual_power_w": 1000,
+          "air_cooling_domain": null,
+          "assumption_ref": null,
+          "committed_power_w": 25000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 1000,
+          "cooling_water_committed_w": 25000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "mass_kg": 5500,
+          "nominal_power_w": 1000,
+          "peak_power_w": 1000,
+          "position": "bay1",
+          "powered_on": true,
+          "reserved_delta_w": 24000,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 5500.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        "G4_DRONE_VEHICLE": {
+          "active_mode": "FLIGHT_PATROL",
+          "actual_power_w": 0,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 0,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "PASSIVE_NO_COOLING",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 140,
+          "nominal_power_w": 0,
+          "peak_power_w": 0,
+          "position": "flight_deck",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 168.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_DRONE_VEHICLE"
+        },
+        "G4_HANGAR_STATION": {
+          "active_mode": "FLIGHT_PATROL",
+          "actual_power_w": 10000,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 35000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 10000,
+          "cooling_water_committed_w": 35000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 850,
+          "nominal_power_w": 10000,
+          "peak_power_w": 10000,
+          "position": "hangar",
+          "powered_on": true,
+          "reserved_delta_w": 25000,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 1020.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_HANGAR_STATION"
+        },
+        "G5_COMPUTE_CONTAINER": {
+          "active_mode": "FULL_SPECTRUM",
+          "actual_power_w": 43800,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 43800,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 43800,
+          "cooling_water_committed_w": 43800,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 3000,
+          "nominal_power_w": 43800,
+          "peak_power_w": 43800,
+          "position": "bay2",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 3000.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G5_COMPUTE_CONTAINER"
+        },
+        "G5_MAST_ANTENNA": {
+          "active_mode": "FULL_SPECTRUM",
+          "actual_power_w": 1200,
+          "air_cooling_domain": "hangar_roof",
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 1200,
+          "cooling_air_actual_w": 1200,
+          "cooling_air_committed_w": 1200,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 25,
+          "nominal_power_w": 1200,
+          "peak_power_w": 1200,
+          "position": "hangar_roof",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 30.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G5_MAST_ANTENNA"
+        }
+      },
+      "feasible": true,
+      "firm_reservations_ledger": [
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 1000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "net_envelope_delta_w": 24000,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "Guaranteed post-leg uninterruptible AUV battery recharge reservation",
+          "reservation_id": "RES-G3-RECHARGE-CRADLE",
+          "reserved_power_w": 25000,
+          "target_subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 10000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "net_envelope_delta_w": 25000,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "D3 committed UAV recovery approach and 20-min hangar charge (35 kW)",
+          "reservation_id": "D3_PLAN_V1_G4_RECOVERY",
+          "reserved_power_w": 35000,
+          "target_subcomponent_id": "G4_HANGAR_STATION"
+        }
+      ],
+      "infeasible_protected_load": false,
+      "infeasible_reason": null,
+      "roof_clearance_evaluation": {
+        "compatibility": "CONDITIONAL",
+        "constraint_id": "hangar_roof_drone_clearance",
+        "feasible": true,
+        "g4_installed": true,
+        "hangar_roof_occupants": [
+          "G5:G5_MAST_ANTENNA"
+        ],
+        "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+        "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+        "policy_version": 1,
+        "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "requires_clearance": true,
+        "satisfied": true,
+        "status": "VERIFIED_COMPATIBLE",
+        "verified": true,
+        "witness": null
+      },
+      "sim_time_s": 480,
+      "tick_seq": 24,
+      "vessel_mode": "QUIET_SURVEY"
+    },
+    "survey_primary_t900_d4_generator_loss_100kw": {
+      "binding_witnesses": [],
+      "classes": {
+        "compute": {
+          "actual": 18,
+          "capacity": 100,
+          "committed": 18,
+          "degraded_capacity": 100,
+          "feasible": true,
+          "free": 82,
+          "local_limits": {
+            "cluster_accelerators": {
+              "allocatable": 3,
+              "feasible": true,
+              "free": 2,
+              "used": 1
+            },
+            "nodes": {
+              "node_1": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 21,
+                "free_ram_mib": 86016,
+                "used_accelerators": 0,
+                "used_cores": 4,
+                "used_ram_mib": 16384
+              },
+              "node_2": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 21,
+                "free_ram_mib": 86016,
+                "used_accelerators": 0,
+                "used_cores": 4,
+                "used_ram_mib": 16384
+              },
+              "node_3": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 0,
+                "free_cores": 17,
+                "free_ram_mib": 69632,
+                "used_accelerators": 1,
+                "used_cores": 8,
+                "used_ram_mib": 32768
+              },
+              "node_4": {
+                "allocatable_accelerators": 1,
+                "allocatable_cores": 25,
+                "allocatable_ram_mib": 102400,
+                "free_accelerators": 1,
+                "free_cores": 23,
+                "free_ram_mib": 98304,
+                "used_accelerators": 0,
+                "used_cores": 2,
+                "used_ram_mib": 4096
+              }
+            },
+            "shared_storage_gb": {
+              "allocatable_gb": 16000,
+              "feasible": true,
+              "free_gb": 3800,
+              "used_gb": 12200
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "45000000000",
+          "unit": "cores"
+        },
+        "cooling": {
+          "actual": 43500,
+          "capacity": 133333,
+          "committed": 67500,
+          "degraded_capacity": 133333,
+          "feasible": true,
+          "free": 65833,
+          "local_limits": {
+            "air_cooling_domains": {
+              "hangar_roof": {
+                "actual_w": 500,
+                "capacity_w": 2000,
+                "committed_w": 500,
+                "feasible": true,
+                "free_w": 1500,
+                "occupants": [
+                  "G5:G5_MAST_ANTENNA"
+                ],
+                "value_origin": "ASSUMED"
+              },
+              "mast_3": {
+                "actual_w": 1500,
+                "capacity_w": 2000,
+                "committed_w": 1500,
+                "feasible": true,
+                "free_w": 500,
+                "occupants": [
+                  "G1:G1_MAST_SENSOR_HEAD"
+                ],
+                "value_origin": "OFFICIAL_BRIEF"
+              }
+            },
+            "curve_policy": "OFFICIAL_INTERVAL_12_TO_30C",
+            "effective_water_cap_with_inertia_w": 133333,
+            "hangar_roof_air_cooling": {
+              "actual_w": 500,
+              "capacity_w": 2000,
+              "committed_w": 500,
+              "feasible": true,
+              "free_w": 1500
+            },
+            "mast_air_cooling": {
+              "actual_w": 1500,
+              "capacity_w": 2000,
+              "committed_w": 1500,
+              "feasible": true,
+              "free_w": 500
+            },
+            "seawater_temp_c": 24.0,
+            "thermal_inertia_available_boost_w": 0,
+            "total_thermal_dissipation_w": 45500
+          },
+          "provenance": "SIMULATED",
+          "source_time_ns": "45000000000",
+          "unit": "W"
+        },
+        "data": {
+          "actual": 3200000,
+          "capacity": 8000000,
+          "committed": 3200000,
+          "degraded_capacity": 8000000,
+          "feasible": true,
+          "free": 4800000,
+          "local_limits": {
+            "backbone_lan_bps": {
+              "actual_total_bps": 380000000,
+              "feasible": true,
+              "highest_port_bps": 300000000,
+              "max_per_port_bps": 1000000000,
+              "max_total_bps": 10000000000
+            },
+            "satcom_bps": {
+              "actual_bps": 3200000,
+              "available_bps": 8000000,
+              "emcon_silence": false,
+              "emcon_violated": false,
+              "free_bps": 4800000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "45000000000",
+          "unit": "bps"
+        },
+        "mass_stability": {
+          "actual": 9560,
+          "capacity": 10000,
+          "committed": 9560,
+          "degraded_capacity": 10000,
+          "feasible": true,
+          "free": 440,
+          "local_limits": {
+            "bay1_mass_kg": {
+              "actual_kg": 5500,
+              "feasible": true,
+              "free_kg": 2500,
+              "max_kg": 8000
+            },
+            "bay2_mass_kg": {
+              "actual_kg": 3000,
+              "feasible": true,
+              "free_kg": 1000,
+              "max_kg": 4000
+            },
+            "mass_margin_kg": {
+              "actual_kg": 9560,
+              "feasible": true,
+              "free_kg": 440,
+              "max_kg": 10000
+            },
+            "stability_equivalent_kg": {
+              "actual_kg_eq": 9853.0,
+              "feasible": true,
+              "free_kg_eq": 2147.0,
+              "max_kg_eq": 12000.0
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "45000000000",
+          "unit": "kg"
+        },
+        "mast": {
+          "actual": 1,
+          "capacity": 1,
+          "committed": 1,
+          "degraded_capacity": 1,
+          "feasible": true,
+          "free": 0,
+          "local_limits": {
+            "fixed_occupied": [
+              "mast_1",
+              "mast_2"
+            ],
+            "guest_allocatable_slots": 1,
+            "guest_slot_mast_3": {
+              "air_cooling_w": 1500,
+              "footprint_m2": 0.5,
+              "mass_kg": 45,
+              "max_air_cooling_w": 2000,
+              "max_footprint_m2": 0.6,
+              "max_mass_kg": 60,
+              "owner": "G1:G1_MAST_SENSOR_HEAD"
+            },
+            "ship_reserved_slots": 2,
+            "total_physical_slots": 3
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "45000000000",
+          "unit": "slots"
+        },
+        "positions": {
+          "actual": 4,
+          "capacity": 5,
+          "committed": 4,
+          "degraded_capacity": 5,
+          "feasible": true,
+          "free": 2,
+          "local_limits": {
+            "bay1_20ft": [
+              "G3:G3_AUV_CRADLE_BAY1_20FT"
+            ],
+            "bay1_a_10ft": [],
+            "bay1_b_10ft": [],
+            "bay1_max_mass_kg": 8000,
+            "bay1_total_mass_kg": 5500,
+            "bay2_10ft": [
+              "G5:G5_COMPUTE_CONTAINER"
+            ],
+            "bay2_max_mass_kg": 4000,
+            "bay2_total_mass_kg": 3000,
+            "flight_deck": [
+              "G4:G4_DRONE_VEHICLE"
+            ],
+            "hangar": [
+              "G4:G4_HANGAR_STATION"
+            ],
+            "hangar_max_mass_kg": 1000,
+            "hangar_roof": [
+              "G5:G5_MAST_ANTENNA"
+            ],
+            "hangar_roof_drone_clearance": {
+              "compatibility": "CONDITIONAL",
+              "constraint_id": "hangar_roof_drone_clearance",
+              "feasible": true,
+              "g4_installed": true,
+              "hangar_roof_occupants": [
+                "G5:G5_MAST_ANTENNA"
+              ],
+              "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+              "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+              "policy_version": 1,
+              "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+              "requires_clearance": true,
+              "satisfied": true,
+              "status": "VERIFIED_COMPATIBLE",
+              "verified": true,
+              "witness": null
+            },
+            "hangar_total_mass_kg": 990,
+            "stern_ramp": []
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "45000000000",
+          "unit": "slots"
+        },
+        "power": {
+          "actual": 45500,
+          "capacity": 200000,
+          "committed": 69500,
+          "degraded_capacity": 100000,
+          "feasible": true,
+          "free": 30500,
+          "local_limits": {
+            "LINE_A_FWD": {
+              "actual_w": 2500,
+              "committed_w": 26500,
+              "feasible": true,
+              "free_w": 123500,
+              "max_power_w": 150000
+            },
+            "LINE_B_AFT": {
+              "actual_w": 43000,
+              "committed_w": 43000,
+              "feasible": true,
+              "free_w": 107000,
+              "max_power_w": 150000
+            }
+          },
+          "provenance": "DERIVED",
+          "source_time_ns": "45000000000",
+          "unit": "W"
+        },
+        "time": {
+          "actual": 0.1373,
+          "capacity": 200.0,
+          "committed": 0.1373,
+          "degraded_capacity": 200.0,
+          "feasible": true,
+          "free": 199.8627,
+          "local_limits": {
+            "scenario_a_admission_deadline_ms": 30000.0,
+            "scenario_b_arbitration_deadline_ms": 2000.0,
+            "tick_deadline_ms": 200.0
+          },
+          "provenance": "MEASURED",
+          "source_time_ns": "45000000000",
+          "unit": "ms"
+        }
+      },
+      "component_breakdown": {
+        "G1_MAST_SENSOR_HEAD": {
+          "active_mode": "NOMINAL",
+          "actual_power_w": 1500,
+          "air_cooling_domain": "mast_3",
+          "assumption_ref": null,
+          "committed_power_w": 1500,
+          "cooling_air_actual_w": 1500,
+          "cooling_air_committed_w": 1500,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G1",
+          "mass_kg": 45,
+          "nominal_power_w": 1500,
+          "peak_power_w": 1500,
+          "position": "mast_3",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 135.0,
+          "stability_multiplier": 3.0,
+          "subcomponent_id": "G1_MAST_SENSOR_HEAD"
+        },
+        "G3_AUV_CRADLE_BAY1_20FT": {
+          "active_mode": "HOLD_ACOUSTIC",
+          "actual_power_w": 1000,
+          "air_cooling_domain": null,
+          "assumption_ref": null,
+          "committed_power_w": 25000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 1000,
+          "cooling_water_committed_w": 25000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "mass_kg": 5500,
+          "nominal_power_w": 1000,
+          "peak_power_w": 1000,
+          "position": "bay1",
+          "powered_on": true,
+          "reserved_delta_w": 24000,
+          "source_kind": "OFFICIAL_BRIEF",
+          "stability_eq_kg": 5500.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        "G4_DRONE_VEHICLE": {
+          "active_mode": "LAUNCH_RECOVERY_OPTICS",
+          "actual_power_w": 0,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 0,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "PASSIVE_NO_COOLING",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 140,
+          "nominal_power_w": 0,
+          "peak_power_w": 0,
+          "position": "flight_deck",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 168.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_DRONE_VEHICLE"
+        },
+        "G4_HANGAR_STATION": {
+          "active_mode": "LAUNCH_RECOVERY_OPTICS",
+          "actual_power_w": 35000,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G4-STATION-POWER-ACCOUNTING",
+          "committed_power_w": 35000,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 35000,
+          "cooling_water_committed_w": 35000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "mass_kg": 850,
+          "nominal_power_w": 35000,
+          "peak_power_w": 35000,
+          "position": "hangar",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 1020.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G4_HANGAR_STATION"
+        },
+        "G5_COMPUTE_CONTAINER": {
+          "active_mode": "DEGRADED_70PCT_LOSS",
+          "actual_power_w": 7500,
+          "air_cooling_domain": null,
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 7500,
+          "cooling_air_actual_w": 0,
+          "cooling_air_committed_w": 0,
+          "cooling_route": "CHILLED_WATER_LOOP",
+          "cooling_water_actual_w": 7500,
+          "cooling_water_committed_w": 7500,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 3000,
+          "nominal_power_w": 7500,
+          "peak_power_w": 7500,
+          "position": "bay2",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 3000.0,
+          "stability_multiplier": 1.0,
+          "subcomponent_id": "G5_COMPUTE_CONTAINER"
+        },
+        "G5_MAST_ANTENNA": {
+          "active_mode": "DEGRADED_70PCT_LOSS",
+          "actual_power_w": 500,
+          "air_cooling_domain": "hangar_roof",
+          "assumption_ref": "ASM-G5-COMPONENT-POWER-SPLIT",
+          "committed_power_w": 500,
+          "cooling_air_actual_w": 500,
+          "cooling_air_committed_w": 500,
+          "cooling_route": "MAST_AIR_2KW",
+          "cooling_water_actual_w": 0,
+          "cooling_water_committed_w": 0,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G5",
+          "mass_kg": 25,
+          "nominal_power_w": 500,
+          "peak_power_w": 500,
+          "position": "hangar_roof",
+          "powered_on": true,
+          "reserved_delta_w": 0,
+          "source_kind": "ASSUMED",
+          "stability_eq_kg": 30.0,
+          "stability_multiplier": 1.2,
+          "subcomponent_id": "G5_MAST_ANTENNA"
+        }
+      },
+      "feasible": true,
+      "firm_reservations_ledger": [
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 1000,
+          "feeder_line": "LINE_A_FWD",
+          "guest_id": "G3",
+          "net_envelope_delta_w": 24000,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "Guaranteed post-leg uninterruptible AUV battery recharge reservation",
+          "reservation_id": "RES-G3-RECHARGE-CRADLE",
+          "reserved_power_w": 25000,
+          "target_subcomponent_id": "G3_AUV_CRADLE_BAY1_20FT"
+        },
+        {
+          "activation_condition": "SCHEDULED_MODE_TRANSITION",
+          "cancellation_condition": "URGENT_STOP_OR_MODE_COMPLETED",
+          "created_at_s": 0,
+          "current_committed_before_reservation_w": 35000,
+          "feeder_line": "LINE_B_AFT",
+          "guest_id": "G4",
+          "net_envelope_delta_w": 0,
+          "origin": "SCENARIO_OR_ARBITRATION",
+          "reason": "D3 committed UAV recovery approach and 20-min hangar charge (35 kW)",
+          "reservation_id": "D3_PLAN_V1_G4_RECOVERY",
+          "reserved_power_w": 35000,
+          "target_subcomponent_id": "G4_HANGAR_STATION"
+        }
+      ],
+      "infeasible_protected_load": false,
+      "infeasible_reason": null,
+      "roof_clearance_evaluation": {
+        "compatibility": "CONDITIONAL",
+        "constraint_id": "hangar_roof_drone_clearance",
+        "feasible": true,
+        "g4_installed": true,
+        "hangar_roof_occupants": [
+          "G5:G5_MAST_ANTENNA"
+        ],
+        "layout_version": "VESSEL_BASELINE_LAYOUT_V1",
+        "policy_id": "ROOF_OUTSIDE_G4_RECOVERY_V1",
+        "policy_version": 1,
+        "reason": "Verified compatible under ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "required_condition": "Verify hangar_roof antenna (['G5:G5_MAST_ANTENNA']) clearance outside G4 VTOL rotor disc & recovery corridor under policy ROOF_OUTSIDE_G4_RECOVERY_V1 v1 (VESSEL_BASELINE_LAYOUT_V1)",
+        "requires_clearance": true,
+        "satisfied": true,
+        "status": "VERIFIED_COMPATIBLE",
+        "verified": true,
+        "witness": null
+      },
+      "sim_time_s": 900,
+      "tick_seq": 45,
+      "vessel_mode": "DEGRADED_POWER"
+    }
+  },
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-component-resource-ledger/1.0"
+}

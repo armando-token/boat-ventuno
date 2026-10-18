@@ -1,0 +1,88 @@
+schema_version: "sdv-scenario/1.0"
+scenario_id: "SCENARIO_B_COOLING_LIMITED_30C"
+name: "Scenario B Stress Variant — 30 °C Seawater + Degraded Chilled-Water Loop (72 kW Cooling Binding Before 100 kW Power, G1+G3+G4+G5)"
+scenario_class: "STRESS_VARIANT"
+seed: 20261019
+initial_state:
+  sim_time_s: 0
+  vessel_mode: "QUIET_SURVEY"
+  ship_speed_kn: 3
+  wind_kn: 18
+  sea_state: 3
+  seawater_temp_c: 30.0
+  crew_count: 14
+  deck_clear: true
+  power_reserve_w: 200000
+  cooling_loop_degraded: false
+  hangar_roof_clearance_verified: true
+  roof_clearance_verification:
+    verified: true
+    policy_id: "ROOF_OUTSIDE_G4_RECOVERY_V1"
+    policy_version: 1
+    layout_version: "VESSEL_BASELINE_LAYOUT_V1"
+    constraint_id: "hangar_roof_drone_clearance"
+    assumption_ref: "ASM-ROOF-G4-CLEARANCE"
+    antenna_guest_id: "G5"
+    antenna_subcomponent_id: "G5_MAST_ANTENNA"
+    antenna_position: "hangar_roof"
+    drone_guest_id: "G4"
+    antenna_zone: "ROOF_ANTENNA_OUTSIDE_RECOVERY_ENVELOPE"
+    excluded_zones: ["G4_ROTOR_DISC", "G4_RECOVERY_CORRIDOR"]
+  firm_reserved_loads:
+    - reservation_id: "RES-G3-RECHARGE-CRADLE"
+      guest_id: "G3"
+      reserved_mode: "RECHARGE_CRADLE"
+      reserved_power_w: 25000
+      reason: "Guaranteed post-leg uninterruptible AUV battery recharge reservation"
+  installed_guests:
+    - guest_id: "G1"
+      mode: "NOMINAL"
+      placements:
+        G1_MAST_SENSOR_HEAD: "mast_3"
+      compute_node: "node_4"
+    - guest_id: "G3"
+      mode: "SURVEY_QUIET"
+      leg_duration_s: 2400
+      leg_elapsed_s: 0
+      placements:
+        G3_AUV_CRADLE_BAY1_20FT: "bay1"
+      compute_node: "node_1"
+    - guest_id: "G4"
+      mode: "LAUNCH_RECOVERY_OPTICS"
+      placements:
+        G4_DRONE_VEHICLE: "flight_deck"
+        G4_HANGAR_STATION: "hangar"
+      compute_node: "node_3"
+    - guest_id: "G5"
+      mode: "FULL_SPECTRUM"
+      placements:
+        G5_COMPUTE_CONTAINER: "bay2"
+        G5_MAST_ANTENNA: "hangar_roof"
+      compute_node: "node_2"
+events:
+  - seq: 1
+    sim_time_s: 0
+    priority: 10
+    event_type: "MISSION_START"
+    description: "Minute 0: Operating in 30 °C tropical water with G1 nominal on mast_3 (1.5 kW air), G3 survey (1 kW actual, 25 kW firm reserve), G4 recovery/charging (35 kW water), G5 full spectrum (45 kW: 43.8 kW water + 1.2 kW roof air)."
+  - seq: 2
+    sim_time_s: 480
+    priority: 1
+    event_type: "DRONE_BATTERY_AND_WIND_ALERT"
+    guest_id: "G4"
+    battery_pct: 18.0
+    max_flight_remaining_s: 720
+    uav_approach_margin_s: 360
+    remaining_survey_waypoint_s: 240
+    wind_kn: 20
+    sea_state: 3
+    required_recovery_mode: "LAUNCH_RECOVERY_OPTICS"
+    description: "Minute 8 (480 s): G4 battery alert (<20%) in 30 °C water."
+  - seq: 3
+    sim_time_s: 720
+    priority: 1
+    event_type: "COOLING_LOOP_FAILURE"
+    cooling_loop_degraded: true
+    seawater_temp_c: 30.0
+    new_power_reserve_w: 100000
+    description: "Minute 12 (720 s): Chilled-water loop suffers 40% degradation at 30 °C seawater: cooling capacity drops from 120 kW to 72 kW while electrical power reserve drops to 100 kW. Actual water-loop heat is 79.8 kW and committed water-loop heat is 103.8 kW (> 72 kW); throttling G5 to 8 kW lowers committed water heat to 67.5 kW (<= 72 kW). Per Annex A.6, no at-sea cooling loop repair is permitted."

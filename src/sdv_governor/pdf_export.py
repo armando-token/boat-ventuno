@@ -31,6 +31,7 @@ def _escape_pdf_text(s: str) -> str:
         "↔": "<->",
         "≤": "<=",
         "≥": ">=",
+        "≈": "~=",
         "×": "x",
         "°": " deg ",
         "±": "+/-",
@@ -434,7 +435,7 @@ class _PageCanvas:
                 w_lines = textwrap.wrap(
                     cell_text,
                     width=char_cap,
-                    break_long_words=True,
+                    break_long_words=False,
                     break_on_hyphens=False,
                 )
                 wrapped_cells.append(w_lines if w_lines else [""])
@@ -663,51 +664,77 @@ def verify_pdf_contains_markdown_lines(md_path: Path, pdf_path: Path, width: int
 def generate_all_deliverable_pdfs(repo_root: Path) -> None:
     docs_dir = repo_root / "docs"
 
-    # 1. PHYSICAL_ACCOUNT.pdf — Strictly 1 page, visual tables, zero truncation (H15, R8-F06)
-    render_markdown_document_to_pdf(
-        docs_dir / "PHYSICAL_ACCOUNT.md",
-        docs_dir / "PHYSICAL_ACCOUNT.pdf",
-        max_pages=1,
-        body_font_size=6.3,
-        body_leading=7.6,
-        table_font_size=5.6,
-        table_leading=6.6,
-    )
-    if not verify_pdf_contains_markdown_lines(docs_dir / "PHYSICAL_ACCOUNT.md", docs_dir / "PHYSICAL_ACCOUNT.pdf"):
-        raise ValueError("PHYSICAL_ACCOUNT.pdf failed full-text verification against PHYSICAL_ACCOUNT.md")
+    # 1. PHYSICAL_ACCOUNT.pdf & PHYSICAL_ACCOUNT_D6.pdf — Strictly 1 page, visual tables, zero truncation (H15, R8-F06, L8)
+    for phys_stem in ("PHYSICAL_ACCOUNT", "PHYSICAL_ACCOUNT_D6"):
+        md_p = docs_dir / f"{phys_stem}.md"
+        pdf_p = docs_dir / f"{phys_stem}.pdf"
+        if md_p.exists():
+            render_markdown_document_to_pdf(
+                md_p,
+                pdf_p,
+                max_pages=1,
+                body_font_size=5.3,
+                body_leading=6.3,
+                table_font_size=4.8,
+                table_leading=5.6,
+            )
+            if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
+                raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")
 
-    # 2. MEMO_SCENARIO_C.pdf — Strictly <= 2 pages, visual table, zero truncation
-    render_markdown_document_to_pdf(
-        docs_dir / "MEMO_SCENARIO_C.md",
-        docs_dir / "MEMO_SCENARIO_C.pdf",
-        max_pages=2,
-        body_font_size=7.4,
-        body_leading=9.2,
-        table_font_size=6.3,
-        table_leading=7.6,
-    )
-    if not verify_pdf_contains_markdown_lines(docs_dir / "MEMO_SCENARIO_C.md", docs_dir / "MEMO_SCENARIO_C.pdf"):
-        raise ValueError("MEMO_SCENARIO_C.pdf failed full-text verification against MEMO_SCENARIO_C.md")
+    # 2. MEMO_SCENARIO_C.pdf & SCENARIO_C_MEMO.pdf — Strictly <= 2 pages, visual table, zero truncation
+    for memo_stem in ("MEMO_SCENARIO_C", "SCENARIO_C_MEMO"):
+        md_p = docs_dir / f"{memo_stem}.md"
+        pdf_p = docs_dir / f"{memo_stem}.pdf"
+        if md_p.exists():
+            render_markdown_document_to_pdf(
+                md_p,
+                pdf_p,
+                max_pages=2,
+                body_font_size=7.0,
+                body_leading=8.6,
+                table_font_size=5.9,
+                table_leading=7.1,
+            )
+            if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
+                raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")
 
-    # 3. PITCH_SLIDES.pdf — 8 visual slides (1 slide per page, <= 10 slides)
-    render_pitch_slides_to_pdf(
-        docs_dir / "PITCH_SLIDES.md",
-        docs_dir / "PITCH_SLIDES.pdf",
-    )
-    if not verify_pdf_contains_markdown_lines(docs_dir / "PITCH_SLIDES.md", docs_dir / "PITCH_SLIDES.pdf"):
-        raise ValueError("PITCH_SLIDES.pdf failed full-text verification against PITCH_SLIDES.md")
+    # 3. PITCH_SLIDES.pdf & SLIDES_10.pdf — <= 10 visual slides (1 slide per page, <= 10 slides)
+    for slides_stem in ("PITCH_SLIDES", "SLIDES_10"):
+        md_p = docs_dir / f"{slides_stem}.md"
+        pdf_p = docs_dir / f"{slides_stem}.pdf"
+        if md_p.exists():
+            render_pitch_slides_to_pdf(md_p, pdf_p)
+            if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
+                raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")
 
-    # 4. README.pdf (and docs/README.pdf) — Strictly <= 3 pages
+    # 4. DEMO_SCRIPT_90S.pdf & DEPLOYMENT_AND_BOM.pdf — Strictly <= 2 pages each
+    for doc_stem in ("DEMO_SCRIPT_90S", "DEPLOYMENT_AND_BOM"):
+        md_p = docs_dir / f"{doc_stem}.md"
+        pdf_p = docs_dir / f"{doc_stem}.pdf"
+        if md_p.exists():
+            render_markdown_document_to_pdf(
+                md_p,
+                pdf_p,
+                max_pages=2,
+                body_font_size=7.2,
+                body_leading=8.8,
+                table_font_size=6.1,
+                table_leading=7.3,
+            )
+            if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
+                raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")
+
+    # 5. README.pdf (and docs/README.pdf) — Strictly <= 3 pages
     readme_md_path = repo_root / "README.md"
     if readme_md_path.exists():
         render_markdown_document_to_pdf(
             readme_md_path,
             repo_root / "README.pdf",
             max_pages=3,
-            body_font_size=7.2,
-            body_leading=8.8,
-            table_font_size=6.2,
-            table_leading=7.4,
+            body_font_size=7.0,
+            body_leading=8.5,
+            table_font_size=6.0,
+            table_leading=7.2,
         )
         (docs_dir / "README.pdf").write_bytes((repo_root / "README.pdf").read_bytes())
         if not verify_pdf_contains_markdown_lines(readme_md_path, repo_root / "README.pdf"):
@@ -716,3 +743,4 @@ def generate_all_deliverable_pdfs(repo_root: Path) -> None:
 
 if __name__ == "__main__":
     generate_all_deliverable_pdfs(Path(__file__).resolve().parents[2])
+

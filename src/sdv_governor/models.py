@@ -6,7 +6,7 @@ from dataclasses import dataclass, field, asdict
 import hashlib
 import json
 import math
-from typing import Any, Dict, List, Optional, Sequence, Set
+from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
 
 class StrictValidationError(ValueError):
@@ -55,6 +55,15 @@ VALID_COOLING_ROUTES: Set[str] = {
 }
 
 VALID_VERDICTS: Set[str] = {"YES", "YES_IF", "NO", "NOT_NOW"}
+
+VALID_SCENARIO_CLASSES: Set[str] = {
+    "OFFICIAL_CHALLENGE",
+    "STRESS_VARIANT",
+    "UNIT_FIXTURE",
+    "HISTORICAL",
+}
+
+ROOF_DRONE_CLEARANCE_CONSTRAINT_ID = "hangar_roof_drone_clearance"
 
 
 def is_bool(val: Any) -> bool:
@@ -241,6 +250,18 @@ def canonical_json_hash(obj: Any) -> str:
 
 
 @dataclass(frozen=True)
+class ComponentAllocationSpec:
+    subcomponent_id: str
+    nominal_power_w: int
+    sustained_power_w: int
+    peak_power_w: int
+    cooling_water_w: int
+    cooling_air_w: int
+    source_kind: str = "ASSUMED"
+    assumption_ref: Optional[str] = None
+
+
+@dataclass(frozen=True)
 class SubcomponentSpec:
     subcomponent_id: str
     part_of: str
@@ -254,6 +275,7 @@ class SubcomponentSpec:
     requires_water_manifold: bool
     value_origin: str
     field_origins: Dict[str, str] = field(default_factory=dict)
+    provenance_metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -284,6 +306,7 @@ class GuestModeSpec:
     capability_retention_ratio: float
     value_origin: str
     field_origins: Dict[str, str] = field(default_factory=dict)
+    component_allocations: Dict[str, ComponentAllocationSpec] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -355,6 +378,7 @@ class GuestManifest:
     mission_capabilities: Dict[str, float]
     can_buffer_offline: bool
     source_sha256: str
+    derivation_metadata: Dict[str, Any] = field(default_factory=dict)
 
     @property
     def total_mass_kg(self) -> int:

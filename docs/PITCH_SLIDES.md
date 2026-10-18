@@ -1,66 +1,82 @@
-# SDV Resource Governor -- Technical Pitch Deck (8 Slides)
+# SDV Resource Governor -- Technical Pitch Deck (10 Slides)
 
 ## Slide 1: Executive Overview -- Deterministic Physics First
-- **Mission**: Govern admission, placement, live arbitration, and graceful degradation across **8 coupled physical resource classes** (`power`, `cooling`, `positions`, `mast`, `mass_stability`, `data`, `compute`, `time`) on a Software-Defined Vessel.
+- **Mission**: Govern admission (`D1`), physical placement (`D2`), live conflict arbitration (`D3`), graceful degradation (`D4`), multi-crew scheduling (`D5`: `14/6/0`), and fail-closed physical accounting (`D6`) across **8 coupled physical resource classes** (`power`, `cooling`, `positions`, `mast`, `mass_stability`, `data`, `compute`, `time`) on a 72 m Software-Defined Vessel.
 - **Core Principle**: Hard physical and life/vehicle safety limits are satisfied **first**; mission capability score, free margin, and displacement cost are optimized **second**. No priority weight can ever override a hard physical limit or drone ditching deadline.
-- **Zero Opaque Runtime AI**: 100% deterministic, inspectable math (exact cooling curve, integer Watts/kg/bps, parameterized witness explanations, 1 Hz internal simulation stepping).
+- **Zero Opaque Runtime AI**: 100% deterministic, inspectable math (exact cooling curve, component-level power/water/air splits, parameterized witness explanations, 1 Hz internal simulation stepping).
 
 ---
 
-## Slide 2: Fail-Closed Validation & Defeating Legacy Defects
+## Slide 2: Fail-Closed Validation & Declarative Guest Ontology (D1)
 - **Strict Schema & Type Discipline (`B2`, `F3`, `H06`, `H13`, `R2`, `R4`)**:
   - Rejects `NaN`, `Infinity`, negative or zero budgets, booleans used as numbers (`True != 1`), string booleans (`"false"`), unknown YAML/HTTP JSON fields (`UNKNOWN_FIELD`), dependency cycles, and invalid cooling coupling (`cooling_water_w + cooling_air_mast_w == sustained_power_w`).
   - Reproduces and defeats all **10 adversarial input flaws** (`resource_engine_repro.json`) and all **28 verifier mutation classes** (`false_accepts = 0`).
 - **Six Declarative Guest Cards (`G1`-`G6`) with Field-Level Provenance**:
-  - Official `G1` (`45 kg`, `1.5 kW` air), `G2` (`3,500 kg`, `20/6 kW`), `G3` (`5,500 kg`, `25/1 kW`), `G4` (`140+850 = 990 kg` per errata, `35/10/2 kW`), `G5` (`3,000+25 = 3,025 kg`, `45/8 kW`), plus custom civil card `G6` (`420 kg`, `port_only=true`, all fields `ASSUMED`).
+  - Official `G1` (`45 kg`, `1.5 kW` air on `mast_3`), `G2` (`3,500 kg`, `20/6 kW`), `G3` (`5,500 kg`, `25/1 kW`), `G4` (`140+850 = 990 kg` per `GRAZIANO_ROOF_AND_G4_MASS_0904`, `35/10/2 kW`), `G5` (`3,000+25 = 3,025 kg`, `45/8 kW`), plus custom civil card `G6` (`420 kg`, `port_only=true`, all fields `ASSUMED`) and zero-code dynamic `G7`.
 
 ---
 
-## Slide 3: Scenario A (D1) -- 8-Class Admission & Errata Proof
-- **Organizer Errata Verified (`DAT-02`, `DAT-03`)**:
-  - With `G4 = 990 kg`, exactly **3 of 5** four-guest combinations exceed `10,000 kg`: `{G1,G2,G3,G4}=10,035 kg`, `{G1,G2,G3,G5}=12,070 kg`, `{G2,G3,G4,G5}=13,015 kg`.
-  - The 2 mass-feasible sets `{G1,G2,G4,G5}=7,560 kg` and `{G1,G3,G4,G5}=9,560 kg` prove that **passing mass does not imply passing placement**: `G5`'s antenna collides with `G1` on `mast_3` (`1.5+1.2=2.7 kW > 2.0 kW` air) and with `G4` drone clearance on `hangar_roof`!
-- **Single Platform Modification Counterfactual (`R6.1`)**:
-  - Adding a second guest mast slot `mast_4` (`<= 60 kg`, `<= 2.0 kW` air) eliminates the `G1`/`G5` mast collision and `G4` roof clearance conflict for `{G1,G2,G4,G5}` and `{G1,G3,G4,G5}`, leaving only standard Mission Envelope A.10 operational mode scheduling (`G5` offline buffering in `W4` EMCON and `G2`/`G3`/`G4` time-multiplexed deck/acoustic windows).
+## Slide 3: Scenario A (D1/D2) -- 8-Class Admission, Roof Clearance & Errata Proof
+- **Organizer Clarifications Verified (`GRAZIANO_B_COMPOSITION_0855`, `GRAZIANO_ROOF_AND_G4_MASS_0904`)**:
+  - With `G4 = 990 kg`, `G3+G4+G5 = 9,515 kg ≈ 9.52 t` and `G1+G3+G4+G5 = 9,560 kg` (`440 kg` mass margin, `9,853.0 kg-eq` stability with `G5` antenna on `hangar_roof`, `2,147.0 kg-eq` margin).
+  - Across C(5,4)=5 sets, **3 exceed `10,000 kg`** (`{G1,G2,G3,G4}=10,035 kg`, `{G1,G2,G3,G5}=12,070 kg`, `{G2,G3,G4,G5}=13,015 kg`), while `{G1,G2,G4,G5}=7,560 kg` and `{G1,G3,G4,G5}=9,560 kg` require `G5_MAST_ANTENNA` on `hangar_roof` under conditional policy `ROOF_OUTSIDE_G4_RECOVERY_V1` (`YES_IF` until verified; `NO` under `CONFLICT` policy).
+- **Single Platform Modification Counterfactual (`mast_4`)**:
+  - Adding `mast_4` (`<= 60 kg, <= 0.6 m2, <= 2,000 W` air) separates `G1` (`1,500 W` on `mast_3`) and `G5` antenna (`1,200 W` on `mast_4`, `9,898.0 kg-eq`), removing the roof-clearance condition while mass/bays/stability still block the other three 4-guest sets.
 
 ---
 
-## Slide 4: Scenario B (D3) -- Live Arbitration & Causal Acoustic Handshake
-- **The Conflict**: `G3` AUV is executing a `40 min` quiet acoustic survey (`SURVEY_QUIET`, `1 kW`, `3 kn`) when `G4` UAV reports **`18%` battery (`< 20%` emergency -> `12 min / 720 s` max endurance)** requiring a turn into `22 kn` wind and `35 kW` recovery/charging power.
-- **Causal Command-ACK & Precondition Verification (`R1.1`, `R1.2`)**:
-  - D3 approval at `T=480 s` immediately registers a firm `35 kW` reservation (`D3_PLAN_V1_G4_RECOVERY`) for `G4` recovery/charging.
-  - Turning into the wind requires a verified `ACOUSTIC_HOLD_CONFIRMED` ACK from `guest_id='G3'` matching the active `command_id` and `plan_version`, plus `power_reserve_w >= 35 kW` and `deck_clear=True`.
-  - **`rescue_primary`**: Issues `ACOUSTIC_HOLD` at `T=480 s`, receives ACK at `T=495 s`, turns into wind, and lands `G4` at `T=855 s` (`345 s` margin before `T=1,200 s` deadline).
-  - **`survey_primary`**: Completes `240 s` of survey pass, issues `ACOUSTIC_HOLD` at `T=720 s`, receives ACK at `T=735 s`, turns into wind, and lands `G4` at `T=1,095 s` (`105 s` margin before `T=1,200 s` deadline).
+## Slide 4: Scenario B (D3) -- Installed `G1+G3+G4+G5` & Causal Acoustic Handshake
+- **Active 4-Guest Set (`G1+G3+G4+G5`)**:
+  - `G1` on `mast_3` (`45 kg`, `1.5 kW` air, `LINE_A_FWD`), `G3` in `bay1` (`5,500 kg`, `1.0 kW` survey / `25.0 kW` firm charge, `LINE_A_FWD`), `G4` in `hangar`/`flight_deck` (`990 kg`, `10.0 kW` patrol / `35.0 kW` recovery, `LINE_B_AFT`), `G5` container in `bay2` + antenna on `hangar_roof` (`3,025 kg`, `45.0 kW` = `43.8 kW` water + `1.2 kW` roof air, `LINE_B_AFT`). `G2` is not installed in Scenario B.
+- **Causal Command-ACK & A.6 Transition Timing**:
+  - At `T=480 s`, `G4` reports **`18%` battery (`720 s` deadline -> `T <= 1,200 s`)** and D3 reserves `35.0 kW` (`82.5 / 106.5 kW` actual/committed).
+  - Turning into `22 kn` wind requires verified `ACOUSTIC_HOLD_CONFIRMED` ACK from `G3` (`15 s` nominal, `[10, 60] s` window), `90 s` turn/stabilization into wind, and `240 s` approach/landing: **`rescue_primary` lands at `T=855 s`** (`345 s` margin); **`survey_primary` lands at `T=1,095 s`** (`105 s` margin).
 
 ---
 
-## Slide 5: Scenario B (D4) -- Graceful Degradation & Zero Infeasible Ticks
-- **Honest Power vs. Thermal Accounting (`DEG-01`..`05`, `R1.1`)**:
-  - When generator reserve drops from `200 kW` to `100 kW` at `T=720 s`, firm committed power including `G3`'s `25 kW` turnaround recharge reservation and `G4`'s `35 kW` D3 recovery reservation is `25 + 35 + 45 = 105 kW > 100 kW` (`5 kW` firm deficit).
-  - Under both `survey_primary` and `rescue_primary`, D4 immediately steps down **`G5` (`45 kW -> 8 kW` `DEGRADED_70PCT_LOSS`)** at `T=720 s`, reducing committed power to `68 kW <= 100 kW` (`32 kW` free margin) and guaranteeing **0 infeasible ticks (`91/91` feasible)** across the entire mission!
-  - At `30 deg C` seawater with `-40%` cooling loop loss (`72 kW` thermal capacity vs `100 kW` power), **chilled-water cooling binds first** (`79.8 kW > 72 kW`) and steps down `G5` (`79.8 kW -> 43.5 kW`).
+## Slide 5: Scenario B (D4) -- Graceful Degradation, Feeders & Water/Air Split
+- **Component-Level Power, Feeder & Thermal Ledger (`G1+G3+G4+G5`)**:
+  - **Electrical Power (`actual / committed`)**: `57.5 / 81.5 kW` initial -> `82.5 / 106.5 kW` with `G4` `35 kW` reservation -> when generator reserve drops `200 kW -> 100 kW` at `T=720 s`, `106.5 kW > 100 kW` (`6.5 kW` committed deficit) triggers `G5` step-down (`45.0 -> 8.0 kW`), yielding **`45.5 / 69.5 kW <= 100 kW`** (`30.5 kW` committed margin) and **0 infeasible ticks (`91/91`)**!
+  - **Chilled-Water & Air Domains**: Water load goes `54.8 / 78.8 kW` -> `79.8 / 103.8 kW` -> **`43.5 / 67.5 kW <= 72 kW`** after `G5` step-down (`43.8 -> 7.5 kW` water), surviving `30 deg C` + `-40%` loop loss (`72 kW`). Air cooling is `1,500 W` (`mast_3`) + `1,200 W` (`hangar_roof`) = `2,700 W` (`2,000 W` degraded).
+  - **Feeder Routing (`<= 150 kW/line`)**: `LINE_A_FWD = 2.5 / 26.5 kW`; `LINE_B_AFT = 80.0 -> 43.0 kW`.
 
 ---
 
-## Slide 6: Scenario C -- Crew Regimes (14 / 6 / 0) & Resilience
-- **Crew Regime & Deck Clearance Enforcement (`CRW-01`..`03`, `R3`, `R6.2`)**:
-  - **14 Crew**: `9` deck crew -> `G3` (`4` crew) and `G4` (`3` crew) at-sea vehicle replacement permitted in A' window (`4-8 kn`, `wind <= 20 kn`, `SS <= 3`). Simultaneous `G2` winch (`0-5 kn`) + `G4` flight ops (`5-12 kn` into wind, touching only at `5.0 kn`) remain forbidden by Annex A.5 `deck_clear` and conflicting heading/station-keeping rules.
-  - **6 Crew**: `2` deck crew -> serialized manual launch/recovery (`G2` or `G4`) permitted with `60-180 s` watch handover; at-sea vehicle replacement (`min_crew >= 3`) blocked.
-  - **0 Crew**: Zero physical installations or manual deck evolutions at sea (`CRW-02`); `G6` (`420 kg > 250 kg`, bay install) is `port_only=True` across all regimes.
+## Slide 6: Scenario C (D5) -- Crew Regimes (`14 / 6 / 0`) & Implicit Timing Rules
+- **Concrete Implicit Rule (`Trigger -> Effect -> Confirmation`)**:
+  - Urgent safety actions (`STOP`, `HOLD`, `SECURE <= 200 ms`, `< 1 ms` measured) execute autonomously across `14 / 6 / 0`.
+  - Non-urgent confirmation & flight-deck clearing scale with crew dial: **`14` crew** (`9` deck avail, `30 s` confirm, `240 s` deck clear; A' replacement permitted at `T+1260 s`), **`6` crew** (`2` deck avail, `120 s` confirm, `600 s` deck clear; A' replacement blocked), **`0` crew** (`0` avail; software mode changes automated, manual evolutions and occupied-deck recovery **PROHIBITED**).
+- **Component-Split Overconsumption (`+20%` G5, §6.5)**:
+  - If `G5` surges `+20%` to **`54.0 kW` electrical** (`52.8 kW` water + `1.2 kW` roof air), D4 immediately throttles `G5` to `8.0 kW` (`7.5 kW` water + `0.5 kW` air).
 
 ---
 
-## Slide 7: Dual-Platform Architecture & Live Ventuno Q Parity
+## Slide 7: Physical Account (D6) -- 8 Assumption Families & Code Traceability
+- **Complete 1-Page Physical Account (`docs/PHYSICAL_ACCOUNT_D6.pdf`)**:
+  - Maps all **8 assumption families** (`Provenance/mass`, `Roof & drone clearance`, `Air & component split`, `Power & feeders/reservations`, `Chilled water & thermal inertia`, `State & A.6 transition timing`, `Compute rack & data links`, `Priorities & degraded capability`) to exact YAML files and `file.py::symbol_name` functions.
+  - Enforces 4 physical compute nodes (`node_1..node_4`, `32c / 128 GiB / 1 acc` each; `80%` allocatable = `25c / 102.4 GiB` per node, `3` assignable discrete accelerators across cluster).
+
+---
+
+## Slide 8: Operator Interface -- Synchronized 2D Console & 3D Vessel Twin
+- **Authoritative Shared Session (`server.py` + `ui/` + `viz3d/`)**:
+  - Both the single-screen 2D Operator Console (`http://127.0.0.1:8765`) and the Three.js 3D Vessel Twin (`viz3d/`) bind to the same `GovernorSession` (`/api/state`, `/api/advance`, `/api/perturb`, `/api/admit_live`).
+  - **Zero Silent Synthetic Fallback**: If the backend disconnects in live mode, the 3D Twin displays an explicit `STALE / DESCONECTADO` banner rather than fabricating synthetic telemetry.
+
+---
+
+## Slide 9: Dual-Platform Architecture & Live Ventuno Q Parity
 - **Decoupled Laptop + Edge Board Execution (`B1`, `DEP-01`..`03`)**:
-  - **MacBook Pro (`arm64`, Python 3.13.15)**: Full test suite, 1 Hz event-driven simulator, 90 s (20x) compressed demo, and stateful 2D operator console (`http://127.0.0.1:8765`).
-  - **Arduino Ventuno Q (`training06`, Qualcomm Dragonwing IQ8 `aarch64`, 16 GB RAM, Ubuntu 24.04.4)**: Live SSH deployment at `/home/arduino/sdv-resource-governor`.
-  - **Bit-for-Bit Semantic Parity**: Identical `campaign_semantic_sha256` verified across `arm64` macOS and live `aarch64` Ventuno Q (`training06`).
+  - **MacBook Pro (`arm64`, Python 3.13.15)**: Full test suite, 1 Hz event-driven simulator, 90 s (`20x`) compressed demo, and 2D/3D Operator Interface.
+  - **Arduino Ventuno Q (`training06`, Qualcomm QCS8300 Monza `aarch64`, 14 GiB RAM, Ubuntu 24.04.4)**: Live SSH deployment at `/home/arduino/sdv-resource-governor`.
+  - **Bit-for-Bit Semantic Parity**: Identical `campaign_semantic_sha256` verified across `arm64` macOS and live `aarch64` Ventuno Q, with **28 / 28** adversarial mutations rejected (`false_accepts = 0`).
 
 ---
 
-## Slide 8: Single-Screen 2D Operator Console & Fail-Closed Evidence
-- **Stateful Single-Screen 2D Operator Console (`B10`, `H12`, `R2`, `R5`)**:
-  - Persistent `GovernorSession` (`session_catalog`, `manifest_registry`, `snapshot_id`, `state_version`), per-tick 8-class budget and 2D vessel topology synchronization, 90 s (`1000 ms/tick = 20x`) Scenario B playback, perturbation injector, and live Scenario A guest card editor.
-- **Fail-Closed Evidence Verifier (`B8`, `H05`, `R4`)**:
-  - Recomputes all summary metrics and semantic hashes from raw JSON logs, verifies all acceptance criteria `<testcase>` nodes in `tests.*` with portable `requirements_matrix.csv`, cross-checks `git_commit` and `environment`, enforces `<= 200 ms` tick deadlines, and rejects **28 / 28** adversarial mutations (`false_accepts = 0`).
+## Slide 10: 90-Second Demo Script & Honest Operational Boundaries
+- **90-Second (`20x`) Compressed Mission Walkthrough (`docs/DEMO_SCRIPT_90S.md`)**:
+  - `0-20 s`: Port Admission (`G1+G3+G4+G5 = 9,560 kg`, `9,853 kg-eq`, `ROOF_OUTSIDE_G4_RECOVERY_V1` verified) + zero-code `G7`.
+  - `20-55 s`: Live Scenario B D3 arbitration (`T=480 s` `G4` `18%` battery -> `G3` `ACOUSTIC_HOLD` ACK -> turn into wind -> `855 s` / `1,095 s` touchdown).
+  - `55-90 s`: `T=720 s` generator loss (`106.5 -> 69.5 kW` power, `103.8 -> 67.5 kW <= 72 kW` water via `G5` step-down) + `14/6/0` crew dial.
+- **Explicit Rehearsal & Boundary Disclosure**:
+  - Software command dispatch is `< 1 ms` (`<= 200 ms` budget); physical breaker/winch/turning durations follow Annex A.6; live human spoken 90-second rehearsal status is explicitly recorded as **`DEFERRED_OWNER`**.

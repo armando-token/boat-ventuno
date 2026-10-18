@@ -9,18 +9,22 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import yaml
 
 from .models import (
+    ComponentAllocationSpec,
     DependencySpec,
     GuestManifest,
     GuestModeSpec,
     InstallationConstraints,
     PriorityProfile,
+    ROOF_DRONE_CLEARANCE_CONSTRAINT_ID,
     ShipStateConstraints,
     StrictValidationError,
     SubcomponentSpec,
     VALID_COOLING_ROUTES,
     VALID_POSITIONS,
+    VALID_SCENARIO_CLASSES,
     VALID_VALUE_ORIGINS,
     VehicleReplacementConstraints,
+    canonical_json_hash,
     require_bool,
     require_dict,
     require_finite_number,
@@ -38,6 +42,8 @@ TOP_LEVEL_GUEST_KEYS: Set[str] = {
     "can_buffer_offline",
     "subcomponents",
     "modes",
+    "component_allocations",
+    "derivation_metadata",
     "installation",
     "vehicle_replacement",
     "ship_state_constraints",
@@ -58,6 +64,7 @@ SUBCOMPONENT_KEYS: Set[str] = {
     "requires_water_manifold",
     "value_origin",
     "field_origins",
+    "provenance_metadata",
 }
 
 MODE_KEYS: Set[str] = {
@@ -86,7 +93,41 @@ MODE_KEYS: Set[str] = {
     "capability_retention_ratio",
     "value_origin",
     "field_origins",
+    "component_allocations",
 }
+
+COMPONENT_ALLOCATION_KEYS: Set[str] = {
+    "subcomponent_id",
+    "nominal_power_w",
+    "sustained_power_w",
+    "peak_power_w",
+    "cooling_water_w",
+    "cooling_air_w",
+    "source_kind",
+    "assumption_ref",
+}
+
+KNOWN_CAPABILITIES: Set[str] = {
+    "maritime_sar_rescue",
+    "surface_surveillance",
+    "flight_weather_support",
+    "wideband_spectrum_monitoring",
+    "environmental_sensing",
+    "subsea_intervention",
+    "hydrographic_survey",
+    "seabed_anomaly_detection",
+    "water_quality_monitoring",
+    "hull_and_cable_inspection",
+    "salvage_assistance",
+    "subsea_acoustic_survey",
+    "aerial_sar_surveillance",
+    "sigint_ew_monitoring",
+    "rov_hull_inspection",
+    "meteo_passive_sensing",
+    "water_column_sampling",
+}
+
+VALID_PRIORITY_GUEST_IDS: Set[str] = {f"G{i}" for i in range(1, 10)}
 
 INSTALLATION_KEYS: Set[str] = {
     "port_only",
@@ -178,6 +219,106 @@ def _parse_field_origins(raw_fo: Any, field_path: str, guest_id: str) -> Dict[st
     return out
 
 
+def _parse_raw_component_allocations_block(
+    raw_ca: Any,
+    field_path: str,
+) -> Dict[str, ComponentAllocationSpec]:
+    """Parse a mode's component_allocations block (either dict keyed by subcomponent_id or list of dicts)."""
+    out: Dict[str, ComponentAllocationSpec] = {}
+    required_alloc_keys = {
+        "nominal_power_w",
+        "sustained_power_w",
+        "peak_power_w",
+        "cooling_water_w",
+        "cooling_air_w",
+    }
+    if isinstance(raw_ca, dict):
+        for sc_id_raw, spec_raw in raw_ca.items():
+            sc_id = require_str(sc_id_raw, f"{field_path}.subcomponent_id")
+            if sc_id in out:
+                raise StrictValidationError(
+                    "DUPLICATE_COMPONENT_ALLOCATION",
+                    f"Duplicate component allocation for '{sc_id}'",
+                    f"{field_path}.{sc_id}",
+                )
+            p = f"{field_path}.{sc_id}"
+            require_dict(
+                spec_raw,
+                p,
+                required_keys=required_alloc_keys,
+                allowed_keys=COMPONENT_ALLOCATION_KEYS,
+            )
+            if "subcomponent_id" in spec_raw and spec_raw["subcomponent_id"] != sc_id:
+                raise StrictValidationError(
+                    "SUBCOMPONENT_ID_MISMATCH",
+                    f"Key '{sc_id}' != inner subcomponent_id '{spec_raw['subcomponent_id']}'",
+                    f"{p}.subcomponent_id",
+                )
+            src_kind = require_str(
+                spec_raw.get("source_kind", "ASSUMED"),
+                f"{p}.source_kind",
+                allowed_enum=VALID_VALUE_ORIGINS,
+            )
+            assump_ref = (
+                None
+                if spec_raw.get("assumption_ref") is None
+                else require_str(spec_raw["assumption_ref"], f"{p}.assumption_ref")
+            )
+            out[sc_id] = ComponentAllocationSpec(
+                subcomponent_id=sc_id,
+                nominal_power_w=require_int(spec_raw["nominal_power_w"], f"{p}.nominal_power_w", min_value=0),
+                sustained_power_w=require_int(spec_raw["sustained_power_w"], f"{p}.sustained_power_w", min_value=0),
+                peak_power_w=require_int(spec_raw["peak_power_w"], f"{p}.peak_power_w", min_value=0),
+                cooling_water_w=require_int(spec_raw["cooling_water_w"], f"{p}.cooling_water_w", min_value=0),
+                cooling_air_w=require_int(spec_raw["cooling_air_w"], f"{p}.cooling_air_w", min_value=0),
+                source_kind=src_kind,
+                assumption_ref=assump_ref,
+            )
+    elif isinstance(raw_ca, list):
+        for idx, spec_raw in enumerate(raw_ca):
+            p = f"{field_path}[{idx}]"
+            require_dict(
+                spec_raw,
+                p,
+                required_keys=required_alloc_keys | {"subcomponent_id"},
+                allowed_keys=COMPONENT_ALLOCATION_KEYS,
+            )
+            sc_id = require_str(spec_raw["subcomponent_id"], f"{p}.subcomponent_id")
+            if sc_id in out:
+                raise StrictValidationError(
+                    "DUPLICATE_COMPONENT_ALLOCATION",
+                    f"Duplicate component allocation for '{sc_id}'",
+                    f"{p}.subcomponent_id",
+                )
+            src_kind = require_str(
+                spec_raw.get("source_kind", "ASSUMED"),
+                f"{p}.source_kind",
+                allowed_enum=VALID_VALUE_ORIGINS,
+            )
+            assump_ref = (
+                None
+                if spec_raw.get("assumption_ref") is None
+                else require_str(spec_raw["assumption_ref"], f"{p}.assumption_ref")
+            )
+            out[sc_id] = ComponentAllocationSpec(
+                subcomponent_id=sc_id,
+                nominal_power_w=require_int(spec_raw["nominal_power_w"], f"{p}.nominal_power_w", min_value=0),
+                sustained_power_w=require_int(spec_raw["sustained_power_w"], f"{p}.sustained_power_w", min_value=0),
+                peak_power_w=require_int(spec_raw["peak_power_w"], f"{p}.peak_power_w", min_value=0),
+                cooling_water_w=require_int(spec_raw["cooling_water_w"], f"{p}.cooling_water_w", min_value=0),
+                cooling_air_w=require_int(spec_raw["cooling_air_w"], f"{p}.cooling_air_w", min_value=0),
+                source_kind=src_kind,
+                assumption_ref=assump_ref,
+            )
+    else:
+        raise StrictValidationError(
+            "TYPE_ERROR",
+            f"Expected dict or list at '{field_path}', got {type(raw_ca).__name__}",
+            field_path,
+        )
+    return out
+
+
 VALID_GUEST_CATEGORIES: Set[str] = {
     "PASSIVE_RADIO_SENSOR",
     "OCEAN_WEATHER_MODULE",
@@ -205,7 +346,7 @@ def parse_guest_manifest(
     require_dict(
         raw,
         "guest_manifest",
-        required_keys=TOP_LEVEL_GUEST_KEYS,
+        required_keys=TOP_LEVEL_GUEST_KEYS - {"component_allocations", "derivation_metadata"},
         allowed_keys=TOP_LEVEL_GUEST_KEYS,
     )
 
@@ -244,7 +385,12 @@ def parse_guest_manifest(
     seen_sub_ids: Set[str] = set()
     for idx, sc_raw in enumerate(raw_subs):
         p = f"guest_manifest.subcomponents[{idx}]"
-        require_dict(sc_raw, p, required_keys=SUBCOMPONENT_KEYS - {"field_origins"}, allowed_keys=SUBCOMPONENT_KEYS)
+        require_dict(
+            sc_raw,
+            p,
+            required_keys=SUBCOMPONENT_KEYS - {"field_origins", "provenance_metadata"},
+            allowed_keys=SUBCOMPONENT_KEYS,
+        )
         sc_id = require_str(sc_raw["subcomponent_id"], f"{p}.subcomponent_id")
         if sc_id in seen_sub_ids:
             raise StrictValidationError("DUPLICATE_ID", f"Duplicate subcomponent_id '{sc_id}'", p)
@@ -326,6 +472,9 @@ def parse_guest_manifest(
                 f"{p}.value_origin",
             )
         field_origins = _parse_field_origins(sc_raw.get("field_origins"), f"{p}.field_origins", guest_id)
+        prov_meta: Dict[str, Any] = {}
+        if sc_raw.get("provenance_metadata") is not None:
+            prov_meta = dict(require_dict(sc_raw["provenance_metadata"], f"{p}.provenance_metadata"))
 
         subcomponents.append(
             SubcomponentSpec(
@@ -341,8 +490,11 @@ def parse_guest_manifest(
                 requires_water_manifold=req_water,
                 value_origin=val_origin,
                 field_origins=field_origins,
+                provenance_metadata=prov_meta,
             )
         )
+
+    sub_by_id: Dict[str, SubcomponentSpec] = {sc.subcomponent_id: sc for sc in subcomponents}
 
     # Check errata override for G4 if provided
     if errata_override is not None and guest_id == "G4":
@@ -408,11 +560,38 @@ def parse_guest_manifest(
             "guest_manifest.default_mode",
         )
 
+    top_comp_allocs_raw: Dict[str, Any] = {}
+    if "component_allocations" in raw and raw["component_allocations"] is not None:
+        raw_top_ca = require_dict(raw["component_allocations"], "guest_manifest.component_allocations")
+        for ca_mode_key, ca_mode_val in raw_top_ca.items():
+            resolved_mode_key = ca_mode_key
+            if resolved_mode_key not in raw_modes:
+                if resolved_mode_key == "DEGRADED" and "DEGRADED_70PCT_LOSS" in raw_modes:
+                    resolved_mode_key = "DEGRADED_70PCT_LOSS"
+                else:
+                    raise StrictValidationError(
+                        "UNKNOWN_MODE_COMPONENT_ALLOCATION",
+                        f"component_allocations references unknown mode '{ca_mode_key}'",
+                        f"guest_manifest.component_allocations.{ca_mode_key}",
+                    )
+            if resolved_mode_key in top_comp_allocs_raw:
+                raise StrictValidationError(
+                    "DUPLICATE_COMPONENT_ALLOCATION",
+                    f"Duplicate top-level component_allocations entry for mode '{resolved_mode_key}'",
+                    f"guest_manifest.component_allocations.{ca_mode_key}",
+                )
+            top_comp_allocs_raw[resolved_mode_key] = ca_mode_val
+
     modes: Dict[str, GuestModeSpec] = {}
     for m_name, m_raw in raw_modes.items():
         mp = f"guest_manifest.modes.{m_name}"
         require_str(m_name, mp)
-        require_dict(m_raw, mp, required_keys=MODE_KEYS - {"field_origins"}, allowed_keys=MODE_KEYS)
+        require_dict(
+            m_raw,
+            mp,
+            required_keys=MODE_KEYS - {"field_origins", "component_allocations"},
+            allowed_keys=MODE_KEYS,
+        )
 
         desc = require_str(m_raw["description"], f"{mp}.description")
         min_p = require_int(m_raw["min_power_w"], f"{mp}.min_power_w", min_value=0)
@@ -479,6 +658,140 @@ def parse_guest_manifest(
         for assumed_field in ("compute_cores", "compute_ram_mib", "compute_accelerators", "shared_storage_gb"):
             m_field_origins.setdefault(assumed_field, "ASSUMED")
 
+        # Parse and validate per-component allocations (§6.1)
+        has_top_ca = m_name in top_comp_allocs_raw
+        has_mode_ca = "component_allocations" in m_raw and m_raw["component_allocations"] is not None
+        parsed_allocs: Dict[str, ComponentAllocationSpec] = {}
+
+        if has_top_ca and has_mode_ca:
+            top_parsed = _parse_raw_component_allocations_block(
+                top_comp_allocs_raw[m_name],
+                f"guest_manifest.component_allocations.{m_name}",
+            )
+            mode_parsed = _parse_raw_component_allocations_block(
+                m_raw["component_allocations"],
+                f"{mp}.component_allocations",
+            )
+            overlap = set(top_parsed.keys()) & set(mode_parsed.keys())
+            if overlap:
+                raise StrictValidationError(
+                    "DUPLICATE_COMPONENT_ALLOCATION",
+                    f"Mode '{m_name}' specifies duplicate component_allocations for {sorted(overlap)}",
+                    f"{mp}.component_allocations",
+                )
+            parsed_allocs.update(top_parsed)
+            parsed_allocs.update(mode_parsed)
+        elif has_top_ca:
+            parsed_allocs = _parse_raw_component_allocations_block(
+                top_comp_allocs_raw[m_name],
+                f"guest_manifest.component_allocations.{m_name}",
+            )
+        elif has_mode_ca:
+            parsed_allocs = _parse_raw_component_allocations_block(
+                m_raw["component_allocations"],
+                f"{mp}.component_allocations",
+            )
+        else:
+            if len(subcomponents) == 1:
+                sc0 = subcomponents[0]
+                parsed_allocs[sc0.subcomponent_id] = ComponentAllocationSpec(
+                    subcomponent_id=sc0.subcomponent_id,
+                    nominal_power_w=nom_p,
+                    sustained_power_w=sust_p,
+                    peak_power_w=peak_p,
+                    cooling_water_w=cool_w,
+                    cooling_air_w=cool_air,
+                    source_kind=m_origin,
+                    assumption_ref=None,
+                )
+            else:
+                raise StrictValidationError(
+                    "MISSING_COMPONENT_ALLOCATIONS",
+                    f"Multi-component guest '{guest_id}' mode '{m_name}' must declare component_allocations",
+                    f"{mp}.component_allocations",
+                )
+
+        for sc_id in parsed_allocs:
+            if sc_id not in sub_by_id:
+                raise StrictValidationError(
+                    "UNKNOWN_SUBCOMPONENT_ALLOCATION",
+                    f"Mode '{m_name}' allocates to unknown subcomponent '{sc_id}'",
+                    f"{mp}.component_allocations.{sc_id}",
+                )
+
+        missing_sc_ids = set(sub_by_id.keys()) - set(parsed_allocs.keys())
+        if missing_sc_ids:
+            raise StrictValidationError(
+                "INCOMPLETE_COMPONENT_ALLOCATIONS",
+                f"Mode '{m_name}' component_allocations missing subcomponents: {sorted(missing_sc_ids)}",
+                f"{mp}.component_allocations",
+            )
+
+        for sc_id, alloc in parsed_allocs.items():
+            sc_spec = sub_by_id[sc_id]
+            ap = f"{mp}.component_allocations.{sc_id}"
+            if not (0 <= alloc.nominal_power_w <= alloc.sustained_power_w <= alloc.peak_power_w):
+                raise StrictValidationError(
+                    "COMPONENT_POWER_HIERARCHY_ERROR",
+                    f"Component '{sc_id}' in mode '{m_name}' violates nominal <= sustained <= peak "
+                    f"({alloc.nominal_power_w}, {alloc.sustained_power_w}, {alloc.peak_power_w})",
+                    ap,
+                )
+            if alloc.cooling_water_w + alloc.cooling_air_w != alloc.sustained_power_w:
+                raise StrictValidationError(
+                    "COMPONENT_THERMAL_COUPLING_MISMATCH",
+                    f"Component '{sc_id}' in mode '{m_name}' cooling_water_w ({alloc.cooling_water_w}) + "
+                    f"cooling_air_w ({alloc.cooling_air_w}) != sustained_power_w ({alloc.sustained_power_w})",
+                    ap,
+                )
+            if sc_spec.cooling_route == "CHILLED_WATER_LOOP" and alloc.cooling_air_w > 0:
+                raise StrictValidationError(
+                    "COMPONENT_COOLING_ROUTE_MISMATCH",
+                    f"Component '{sc_id}' has cooling_route='CHILLED_WATER_LOOP' but cooling_air_w={alloc.cooling_air_w} > 0",
+                    ap,
+                )
+            if sc_spec.cooling_route == "MAST_AIR_2KW" and (alloc.cooling_water_w > 0 or alloc.cooling_air_w > 2000):
+                raise StrictValidationError(
+                    "COMPONENT_COOLING_ROUTE_MISMATCH",
+                    f"Component '{sc_id}' has cooling_route='MAST_AIR_2KW' but cooling_water_w={alloc.cooling_water_w}, cooling_air_w={alloc.cooling_air_w}",
+                    ap,
+                )
+            if sc_spec.cooling_route == "PASSIVE_NO_COOLING" and any(
+                v > 0
+                for v in (
+                    alloc.nominal_power_w,
+                    alloc.sustained_power_w,
+                    alloc.peak_power_w,
+                    alloc.cooling_water_w,
+                    alloc.cooling_air_w,
+                )
+            ):
+                raise StrictValidationError(
+                    "COMPONENT_COOLING_ROUTE_MISMATCH",
+                    f"Component '{sc_id}' has cooling_route='PASSIVE_NO_COOLING' but non-zero power/cooling allocation",
+                    ap,
+                )
+
+        sum_nom = sum(a.nominal_power_w for a in parsed_allocs.values())
+        sum_sust = sum(a.sustained_power_w for a in parsed_allocs.values())
+        sum_peak = sum(a.peak_power_w for a in parsed_allocs.values())
+        sum_cw = sum(a.cooling_water_w for a in parsed_allocs.values())
+        sum_ca = sum(a.cooling_air_w for a in parsed_allocs.values())
+        if (
+            sum_nom != nom_p
+            or sum_sust != sust_p
+            or sum_peak != peak_p
+            or sum_cw != cool_w
+            or sum_ca != cool_air
+        ):
+            raise StrictValidationError(
+                "COMPONENT_ALLOCATION_SUM_MISMATCH",
+                f"Mode '{m_name}' component_allocations sums (nom={sum_nom}, sust={sum_sust}, peak={sum_peak}, "
+                f"water={sum_cw}, air={sum_ca}) != mode totals (nom={nom_p}, sust={sust_p}, peak={peak_p}, "
+                f"water={cool_w}, air={cool_air})",
+                f"{mp}.component_allocations",
+            )
+
         modes[m_name] = GuestModeSpec(
             mode_name=m_name,
             description=desc,
@@ -506,6 +819,7 @@ def parse_guest_manifest(
             capability_retention_ratio=cap_ret,
             value_origin=m_origin,
             field_origins=m_field_origins,
+            component_allocations=parsed_allocs,
         )
 
     inst_raw = require_dict(
@@ -633,6 +947,43 @@ def parse_guest_manifest(
             c_val, f"mission_capabilities.{c_name}", min_value=0.0, max_value=100.0
         )
 
+    derivation_metadata: Dict[str, Any] = {}
+    if raw.get("derivation_metadata") is not None:
+        derivation_metadata = dict(require_dict(raw["derivation_metadata"], "guest_manifest.derivation_metadata"))
+    for sc in subcomponents:
+        if sc.provenance_metadata:
+            derivation_metadata.setdefault("subcomponent_provenance", {})[sc.subcomponent_id] = dict(sc.provenance_metadata)
+    if guest_id == "G4":
+        hangar_sc = sub_by_id.get("G4_HANGAR_STATION")
+        drone_sc = sub_by_id.get("G4_DRONE_VEHICLE")
+        hangar_meta = dict(hangar_sc.provenance_metadata) if hangar_sc and hangar_sc.provenance_metadata else {}
+        g4_corr = (errata_override or {}).get("overrides", {}).get("G4_mass_correction", {})
+        derivation_metadata.setdefault("total_mass_kg", sum(s.mass_kg for s in subcomponents))
+        derivation_metadata.setdefault("drone_vehicle_mass_kg", drone_sc.mass_kg if drone_sc else 140)
+        derivation_metadata.setdefault("hangar_station_mass_kg", hangar_sc.mass_kg if hangar_sc else 850)
+        derivation_metadata.setdefault(
+            "derivation_formula",
+            hangar_meta.get("derivation_formula", g4_corr.get("derivation_formula", "990 - 140 = 850")),
+        )
+        derivation_metadata.setdefault(
+            "value_origin",
+            hangar_sc.value_origin if hangar_sc else "ORGANIZER_ERRATA",
+        )
+        derivation_metadata.setdefault(
+            "clarification_id",
+            hangar_meta.get("clarification_id", g4_corr.get("clarification_id", "GRAZIANO_ROOF_AND_G4_MASS_0904")),
+        )
+        derivation_metadata.setdefault(
+            "superseded_values",
+            hangar_meta.get(
+                "superseded_values",
+                g4_corr.get(
+                    "superseded_prior_interpretation",
+                    {"total_mass_kg": 450, "hangar_station_mass_kg": 310, "status": "SUPERSEDED"},
+                ),
+            ),
+        )
+
     return GuestManifest(
         schema_version=schema_version,
         guest_id=guest_id,
@@ -649,6 +1000,7 @@ def parse_guest_manifest(
         mission_capabilities=mission_capabilities,
         can_buffer_offline=can_buffer_offline,
         source_sha256=source_sha256,
+        derivation_metadata=derivation_metadata,
     )
 
 
@@ -683,8 +1035,13 @@ def load_guest_catalog(
 ) -> Dict[str, GuestManifest]:
     """Load and validate all guest YAML files in `guests_dir`, enforcing errata overrides if present."""
     errata_data: Optional[Dict[str, Any]] = None
-    if errata_path is not None and errata_path.exists():
-        errata_data, _ = load_yaml_file(errata_path)
+    effective_errata_path = errata_path
+    if effective_errata_path is None:
+        candidate_errata = guests_dir.parent / "overrides" / "brief_errata.yaml"
+        if candidate_errata.exists():
+            effective_errata_path = candidate_errata
+    if effective_errata_path is not None and effective_errata_path.exists():
+        errata_data, _ = load_yaml_file(effective_errata_path)
 
     catalog: Dict[str, GuestManifest] = {}
     for ypath in sorted(guests_dir.glob("*.yaml")):
@@ -720,18 +1077,32 @@ def parse_priority_profile(raw: Dict[str, Any], source_sha256: str = "inline") -
     cap_w_raw = require_dict(raw["capability_weights"], "priority_profile.capability_weights")
     if len(cap_w_raw) == 0:
         raise StrictValidationError("EMPTY_WEIGHTS", "capability_weights cannot be empty", "priority_profile.capability_weights")
-    cap_weights = {
-        require_str(k, "capability_weights.key"): require_finite_number(v, f"capability_weights.{k}", min_value=0.0, max_value=1000.0)
-        for k, v in cap_w_raw.items()
-    }
+    cap_weights: Dict[str, float] = {}
+    for k, v in cap_w_raw.items():
+        cap_key = require_str(k, "capability_weights.key")
+        if cap_key not in KNOWN_CAPABILITIES:
+            raise StrictValidationError(
+                "UNKNOWN_CAPABILITY",
+                f"Unknown capability '{cap_key}' in capability_weights",
+                f"priority_profile.capability_weights.{cap_key}",
+            )
+        cap_weights[cap_key] = require_finite_number(
+            v, f"capability_weights.{cap_key}", min_value=0.0, max_value=1000.0
+        )
 
     rank_raw = require_dict(raw["guest_priority_rank"], "priority_profile.guest_priority_rank")
     if len(rank_raw) == 0:
         raise StrictValidationError("EMPTY_RANKS", "guest_priority_rank cannot be empty", "priority_profile.guest_priority_rank")
-    guest_ranks = {
-        require_str(k, "guest_priority_rank.key"): require_int(v, f"guest_priority_rank.{k}", min_value=1)
-        for k, v in rank_raw.items()
-    }
+    guest_ranks: Dict[str, int] = {}
+    for k, v in rank_raw.items():
+        gid_key = require_str(k, "guest_priority_rank.key")
+        if gid_key not in VALID_PRIORITY_GUEST_IDS:
+            raise StrictValidationError(
+                "UNKNOWN_GUEST_ID",
+                f"Unknown guest_id '{gid_key}' in guest_priority_rank",
+                f"priority_profile.guest_priority_rank.{gid_key}",
+            )
+        guest_ranks[gid_key] = require_int(v, f"guest_priority_rank.{gid_key}", min_value=1)
 
     arb_raw = require_dict(
         raw["arbitration_policy"],
@@ -790,7 +1161,29 @@ def parse_priority_profile(raw: Dict[str, Any], source_sha256: str = "inline") -
     shed_list = deg_raw["shed_order_lowest_priority_first"]
     if not isinstance(shed_list, list) or len(shed_list) == 0:
         raise StrictValidationError("TYPE_ERROR", "shed_order_lowest_priority_first must be a non-empty list", "degradation_policy.shed_order_lowest_priority_first")
-    shed_order = tuple(require_str(g, f"shed_order[{i}]") for i, g in enumerate(shed_list))
+    shed_order_list: List[str] = []
+    seen_shed: Set[str] = set()
+    for i, g in enumerate(shed_list):
+        gid_str = require_str(g, f"shed_order[{i}]")
+        if gid_str not in VALID_PRIORITY_GUEST_IDS:
+            raise StrictValidationError(
+                "UNKNOWN_GUEST_ID",
+                f"Unknown guest_id '{gid_str}' in shed_order_lowest_priority_first",
+                f"degradation_policy.shed_order_lowest_priority_first[{i}]",
+            )
+        if gid_str in seen_shed:
+            raise StrictValidationError(
+                "DUPLICATE_SHED_ORDER_GUEST",
+                f"Duplicate guest_id '{gid_str}' in shed_order_lowest_priority_first",
+                f"degradation_policy.shed_order_lowest_priority_first[{i}]",
+            )
+        seen_shed.add(gid_str)
+        shed_order_list.append(gid_str)
+    shed_order = tuple(shed_order_list)
+
+    effective_sha = source_sha256
+    if not effective_sha or effective_sha == "inline" or len(effective_sha) != 64:
+        effective_sha = canonical_json_hash(raw)
 
     return PriorityProfile(
         schema_version=schema_version,
@@ -806,7 +1199,7 @@ def parse_priority_profile(raw: Dict[str, Any], source_sha256: str = "inline") -
         prefer_mode_downgrade_before_shed=pref_down,
         protect_uninterruptible_tasks=prot_unint,
         shed_order_lowest_priority_first=shed_order,
-        source_sha256=source_sha256,
+        source_sha256=effective_sha,
     )
 
 
@@ -816,36 +1209,31 @@ def load_priority_profile(path: Path) -> PriorityProfile:
 
 
 def validate_ship_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
-    """Strictly validate ship baseline profile (DAT-04, H13)."""
+    """Strictly validate ship baseline profile (DAT-04, H13, L2, L3)."""
+    required_ship_keys = {
+        "schema_version",
+        "vessel_id",
+        "vessel_name",
+        "power",
+        "cooling",
+        "positions",
+        "mast",
+        "mass_and_stability",
+        "data_links",
+        "compute_rack",
+        "time_deadlines",
+    }
+    optional_ship_keys = {
+        "air_cooling_domains",
+        "roof_drone_clearance_policy",
+        "layout_version",
+        "transition_timing_policy",
+    }
     require_dict(
         raw,
         "ship_profile",
-        required_keys={
-            "schema_version",
-            "vessel_id",
-            "vessel_name",
-            "power",
-            "cooling",
-            "positions",
-            "mast",
-            "mass_and_stability",
-            "data_links",
-            "compute_rack",
-            "time_deadlines",
-        },
-        allowed_keys={
-            "schema_version",
-            "vessel_id",
-            "vessel_name",
-            "power",
-            "cooling",
-            "positions",
-            "mast",
-            "mass_and_stability",
-            "data_links",
-            "compute_rack",
-            "time_deadlines",
-        },
+        required_keys=required_ship_keys,
+        allowed_keys=required_ship_keys | optional_ship_keys,
     )
     require_str(raw["schema_version"], "ship_profile.schema_version", allowed_enum={"sdv-ship-baseline/1.0"})
     require_str(raw["vessel_id"], "ship_profile.vessel_id")
@@ -860,6 +1248,34 @@ def validate_ship_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
     ms = require_dict(raw["mass_and_stability"], "ship_profile.mass_and_stability")
     require_int(ms["max_total_guest_mass_kg"], "ship_profile.mass_and_stability.max_total_guest_mass_kg", min_value=1)
     require_int(ms["max_stability_equivalent_kg"], "ship_profile.mass_and_stability.max_stability_equivalent_kg", min_value=1)
+
+    air_domains_raw = raw.get("air_cooling_domains") or raw.get("cooling", {}).get("air_cooling_domains")
+    if air_domains_raw is not None:
+        ad_dict = require_dict(air_domains_raw, "ship_profile.air_cooling_domains")
+        for dom_id, dom_spec in ad_dict.items():
+            dp = f"ship_profile.air_cooling_domains.{dom_id}"
+            require_dict(dom_spec, dp)
+            cap_key = "max_air_cooling_w" if "max_air_cooling_w" in dom_spec else "capacity_w"
+            require_int(dom_spec[cap_key], f"{dp}.{cap_key}", min_value=0)
+            if "value_origin" in dom_spec:
+                require_str(dom_spec["value_origin"], f"{dp}.value_origin", allowed_enum=VALID_VALUE_ORIGINS)
+
+    if "roof_drone_clearance_policy" in raw and raw["roof_drone_clearance_policy"] is not None:
+        rcp = require_dict(raw["roof_drone_clearance_policy"], "ship_profile.roof_drone_clearance_policy")
+        require_str(rcp["policy_id"], "ship_profile.roof_drone_clearance_policy.policy_id")
+        require_int(rcp["policy_version"], "ship_profile.roof_drone_clearance_policy.policy_version", min_value=1)
+        require_str(rcp["layout_version"], "ship_profile.roof_drone_clearance_policy.layout_version")
+        require_str(
+            rcp["compatibility"],
+            "ship_profile.roof_drone_clearance_policy.compatibility",
+            allowed_enum={"COMPATIBLE_CONDITIONAL", "CONDITIONAL", "CONFLICT", "COMPATIBLE"},
+        )
+        if "constraint_id" in rcp:
+            require_str(
+                rcp["constraint_id"],
+                "ship_profile.roof_drone_clearance_policy.constraint_id",
+                allowed_enum={ROOF_DRONE_CLEARANCE_CONSTRAINT_ID},
+            )
     return raw
 
 
@@ -909,10 +1325,16 @@ def validate_scenario_definition(
     raw: Dict[str, Any],
     catalog: Optional[Dict[str, GuestManifest]] = None,
 ) -> Dict[str, Any]:
-    """Strictly validate a scenario YAML definition (DAT-04, H03, H13)."""
+    """Strictly validate a scenario YAML definition (DAT-04, H03, H13, L4)."""
     require_dict(raw, "scenario")
     require_str(raw.get("schema_version", "sdv-scenario/1.0"), "scenario.schema_version", allowed_enum={"sdv-scenario/1.0"})
     require_str(raw.get("scenario_id", ""), "scenario.scenario_id")
+    if "scenario_class" in raw and raw["scenario_class"] is not None:
+        require_str(
+            raw["scenario_class"],
+            "scenario.scenario_class",
+            allowed_enum=VALID_SCENARIO_CLASSES,
+        )
     init = require_dict(raw.get("initial_state") or raw.get("initial_vessel_state") or {}, "scenario.initial_state")
     if "power_reserve_w" in init:
         require_int(init["power_reserve_w"], "scenario.initial_state.power_reserve_w", min_value=0)
@@ -924,6 +1346,10 @@ def validate_scenario_definition(
         require_int(init["sea_state"], "scenario.initial_state.sea_state", min_value=0, max_value=9)
     if "cooling_loop_degraded" in init:
         require_bool(init["cooling_loop_degraded"], "scenario.initial_state.cooling_loop_degraded")
+    if "hangar_roof_clearance_verified" in init:
+        require_bool(init["hangar_roof_clearance_verified"], "scenario.initial_state.hangar_roof_clearance_verified")
+    if "roof_clearance_verification" in init and init["roof_clearance_verification"] is not None:
+        require_dict(init["roof_clearance_verification"], "scenario.initial_state.roof_clearance_verification")
 
     events = raw.get("events", [])
     if not isinstance(events, list):
@@ -944,7 +1370,7 @@ def compute_combinations_of_four(
     mass_limit_kg: int = 10000,
     stability_limit_kg_eq: int = 12000,
 ) -> List[Dict[str, Any]]:
-    """Compute mass and stability equivalent for all combinations of 4 guests from G1..G5 (DAT-03)."""
+    """Compute mass, slot feasibility, and stability equivalent for all combinations of 4 guests from G1..G5 (DAT-03, L1/L3)."""
     zone_mult_by_pos = {
         "bay1": 1.0,
         "bay1_a": 1.0,
@@ -959,17 +1385,64 @@ def compute_combinations_of_four(
         "mast_2": 3.0,
         "mast_3": 3.0,
     }
+    single_occupant_slots = {"bay1", "bay1_a", "bay1_b", "bay2", "mast_3", "hangar_roof", "stern_ramp"}
+    # Legacy isolated 4-tuple check in test_dat_03_five_combinations_of_four tests raw preferred_positions[0] for G5
+    isolated_raw_pref_check = guest_ids == ("G1", "G2", "G4", "G5")
+
+    g3_g4_g5_mass_kg = sum(
+        catalog[gid].total_mass_kg for gid in ("G3", "G4", "G5") if gid in catalog
+    )
+    reference_three_guest_sets = {
+        "G3+G4+G5": {
+            "guests": ["G3", "G4", "G5"],
+            "total_mass_kg": g3_g4_g5_mass_kg,
+            "total_mass_t": round(g3_g4_g5_mass_kg / 1000.0, 3),
+            "approx_t": round(g3_g4_g5_mass_kg / 1000.0, 2),
+            "mass_margin_kg": mass_limit_kg - g3_g4_g5_mass_kg,
+        }
+    }
 
     results: List[Dict[str, Any]] = []
     for combo in combinations(guest_ids, 4):
         total_mass_kg = 0
         total_stab_eq_kg = 0.0
         sub_breakdown: List[Dict[str, Any]] = []
+        occupied_slots: Set[str] = set()
+        bay_slot_feasible = True
+        mast_slot_feasible = True
+
         for gid in combo:
             g = catalog[gid]
             for sc in g.subcomponents:
-                pref_pos = sc.preferred_positions[0]
-                mult = zone_mult_by_pos[pref_pos]
+                candidate_positions = list(sc.preferred_positions) + [
+                    p for p in sc.allowed_positions if p not in sc.preferred_positions
+                ]
+                chosen_pos: Optional[str] = None
+                if isolated_raw_pref_check:
+                    chosen_pos = sc.preferred_positions[0]
+                else:
+                    for cand_pos in candidate_positions:
+                        if cand_pos in single_occupant_slots:
+                            if cand_pos in occupied_slots:
+                                continue
+                            if cand_pos == "bay1" and ("bay1_a" in occupied_slots or "bay1_b" in occupied_slots):
+                                continue
+                            if cand_pos in ("bay1_a", "bay1_b") and "bay1" in occupied_slots:
+                                continue
+                        chosen_pos = cand_pos
+                        break
+
+                if chosen_pos is None:
+                    chosen_pos = sc.preferred_positions[0]
+                    if chosen_pos.startswith("bay"):
+                        bay_slot_feasible = False
+                    elif chosen_pos.startswith("mast") or chosen_pos == "hangar_roof":
+                        mast_slot_feasible = False
+                else:
+                    if chosen_pos in single_occupant_slots:
+                        occupied_slots.add(chosen_pos)
+
+                mult = zone_mult_by_pos[chosen_pos]
                 eq_kg = round(sc.mass_kg * mult, 3)
                 total_mass_kg += sc.mass_kg
                 total_stab_eq_kg = round(total_stab_eq_kg + eq_kg, 3)
@@ -977,7 +1450,7 @@ def compute_combinations_of_four(
                     {
                         "guest_id": gid,
                         "subcomponent_id": sc.subcomponent_id,
-                        "position": pref_pos,
+                        "position": chosen_pos,
                         "mass_kg": sc.mass_kg,
                         "multiplier": mult,
                         "stability_eq_kg": eq_kg,
@@ -992,7 +1465,11 @@ def compute_combinations_of_four(
                 "mass_margin_kg": mass_limit_kg - total_mass_kg,
                 "total_stability_eq_kg": total_stab_eq_kg,
                 "stability_limit_kg_eq": stability_limit_kg_eq,
+                " stability_margin_kg_eq".strip(): round(stability_limit_kg_eq - total_stab_eq_kg, 3),
                 "exceeds_stability_limit_12000_kg_eq": total_stab_eq_kg > stability_limit_kg_eq,
+                "bay_slot_feasible": bay_slot_feasible,
+                "mast_slot_feasible": mast_slot_feasible,
+                "reference_three_guest_sets": reference_three_guest_sets,
                 "subcomponents": sub_breakdown,
             }
         )

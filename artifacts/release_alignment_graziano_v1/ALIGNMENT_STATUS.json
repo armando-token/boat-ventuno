@@ -1,0 +1,38 @@
+{
+  "ai_eligibility": "NOT_VERIFIED_EXTERNAL_LIST_MISSING",
+  "board_parity": "VERIFIED",
+  "campaign_semantic_sha256": "7b09e01c6ed415d1c1c5a9fda4d3762efbf336956da902a5000d526bc9566c2f",
+  "documents": "VERIFIED",
+  "evidence_refs": [
+    "artifacts/release_alignment_graziano_v1/evidence_manifest.json",
+    "artifacts/release_alignment_graziano_v1/alignment_acceptance.json",
+    "artifacts/release_alignment_graziano_v1/component_resource_ledger.json",
+    "artifacts/release_alignment_graziano_v1/transition_policy_snapshot.json",
+    "artifacts/release_alignment_graziano_v1/source_and_assumption_refs.json",
+    "artifacts/release_alignment_graziano_v1/ui_verification/ui_state_verification.json",
+    "artifacts/release_alignment_graziano_v1/document_verification.json",
+    "artifacts/release_alignment_graziano_v1/junit.xml"
+  ],
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "git_commit": "b35b157e80cab1bde6c032eaee178350e144abc6",
+  "live_90s_rehearsal": "DEFERRED_OWNER",
+  "open_items": [
+    {
+      "action_required": "Owner to cross-check AI_USE_DISCLOSURE.md \u00a71 (Antigravity CLI, Claude Opus 5.5, Gemini 4 Argon) against the official organizer list of authorized AI services before final submission.",
+      "category": "ai_eligibility",
+      "id": "OPEN-AI-ELIGIBILITY-LIST",
+      "status": "NOT_VERIFIED_EXTERNAL_LIST_MISSING"
+    },
+    {
+      "action_required": "Owner to perform human spoken 90-second pitch rehearsal using `docs/DEMO_SCRIPT_90S.md` and `.venv/bin/sdv-governor serve-ui --host 127.0.0.1 --port 8765`.",
+      "category": "live_90s_rehearsal",
+      "id": "OPEN-LIVE-90S-REHEARSAL",
+      "status": "DEFERRED_OWNER"
+    }
+  ],
+  "overall_stage": "COMPLETE_WITH_DECLARED_PENDING",
+  "parent_reference_release_id": "release_s6_patch1",
+  "release_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-alignment-status/1.0",
+  "technical_alignment": "VERIFIED"
+}

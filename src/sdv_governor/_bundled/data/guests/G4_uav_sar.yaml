@@ -42,6 +42,14 @@ subcomponents:
       cooling_route: "OFFICIAL_BRIEF"
       footprint_m2: "ASSUMED"
       wind_area_m2: "ASSUMED"
+    provenance_metadata:
+      source_id: "GRAZIANO_ROOF_AND_G4_MASS_0904"
+      derivation_expression: "990 - 140 = 850"
+      inputs:
+        total_mass_kg: {value: 990, value_origin: "ORGANIZER_ERRATA", source_id: "GRAZIANO_ROOF_AND_G4_MASS_0904"}
+        vehicle_mass_kg: {value: 140, value_origin: "OFFICIAL_BRIEF", source_ref: "ANNEX_B_G4"}
+      derived_mass_kg: 850
+      superseded_value: {hangar_mass_kg: 900, total_mass_kg: 1040, status: "SUPERSEDED"}
 
 modes:
   LAUNCH_RECOVERY_OPTICS:
@@ -200,3 +208,57 @@ mission_capabilities:
   maritime_sar_rescue: 100.0
   surface_surveillance: 65.0
   hydrographic_survey: 15.0
+
+component_allocations:
+  LAUNCH_RECOVERY_OPTICS:
+    G4_HANGAR_STATION:
+      nominal_power_w: 35000
+      sustained_power_w: 35000
+      peak_power_w: 35000
+      cooling_water_w: 35000
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G4-STATION-POWER-ACCOUNTING"
+    G4_DRONE_VEHICLE:
+      nominal_power_w: 0
+      sustained_power_w: 0
+      peak_power_w: 0
+      cooling_water_w: 0
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G4-STATION-POWER-ACCOUNTING"
+  FLIGHT_PATROL:
+    G4_HANGAR_STATION:
+      nominal_power_w: 10000
+      sustained_power_w: 10000
+      peak_power_w: 10000
+      cooling_water_w: 10000
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G4-STATION-POWER-ACCOUNTING"
+    G4_DRONE_VEHICLE:
+      nominal_power_w: 0
+      sustained_power_w: 0
+      peak_power_w: 0
+      cooling_water_w: 0
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G4-STATION-POWER-ACCOUNTING"
+  STANDBY:
+    G4_HANGAR_STATION:
+      nominal_power_w: 2000
+      sustained_power_w: 2000
+      peak_power_w: 2000
+      cooling_water_w: 2000
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G4-STATION-POWER-ACCOUNTING"
+    G4_DRONE_VEHICLE:
+      nominal_power_w: 0
+      sustained_power_w: 0
+      peak_power_w: 0
+      cooling_water_w: 0
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G4-STATION-POWER-ACCOUNTING"
+

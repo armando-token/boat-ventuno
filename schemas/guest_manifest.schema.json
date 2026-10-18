@@ -107,6 +107,17 @@
               "type": "string",
               "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"]
             }
+          },
+          "provenance_metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "source_id": { "type": "string" },
+              "derivation_expression": { "type": "string" },
+              "inputs": { "type": "object" },
+              "derived_mass_kg": { "type": "integer" },
+              "superseded_value": { "type": "object" }
+            }
           }
         }
       }
@@ -283,6 +294,42 @@
               "when_other_modes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
               "reason": { "type": "string", "minLength": 1 }
             }
+          }
+        }
+      }
+    },
+    "component_allocations": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "nominal_power_w",
+            "sustained_power_w",
+            "peak_power_w",
+            "cooling_water_w",
+            "cooling_air_w",
+            "source_kind"
+          ],
+          "properties": {
+            "min_power_w": { "type": "integer", "minimum": 0 },
+            "nominal_power_w": { "type": "integer", "minimum": 0 },
+            "sustained_power_w": { "type": "integer", "minimum": 0 },
+            "peak_power_w": { "type": "integer", "minimum": 0 },
+            "cooling_water_w": { "type": "integer", "minimum": 0 },
+            "cooling_air_w": { "type": "integer", "minimum": 0 },
+            "source_kind": {
+              "type": "string",
+              "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"]
+            },
+            "value_origin": {
+              "type": "string",
+              "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"]
+            },
+            "assumption_ref": { "type": "string" },
+            "source_ref": { "type": "string" }
           }
         }
       }

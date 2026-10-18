@@ -5,6 +5,12 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
+from .acoustic import (
+    AcousticLinkPolicy,
+    default_acoustic_link_policy,
+    evaluate_acoustic_link,
+    g3_requires_acoustic_command_link,
+)
 from .budgets import evaluate_eight_class_budgets
 from .models import (
     BindingConstraintWitness,
@@ -88,6 +94,11 @@ def build_captain_sentence(arb: Dict[str, Any]) -> str:
         )
     else:
         g3_action = f"holds G3 immediately at T+{arb.get('hold_cmd_time_s')}s"
+    if arb.get("g3_lost_link_timeout_hold"):
+        g3_action += (
+            f" (acoustic link down: {', '.join(arb['acoustic_link_status']['causes'])}; "
+            f"G3 holds autonomously after {arb['g3_lost_link_timeout_hold']['timeout_s']}s timeout)"
+        )
     return (
         f"G4 battery {pct}% forces touchdown by T+{deadline}s, so under {prof} the governor {g3_action}, "
         f"lands G4 at T+{arb.get('touchdown_time_s')}s with {deadline - arb.get('touchdown_time_s')}s battery margin, "
@@ -114,6 +125,7 @@ def _evaluate_candidate_feasibility_and_score(
     uav_max_endurance_s: int,
     remaining_survey_waypoint_s: int,
     timing_policy: Optional[Dict[str, Any]] = None,
+    lost_link: bool = False,
 ) -> Dict[str, Any]:
     """Evaluate physical feasibility across all 8 classes, weather/deck/ramp/acoustic/roof rules, A.6 timings, and score candidate."""
     pol = timing_policy or DEFAULT_TRANSITION_TIMING_POLICY
@@ -185,7 +197,7 @@ def _evaluate_candidate_feasibility_and_score(
         },
         {
             "transition_id": f"{candidate_id}:G3_ACOUSTIC_HOLD",
-            "transition_type": "ACOUSTIC_HOLD_HANDSHAKE",
+            "transition_type": "LOST_LINK_TIMEOUT_HOLD" if lost_link else "ACOUSTIC_HOLD_HANDSHAKE",
             "owner_id": "G3",
             "start_time_s": hold_cmd_time_s,
             "end_time_s": hold_ack_time_s,
@@ -296,7 +308,8 @@ def _evaluate_candidate_feasibility_and_score(
     g3_man = catalog.get("G3")
     min_hs = g3_man.ship_state_constraints.acoustic_hold_handshake_min_s if g3_man else 10
     max_hs = g3_man.ship_state_constraints.acoustic_hold_handshake_max_s if g3_man else 60
-    if not (min_hs <= handshake_s <= max_hs) or (turn_into_wind_time_s - hold_cmd_time_s) < min_hs:
+    handshake_out_of_window = not lost_link and not (min_hs <= handshake_s <= max_hs)
+    if handshake_out_of_window or (turn_into_wind_time_s - hold_cmd_time_s) < min_hs:
         witnesses.append(
             BindingConstraintWitness(
                 resource_class="time",
@@ -449,7 +462,7 @@ def _evaluate_candidate_feasibility_and_score(
 
     displacement_cost = round(total_survey_interruption_min * 10.0 + (70.0 if pre_stepdown_g5 else 0.0), 4)
 
-    return {
+    cand_result = {
         "candidate_id": candidate_id,
         "strategy_label": strategy_label,
         "feasible": feasible,
@@ -494,6 +507,9 @@ def _evaluate_candidate_feasibility_and_score(
         "binding_witnesses": [w.to_dict() for w in witnesses],
         "budget_snapshot": snap,
     }
+    if lost_link:
+        cand_result["lost_link_hold"] = True
+    return cand_result
 
 
 def arbitrate_live_conflict(
@@ -521,6 +537,11 @@ def arbitrate_live_conflict(
 
     g3_manifest = catalog["G3"]
     handshake_s = g3_manifest.ship_state_constraints.acoustic_hold_default_s or 15
+    link_status = evaluate_acoustic_link(state, catalog)
+    lost_link = (not link_status.available) and g3_requires_acoustic_command_link(catalog)
+    if lost_link:
+        # No acoustic command path: G3 only holds on its own timeout (ASSUMED autonomous behaviour).
+        handshake_s = default_acoustic_link_policy().lost_link_timeout_s
     maneuver_to_wind_s = int(timing_policy.get("course_settle_s", 90))
     recovery_approach_s = max(60, uav_approach_margin_s - maneuver_to_wind_s)
     charging_duration_s = catalog["G4"].modes["LAUNCH_RECOVERY_OPTICS"].sustained_duration_s
@@ -584,6 +605,7 @@ def arbitrate_live_conflict(
             uav_max_endurance_s=uav_max_endurance_s,
             remaining_survey_waypoint_s=remaining_survey_waypoint_s,
             timing_policy=timing_policy,
+            lost_link=lost_link,
         )
         evaluated_candidates.append(cand_eval)
 
@@ -688,13 +710,28 @@ def arbitrate_live_conflict(
             {
                 "time_s": hold_cmd_time_s,
                 "target": "G3",
-                "command": "ACOUSTIC_HOLD",
-                "expected_ack_time_s": hold_ack_time_s,
-                "handshake_window_s": [
-                    g3_manifest.ship_state_constraints.acoustic_hold_handshake_min_s,
-                    g3_manifest.ship_state_constraints.acoustic_hold_handshake_max_s,
-                ],
-                "reason": "Command G3 AUV to enter submerged acoustic HOLD loiter before ship alters course/speed",
+                **(
+                    {
+                        "command": "LOST_LINK_TIMEOUT_HOLD",
+                        "expected_ack_time_s": hold_ack_time_s,
+                        "lost_link_timeout_s": handshake_s,
+                        "link_causes": list(link_status.causes),
+                        "reason": (
+                            f"Acoustic command link unavailable ({', '.join(link_status.causes)}): no ACK is possible; "
+                            f"G3 enters autonomous hold/loiter on its {handshake_s}s timeout (ASSUMED)"
+                        ),
+                    }
+                    if lost_link
+                    else {
+                        "command": "ACOUSTIC_HOLD",
+                        "expected_ack_time_s": hold_ack_time_s,
+                        "handshake_window_s": [
+                            g3_manifest.ship_state_constraints.acoustic_hold_handshake_min_s,
+                            g3_manifest.ship_state_constraints.acoustic_hold_handshake_max_s,
+                        ],
+                        "reason": "Command G3 AUV to enter submerged acoustic HOLD loiter before ship alters course/speed",
+                    }
+                ),
             },
             {
                 "time_s": turn_into_wind_time_s,
@@ -731,7 +768,13 @@ def arbitrate_live_conflict(
     rationale_detail = (
         f"D3 Arbitration under profile={priority_profile.priority_profile_id} selected candidate={winner['candidate_id']} "
         f"(utility_score={winner['utility_score']}): G4 battery={uav_battery_pct}% (<20%) imposes hard landing deadline T+{hard_deadline_s}s. "
-        f"Issued ACOUSTIC_HOLD to G3 at T+{hold_cmd_time_s}s, confirmed at T+{hold_ack_time_s}s ({handshake_s}s acoustic latency), "
+        + (
+            f"Acoustic link unavailable ({', '.join(link_status.causes)}): G3 cannot be commanded and holds autonomously at "
+            f"T+{hold_ack_time_s}s after its {handshake_s}s timeout (ASSUMED). "
+            if lost_link
+            else f"Issued ACOUSTIC_HOLD to G3 at T+{hold_cmd_time_s}s, confirmed at T+{hold_ack_time_s}s ({handshake_s}s acoustic latency), "
+        )
+        +
         f"vessel turns into wind at T+{turn_into_wind_time_s}s (target {target_recovery_speed_kn} kn, ready at T+{stabilized_time_s}s), "
         f"G4 touchdown at T+{touchdown_time_s}s (margin={winner['safety_margin_s']}s), "
         f"followed by 1200s 35 kW hangar charge until T+{charging_complete_time_s}s and G3 quiet survey resume at T+{winner['g3_quiet_ready_s']}s. "
@@ -797,5 +840,12 @@ def arbitrate_live_conflict(
         "priority_profile_sha256": priority_profile.source_sha256,
         "state_hash_before": canonical_json_hash(state.to_snapshot_dict()),
     }
+    if lost_link:
+        result["acoustic_link_status"] = link_status.to_dict()
+        result["g3_lost_link_timeout_hold"] = {
+            "timeout_s": handshake_s,
+            "action": default_acoustic_link_policy().lost_link_action,
+            "provenance": "ASSUMED",
+        }
     result["rationale"] = build_captain_sentence(result)
     return result

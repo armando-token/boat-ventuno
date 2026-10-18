@@ -89,30 +89,40 @@ button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); o
 .rail { display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: auto; min-height: 0; background: linear-gradient(to bottom, oklch(18.5% 0.024 250), oklch(16.5% 0.022 250)); border-left: 1px solid var(--stroke-1); scrollbar-width: thin; scrollbar-color: oklch(100% 0 0 / 0.18) transparent; }
 .card { background: var(--surface-1); border: 1px solid var(--stroke-1); border-radius: var(--r-3); padding: 12px; box-shadow: var(--inner); }
 .card h3 { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; font-size: 12px; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
-.classes { display: grid; gap: 9px; }
+.classes { display: grid; gap: 8px; }
 .cls .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; color: var(--text-2); font-weight: 560; }
 .cls .row span:last-child { font-family: var(--font-mono); color: var(--text-1); font-size: 11.5px; }
-.meter { height: 6px; border-radius: 999px; background: oklch(0% 0 0 / 0.35); overflow: hidden; margin-top: 4px; }
+.cls .sub { font-size: 10.5px; color: var(--text-3); font-family: var(--font-mono); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meter { height: 5px; border-radius: 999px; background: oklch(0% 0 0 / 0.35); overflow: hidden; margin-top: 3px; }
 .meter > i { display: block; height: 100%; background: var(--ok); transition: width 220ms var(--ease), background 220ms var(--ease); }
 .meter > i.w { background: var(--warn); } .meter > i.a { background: var(--alarm); }
+.sub-pill { margin-top: 8px; padding: 6px 8px; border-radius: var(--r-1); background: oklch(0% 0 0 / 0.24); border: 1px solid var(--stroke-1); font-size: 11px; color: var(--text-2); font-family: var(--font-mono); display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
 .alerts { display: grid; gap: 6px; }
-.alert { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; padding: 8px 10px; border-radius: var(--r-2); border: 1px solid var(--stroke-1); background: oklch(0% 0 0 / 0.2); font-size: 12px; }
-.alert b { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; }
-.alert span { grid-column: 1 / -1; color: var(--text-2); }
+.alert { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; padding: 7px 9px; border-radius: var(--r-2); border: 1px solid var(--stroke-1); background: oklch(0% 0 0 / 0.2); font-size: 11.5px; }
+.alert b { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.02em; }
+.alert span { grid-column: 1 / -1; color: var(--text-2); line-height: 1.3; }
 .alert.alarm { border-color: oklch(68% 0.21 25 / 0.5); background: oklch(68% 0.21 25 / 0.1); } .alert.alarm b { color: var(--alarm); }
 .alert.warn { border-color: oklch(84% 0.14 85 / 0.42); background: oklch(84% 0.14 85 / 0.08); } .alert.warn b { color: var(--warn); }
 .alert.ok b { color: var(--ok); }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.grid2 .btn { justify-content: flex-start; padding: 8px 10px; font-size: 12px; }
-.field { display: grid; gap: 4px; margin-bottom: 8px; font-size: 11px; color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
-select, input[type="number"] { font: inherit; font-size: 13px; text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--text-1); background: oklch(0% 0 0 / 0.3); border: 1px solid var(--stroke-2); border-radius: var(--r-1); padding: 6px 8px; width: 100%; }
-.verdict { margin-top: 10px; padding: 9px 11px; border-radius: var(--r-2); background: oklch(0% 0 0 / 0.22); border-left: 3px solid var(--stroke-2); font-size: 12px; color: var(--text-2); }
-.verdict b { display: block; font-size: 13px; color: var(--text-1); margin-bottom: 2px; }
+.grid2 .btn { justify-content: flex-start; padding: 7px 9px; font-size: 11.5px; }
+.field { display: grid; gap: 4px; margin-bottom: 7px; font-size: 10.5px; color: var(--text-3); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+.check-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; color: var(--text-2); margin: 4px 0 8px; }
+.check-row label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+.check-row input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+select, input[type="number"] { font: inherit; font-size: 12.5px; text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--text-1); background: oklch(0% 0 0 / 0.3); border: 1px solid var(--stroke-2); border-radius: var(--r-1); padding: 5px 8px; width: 100%; }
+.verdict { margin-top: 8px; padding: 8px 10px; border-radius: var(--r-2); background: oklch(0% 0 0 / 0.22); border-left: 3px solid var(--stroke-2); font-size: 11.5px; color: var(--text-2); line-height: 1.35; }
+.verdict b { display: block; font-size: 12.5px; color: var(--text-1); margin-bottom: 2px; }
+.c54-details { margin-top: 8px; border-top: 1px solid var(--stroke-1); padding-top: 6px; font-size: 11px; color: var(--text-2); }
+.c54-details summary { cursor: pointer; font-weight: 600; color: var(--accent); font-size: 11px; letter-spacing: 0.03em; user-select: none; }
+.c54-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-family: var(--font-mono); font-size: 10.5px; }
+.c54-table th, .c54-table td { padding: 3px 4px; text-align: left; border-bottom: 1px solid var(--stroke-1); }
+.c54-table th { color: var(--text-3); font-weight: 600; }
 
 /* ------------------------------------------------------------ timeline */
 .timeline { display: flex; align-items: center; gap: 10px; padding: 8px 14px; min-height: 52px; background: linear-gradient(to top, oklch(17% 0.024 250), oklch(19% 0.026 250)); border-top: 1px solid var(--stroke-1); z-index: 30; }
 .timeline input[type="range"] { flex: 1; accent-color: var(--accent); cursor: pointer; }
-.timeline .clock { min-width: 150px; text-align: right; color: var(--accent); font-weight: 650; }
+.timeline .clock { min-width: 155px; text-align: right; color: var(--accent); font-weight: 650; }
 .timeline select { width: auto; }
 
 /* ------------------------------------------------------------ boot + fatal */

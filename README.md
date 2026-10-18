@@ -43,8 +43,8 @@ Deterministic, ontology-driven **Admission (`D1`), Placement (`D2`), Right of Wa
 
 | ID | Decision / Deliverable | Brief Tier | What it optimises (declared objective) | Component & Status |
 |---|---|---|---|---|
-| **D1** | Admission in 30 s (+ Guest Manifest, Annex B.0) | **Mandatory** | Feasibility over the whole 14-day A.10 envelope (degraded states included, never the pier); for `YES_IF`, displacements ranked by **least capability score lost**, then fewest guests displaced. | `admission.py` — `YES`/`YES_IF`/`NOT_NOW`/`NO`, names the binding class (e.g. Scenario B set binds on **data/SATCOM** in A.10 cruise). G1–G6 cards + own G7 card, `schemas/*.schema.json`. |
-| **D2** | Placement | **One of D2/D4** (addressed) | Lexicographic: avoid conditional roof positions → preferred positions → **minimum stability-equivalent mass** (max stability margin) → least-loaded compute node; alternatives kept as ranked candidates. | `placement.py` — bay/mast/deck/power line/cooling manifold; `ROOF_OUTSIDE_G4_RECOVERY_V1` conditional roof clearance, enforced in D1/D3 (`scheduling.py::evaluate_roof_drone_clearance_safe`). |
+| **D1** | Admission in 30 s (+ Guest Manifest, Annex B.0) | **Mandatory** | Feasibility over the whole 14-day A.10 envelope (degraded states included, never the pier); for `YES_IF`, displacements ranked by **least capability score lost**, then fewest guests displaced; states explicitly whether the verdict holds with one genset down (`one_genset_down`: `YES` / `YES_WITH_STEP_DOWN` / `NO`, plus required step-downs and binding class). | `admission.py` — `YES`/`YES_IF`/`NOT_NOW`/`NO`, names the binding class (e.g. Scenario B set binds on **data/SATCOM** in A.10 cruise). At sea with 0 crew the verdict stays `NO` and adds `alternative_action: LOGICAL_RECONFIGURATION` with up to 3 software-only options (`reconfiguration.py`; apply via `POST /api/apply_logical_reconfig`). G1–G6 cards + own G7 card, `schemas/*.schema.json`. |
+| **D2** | Placement | **One of D2/D4** (addressed) | Objective `D2_LEXICOGRAPHIC_V2`, key `(roof_cond_rank, pref_penalty, -retention_milli, scarcity_cost, -min_margin_bucket, stab_eq, node_used_cores, nid)`: avoid conditional roof positions → preferred positions → capability retained after environmental effects → least scarce slots (free mast = 3) → largest minimum margin over the budget classes → minimum stability-equivalent mass → least-loaded compute node → lexicographic node; up to 5 ranked feasible `placement_alternatives` with `why_not_chosen` and up to 5 `rejected_placements` with their binding witness. | `placement.py` — bay/mast/deck/power line/cooling manifold; `ROOF_OUTSIDE_G4_RECOVERY_V1` conditional roof clearance, enforced in D1/D3 (`scheduling.py::evaluate_roof_drone_clearance_safe`). |
 | **D3** | Right of way in 2 s (Scenario B min 8) | **Mandatory** | Max `utility_score` = priority-weighted survey continuity + priority-weighted drone landing margin, subject to the hard G4 <20 % battery deadline; tie-break declared in the priority file. | `arbitration.py` — one-sentence captain rationale + cost to the loser; `survey_primary` lands G4 at T+1095 s (105 s margin, G3 loses 14 min), `rescue_primary` at T+855 s (345 s margin, G3 loses 26 min). |
 | **D4** | Degradation (Scenario B min 12) | **One of D2/D4** (addressed) | Restore power/cooling feasibility with **least capability lost**: step down before shedding, in the priority file's declared order; never shed safety-critical, uninterruptible, airborne or submerged guests. | `degradation.py` — generator trip at T=720 s: committed `106.5 kW > 100 kW` → `G5 45 → 8 kW`; rationale lists what every guest keeps or loses. |
 | **D5** | Crew as a setting (Scenario C) | **Design deliverable** | Same rule, crew-dependent timings: `14/6/0` aboard → `30 s/120 s/automated` confirmation, `240 s/600 s/prohibited` deck clearing. | `scheduling.py`, `docs/MEMO_SCENARIO_C.pdf`. |
@@ -134,6 +134,10 @@ mission_capabilities: {hydro_sampling_value: 20.0}
 manifest = parse_guest_manifest(raw)
 ```
 
+If the new card launches or recovers a craft, set `ship_state_constraints.launch_recovery_area` to `flight_deck` or `stern_ramp` (default `none`). The flight deck ↔ stern ramp exclusion (Annex A.3) is then inherited from the `mutually_exclusive_with_*` flags of `data/ship/vessel_baseline.yaml` (`areas.py`); asymmetric flags are rejected at load time (fail-closed).
+
+If a mode needs the acoustic command link (G3 `HOLD_ACOUSTIC`), set `requires_acoustic_command_link: true` on it. The link (`acoustic.py`, `data/ship/acoustic_link_policy.yaml`) is down under layered water (`water_column_layered`, scenario/operator input, ASSUMED), own-ship manoeuvre or deck machinery; the governor then plans G3 to hold autonomously after the 120 s lost-link timeout (ASSUMED) instead of assuming a 15 s ACK.
+
 ---
 
 ## 6. Explicit Limitations & Honest Operational Boundaries
@@ -178,7 +182,7 @@ Measured on the production observer (`docs/evidence/forecast_report_20261018.md`
 
 | Gate | Requirement | Measured | Status |
 |---|---|---|---|
-| **G-NI** | Campaign hash/decisions unchanged with observer | 6 tests; `ebff0e22…` unchanged | **PASS** |
+| **G-NI** | Campaign hash/decisions unchanged with observer | 6 tests; `fd806cda…` (C2: +2 layered-water variant entries; official B hashes unchanged) | **PASS** |
 | **G-OFF** | Offline runtime, zero network | 2 tests | **PASS** |
 | **G-LAT** | p99 observer tick <= 50 ms | 2.42 ms on Ventuno Q (0.83 ms Mac) | **PASS** |
 | **G-ACC-RAMP / STEADY** | ratio MAE@30 <= 0.85 / <= 1.05 | 0.785 / 0.858 | **PASS** |

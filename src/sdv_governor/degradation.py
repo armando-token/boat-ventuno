@@ -6,6 +6,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from .budgets import evaluate_eight_class_budgets, is_mode_protected
+from .capability_effects import effective_capability_retention
 from .models import GuestManifest, PriorityProfile
 from .ship_state import ShipOperationalState
 
@@ -22,8 +23,10 @@ def _guest_impacts(
     after: ShipOperationalState,
     catalog: Dict[str, GuestManifest],
     protected_reasons: Dict[str, str],
+    ship_profile: Optional[Dict[str, Any]] = None,
 ) -> List[Dict[str, Any]]:
     """What every installed guest keeps or loses after D4 (Scenario B min-12 requirement)."""
+    ship_profile = ship_profile or {}
     impacts: List[Dict[str, Any]] = []
     for gid in sorted(before.installed_guests):
         b = before.installed_guests[gid]
@@ -31,8 +34,11 @@ def _guest_impacts(
         man = catalog[gid]
         b_spec = man.modes[b.active_mode]
         a_spec = man.modes[a.active_mode]
-        retention_after = a_spec.capability_retention_ratio if a.powered_on else 0.0
-        retention_before = b_spec.capability_retention_ratio if b.powered_on else 0.0
+        eff_after, causes = effective_capability_retention(man, a, after, ship_profile)
+        eff_before, _ = effective_capability_retention(man, b, before, ship_profile)
+        retention_after = eff_after if a.powered_on else 0.0
+        retention_before = eff_before if b.powered_on else 0.0
+        effect_causes = list(causes) if a.powered_on else []
         if not a.powered_on and b.powered_on:
             loses = "100% of its capability (powered off, stays installed)"
         elif a.active_mode != b.active_mode:
@@ -50,6 +56,7 @@ def _guest_impacts(
                 "power_before_w": b_spec.sustained_power_w if b.powered_on else 0,
                 "power_after_w": a_spec.sustained_power_w if a.powered_on else 0,
                 "capability_retention_after": retention_after,
+                "capability_effects": effect_causes,
                 "loses": loses,
                 "protected_reason": protected_reasons.get(gid),
             }
@@ -75,7 +82,13 @@ def _degradation_sentence(
     cause_txt = " and ".join(cause) if cause else "no budget deficit"
     losers = [f"{i['guest_id']} loses {i['loses']}" for i in impacts if i["loses"] != "nothing"]
     keepers = [
-        f"{i['guest_id']} keeps {i['mode_after']}" + (f" ({i['protected_reason']})" if i["protected_reason"] else "")
+        f"{i['guest_id']} keeps {i['mode_after']}"
+        + (f" ({i['protected_reason']})" if i["protected_reason"] else "")
+        + (
+            f" ({round(i['capability_retention_after'] * 100)}% capability: own radar transmitting nearby)"
+            if "OWN_RADAR_TX_NEARBY" in i.get("capability_effects", [])
+            else ""
+        )
         for i in impacts
         if i["loses"] == "nothing"
     ]
@@ -353,7 +366,7 @@ def execute_graceful_degradation(
             }
         )
 
-    guest_impacts = _guest_impacts(state, work_state, catalog, protected_reasons)
+    guest_impacts = _guest_impacts(state, work_state, catalog, protected_reasons, ship_profile)
     rationale = _degradation_sentence(priority_profile, initial_deficit_summary, guest_impacts, infeasible_protected)
 
     return {

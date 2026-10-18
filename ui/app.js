@@ -48,6 +48,7 @@ function applyAuthoritativeState(data) {
     renderCombinationsTable(data.scenario_A_combinations);
   }
   renderCrewControls(data);
+  renderOwnRadarBadge(data);
   renderTimelineTick(currentTickIndex);
 }
 
@@ -218,6 +219,103 @@ function renderTimelineTick(tickIdx) {
   );
 }
 
+const GENSET_DOWN_LABELS = {
+  YES: "SE MANTIENE",
+  YES_WITH_STEP_DOWN: "SE MANTIENE CON BAJADA DE MODO",
+  NO: "NO SE MANTIENE",
+};
+
+function gensetDownLabel(holds) {
+  return Object.prototype.hasOwnProperty.call(GENSET_DOWN_LABELS, holds) ? GENSET_DOWN_LABELS[holds] : "n/d";
+}
+
+function renderGensetDownLine(payload) {
+  const el = document.getElementById("genset-down-line");
+  if (!el) return;
+  const g = payload && payload.one_genset_down;
+  el.textContent = g ? `⚡ Un generador caído: ${gensetDownLabel(g.holds)}. ${g.sentence}` : "";
+}
+
+function placementCell(row, text) {
+  const td = document.createElement("td");
+  td.textContent = text;
+  row.appendChild(td);
+}
+
+function renderPlacementAlternatives(payload) {
+  const box = document.getElementById("placement-alternatives-container");
+  if (!box) return;
+  box.textContent = "";
+  const p = payload && payload.placement;
+  if (!p || !p.subcomponent_positions) return;
+  const table = document.createElement("table");
+  const head = table.createTHead().insertRow();
+  ["Estado", "Posición", "Nodo", "Motivo"].forEach((h) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    head.appendChild(th);
+  });
+  const body = table.createTBody();
+  const fmt = (m) => Object.entries(m || {}).map(([k, v]) => `${k}→${v}`).join(", ");
+  const add = (status, positions, node, reason) => {
+    const row = body.insertRow();
+    [status, fmt(positions), node, reason].forEach((t) => placementCell(row, t));
+  };
+  add("Elegida", p.subcomponent_positions, p.compute_node, p.objective_id || "");
+  (payload.placement_alternatives || []).forEach((a) =>
+    add(`Alternativa ${a.rank}`, a.subcomponent_positions, a.compute_node, a.why_not_chosen)
+  );
+  (payload.rejected_placements || []).forEach((r) =>
+    add("Rechazada", r.subcomponent_positions, r.compute_node, r.why_rejected)
+  );
+  box.appendChild(table);
+}
+
+function renderLogicalReconfiguration(payload) {
+  const box = document.getElementById("logical-reconfig-container");
+  if (!box) return;
+  box.textContent = "";
+  const lr = payload && payload.logical_reconfiguration;
+  if (!lr) return;
+  if (!lr.options || lr.options.length === 0) {
+    box.textContent = lr.reason || "Sin reconfiguración lógica factible";
+    return;
+  }
+  const table = document.createElement("table");
+  const head = table.createTHead().insertRow();
+  ["Opción", "Cobertura", "Capacidad perdida", ""].forEach((h) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    head.appendChild(th);
+  });
+  const body = table.createTBody();
+  lr.options.forEach((o) => {
+    const row = body.insertRow();
+    [o.summary, `${Math.round(o.coverage * 100)} %`, String(o.capability_lost_elsewhere)].forEach((t) => {
+      row.insertCell().textContent = t;
+    });
+    const btn = document.createElement("button");
+    btn.textContent = "Aplicar opción";
+    btn.addEventListener("click", async () => {
+      const res = await fetch("/api/apply_logical_reconfig", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          option_id: o.option_id,
+          state_version: Number(currentStatePayload ? currentStatePayload.state_version : 0),
+          candidate_guest_id: payload.candidate_guest_id,
+          operator_confirmed: true,
+        }),
+      });
+      const out = await res.json();
+      btn.textContent = res.ok ? "Aplicada" : `Rechazada (${out.status || res.status})`;
+      btn.disabled = true;
+    });
+    row.insertCell().appendChild(btn);
+  });
+  box.appendChild(table);
+}
+
 function renderCombinationsTable(combosReport) {
   const container = document.getElementById("combinations-table-container");
   if (!container || !combosReport || !combosReport.combinations) return;
@@ -229,6 +327,7 @@ function renderCombinationsTable(combosReport) {
         <td>${c.total_mass_kg} kg</td>
         <td style="color:${c.exceeds_10000_kg ? "#f59e0b" : "#22c55e"}">${c.exceeds_10000_kg ? "YES (>10t)" : "NO (≤10t)"}</td>
         <td>4th (${c.fourth_guest_id}): <strong>${c.fourth_guest_verdict}</strong></td>
+        <td>⚡ ${gensetDownLabel(c.fourth_guest_one_genset_down_holds)}</td>
       </tr>`
     )
     .join("");
@@ -241,6 +340,7 @@ function renderCombinationsTable(combosReport) {
           <th>Mass (G4=990kg)</th>
           <th>&gt;10,000 kg?</th>
           <th>Sequential D1 Verdict</th>
+          <th>One genset down</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -398,6 +498,46 @@ document.querySelectorAll("[data-crew]").forEach((btn) => {
     }
   });
 });
+
+const chkQuietRadio = document.getElementById("chk-quiet-radio");
+
+function renderOwnRadarBadge(payload) {
+  const badge = document.getElementById("own-radar-badge");
+  const st = payload && payload.state;
+  if (chkQuietRadio && st) chkQuietRadio.checked = st.own_radar_policy === "QUIET_RADIO";
+  if (!badge || !st) return;
+  const g1 = st.capability_effects && st.capability_effects.G1;
+  const hit = Array.isArray(g1) && g1.includes("OWN_RADAR_TX_NEARBY");
+  badge.textContent = hit ? "📡 −30 % radar (G1: radar propio transmitiendo)" : "";
+}
+
+if (chkQuietRadio) {
+  chkQuietRadio.addEventListener("change", async (e) => {
+    const value = e.target.checked ? "QUIET_RADIO" : "TRANSMIT";
+    try {
+      const res = await fetch("/api/perturb", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ perturbation_type: "OWN_RADAR_POLICY", value }),
+      });
+      if (!res.ok) {
+        setStaleBanner(true, `HTTP ${res.status} on /api/perturb`);
+        return;
+      }
+      const payload = await res.json();
+      setStaleBanner(false);
+      if (payload.status === "REJECTED") {
+        e.target.checked = false;
+        const badge = document.getElementById("own-radar-badge");
+        if (badge) badge.textContent = payload.result.causal_sentence;
+        return;
+      }
+      applyAuthoritativeState(payload);
+    } catch (err) {
+      setStaleBanner(true, err.message || "Network error");
+    }
+  });
+}
 
 const chkDeckClear = document.getElementById("chk-deck-clear");
 if (chkDeckClear) {
@@ -569,6 +709,43 @@ document.querySelectorAll("[data-perturb]").forEach((btn) => {
   });
 });
 
+let waterLayered = false;
+document.getElementById("btn-layered-toggle").addEventListener("click", async () => {
+  const prof = document.getElementById("select-priority").value;
+  const nextValue = !waterLayered;
+  try {
+    const res = await fetch("/api/perturb", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        perturbation_type: "WATER_COLUMN_LAYERED",
+        value: nextValue,
+        priority_profile_id: prof,
+        sim_time_s: currentTickIndex * 20,
+      }),
+    });
+    if (!res.ok) {
+      setStaleBanner(true, `HTTP ${res.status} on /api/perturb`);
+      return;
+    }
+    const payload = await res.json();
+    setStaleBanner(false);
+    waterLayered = nextValue;
+    const toggle = document.getElementById("btn-layered-toggle");
+    toggle.textContent = `Agua estratificada (A.5): ${waterLayered ? "ON" : "OFF"}`;
+    toggle.setAttribute("aria-pressed", waterLayered ? "true" : "false");
+    const link = (payload.result || {}).acoustic_link_status || {};
+    const causes = Array.isArray(link.causes) ? link.causes.join(", ") : "";
+    document.getElementById("acoustic-link-indicator").textContent = link.available
+      ? "Enlace acústico G3: OK"
+      : `Enlace acústico G3: CAÍDO (${causes}) — hold autónomo por timeout`;
+    await fetchConsoleState(prof);
+    document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
+  } catch (err) {
+    setStaleBanner(true, err.message || "Network error");
+  }
+});
+
 document.getElementById("btn-admit-live").addEventListener("click", async () => {
   const installedIds = document
     .getElementById("input-installed")
@@ -621,6 +798,9 @@ document.getElementById("btn-admit-live").addEventListener("click", async () => 
     const payload = await res.json();
     setStaleBanner(false);
     document.getElementById("admission-result-box").textContent = JSON.stringify(payload, null, 2);
+    renderGensetDownLine(payload);
+    renderPlacementAlternatives(payload);
+    renderLogicalReconfiguration(payload);
     if (payload.current_budget_snapshot) {
       await fetchConsoleState(prof);
       renderEightClassBudgets(payload.current_budget_snapshot);

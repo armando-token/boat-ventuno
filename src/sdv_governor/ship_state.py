@@ -243,6 +243,10 @@ class ShipOperationalState:
     requested_vessel_mode: Optional[str] = None
     pending_transitions: List[StateTransition] = field(default_factory=list)
     transition_history: List[StateTransition] = field(default_factory=list)
+    water_column_layered: bool = False
+    water_column_layered_provenance: str = "ASSUMED"
+    acoustic_link_forced_down: bool = False
+    own_radar_policy: str = "TRANSMIT"
 
     def __post_init__(self) -> None:
         if self.speed_kn is not None:
@@ -558,7 +562,7 @@ class ShipOperationalState:
 
     def to_snapshot_dict(self) -> Dict[str, Any]:
         eff_temp, temp_prov = self.effective_seawater_temp_c()
-        return {
+        snapshot = {
             "sim_time_s": self.sim_time_s,
             "tick_seq": self.tick_seq,
             "vessel_mode": self.vessel_mode,
@@ -577,6 +581,7 @@ class ShipOperationalState:
             "quiet_acoustic_state": self.quiet_acoustic_state,
             "deck_machinery_active": self.deck_machinery_active,
             "emcon_silence": self.emcon_silence,
+            "own_radar_policy": self.own_radar_policy,
             "power_reserve_w": self.power_reserve_w,
             "cooling_loop_degraded": self.cooling_loop_degraded,
             "satcom_available_bps": self.satcom_available_bps,
@@ -596,3 +601,10 @@ class ShipOperationalState:
             ],
             "transition_history": [t.to_dict() for t in self.transition_history],
         }
+        # Acoustic-link inputs are emitted only when they depart from the defaults so default-state hashes stay stable.
+        if self.water_column_layered:
+            snapshot["water_column_layered"] = True
+            snapshot["water_column_layered_provenance"] = self.water_column_layered_provenance
+        if self.acoustic_link_forced_down:
+            snapshot["acoustic_link_forced_down"] = True
+        return snapshot

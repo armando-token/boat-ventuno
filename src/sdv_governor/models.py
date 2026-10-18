@@ -310,6 +310,7 @@ class GuestModeSpec:
     value_origin: str
     field_origins: Dict[str, str] = field(default_factory=dict)
     component_allocations: Dict[str, ComponentAllocationSpec] = field(default_factory=dict)
+    requires_acoustic_command_link: bool = False
 
 
 @dataclass(frozen=True)
@@ -355,6 +356,7 @@ class ShipStateConstraints:
     radar_tx_degradation_ratio: float = 0.0
     launch_recovery_min_speed_kn: Optional[float] = None
     launch_recovery_max_speed_kn: Optional[float] = None
+    launch_recovery_area: str = "none"
 
 
 @dataclass(frozen=True)
@@ -382,6 +384,7 @@ class GuestManifest:
     can_buffer_offline: bool
     source_sha256: str
     derivation_metadata: Dict[str, Any] = field(default_factory=dict)
+    logical_workload: Optional[Dict[str, Any]] = None
 
     @property
     def total_mass_kg(self) -> int:

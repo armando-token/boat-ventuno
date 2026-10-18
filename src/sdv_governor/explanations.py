@@ -102,3 +102,41 @@ def build_decision_rationale(
         parts.append("Conditioned availability restrictions: " + ", ".join(rw_strs) + ".")
 
     return " ".join(parts)
+
+
+# D2 (C4): fixed phrases for the first key component where an alternative loses to the chosen placement.
+D2_WHY_NOT_CHOSEN: Dict[str, str] = {
+    "roof_cond_rank": "needs the conditional hangar_roof clearance (rank {alt} vs {chosen})",
+    "pref_penalty": "less preferred position (preference penalty {alt} vs {chosen})",
+    "-retention_milli": "lower delivered capability after environmental effects ({alt_pct}% vs {chosen_pct}%)",
+    "scarcity_cost": "consumes scarcer slots (scarcity {alt} vs {chosen}; the free mast is the scarcest resource aboard)",
+    "-min_margin_bucket": "leaves a smaller minimum margin across the 8 classes ({alt_pct}% vs {chosen_pct}%)",
+    "stab_eq": "higher stability-equivalent mass ({alt} kg-eq vs {chosen} kg-eq)",
+    "node_used_cores": "unbalances the compute rack (node already uses {alt} cores vs {chosen})",
+    "nid": "ties on every criterion; lexicographic node tie-break ({alt} after {chosen})",
+}
+
+
+def d2_why_not_chosen(fields: List[str], chosen_key: List[Any], alt_key: List[Any]) -> str:
+    """Phrase for the first key component where `alt_key` is worse than `chosen_key`."""
+    for i, name in enumerate(fields):
+        if alt_key[i] == chosen_key[i]:
+            continue
+        a, c = alt_key[i], chosen_key[i]
+        if name == "-retention_milli":
+            return D2_WHY_NOT_CHOSEN[name].format(alt_pct=round(-a / 10, 1), chosen_pct=round(-c / 10, 1))
+        if name == "-min_margin_bucket":
+            return D2_WHY_NOT_CHOSEN[name].format(alt_pct=round(-a / 2, 1), chosen_pct=round(-c / 2, 1))
+        return D2_WHY_NOT_CHOSEN[name].format(alt=a, chosen=c)
+    return "ties on every criterion; the position earlier in the preference order was kept"
+
+
+def d2_why_rejected(witness: Dict[str, Any], occupants: Dict[str, str]) -> str:
+    """One sentence for the first binding witness of a rejected placement."""
+    base = (
+        f"{witness['resource_class']}/{witness['constraint_id']}: demand {witness['demand']}{witness['unit']} "
+        f"vs capacity {witness['capacity']}{witness['unit']}"
+    )
+    if occupants:
+        base += "; " + ", ".join(f"{pos} already occupied by {gid}" for pos, gid in sorted(occupants.items()))
+    return base

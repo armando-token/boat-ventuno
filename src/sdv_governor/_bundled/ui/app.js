@@ -236,6 +236,41 @@ function renderGensetDownLine(payload) {
   el.textContent = g ? `⚡ Un generador caído: ${gensetDownLabel(g.holds)}. ${g.sentence}` : "";
 }
 
+function placementCell(row, text) {
+  const td = document.createElement("td");
+  td.textContent = text;
+  row.appendChild(td);
+}
+
+function renderPlacementAlternatives(payload) {
+  const box = document.getElementById("placement-alternatives-container");
+  if (!box) return;
+  box.textContent = "";
+  const p = payload && payload.placement;
+  if (!p || !p.subcomponent_positions) return;
+  const table = document.createElement("table");
+  const head = table.createTHead().insertRow();
+  ["Estado", "Posición", "Nodo", "Motivo"].forEach((h) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    head.appendChild(th);
+  });
+  const body = table.createTBody();
+  const fmt = (m) => Object.entries(m || {}).map(([k, v]) => `${k}→${v}`).join(", ");
+  const add = (status, positions, node, reason) => {
+    const row = body.insertRow();
+    [status, fmt(positions), node, reason].forEach((t) => placementCell(row, t));
+  };
+  add("Elegida", p.subcomponent_positions, p.compute_node, p.objective_id || "");
+  (payload.placement_alternatives || []).forEach((a) =>
+    add(`Alternativa ${a.rank}`, a.subcomponent_positions, a.compute_node, a.why_not_chosen)
+  );
+  (payload.rejected_placements || []).forEach((r) =>
+    add("Rechazada", r.subcomponent_positions, r.compute_node, r.why_rejected)
+  );
+  box.appendChild(table);
+}
+
 function renderCombinationsTable(combosReport) {
   const container = document.getElementById("combinations-table-container");
   if (!container || !combosReport || !combosReport.combinations) return;
@@ -682,6 +717,7 @@ document.getElementById("btn-admit-live").addEventListener("click", async () => 
     setStaleBanner(false);
     document.getElementById("admission-result-box").textContent = JSON.stringify(payload, null, 2);
     renderGensetDownLine(payload);
+    renderPlacementAlternatives(payload);
     if (payload.current_budget_snapshot) {
       await fetchConsoleState(prof);
       renderEightClassBudgets(payload.current_budget_snapshot);

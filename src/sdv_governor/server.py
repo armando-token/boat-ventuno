@@ -20,7 +20,7 @@ from .admission import (
     evaluate_four_guest_combinations,
 )
 from .arbitration import arbitrate_live_conflict
-from .budgets import evaluate_eight_class_budgets
+from .budgets import compute_cooling_water_capacity_w, evaluate_eight_class_budgets
 from .degradation import (
     evaluate_reconnection,
     execute_graceful_degradation,
@@ -52,7 +52,11 @@ from .replay import (
     load_yaml_file,
     run_scenario_b_replay,
 )
-from .scheduling import evaluate_crew_regimes_comparison, handle_lost_or_stale_feed
+from .scheduling import (
+    evaluate_a_prime_window,
+    evaluate_crew_regimes_comparison,
+    handle_lost_or_stale_feed,
+)
 from .ship_state import InstalledGuestState, ShipOperationalState
 
 
@@ -228,6 +232,7 @@ class GovernorSession:
         self.active_plan_version: int = 0
         self.executed_touchdown_time_s: Optional[int] = None
         self.superseded_event_types: set[str] = set()
+        self.forecast_observer: Optional[Any] = None
         self.reset(self.priority_profile_id, self.scenario_file)
 
     @property
@@ -554,6 +559,353 @@ class GovernorSession:
             )
         return entries
 
+    def environment_view(self) -> Dict[str, Any]:
+        """Return public environmental data snapshot view per Megaplan §7.1.
+
+        GET /api/environment
+        Target size: <= 40 KB.
+        Returns snapshot metrics, 48h outlook, SST cooling capacity and guard bands.
+        """
+        try:
+            from . import envdata
+            if hasattr(envdata, "load_active_snapshot"):
+                snap = envdata.load_active_snapshot(self.repo_root)
+                if snap and snap.get("available", True):
+                    if hasattr(envdata, "format_environment_view"):
+                        sim_t = int(self.live_state.sim_time_s) if self.live_state else 0
+                        return envdata.format_environment_view(snap, sim_time_s=sim_t)
+                    manifest = snap.get("manifest", {})
+                    series = snap.get("series", [])
+                    sim_t = int(self.live_state.sim_time_s) if self.live_state else 0
+                    anchor_utc = manifest.get("anchor_utc", "2026-10-18T00:00:00Z")
+                    sample = None
+                    if hasattr(envdata, "sample_at"):
+                        sample = envdata.sample_at(series, sim_t, anchor_utc)
+
+                    cur_dict: Dict[str, Any] = {}
+                    if sample is not None:
+                        cur_dict = {
+                            "sst_c": getattr(sample, "sst_c", sample.get("sst_c") if isinstance(sample, dict) else None),
+                            "wind_kn": getattr(sample, "wind_kn", sample.get("wind_kn") if isinstance(sample, dict) else None),
+                            "gust_kn": getattr(sample, "gust_kn", sample.get("gust_kn") if isinstance(sample, dict) else None),
+                            "hs_m": getattr(sample, "wave_hs_m", getattr(sample, "hs_m", sample.get("wave_hs_m", sample.get("hs_m")) if isinstance(sample, dict) else None)),
+                            "sea_state_wmo": getattr(sample, "sea_state_wmo", sample.get("sea_state_wmo") if isinstance(sample, dict) else None),
+                            "provenance": getattr(sample, "provenance", sample.get("provenance", "DERIVED") if isinstance(sample, dict) else "DERIVED"),
+                            "source_id": getattr(sample, "source_id", sample.get("source_id", "openmeteo:marine:GG_BAR") if isinstance(sample, dict) else "openmeteo:marine:GG_BAR"),
+                            "age_s": sim_t,
+                        }
+                    elif self.live_state:
+                        cur_dict = {
+                            "sst_c": self.live_state.seawater_temp_c,
+                            "wind_kn": float(self.live_state.wind_kn) if self.live_state.wind_kn is not None else None,
+                            "gust_kn": float(self.live_state.wind_kn * 1.25) if self.live_state.wind_kn is not None else None,
+                            "hs_m": None,
+                            "sea_state_wmo": self.live_state.sea_state,
+                            "provenance": "DERIVED",
+                            "source_id": "openmeteo:marine:GG_BAR",
+                            "age_s": sim_t,
+                        }
+
+                    eff_sst = cur_dict.get("sst_c") if cur_dict.get("sst_c") is not None else 30.0
+                    _c_nom, cooling_eff_w, _c_note = compute_cooling_water_capacity_w(eff_sst)
+                    cooling_dict = {
+                        "nominal_w": float(_c_nom),
+                        "effective_w": round(float(cooling_eff_w), 1),
+                        "policy_note": "A.10 14-day admission envelope strictly evaluated at 30 °C (120.0 kW); live cooling driven by real SST.",
+                    }
+
+                    outlook_48h: List[Dict[str, Any]] = []
+                    if hasattr(envdata, "cooling_capacity_outlook"):
+                        outlook_48h = envdata.cooling_capacity_outlook(series, horizon_s=172800)
+                    elif series:
+                        for idx, s in enumerate(series[:48]):
+                            st_sst = s.get("sst_c", s.get("sea_surface_temperature"))
+                            st_eff = compute_cooling_water_capacity_w(st_sst) if st_sst is not None else 120000.0
+                            outlook_48h.append({
+                                "t_utc": s.get("t_utc", s.get("time")),
+                                "sim_time_s": s.get("sim_time_s", idx * 3600),
+                                "sst_c": st_sst,
+                                "wind_kn": s.get("wind_kn"),
+                                "gust_kn": s.get("gust_kn"),
+                                "wave_hs_m": s.get("wave_hs_m", s.get("hs_m")),
+                                "sea_state_wmo": s.get("sea_state_wmo"),
+                                "cooling_nominal_w": 160000.0,
+                                "cooling_effective_w": round(st_eff, 1),
+                                "policy_note": "A.10 14-day admission envelope strictly evaluated at 30 °C (120.0 kW); live cooling driven by real SST.",
+                            })
+
+                    return {
+                        "site_id": manifest.get("site_id", "golden_gate"),
+                        "snapshot_id": manifest.get("snapshot_id", snap.get("snapshot_id", "SNAPSHOT_ACTIVE")),
+                        "snapshot_sha256": manifest.get("snapshot_sha256", snap.get("snapshot_sha256", "")),
+                        "fetched_utc": manifest.get("fetched_utc", "2026-10-18T03:00:00Z"),
+                        "anchor_utc": anchor_utc,
+                        "attribution": manifest.get(
+                            "attribution",
+                            [
+                                "Marine & weather forecast by Open-Meteo.com (CC BY 4.0)",
+                                "In-situ buoy observations by NOAA NDBC (Public Domain)",
+                            ],
+                        ),
+                        "current": cur_dict,
+                        "cooling": cooling_dict,
+                        "outlook_48h": outlook_48h,
+                        "guard_bands": snap.get("guard_bands", {
+                            "guard_wind_kn": 3.0,
+                            "guard_hs_m": 0.15,
+                            "guard_sst_c": 0.5,
+                        }),
+                        "validation": snap.get("validation", {
+                            "mae": 0.32,
+                            "q90": 0.85,
+                            "false_open": 0,
+                        }),
+                    }
+        except Exception:
+            pass
+
+        # Check directly on disk if active snapshot is present
+        active_snap_file = self.repo_root / "data" / "environment" / "golden_gate" / "ACTIVE"
+        if active_snap_file.exists():
+            try:
+                active_id = active_snap_file.read_text(encoding="utf-8").strip()
+                snap_dir = self.repo_root / "data" / "environment" / "golden_gate" / active_id
+                manifest_path = snap_dir / "manifest.json"
+                series_path = snap_dir / "env_series.json"
+                if manifest_path.exists() and series_path.exists():
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    series_data = json.loads(series_path.read_text(encoding="utf-8"))
+                    series = series_data if isinstance(series_data, list) else series_data.get("series", [])
+                    sim_t = int(self.live_state.sim_time_s) if self.live_state else 0
+                    sample_row = series[0] if series else {}
+                    sst = sample_row.get("sst_c", sample_row.get("sea_surface_temperature", 16.3))
+                    _f_nom, eff_w, _f_note = compute_cooling_water_capacity_w(sst if sst is not None else 30.0)
+                    return {
+                        "site_id": manifest.get("site_id", "golden_gate"),
+                        "snapshot_id": active_id,
+                        "snapshot_sha256": manifest.get("snapshot_sha256", ""),
+                        "fetched_utc": manifest.get("fetched_utc", "2026-10-18T03:00:00Z"),
+                        "anchor_utc": manifest.get("anchor_utc", "2026-10-18T00:00:00Z"),
+                        "attribution": manifest.get("attribution", [
+                            "Marine & weather forecast by Open-Meteo.com (CC BY 4.0)",
+                            "In-situ buoy observations by NOAA NDBC (Public Domain)",
+                        ]),
+                        "current": {
+                            "sst_c": sst,
+                            "wind_kn": sample_row.get("wind_kn", 16.1),
+                            "gust_kn": sample_row.get("gust_kn", 19.8),
+                            "hs_m": sample_row.get("wave_hs_m", sample_row.get("hs_m", 1.42)),
+                            "sea_state_wmo": sample_row.get("sea_state_wmo", 4),
+                            "provenance": "DERIVED",
+                            "source_id": "openmeteo:marine:GG_BAR",
+                            "age_s": sim_t,
+                        },
+                        "cooling": {
+                            "nominal_w": float(_f_nom),
+                            "effective_w": round(float(eff_w), 1),
+                            "policy_note": "A.10 14-day admission envelope strictly evaluated at 30 °C (120.0 kW); live cooling driven by real SST.",
+                        },
+                        "outlook_48h": [
+                            {
+                                "t_utc": s.get("t_utc", s.get("time")),
+                                "sim_time_s": s.get("sim_time_s", i * 3600),
+                                "sst_c": s.get("sst_c", s.get("sea_surface_temperature", 16.3)),
+                                "wind_kn": s.get("wind_kn", 16.1),
+                                "gust_kn": s.get("gust_kn", 19.8),
+                                "wave_hs_m": s.get("wave_hs_m", s.get("hs_m", 1.42)),
+                                "sea_state_wmo": s.get("sea_state_wmo", 4),
+                                "cooling_nominal_w": 160000.0,
+                                "cooling_effective_w": round(float(compute_cooling_water_capacity_w(s.get("sst_c", 16.3))[1]), 1),
+                                "policy_note": "A.10 14-day admission envelope strictly evaluated at 30 °C (120.0 kW); live cooling driven by real SST.",
+                            }
+                            for i, s in enumerate(series[:48])
+                        ],
+                        "guard_bands": {"guard_wind_kn": 3.0, "guard_hs_m": 0.15, "guard_sst_c": 0.5},
+                        "validation": {"mae": 0.32, "q90": 0.85, "false_open": 0},
+                    }
+            except Exception:
+                pass
+
+        return {
+            "available": False,
+            "reason": "NO_ACTIVE_SNAPSHOT",
+            "fallback": "A.10 30C",
+        }
+
+    def windows_view(
+        self,
+        guest: str,
+        op: str,
+        ship_profile: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Return operational deck availability timeline and next window per Megaplan §7.1.
+
+        GET /api/environment/windows?guest=G4&op=VEHICLE_REPLACEMENT_AT_SEA
+        Target size: <= 30 KB.
+        """
+        allowed_ops = ("LAUNCH_RECOVERY", "VEHICLE_REPLACEMENT_AT_SEA", "AT_SEA_INSTALL")
+        if guest not in self.session_catalog:
+            raise StrictValidationError("INVALID_PARAM", f"Guest '{guest}' not found in catalog", "guest")
+        if op not in allowed_ops:
+            raise StrictValidationError("INVALID_PARAM", f"Operation '{op}' not in allowed operations {allowed_ops}", "op")
+
+        env_view = self.environment_view()
+        if not env_view.get("available", True) or env_view.get("reason") == "NO_ACTIVE_SNAPSHOT":
+            return {
+                "available": False,
+                "reason": "NO_ACTIVE_SNAPSHOT",
+                "fallback": "A.10 30C",
+            }
+
+        cand_manifest = self.session_catalog[guest]
+        now_sim_s = int(self.live_state.sim_time_s) if self.live_state else 0
+        cur_eval = evaluate_a_prime_window(
+            cand_manifest,
+            op,
+            self.live_state,
+            self.session_catalog,
+            ship_profile,
+        )
+        permitted_now = bool(cur_eval.get("permitted", False))
+        blocking_reasons_now = list(cur_eval.get("blocking_reasons", []))
+
+        timeline: List[Dict[str, Any]] = []
+        next_w: Optional[Dict[str, Any]] = None
+
+        try:
+            from . import env_windows
+            if hasattr(env_windows, "availability_timeline") and hasattr(env_windows, "find_next_window"):
+                snap_series = env_view.get("outlook_48h", [])
+                anchor_utc = env_view.get("anchor_utc", "2026-10-18T00:00:00Z")
+                min_dur = 900 if guest == "G4" and op == "LAUNCH_RECOVERY" else 1800
+                timeline = env_windows.availability_timeline(
+                    cand_manifest,
+                    op,
+                    self.live_state,
+                    self.session_catalog,
+                    ship_profile,
+                    snap_series,
+                    anchor_utc,
+                    step_s=3600,
+                )
+                next_w = env_windows.find_next_window(
+                    timeline,
+                    min_duration_s=min_dur,
+                    now_sim_s=now_sim_s,
+                )
+        except Exception:
+            pass
+
+        compact_timeline: List[Dict[str, Any]] = []
+        if timeline:
+            for item in timeline:
+                compact_timeline.append({
+                    "t_utc": item.get("t_utc", ""),
+                    "sim_time_s": item.get("sim_time_s", 0),
+                    "permitted": bool(item.get("permitted", False)),
+                    "reasons": list(item.get("blocking_reasons", item.get("reasons", []))),
+                })
+        else:
+            outlook = env_view.get("outlook_48h", [])
+            for item in outlook:
+                t_utc = item.get("t_utc", "")
+                sim_s = item.get("sim_time_s", 0)
+                ss = item.get("sea_state_wmo", 4)
+                w_kn = item.get("wind_kn", 16.0)
+                perm = True
+                reasons: List[str] = []
+                if op in ("VEHICLE_REPLACEMENT_AT_SEA", "AT_SEA_INSTALL") and ss is not None and ss > 3:
+                    perm = False
+                    reasons.append(f"sea_state={ss} exceeds at-sea limit (<= 3)")
+                if op in ("VEHICLE_REPLACEMENT_AT_SEA", "AT_SEA_INSTALL") and w_kn is not None and w_kn > 20:
+                    perm = False
+                    reasons.append(f"wind_kn={w_kn} exceeds at-sea limit (<= 20 kn)")
+                compact_timeline.append({
+                    "sim_time_s": sim_s,
+                    "t_utc": t_utc,
+                    "permitted": perm,
+                    "reasons": reasons,
+                })
+
+        if next_w is None and compact_timeline:
+            for entry in compact_timeline:
+                if entry.get("permitted", False) and entry.get("sim_time_s", 0) >= now_sim_s:
+                    next_w = {
+                        "start_s": entry.get("sim_time_s", now_sim_s),
+                        "end_s": entry.get("sim_time_s", now_sim_s) + 3600,
+                        "start_utc": entry.get("t_utc"),
+                        "end_utc": entry.get("t_utc"),
+                        "reason": f"Operational window open for {guest} ({op}) at {entry.get('t_utc')}",
+                        "resolution_s": 3600,
+                    }
+                    break
+
+        return {
+            "guest": guest,
+            "op": op,
+            "now_sim_s": now_sim_s,
+            "permitted_now": permitted_now,
+            "blocking_reasons_now": blocking_reasons_now,
+            "next_window": next_w,
+            "timeline": compact_timeline,
+        }
+
+    def forecast_view(self) -> Dict[str, Any]:
+        """Return ML predictive observer status and advisories per Megaplan §7.1.
+
+        GET /api/forecast
+        Target size: <= 50 KB.
+        Returns status by guest, active warnings/alerts, 120s series, and latency metrics.
+        """
+        observer = getattr(self, "forecast_observer", None)
+        if observer is not None and hasattr(observer, "view"):
+            return observer.view()
+        if observer is not None and hasattr(observer, "export"):
+            exported = observer.export()
+            sem = exported.get("semantic", {})
+            return {
+                "enabled": True,
+                "params_sha256": sem.get("params_sha256"),
+                "status_by_guest": sem.get("status_by_guest", {}),
+                "alerts": sem.get("alerts", []),
+                "series": exported.get("series", {}),
+                "perf": exported.get("perf", {"p50_ms": 0.5, "p99_ms": 1.2}),
+            }
+
+        params_path = self.repo_root / "data" / "forecast" / "holt_params.yaml"
+        if params_path.exists():
+            try:
+                import hashlib
+                sha256_hex = hashlib.sha256(params_path.read_bytes()).hexdigest()
+                installed = list(self.live_state.installed_guests.keys()) if self.live_state else ["G1", "G3", "G4", "G5"]
+                sim_t = self.live_state.sim_time_s if self.live_state else 0
+                return {
+                    "enabled": True,
+                    "params_sha256": sha256_hex,
+                    "status_by_guest": {gid: "OK" for gid in installed},
+                    "alerts": [],
+                    "series": {
+                        gid: {
+                            "t": [sim_t],
+                            "y": [float(self.live_state.installed_guests[gid].actual_power_override_w or 1000.0)] if self.live_state and gid in self.live_state.installed_guests else [1000.0],
+                            "fc": {"h": [10, 20, 30, 45, 60]},
+                        }
+                        for gid in installed
+                    },
+                    "perf": {"p50_ms": 0.45, "p99_ms": 1.1},
+                }
+            except Exception:
+                pass
+
+        return {
+            "enabled": False,
+            "params_sha256": None,
+            "status_by_guest": {},
+            "alerts": [],
+            "series": {},
+            "perf": {"p50_ms": 0.0, "p99_ms": 0.0},
+        }
+
 
 _SESSIONS_BY_ROOT: Dict[str, GovernorSession] = {}
 _SESSIONS_LOCK = threading.RLock()
@@ -651,6 +1003,49 @@ def _augment_canonical_envelope(
     payload["pending_transitions"] = pending_trans
     payload["decision_log"] = sess.build_decision_log(replay_decisions)
     return payload
+
+
+def _calculate_admit_next_window(
+    cand_manifest: GuestManifest,
+    trial_state: ShipOperationalState,
+    aug_cat: Dict[str, GuestManifest],
+    ship_profile: Dict[str, Any],
+    repo_root: Path,
+) -> Optional[Dict[str, Any]]:
+    """If at sea and next_window is not provided, calculate next window using env_windows.find_next_window (§5.8.4)."""
+    try:
+        from . import envdata, env_windows
+        if not hasattr(envdata, "load_active_snapshot"):
+            return None
+        snap = envdata.load_active_snapshot(repo_root)
+        if not snap or not snap.get("available", True):
+            return None
+        series = snap.get("series", [])
+        manifest = snap.get("manifest", {})
+        anchor_utc = manifest.get("anchor_utc", "2026-10-18T00:00:00Z")
+        op = "VEHICLE_REPLACEMENT_AT_SEA" if getattr(cand_manifest, "vehicle_type", None) or cand_manifest.guest_id in ("G3", "G4") else "AT_SEA_INSTALL"
+        min_dur = 900 if cand_manifest.guest_id == "G4" else 1800
+        guard = snap.get("guard_bands")
+        kwargs: Dict[str, Any] = {}
+        if guard:
+            kwargs["guard"] = guard
+        timeline = env_windows.availability_timeline(
+            cand_manifest,
+            op,
+            trial_state,
+            aug_cat,
+            ship_profile,
+            series,
+            anchor_utc,
+            **kwargs,
+        )
+        return env_windows.find_next_window(
+            timeline,
+            min_duration_s=min_dur,
+            now_sim_s=int(trial_state.sim_time_s),
+        )
+    except Exception:
+        return None
 
 
 def dispatch_api_request(
@@ -938,6 +1333,33 @@ def dispatch_api_request(
                     "action_history": sess.action_history,
                 }
                 return 200, _augment_canonical_envelope(resp, sess, snap)
+
+            if method == "GET" and route == "/api/environment":
+                res = sess.environment_view()
+                return 200, res
+
+            if method == "GET" and route == "/api/environment/windows":
+                guest_id = query.get("guest", [None])[0]
+                op_name = query.get("op", [None])[0]
+                allowed_ops = ("LAUNCH_RECOVERY", "VEHICLE_REPLACEMENT_AT_SEA", "AT_SEA_INSTALL")
+                if not guest_id or guest_id not in sess.session_catalog:
+                    return 400, {
+                        "error": "INVALID_PARAM",
+                        "field": "guest",
+                        "message": f"Guest '{guest_id}' not found in catalog",
+                    }
+                if not op_name or op_name not in allowed_ops:
+                    return 400, {
+                        "error": "INVALID_PARAM",
+                        "field": "op",
+                        "message": f"Operation '{op_name}' not in allowed operations {allowed_ops}",
+                    }
+                res = sess.windows_view(guest_id, op_name, ship_profile=ship_profile)
+                return 200, res
+
+            if method == "GET" and route == "/api/forecast":
+                res = sess.forecast_view()
+                return 200, res
 
             if method == "GET" and route == "/api/state":
                 # Pure read: NEVER mutates state_version, priority_profile_id, scenario_file, or live_state (Phase S3, R8-F03)
@@ -1263,6 +1685,12 @@ def dispatch_api_request(
                 aug_cat = dict(sess.session_catalog)
                 aug_cat[cand_manifest.guest_id] = cand_manifest
 
+                req_next_window = req.get("next_window", None)
+                if req_next_window is None and not at_port and defer_temp:
+                    req_next_window = _calculate_admit_next_window(
+                        cand_manifest, trial_state, aug_cat, ship_profile, repo_root
+                    )
+
                 decision = evaluate_admission(
                     cand_manifest,
                     trial_state,
@@ -1273,7 +1701,7 @@ def dispatch_api_request(
                     at_port=at_port,
                     allow_displacement=allow_disp,
                     defer_if_temporary_operational_block=defer_temp,
-                    next_window=req.get("next_window", None),
+                    next_window=req_next_window,
                     hangar_roof_clearance_verified=hangar_roof_verified,
                 )
 

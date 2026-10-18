@@ -740,6 +740,23 @@ def generate_all_deliverable_pdfs(repo_root: Path) -> None:
         if not verify_pdf_contains_markdown_lines(readme_md_path, repo_root / "README.pdf"):
             raise ValueError("README.pdf failed full-text verification against README.md")
 
+    # 6. FORECAST_AND_PUBLIC_DATA.pdf — Strictly <= 2 pages
+    fcst_stem = "FORECAST_AND_PUBLIC_DATA"
+    md_p = docs_dir / f"{fcst_stem}.md"
+    pdf_p = docs_dir / f"{fcst_stem}.pdf"
+    if md_p.exists():
+        render_markdown_document_to_pdf(
+            md_p,
+            pdf_p,
+            max_pages=2,
+            body_font_size=6.8,
+            body_leading=8.3,
+            table_font_size=5.8,
+            table_leading=7.0,
+        )
+        if not verify_pdf_contains_markdown_lines(md_p, pdf_p):
+            raise ValueError(f"{pdf_p.name} failed full-text verification against {md_p.name}")
+
 
 if __name__ == "__main__":
     generate_all_deliverable_pdfs(Path(__file__).resolve().parents[2])

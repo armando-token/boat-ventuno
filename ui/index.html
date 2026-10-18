@@ -35,6 +35,71 @@
     <iframe id="viz3d-iframe" src="about:blank" data-src="/viz3d" title="SDV 3D Digital Twin" class="viz3d-iframe"></iframe>
   </section>
 
+  <!-- Golden Gate Real Public Environment Strip (§7.2, E1) -->
+  <section id="env-golden-gate-strip" class="panel mb-10 env-strip">
+    <div class="panel-header">
+      <div class="env-title-group">
+        <h2>Ambiente — Golden Gate (Datos públicos grabados)</h2>
+        <span class="badge env-snapshot-badge" id="env-snapshot-label">Recorded public data — snapshot loading...</span>
+      </div>
+      <div class="env-cooling-callout" id="env-cooling-callout">
+        Refrigeración: SST <span id="env-sst-val">16.3 °C</span> &rarr; C(T) = <span id="env-cooling-eff">150.4 kW</span>
+        <span class="small-note">(admisión 14 días juzgada a 30 °C = 120.0 kW)</span>
+      </div>
+    </div>
+    <div class="env-metrics-grid">
+      <div class="env-metric-card">
+        <span class="env-metric-label">Sea Surface Temp (SST)</span>
+        <span class="env-metric-val" id="env-val-sst">16.3 °C</span>
+        <span class="env-metric-sub" id="env-sub-sst">DERIVED Open-Meteo GG_BAR</span>
+      </div>
+      <div class="env-metric-card">
+        <span class="env-metric-label">Wind &amp; Gusts (10m)</span>
+        <span class="env-metric-val" id="env-val-wind">16.1 kn (Gust 19.8 kn)</span>
+        <span class="env-metric-sub" id="env-sub-wind">Guard band: +3.0 kn</span>
+      </div>
+      <div class="env-metric-card">
+        <span class="env-metric-label">Significant Wave Height (Hs)</span>
+        <span class="env-metric-val" id="env-val-hs">1.42 m (Sea State 4)</span>
+        <span class="env-metric-sub" id="env-sub-hs">WMO 3700 | Guard band: +0.15 m</span>
+      </div>
+      <div class="env-metric-card">
+        <span class="env-metric-label">Operational Deck Window (A')</span>
+        <span class="env-metric-val" id="env-val-window">NOT_NOW (SS 4 &gt; 3)</span>
+        <span class="env-metric-sub" id="env-sub-window">G4 At-Sea Replacement</span>
+      </div>
+    </div>
+    <div class="outlook-container mt-6">
+      <div class="outlook-header">
+        <span class="outlook-title">48-Hour Deck Availability Outlook (G4 At-Sea Replacement, Green=Open, Red=Closed, Ribbon):</span>
+        <span class="outlook-legend">
+          <span class="legend-dot open"></span> Open
+          <span class="legend-dot closed"></span> Closed
+          <span class="legend-dot unavail"></span> Unavailable
+        </span>
+      </div>
+      <div class="outlook-ribbon" id="outlook-ribbon-cells"></div>
+    </div>
+  </section>
+
+  <!-- Consumption Forecast & Advisory Early Warning Panel (§7.2, E2) -->
+  <section id="forecast-advisory-panel" class="panel mb-10 forecast-panel">
+    <div class="panel-header">
+      <div class="forecast-title-group">
+        <h2>Forecast (advisory) — Observador predictivo de consumo (Holt amortiguado + física)</h2>
+        <span class="pill pill-quiet" id="forecast-status-chip">QUIET</span>
+        <span class="badge" id="forecast-lead-badge">Advance Warning: -- s</span>
+      </div>
+      <span class="small-note">Observer only — Informa, no decide; gobernador sin cambios (INV-1)</span>
+    </div>
+    <div class="forecast-content-grid">
+      <div class="forecast-sentence-box" id="forecast-sentence-box">
+        All guest telemetry nominal. Predictive observer running at 1 Hz across 10–60s horizons (Holt damped + conformal bands).
+      </div>
+      <div class="forecast-guest-cards" id="forecast-guest-cards"></div>
+    </div>
+  </section>
+
   <main class="console-grid">
     <!-- Left Column: 8 Resource Classes + 2D Ship Layout -->
     <section class="panel" id="panel-resources">

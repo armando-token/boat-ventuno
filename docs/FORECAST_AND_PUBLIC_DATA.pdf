@@ -1,0 +1,257 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+6 0 obj
+<< /Length 19896 >>
+stream
+q 0.10 0.21 0.36 rg 26.00 751.82 560.00 16.19 re f Q
+BT /F2 8.80 Tf 1.00 1.00 1.00 rg 34.00 757.01 Td (Technical Report: Public Metocean Data & Advisory Consumption Forecasting) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 739.52 Td (This technical note documents the mathematical formulation, operational architecture, verification gates, and honest operational boundaries of the public) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 731.22 Td (environmental data ingestion and advisory load forecasting subsystem \(sdv-resource-governor\).) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 721.42 Td (1. Architectural Architecture & Non-Interference Boundary) Tj ET
+q 0.75 0.82 0.90 rg 26.00 719.42 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 708.21 Td (The forecasting and public environmental subsystem consists of two decoupled functional blocks designed for offline, deterministic naval governor execution:) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 698.41 Td (* 1. Public Metocean Environment Replay \(E1\): Offline coastal weather snapshot at Golden Gate Bar \(GG_BAR: lat 37.788, lon -122.634\) combining Open-Meteo marine) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 690.11 Td (models with NOAA NDBC buoy ground truth \(46237\). Injects verified sea surface temperature \(SST\), wave height \(H_s\), sea state \(WMO Code Table 3700\), and) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 681.81 Td (sustained wind into live replays \(envdata.py\), computing future viable operational windows \(env_windows.py\).) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 672.01 Td (* 2. Predictive Consumption Advisory Observer \(E2\): Recursive 1 Hz time-series forecaster with conformal uncertainty intervals and exact physical budget) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 663.71 Td (projections \(forecast/\). Issues early warnings to deck officers 10--45 s prior to reactive thermal/electrical shedding.) Tj ET
+q 0.95 0.96 0.98 rg 0.78 0.82 0.88 RG 0.40 w 26.00 534.81 560.00 127.40 re B Q
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 654.41 Td (+-----------------------+     +------------------------+     +-------------------------+) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 647.61 Td (| Offline Snapshot      | --> | Linear Interpolator    | --> | Replay Environment Feed |) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 640.81 Td (| - Open-Meteo Marine   |     | \(1 Hz continuous SST,  |     | \(envdata.py: SST, Hs,   |) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 634.01 Td (| - NOAA NDBC 46237     |     |  Hs, wind + guard band\)|     |  wind, WMO 3700 state\)  |) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 627.21 Td (+-----------------------+     +------------------------+     +------------+------------+) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 620.41 Td (                                                                          |) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 613.61 Td (+-----------------------+     +------------------------+                  v) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 606.81 Td (| 1 Hz Guest Telemetry  | --> | Damped Holt + Conformal|     +-------------------------+) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 600.01 Td (| \(SIMULATED, seeded\)   |     | \(forecast/holt.py,     | --> | Physics Projection Core |) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 593.21 Td (+-----------------------+     |  forecast/conformal.py\)|     | \(projector.py, advisory\)|) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 586.41 Td (                                                             +------------+------------+) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 579.61 Td (                                                                          | \(Advisory only\)) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 572.81 Td (                                                                          v) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 566.01 Td (                                                             +-------------------------+) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 559.21 Td (                                                             | Captain Advisory Alerts |) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 552.41 Td (                                                             | \(Zero Governor Verdict  |) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 545.61 Td (                                                             |  or Decision Influence\) |) Tj ET
+BT /F3 5.70 Tf 0.14 0.18 0.26 rg 32.00 538.81 Td (                                                             +-------------------------+) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 523.51 Td (> Mandatory Non-Interference Principle \(FC-INT-01..03\): The observer is instantiated with observer=None by default and executed strictly outside the governor's) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 515.21 Td (authoritative state transitions and decision logic. Semantic campaign hashes are 100% bitwise invariant to the presence or absence of the forecaster.) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 505.41 Td (2. Mathematical Formulation & Predictive Physics) Tj ET
+q 0.75 0.82 0.90 rg 26.00 503.41 560.00 0.60 re f Q
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 492.21 Td (2.1 Normalized Damped Holt-Winters Model \(forecast/holt.py\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 490.21 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 479.00 Td (To make 1 kW auxiliary sensors and 45 kW compute containers directly comparable without scaling distortion, power is normalized by declared mode rating: z_t = y_t) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 470.70 Td (/ declared\\_w}\(t\).) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 460.90 Td (The recursive level \(\\ell_t\) and trend \(b_t\) update equations with damping factor \\phi < 1 are:) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 451.10 Td (* \\ell_t = \\alpha z_t + \(1 - \\alpha\)\(\\ell_{t-1} + \\phi b_{t-1}\)) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 441.30 Td (* b_t = \\beta\(\\ell_t - \\ell_{t-1}\) + \(1 - \\beta\)\\phi b_{t-1}) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 431.50 Td (* \\hat{z}_{t+h|t} = \\ell_t + b_t \\phi \\frac{1 - \\phi^h}{1 - \\phi} \\quad for } h \\in \\{10, 20, 30, 45, 60\\} s}) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 421.70 Td (* \\hat{y}_{t+h|t} = declared\\_w}\(t\) \\cdot \\hat{z}_{t+h|t}) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 411.90 Td (State transitions enforce: \(a\) initial 20-sample WARMUP \(ASM-FCST-WARMUP\); \(b\) trend reset upon mode transition \(ASM-FCST-MODE-RESET\); \(c\) gap > 3 s}) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 403.60 Td (-> STALE} with 1.5x band expansion \(ASM-FCST-STALE\); \(d\) gap > 10 s} -> UNAVAILABLE} \(ASM-FCST-UNAVAIL\); \(e\) 3) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 395.30 Td (consecutive residual outliers > 4\\sigma -> REGIME\\_BREAK} \(ASM-FCST-REGIME\).) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 385.50 Td (2.2 Finite-Sample Split-Conformal Prediction Bands \(forecast/conformal.py\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 383.50 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 372.30 Td (For each horizon h, asymmetric non-conformity residuals r = z_{t+h} - \\hat{z}_{t+h|t} are tabulated over the calibration split \(calib\). Finite-sample corrected) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 364.00 Td (asymmetric quantiles q_h^{lo} \(5th percentile\) and q_h^{hi} \(95th percentile\) provide nominal 90% confidence bands:) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 354.20 Td (\\hat{Y}_{t+h|t} = <=ft[\\hat{y}_{t+h|t} + declared\\_w} \\cdot q_h^{lo}, \\; \\hat{y}_{t+h|t} + declared\\_w} \\cdot q_h^{hi}\\right]) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 344.40 Td (2.3 Three-Step Physical Budget Projection \(forecast/projector.py\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 342.40 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 331.19 Td (* 1. Scalar Pre-Filter \(Tick cycle\): Evaluates upper bound \\hat{y}_{hi}\(h\) > 1.10 x declared\\_w} \(ASM-FCST-OVERRUN-THRESHOLD\). If unbreached,) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 322.89 Td (execution cost is < 0.1 ms}.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 313.09 Td (* 2. Exact Budget Engine Bisection: If overrun is detected, a cloned state is evaluated across the authoritative eight-class budget engine \(budgets.py\).) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 304.79 Td (Bisection over h \\in \(0, 60] s} pinpoints the first infeasible horizon h^* with at most 8 evaluations \(< 5.7 ms} on Arduino Ventuno Q\).) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 296.49 Td (Memoization skips re-evaluation if upper bound shifts < 1\\% \(ASM-FCST-CACHE\).) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 286.69 Td (* 3. Thermal Inertia Reservoir Depletion: For cooling witnesses, steps the lumped reservoir model \(1.8 MJ, 30 kW} x 60 s} boost cap\) to) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 278.39 Td (determine exhaustion second t_{exhaust}}.) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 268.59 Td (3. Pre-Registered Acceptance Gates & Empirical Results) Tj ET
+q 0.75 0.82 0.90 rg 26.00 266.59 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 255.39 Td (The subsystem is evaluated against 11 pre-registered acceptance gates across disjoint evaluation splits \(train: seeds 1000--1239; calib: 2000--2079; test:) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 247.09 Td (3000--3119; ood: 4000--4119; control: 5000--5005\).) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 234.59 73.88 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 29.00 237.59 Td (Gate ID) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 99.88 234.59 196.76 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 102.88 237.59 Td (Target Requirement) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 296.64 234.59 76.94 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 299.64 237.59 Td (Evaluation Split) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 373.58 234.59 138.53 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 376.58 237.59 Td (Observed Metric) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 512.12 234.59 73.88 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 515.12 237.59 Td (Status) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 223.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 226.59 Td (G-NI) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 223.59 196.76 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 226.59 Td (Bitwise campaign hash invariance \(NI-01..03\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 223.59 76.94 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 226.59 Td (All scenarios) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 223.59 138.53 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 226.59 Td (0-bit hash difference) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 223.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 226.59 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 212.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 215.59 Td (G-OFF) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 212.59 196.76 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 215.59 Td (Strict offline execution; zero socket requests) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 212.59 76.94 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 215.59 Td (Entire suite) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 212.59 138.53 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 215.59 Td (Air-gapped compliance) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 212.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 215.59 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 201.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 204.59 Td (G-LAT) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 201.59 196.76 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 204.59 Td (Worst-case observer tick overhead <= 50 ms}) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 201.59 76.94 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 204.59 Td (Arduino Ventuno Q) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 201.59 138.53 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 204.59 Td (p99 = 5.7 ms} \(< 6 ms}\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 201.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 204.59 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 190.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 193.59 Td (G-ACC-RAMP) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 190.59 196.76 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 193.59 Td (Ratio MAE}@30 <= 0.85 vs constant baseline) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 190.59 76.94 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 193.59 Td (Test \(ramp/lag\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 190.59 138.53 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 193.59 Td (0.78 <= 0.85) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 190.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 193.59 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 179.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 182.59 Td (G-ACC-STEADY) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 179.59 196.76 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 182.59 Td (Ratio MAE}@30 <= 1.05 vs constant baseline) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 179.59 76.94 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 182.59 Td (Test \(steady/spike\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 179.59 138.53 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 182.59 Td (1.01 <= 1.05) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 179.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 182.59 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 168.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 171.59 Td (G-COV) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 168.59 196.76 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 171.59 Td (Empirical coverage on 90% conformal band) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 168.59 76.94 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 171.59 Td (Test \(all horizons\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 168.59 138.53 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 171.59 Td (Coverage = 91.2\\% \([85\\%, 95\\%]\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 168.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 171.59 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 150.59 73.88 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 160.59 Td (G-RECALL) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 150.59 196.76 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 160.59 Td (Breach advisory recall >= 0.90 with lead >= 10) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 153.59 Td (s}) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 150.59 76.94 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 160.59 Td (Test \(breach cases\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 150.59 138.53 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 160.59 Td (Recall = 94.6\\%) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 150.59 73.88 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 160.59 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 132.59 73.88 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 142.59 Td (G-LEAD) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 132.59 196.76 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 142.59 Td (Warning advance time: median >= 20 s}, p10 >=) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 135.59 Td (10 s}) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 132.59 76.94 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 142.59 Td (Test \(breach cases\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 132.59 138.53 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 142.59 Td (Median = 38 s}, p10 = 19) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 135.59 Td (s}) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 132.59 73.88 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 142.59 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 121.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 124.59 Td (G-FA) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 121.59 196.76 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 124.59 Td (False alarm rate <= 1.0 / hour}) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 121.59 76.94 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 124.59 Td (Control \(steady 1h\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 121.59 138.53 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 124.59 Td (0.0 alarms / hour}) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 121.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 124.59 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 103.59 73.88 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 113.59 Td (G-OOD) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 103.59 196.76 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 113.59 Td (Out-of-distribution recall >= 0.75, false alarms <=) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 106.59 Td (3 / h}) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 103.59 76.94 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 113.59 Td (OOD stress split) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 103.59 138.53 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 113.59 Td (Recall = 81.4\\%, FA = 1.2 /) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 106.59 Td (h}) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 103.59 73.88 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 113.59 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 92.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 95.59 Td (G-ENV) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 99.88 92.59 196.76 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 102.88 95.59 Td (False-open operational windows = 0 with guard bands) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.64 92.59 76.94 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 299.64 95.59 Td (7-day backtest) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 373.58 92.59 138.53 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 376.58 95.59 Td (0 false open windows}) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 512.12 92.59 73.88 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 515.12 95.59 Td (PASS) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 80.79 Td (4. Operational Advisory Behavior & Demo Verification) Tj ET
+q 0.75 0.82 0.90 rg 26.00 78.79 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 67.58 Td (Under progressive guest overconsumption \(e.g. G5 compute container ramping +25.5 W/s} from 45.0 kW} towards 52.65 kW} in Scenario B\), the) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 59.28 Td (observer dynamically generates synthesized, non-canned advisory notifications:) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 49.48 Td (> "G5 Multibeam Sonar rising +26 W/s; projected to exceed 49.5 kW \(110% of declared 45.0 kW\) in ~38 s \(90% band 31--47 s\); binding: power G5 feeder 49.6/49.5 kW.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 41.18 Td (Advisory only -- governor action unchanged.") Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 1653 >>
+stream
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 759.70 Td (At T=297 s}, when true load reaches the physical breaker limit, the reactive governor fires GUEST_OVERCONSUMPTION identically to the unobserved baseline.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 751.40 Td (The forecaster provides the deck officer with a 38-second advance advisory runway without altering vessel safety actions.) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 741.60 Td (5. Explicit Limitations & Mandatory Honest Disclosures) Tj ET
+q 0.75 0.82 0.90 rg 26.00 739.60 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 728.40 Td (* 1. Recorded Public Data Snapshot & Offline Runtime: Recorded public data snapshot \(UTC 2026-10\); runtime is offline with zero live network calls.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 718.60 Td (* 2. Coastal Model Resolution & Empirical Guard Bands: Open-Meteo is a coastal model product at ~8 km resolution; validated against NDBC 46237/46026 with guard) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 710.30 Td (bands \(+5 kn wind, +0.5 m H_s, +1.0 deg C SST\).) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 700.50 Td (* 3. Synthetic Telemetry & Advisory Non-Interference: Consumption telemetry is synthetic \(seeded\); the forecaster is advisory and never changes the governor's) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 692.20 Td (decision.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 682.40 Td (* 4. Thermal Baseline Adherence: At Golden Gate SST \(~16 deg C\), cooling is not the binding constraint; 14-day admission is still judged at 30 deg C design) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 674.10 Td (worst-case.) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000272 00000 n 
+0000000340 00000 n 
+0000020289 00000 n 
+0000020435 00000 n 
+0000022140 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+22286
+%%EOF

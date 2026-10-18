@@ -1,0 +1,38 @@
+schema_version: sdv-forecast-params/1.0
+model: holt_damped
+alpha: 0.1
+beta: 0.02
+phi: 0.98
+horizons_s:
+- 10
+- 20
+- 30
+- 45
+- 60
+warmup_s: 20
+regime_k: 4.0
+conformal_q:
+  '10': 0.01907
+  '20': 0.02498
+  '30': 0.0322
+  '45': 0.04493
+  '60': 0.05944
+conformal_q_hi:
+  '10': 0.01907
+  '20': 0.02498
+  '30': 0.0322
+  '45': 0.04493
+  '60': 0.05944
+conformal_q_lo:
+  '10': -0.0147
+  '20': -0.01619
+  '30': -0.01752
+  '45': -0.01928
+  '60': -0.02058
+fit:
+  train_seeds: 1000-1239
+  calib_seeds: 2000-2079
+  loss: mean_MAE_z
+  grid_size: 64
+generator_sha256: 391ec0485fb9327bfa579d1f5c17cb3efdd5c2f8f6b2c930d046f32b9ff1d54e
+params_sha256: f16377f1608a9dc8f973fdfe8b140b97ebabbd85ade7da079d8c4d176da610ee

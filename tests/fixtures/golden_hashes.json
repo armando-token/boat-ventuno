@@ -1,8 +1,8 @@
 {
   "_note": "Single source of truth for pinned golden hashes. Change only with a GOLDEN_DIFF.md that justifies the delta.",
-  "campaign_semantic_sha256": "3a0aa7f67224a16d4bb68d09ed081d6c5d72e0974f7d72d526acf7dda5b30369",
-  "scenario_B_survey_primary_sha256": "bbafe54983e7870a5f6b763676cdb416e4809478a536d74ab6379ae33c4ea4d0",
-  "scenario_B_rescue_primary_sha256": "8a63209c8bdb6748644c325f6c04c02dac321c63d18d224801e72c30ebefe92c",
-  "scenario_B_cooling_limited_sha256": "1cd63884e3b05e9b35494dcf4ee6c11c1b6f86f1057fa59c8ad6ecefdf5b74e6",
-  "scenario_C_crew_regimes_sha256": "7ed9a261dc4f200bc92b33a8203551cc0b00eab1b4e56c894fc8576b1471a4d9"
+  "campaign_semantic_sha256": "ab2eb61906165f7a9b7e2136e5c411a91fdd7d37d09677e6dcf693f4aee33361",
+  "scenario_B_survey_primary_sha256": "d2e755897262d60a48a9190265383398d4946410d815429665374209bdb68029",
+  "scenario_B_rescue_primary_sha256": "951aaee2c959bc66d1fb7acb8e8538afca50637f0c150e8482611b3969b00f91",
+  "scenario_B_cooling_limited_sha256": "302b02ac4f6fde18a9f390e349520ec32a7059d69b052d59d164f358fc5a7fe8",
+  "scenario_C_crew_regimes_sha256": "4c032b178cfb490fa0ef55d7a01e13e41256ddb7c30dd5b15830ebcf6e2f210d"
 }

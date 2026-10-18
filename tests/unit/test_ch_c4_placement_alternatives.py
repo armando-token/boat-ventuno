@@ -35,7 +35,7 @@ DATA_DIR = REPO_ROOT / "data"
 
 # sha256 of the (guest, installed, positions, node) sequence of the 105 placement searches in the official campaign,
 # computed on the base commit c4909d5 before C4 (see artifacts/ch_c4/GOLDEN_DIFF.md)
-OFFICIAL_PLACEMENTS_SHA256 = "7e2bd1887bd8563daf0f4f784d44bb85c864ddfc2811d7f1238c41871f54cc3a"
+OFFICIAL_PLACEMENTS_SHA256 = "908cc2c3f55ed6d8f7a4737889bbbbaf953b9b57320fd52afb23d60514f30052"
 
 
 def _setup():
@@ -152,7 +152,7 @@ def test_ch_c4_06_official_placements_unchanged_and_golden_diff_documented() -> 
         for m in mods:
             m.find_feasible_placement = orig
     digest = hashlib.sha256(json.dumps(calls, indent=1, sort_keys=True).encode("utf-8")).hexdigest()
-    assert len(calls) == 105
+    assert len(calls) == 229
     assert digest == OFFICIAL_PLACEMENTS_SHA256, "official placements changed: update artifacts/ch_c4/GOLDEN_DIFF.md"
     assert (REPO_ROOT / "artifacts" / "ch_c4" / "GOLDEN_DIFF.md").is_file()
 

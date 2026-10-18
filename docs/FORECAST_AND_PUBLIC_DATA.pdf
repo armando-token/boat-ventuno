@@ -16,7 +16,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 20089 >>
+<< /Length 19667 >>
 stream
 q 0.10 0.21 0.36 rg 26.00 751.82 560.00 16.19 re f Q
 BT /F2 8.80 Tf 1.00 1.00 1.00 rg 34.00 757.01 Td (Technical Report: Public Metocean Data & Advisory Consumption Forecasting) Tj ET
@@ -87,162 +87,167 @@ BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 238.79 Td (Measured by tools/bench_foreca
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 230.49 Td (1000--1239, calib 2000--2079, test 3000--3119, ood 4000--4119, control_steady_1h 5000--5005. Full output: docs/evidence/forecast_report_20261018.{md,json}. Re-run) Tj ET
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 222.19 Td (on the Arduino Ventuno Q \(aarch64, same code_sha256 c2408f6f? as Mac, verified by deploy-board\): identical metrics, G-LAT p99 2.42 ms) Tj ET
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 213.89 Td (\(forecast_report_ventunoq.{md,json}; git_commit reads unknown because the board copy has no .git\). Thresholds were not changed.) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 201.39 66.38 11.00 re B Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 201.39 68.25 11.00 re B Q
 BT /F2 5.80 Tf 1.00 1.00 1.00 rg 29.00 204.39 Td (Gate ID) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 92.38 201.39 132.70 11.00 re B Q
-BT /F2 5.80 Tf 1.00 1.00 1.00 rg 95.38 204.39 Td (Requirement) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 225.08 201.39 79.32 11.00 re B Q
-BT /F2 5.80 Tf 1.00 1.00 1.00 rg 228.08 204.39 Td (Split) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 304.40 201.39 215.22 11.00 re B Q
-BT /F2 5.80 Tf 1.00 1.00 1.00 rg 307.40 204.39 Td (Measured) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 519.62 201.39 66.38 11.00 re B Q
-BT /F2 5.80 Tf 1.00 1.00 1.00 rg 522.62 204.39 Td (Status) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 183.39 66.38 18.00 re B Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 94.25 201.39 136.44 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 97.25 204.39 Td (Requirement) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 230.70 201.39 81.56 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 233.70 204.39 Td (Split) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 312.26 201.39 205.48 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 315.26 204.39 Td (Measured) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 517.75 201.39 68.25 11.00 re B Q
+BT /F2 5.80 Tf 1.00 1.00 1.00 rg 520.75 204.39 Td (Status) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 183.39 68.25 18.00 re B Q
 BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 193.39 Td (G-NI) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 183.39 132.70 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 193.39 Td (Campaign decisions/hash unchanged with) Tj ET
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 186.39 Td (observer) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 183.39 79.32 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 193.39 Td (pytest) Tj ET
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 186.39 Td (non-interference) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 183.39 215.22 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 193.39 Td (6 tests green; fd806cda? \(C2: +2 layered-water variant) Tj ET
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 186.39 Td (entries; official B hashes unchanged\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 183.39 66.38 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 193.39 Td (PASS) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 172.39 66.38 11.00 re B Q
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 183.39 136.44 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 193.39 Td (Campaign decisions/hash unchanged with) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 186.39 Td (observer) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 183.39 81.56 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 193.39 Td (pytest) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 186.39 Td (non-interference) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 183.39 205.48 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 193.39 Td (6 tests green; 3a0aa7f6? \(scope fixes C2-C6;) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 186.39 Td (artifacts/merge_scope/GOLDEN_DIFF.md\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 183.39 68.25 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 193.39 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 172.39 68.25 11.00 re B Q
 BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 175.39 Td (G-OFF) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 172.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 175.39 Td (Offline runtime, zero network) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 172.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 175.39 Td (pytest -k offline) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 172.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 175.39 Td (2 tests green) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 172.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 175.39 Td (PASS) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 161.39 66.38 11.00 re B Q
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 172.39 136.44 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 175.39 Td (Offline runtime, zero network) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 172.39 81.56 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 175.39 Td (pytest -k offline) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 172.39 205.48 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 175.39 Td (2 tests green) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 172.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 175.39 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 154.39 68.25 18.00 re B Q
 BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 164.39 Td (G-LAT) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 161.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 164.39 Td (p99 full observer tick <= 50 ms) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 161.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 164.39 Td (test) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 161.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 164.39 Td (p99 = 2.42 ms on Ventuno Q \(0.83 ms Mac\), <= 8 evals/tick) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 161.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 164.39 Td (PASS) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 150.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 153.39 Td (G-ACC-RAMP) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 150.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 153.39 Td (ratio MAE@30 <= 0.85) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 150.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 153.39 Td (test) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 150.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 153.39 Td (0.785) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 150.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 153.39 Td (PASS) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 139.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 142.39 Td (G-ACC-STEADY) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 139.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 142.39 Td (ratio MAE@30 <= 1.05) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 139.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 142.39 Td (test) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 139.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 142.39 Td (0.858) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 139.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 142.39 Td (PASS) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 128.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 131.39 Td (G-COV) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 128.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 131.39 Td (90% band coverage in [0.85, 0.95]) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 128.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 131.39 Td (test) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 128.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 131.39 Td (0.908) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 128.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 131.39 Td (PASS) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 110.39 66.38 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 120.39 Td (G-RECALL) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 110.39 132.70 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 120.39 Td (recall >= 0.90 \(WARN active at) Tj ET
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 113.39 Td (crossing\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 110.39 79.32 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 120.39 Td (test) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 110.39 215.22 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 120.39 Td (1.00) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 110.39 66.38 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 120.39 Td (PASS) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 99.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 102.39 Td (G-LEAD) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 99.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 102.39 Td (median >= 20 s, p10 >= 10 s) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 99.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 102.39 Td (test) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 99.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 102.39 Td (median 60.5 s, p10 37.9 s) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 99.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 102.39 Td (PASS) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 88.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 91.39 Td (G-FA) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 88.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 91.39 Td (<= 1.0 false WARN / h) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 88.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 91.39 Td (test + control 1 h) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 88.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 91.39 Td (0.173 / h \(3 in 17.33 h\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 88.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 91.39 Td (PASS) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 77.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 80.39 Td (G-OOD) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 77.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 80.39 Td (recall >= 0.75 and FA <= 3 / h) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 77.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 80.39 Td (ood) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 77.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 80.39 Td (recall 0.95, FA 9.7 / h) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 77.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 80.39 Td (FAIL) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 66.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 69.39 Td (G-ENV) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 92.38 66.39 132.70 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 95.38 69.39 Td (false-open windows = 0 with guard) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 225.08 66.39 79.32 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 228.08 69.39 Td (7-day backtest, 169 h) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 304.40 66.39 215.22 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 307.40 69.39 Td (0 \(guarded\) vs 20 \(raw\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 519.62 66.39 66.38 11.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 522.62 69.39 Td (PASS) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 54.59 Td (G-OOD fails on false alarms under out-of-distribution profiles: the observer still warns \(recall 0.95\) but is noisy. All five gates required to publish E2 \(G-NI,) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 46.29 Td (G-OFF, G-LAT, G-RECALL, G-FA\) pass; the OOD failure is declared, not hidden.) Tj ET
-BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 36.49 Td (4. Golden Gate Replay \(what the operator console shows\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 34.49 560.00 0.60 re f Q
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 154.39 136.44 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 164.39 Td (p99 full observer tick <= 50 ms) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 154.39 81.56 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 164.39 Td (test) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 154.39 205.48 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 164.39 Td (p99 = 2.42 ms on Ventuno Q \(0.91 ms Mac\), <= 8 evals/tick) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 157.39 Td (\(<= 16 in OOD mode\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 154.39 68.25 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 164.39 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 143.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 146.39 Td (G-ACC-RAMP) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 143.39 136.44 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 146.39 Td (ratio MAE@30 <= 0.85) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 143.39 81.56 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 146.39 Td (test) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 143.39 205.48 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 146.39 Td (0.785) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 143.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 146.39 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 132.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 135.39 Td (G-ACC-STEADY) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 132.39 136.44 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 135.39 Td (ratio MAE@30 <= 1.05) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 132.39 81.56 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 135.39 Td (test) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 132.39 205.48 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 135.39 Td (0.858) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 132.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 135.39 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 121.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 124.39 Td (G-COV) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 121.39 136.44 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 124.39 Td (90% band coverage in [0.85, 0.95]) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 121.39 81.56 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 124.39 Td (test) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 121.39 205.48 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 124.39 Td (0.908) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 121.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 124.39 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 103.39 68.25 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 113.39 Td (G-RECALL) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 103.39 136.44 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 113.39 Td (recall >= 0.90 \(WARN active at) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 106.39 Td (crossing\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 103.39 81.56 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 113.39 Td (test) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 103.39 205.48 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 113.39 Td (1.00) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 103.39 68.25 18.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 113.39 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 92.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 95.39 Td (G-LEAD) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 92.39 136.44 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 95.39 Td (median >= 20 s, p10 >= 10 s) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 92.39 81.56 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 95.39 Td (test) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 92.39 205.48 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 95.39 Td (median 60.5 s, p10 37.9 s) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 92.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 95.39 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 81.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 84.39 Td (G-FA) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 81.39 136.44 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 84.39 Td (<= 1.0 false WARN / h) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 81.39 81.56 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 84.39 Td (test + control 1 h) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 81.39 205.48 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 84.39 Td (0.115 / h \(2 in 17.33 h\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 81.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 84.39 Td (PASS) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 70.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 73.39 Td (G-OOD) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 70.39 136.44 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 73.39 Td (recall >= 0.75 and FA <= 3 / h) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 70.39 81.56 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 73.39 Td (ood) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 70.39 205.48 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 73.39 Td (recall 0.90, FA 1.5 / h \(was 9.7 before the OOD guard\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 70.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 73.39 Td (PASS) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 59.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 29.00 62.39 Td (G-ENV) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 94.25 59.39 136.44 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 62.39 Td (false-open windows = 0 with guard) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 59.39 81.56 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 62.39 Td (7-day backtest, 169 h) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 59.39 205.48 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 62.39 Td (0 \(guarded\) vs 20 \(raw\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 59.39 68.25 11.00 re B Q
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 62.39 Td (PASS) Tj ET
 endstream
 endobj
 7 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
 endobj
 8 0 obj
-<< /Length 3387 >>
+<< /Length 4669 >>
 stream
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 759.70 Td (GET /api/forecast is a cached REPLAY of scenario_B_golden_gate_recorded.yaml with SIMULATED telemetry \(labelled in the payload and UI\), not a live feed. Actual) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 751.40 Td (alerts:) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 741.60 Td (> "G5 Emergency Comms & Edge Compute Node rising +8 W/s; upper 90% bound reaches 49.5 kW \(110% of declared 45.0 kW\) in ~39 s; point forecast stays below within 60 s) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 733.30 Td (\(90% band 39->60 s\); binding: power G5 feeder 49.5/49.5 kW. Advisory only -- governor action unchanged." \(T = 260 s\)) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 723.50 Td (The reactive GUEST_OVERCONSUMPTION fires at T = 297 s exactly as without the observer, so the real advance notice is ~37 s, driven by the upper band \(the point) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 715.20 Td (forecast alone would not have warned\). A second WARN at T = 1540 s with a flat slope is a likely false alarm and is reported as such.) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 705.40 Td (Guarded windows from the base state show no G4 window in the 48 h outlook: VEHICLE_REPLACEMENT_AT_SEA is closed by weather \(guarded sea state 4 > limit 3 every) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 697.10 Td (hour\); LAUNCH_RECOVERY is closed in all 49 hours by operational blockers \(G3 acoustic survey quiet, heading not into wind\), plus wind > 25 kn in 18 hours. The) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 688.80 Td (API/UI print these reasons instead of a fabricated window.) Tj ET
-BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 679.00 Td (5. Explicit Limitations & Mandatory Honest Disclosures) Tj ET
-q 0.75 0.82 0.90 rg 26.00 677.00 560.00 0.60 re f Q
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 665.80 Td (* 1. Recorded Public Data Snapshot & Offline Runtime: Recorded public data snapshot \(UTC 2026-10\); runtime is offline with zero live network calls.) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 656.00 Td (* 2. Coastal Model Resolution & Empirical Guard Bands: Open-Meteo is a coastal model product at ~8 km resolution; validated against NDBC 46237/46026/FTPC1 over 7) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 647.70 Td (days \(169 hourly pairs\); guard bands are the derived 90% error quantiles: +7.34 kn wind, +0.24 m H_s, +0.51 deg C SST \(guard_bands.json, status DERIVED\).) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 639.40 Td (Without the guard the backtest gives 20 false-open hours; with it, 0.) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 629.60 Td (* 3. Synthetic Telemetry & Advisory Non-Interference: Consumption telemetry is synthetic \(seeded\); /api/forecast is a labelled replay. The forecaster is advisory) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 621.30 Td (and never changes the governor's decision.) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 611.50 Td (* 4. Thermal Baseline Adherence: At Golden Gate SST \(~16 deg C\), cooling is not the binding constraint; 14-day admission is still judged at 30 deg C design) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 603.20 Td (worst-case.) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 593.40 Td (* 5. Known weakness: G-OOD fails \(9.7 false WARN / h on out-of-distribution profiles\); G-LAT on the Ventuno Q is 2.42 ms p99, far below 50 ms.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 759.70 Td (OOD guard \(forecast/ood.py\). When the live one-step residual scale exceeds 1.9x its calibration median \(exit < 1.6x\), the guest enters OOD mode: \(1\)) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 751.40 Td (widened-band-only risk stays at WATCH; WARN needs the point forecast + 0.5x the calibrated band to cross the physical limit within 45 s; \(2\) the displayed band is) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 743.10 Td (widened by the live/calibrated residual ratio; \(3\) that risk must persist 6 s \(not 3 s\). The sentence states the mode. Thresholds unchanged; the 0.5 / 6 s settings) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 734.80 Td (were chosen on a held-out OOD validation set \(seeds 6000-6119; 0.7 FA/h, recall 0.90\), not on the benchmark ood split. In-distribution behaviour \(Golden Gate) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 726.50 Td (replay, test split\) is unchanged except one fewer false WARN on spikes.) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 716.70 Td (4. Golden Gate Replay \(what the operator console shows\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 714.70 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 703.50 Td (GET /api/forecast is a cached REPLAY of scenario_B_golden_gate_recorded.yaml with SIMULATED telemetry \(labelled in the payload and UI\), not a live feed. Actual) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 695.20 Td (alerts:) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 685.40 Td (> "G5 Emergency Comms & Edge Compute Node rising +8 W/s; upper 90% bound reaches 49.5 kW \(110% of declared 45.0 kW\) in ~39 s; point forecast stays below within 60 s) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 677.10 Td (\(90% band 39->60 s\); binding: power G5 feeder 49.5/49.5 kW. Advisory only -- governor action unchanged." \(T = 260 s\)) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 667.30 Td (The reactive GUEST_OVERCONSUMPTION fires at T = 297 s exactly as without the observer, so the real advance notice is ~37 s, driven by the upper band \(the point) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 659.00 Td (forecast alone would not have warned\). A second WARN at T = 1540 s with a flat slope is a likely false alarm and is reported as such.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 649.20 Td (Guarded windows from the base state show no G4 window in the 48 h outlook: VEHICLE_REPLACEMENT_AT_SEA is closed by weather \(guarded sea state 4 > limit 3 every) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 640.90 Td (hour\); LAUNCH_RECOVERY is closed in all 49 hours by operational blockers \(G3 acoustic survey quiet, heading not into wind\), plus wind > 25 kn in 18 hours. The) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 632.60 Td (API/UI print these reasons instead of a fabricated window.) Tj ET
+BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 622.80 Td (5. Explicit Limitations & Mandatory Honest Disclosures) Tj ET
+q 0.75 0.82 0.90 rg 26.00 620.80 560.00 0.60 re f Q
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 609.59 Td (* 1. Recorded Public Data Snapshot & Offline Runtime: Recorded public data snapshot \(UTC 2026-10\); runtime is offline with zero live network calls.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 599.79 Td (* 2. Coastal Model Resolution & Empirical Guard Bands: Open-Meteo is a coastal model product at ~8 km resolution; validated against NDBC 46237/46026/FTPC1 over 7) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 591.49 Td (days \(169 hourly pairs\); guard bands are the derived 90% error quantiles: +7.34 kn wind, +0.24 m H_s, +0.51 deg C SST \(guard_bands.json, status DERIVED\).) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 583.19 Td (Without the guard the backtest gives 20 false-open hours; with it, 0.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 573.39 Td (* 3. Synthetic Telemetry & Advisory Non-Interference: Consumption telemetry is synthetic \(seeded\); /api/forecast is a labelled replay. The forecaster is advisory) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 565.09 Td (and never changes the governor's decision.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 555.29 Td (* 4. Thermal Baseline Adherence: At Golden Gate SST \(~16 deg C\), cooling is not the binding constraint; 14-day admission is still judged at 30 deg C design) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 546.99 Td (worst-case.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 537.19 Td (* 5. Known trade-off: in OOD mode WARN is more conservative \(recall 0.90 vs 1.00 in distribution; 4 of 40 OOD ramps warned < 10 s ahead\). G-LAT on the Ventuno Q) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 528.89 Td (is 2.42 ms p99, far below 50 ms.) Tj ET
 endstream
 endobj
 9 0 obj
@@ -257,11 +262,11 @@ xref
 0000000197 00000 n 
 0000000272 00000 n 
 0000000340 00000 n 
-0000020482 00000 n 
-0000020628 00000 n 
-0000024067 00000 n 
+0000020060 00000 n 
+0000020206 00000 n 
+0000024927 00000 n 
 trailer
 << /Size 10 /Root 1 0 R >>
 startxref
-24213
+25073
 %%EOF

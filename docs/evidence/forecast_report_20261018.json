@@ -1,7 +1,7 @@
 {
   "schema_version": "sdv-forecast-benchmark/1.0",
-  "timestamp_utc": "2026-10-18T04:12:39.075207+00:00",
-  "git_commit": "c6c1052fee860961f902c967f8210dc2ac1447cb",
+  "timestamp_utc": "2026-10-18T05:21:32.704291+00:00",
+  "git_commit": "7c5b31ae4276c4095674e8976fd79805c926f0fe-dirty",
   "device": "Mac",
   "splits_evaluated": [
     "test",
@@ -103,18 +103,18 @@
         "alarm_hits": 40,
         "recall_alarm": 0.7692,
         "median_lead_s": 53.0,
-        "p10_lead_s": -14.0
+        "p10_lead_s": -17.0
       },
-      "false_alarms_per_h": 0.265,
-      "total_false_alarms": 3,
+      "false_alarms_per_h": 0.176,
+      "total_false_alarms": 2,
       "latency_ms": {
         "scope": "production ForecastObserver.on_sample + on_tick (Holt, bands, projector bisection, advisory)",
-        "p50": 0.094,
-        "p99": 0.839,
-        "max": 7.626,
+        "p50": 0.095,
+        "p99": 0.894,
+        "max": 1.264,
         "ticks_measured": 72000
       },
-      "evals_per_tick_max": 8,
+      "evals_per_tick_max": 16,
       "warn_cleared_before_cross": 0
     },
     "ood": {
@@ -164,31 +164,31 @@
         "coverage@45": 0.5902,
         "coverage@60": 0.6301
       },
-      "recall_alarm": 0.95,
-      "late_alarm_rate": 0.05,
+      "recall_alarm": 0.9,
+      "late_alarm_rate": 0.1,
       "lead_time_s": {
-        "median": 47.0,
-        "p10": 22.0,
+        "median": 36.5,
+        "p10": 13.3,
         "count": 40
       },
       "all_crosses": {
         "episodes_count": 52,
         "alarm_hits": 38,
         "recall_alarm": 0.7308,
-        "median_lead_s": 38.5,
-        "p10_lead_s": -5.0
+        "median_lead_s": 31.5,
+        "p10_lead_s": -9.8
       },
-      "false_alarms_per_h": 9.706,
-      "total_false_alarms": 110,
+      "false_alarms_per_h": 1.5,
+      "total_false_alarms": 17,
       "latency_ms": {
         "scope": "production ForecastObserver.on_sample + on_tick (Holt, bands, projector bisection, advisory)",
-        "p50": 0.094,
-        "p99": 0.929,
-        "max": 1.324,
+        "p50": 0.646,
+        "p99": 1.105,
+        "max": 3.997,
         "ticks_measured": 72000
       },
-      "evals_per_tick_max": 8,
-      "warn_cleared_before_cross": 47
+      "evals_per_tick_max": 16,
+      "warn_cleared_before_cross": 1
     },
     "control_steady_1h": {
       "split": "control_steady_1h",
@@ -255,9 +255,9 @@
       "total_false_alarms": 0,
       "latency_ms": {
         "scope": "production ForecastObserver.on_sample + on_tick (Holt, bands, projector bisection, advisory)",
-        "p50": 0.09,
-        "p99": 0.118,
-        "max": 0.477,
+        "p50": 0.093,
+        "p99": 0.116,
+        "max": 0.456,
         "ticks_measured": 21600
       },
       "evals_per_tick_max": 0,
@@ -310,7 +310,7 @@
       "description": "False alarm rate on non-breaching operational series",
       "split": "test+control_steady_1h",
       "threshold": "false_alarms_per_h <= 1.0",
-      "measured": "0.173 / h (3 WARN in 17.33 h)",
+      "measured": "0.115 / h (2 WARN in 17.33 h)",
       "status": "PASS"
     },
     {
@@ -318,15 +318,15 @@
       "description": "Robustness on out-of-distribution episodes (2x faster, 3x noise)",
       "split": "ood",
       "threshold": "recall >= 0.75 and false_alarms_per_h <= 3.0",
-      "measured": "recall=0.9500, FA=9.706/h",
-      "status": "FAIL"
+      "measured": "recall=0.9000, FA=1.500/h",
+      "status": "PASS"
     },
     {
       "gate_id": "G-LAT",
       "description": "Observer execution latency p99 per tick",
       "split": "test",
       "threshold": "p99_on_tick_ms <= 50.0 ms",
-      "measured": "0.839 ms (full observer tick, max evals/tick 8)",
+      "measured": "0.894 ms (full observer tick, max evals/tick 16)",
       "status": "PASS"
     },
     {
@@ -334,7 +334,7 @@
       "description": "Non-interference NI-01..03 (campaign hash, payload, state)",
       "split": "all",
       "threshold": "selected tests green",
-      "measured": "6 passed in 1.45s",
+      "measured": "6 passed in 1.66s",
       "status": "PASS"
     },
     {
@@ -342,7 +342,7 @@
       "description": "Offline runtime ENV-INT-05 + FC-INT-06 (sockets blocked)",
       "split": "all",
       "threshold": "selected tests green",
-      "measured": "2 passed, 11 deselected in 0.59s",
+      "measured": "2 passed, 11 deselected in 0.69s",
       "status": "PASS"
     },
     {

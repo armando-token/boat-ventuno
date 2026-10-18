@@ -1,7 +1,7 @@
 {
   "schema_version": "sdv-forecast-benchmark/1.0",
-  "timestamp_utc": "2026-10-18T04:11:45.665619+00:00",
-  "git_commit": "c6c1052fee860961f902c967f8210dc2ac1447cb",
+  "timestamp_utc": "2026-10-18T05:21:58.647050+00:00",
+  "git_commit": "7c5b31ae4276c4095674e8976fd79805c926f0fe-dirty",
   "device": "Mac",
   "splits_evaluated": [
     "test"
@@ -101,18 +101,18 @@
         "alarm_hits": 40,
         "recall_alarm": 0.7692,
         "median_lead_s": 53.0,
-        "p10_lead_s": -14.0
+        "p10_lead_s": -17.0
       },
-      "false_alarms_per_h": 0.265,
-      "total_false_alarms": 3,
+      "false_alarms_per_h": 0.176,
+      "total_false_alarms": 2,
       "latency_ms": {
         "scope": "production ForecastObserver.on_sample + on_tick (Holt, bands, projector bisection, advisory)",
-        "p50": 0.093,
-        "p99": 0.834,
-        "max": 1.373,
+        "p50": 0.097,
+        "p99": 0.927,
+        "max": 1.856,
         "ticks_measured": 72000
       },
-      "evals_per_tick_max": 8,
+      "evals_per_tick_max": 16,
       "warn_cleared_before_cross": 0
     }
   },
@@ -162,7 +162,7 @@
       "description": "False alarm rate on non-breaching operational series",
       "split": "test",
       "threshold": "false_alarms_per_h <= 1.0",
-      "measured": "0.265 / h (3 WARN in 11.33 h)",
+      "measured": "0.177 / h (2 WARN in 11.33 h)",
       "status": "PASS"
     },
     {
@@ -170,23 +170,7 @@
       "description": "Observer execution latency p99 per tick",
       "split": "test",
       "threshold": "p99_on_tick_ms <= 50.0 ms",
-      "measured": "0.834 ms (full observer tick, max evals/tick 8)",
-      "status": "PASS"
-    },
-    {
-      "gate_id": "G-NI",
-      "description": "Non-interference NI-01..03 (campaign hash, payload, state)",
-      "split": "all",
-      "threshold": "selected tests green",
-      "measured": "6 passed in 1.45s",
-      "status": "PASS"
-    },
-    {
-      "gate_id": "G-OFF",
-      "description": "Offline runtime ENV-INT-05 + FC-INT-06 (sockets blocked)",
-      "split": "all",
-      "threshold": "selected tests green",
-      "measured": "2 passed, 11 deselected in 0.58s",
+      "measured": "0.927 ms (full observer tick, max evals/tick 16)",
       "status": "PASS"
     },
     {

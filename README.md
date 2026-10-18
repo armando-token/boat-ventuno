@@ -1,3 +1,71 @@
+<!-- pdf-ignore-start -->
+<p align="center">
+  <img src="assets/sdv_governor_banner.svg" alt="SDV Resource Governor — Deterministic 8-Class Physical Resource Governor & 3D Naval Digital Twin" width="100%" />
+</p>
+
+<h1 align="center">SDV Resource Governor (<code>sdv-resource-governor</code>)</h1>
+
+<p align="center">
+  <strong>Fincantieri Software-Defined Vessel (SDV) Challenge · San Francisco 2026</strong><br/>
+  Deterministic 8-Class Physical Resource Governor, 3D Naval Digital Twin, Recorded Golden Gate Metocean Outlook &amp; Conformal Consumption Observer — verified bit-for-bit on macOS (<code>arm64</code>) and Arduino Ventuno Q (<code>aarch64</code>).
+</p>
+
+<p align="center">
+  <a href="docs/PHYSICAL_ACCOUNT.pdf"><img src="https://img.shields.io/badge/Physical_Account_(D6)-1--Page_PDF-0B3C5D?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Physical Account PDF" /></a>
+  <a href="docs/MEMO_SCENARIO_C.pdf"><img src="https://img.shields.io/badge/Scenario_C_Memo_(D5)-PDF-185394?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Scenario C Memo PDF" /></a>
+  <a href="docs/PITCH_SLIDES.pdf"><img src="https://img.shields.io/badge/Pitch_Deck-8_Slides_PDF-0F172A?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Pitch Deck PDF" /></a>
+  <a href="docs/FORECAST_AND_PUBLIC_DATA.pdf"><img src="https://img.shields.io/badge/Golden_Gate_&_Forecast-PDF-00599C?style=for-the-badge&logo=noaa&logoColor=white" alt="Forecast and Public Data PDF" /></a>
+  <a href="docs/DEMO_SCRIPT_90S.pdf"><img src="https://img.shields.io/badge/90s_Live_Demo-Script_PDF-0B7A3E?style=for-the-badge" alt="90s Demo Script PDF" /></a>
+</p>
+
+<p align="center">
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.11_%7C_3.12_%7C_3.13-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11 | 3.12 | 3.13" /></a>
+  <a href="https://www.arduino.cc/"><img src="https://img.shields.io/badge/Target_Hardware-Arduino_Ventuno_Q_(aarch64)-00878F?style=flat-square&logo=arduino&logoColor=white" alt="Arduino Ventuno Q" /></a>
+  <a href="tests/"><img src="https://img.shields.io/badge/Automated_Tests-280%2B_Passed_(100%25)-2EA043?style=flat-square&logo=pytest&logoColor=white" alt="Automated Tests" /></a>
+  <a href="src/sdv_governor/evidence.py"><img src="https://img.shields.io/badge/Adversarial_Mutations-37%2F37_Rejected-E11D48?style=flat-square&logo=securityscorecard&logoColor=white" alt="Adversarial Mutations" /></a>
+  <a href="viz3d/"><img src="https://img.shields.io/badge/3D_Digital_Twin-Three.js_r147_(Offline)-000000?style=flat-square&logo=threedotjs&logoColor=white" alt="Three.js r147 Offline" /></a>
+  <a href="data/environment/golden_gate/"><img src="https://img.shields.io/badge/Metocean_Data-NOAA_NDBC_%2B_Open--Meteo-0284C7?style=flat-square" alt="NOAA NDBC + Open-Meteo" /></a>
+  <a href="src/sdv_governor/forecast/"><img src="https://img.shields.io/badge/Forecast_Observer-Damped_Holt_%2B_Conformal_(11%2F11_PASS)-10B981?style=flat-square" alt="Conformal Forecast" /></a>
+  <a href="PROVENANCE.md"><img src="https://img.shields.io/badge/Runtime-100%25_Air--Gapped_Offline-6366F1?style=flat-square" alt="100% Air-Gapped Offline" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-F59E0B?style=flat-square" alt="MIT License" /></a>
+</p>
+
+<p align="center">
+  <a href="#-jury--reviewer-deliverables-index"><strong>Jury Deliverables</strong></a> ·
+  <a href="#1-architecture-diagram--data-flow">Architecture</a> ·
+  <a href="#2-deliverables-objectives--scope-d1-d6">Scope (D1–D6)</a> ·
+  <a href="#3-quickstart-offline--5-minutes">Quickstart</a> ·
+  <a href="#4-eight-class-resource-model">8-Class Budgets</a> ·
+  <a href="#5-adding-a-7th-guest-card-without-touching-code">7th Guest Card</a> ·
+  <a href="#8-public-data--forecasting-advisory">Golden Gate &amp; Forecast</a> ·
+  <a href="#9-repository-structure">Repository Tree</a>
+</p>
+
+---
+
+## 📋 Jury & Reviewer Deliverables Index
+
+> [!IMPORTANT]
+> **One-Command Live Operator Screen (`<= 1.5 s` end-to-end SLA):**  
+> Run `./run_demo.sh` from the repository root to launch the unified single-screen operator console (`http://127.0.0.1:8765/`) featuring the interactive 3D Naval Digital Twin, 2D Bay/Mast/Rack schematic, 8-class budget gauges, Crew `14 / 6 / 0` dial, priority profile switcher, live Jury Card YAML/JSON tester, Golden Gate metocean strip, and single-sentence causal decision log.
+
+| Deliverable | Document / Artifact | Page / Gate Status | Primary Code Modules |
+|---|---|---|---|
+| **D1 — Admission (`<= 30 s`)** | [`src/sdv_governor/admission.py`](src/sdv_governor/admission.py) · [`reconfiguration.py`](src/sdv_governor/reconfiguration.py) | `YES` / `YES_IF` / `NOT_NOW` / `NO` + 1-genset-down check + 0-crew logical reconfig | `admission.py`, `budgets.py`, `env_windows.py` |
+| **D2 — Placement (`D2_LEXICOGRAPHIC_V2`)** | [`src/sdv_governor/placement.py`](src/sdv_governor/placement.py) | Ranked `placement_alternatives` (top 5) + `rejected_placements` with binding witness | `placement.py`, `budgets.py` |
+| **D3 — Right of Way (`<= 2 s`)** | [`src/sdv_governor/arbitration.py`](src/sdv_governor/arbitration.py) · [`acoustic.py`](src/sdv_governor/acoustic.py) | `survey_primary` (`T+1095 s`) vs `rescue_primary` (`T+855 s`), A.6 causal transitions | `arbitration.py`, `scheduling.py`, `acoustic.py` |
+| **D4 — Graceful Degradation (`<= 5 s`)** | [`src/sdv_governor/degradation.py`](src/sdv_governor/degradation.py) | Step-down before shedding (`106.5 -> 69.5 kW`); protects airborne/submerged/critical loads | `degradation.py`, `replay.py` |
+| **D5 — Crew as a Setting (`14 / 6 / 0`)** | **[`docs/MEMO_SCENARIO_C.pdf`](docs/MEMO_SCENARIO_C.pdf)** ([Markdown](docs/MEMO_SCENARIO_C.md)) | **Strictly <= 2 pages** · One explicit flight-deck rule across Crew `14 / 6 / 0` | `scheduling.py`, `arbitration.py`, `reconfiguration.py` |
+| **D6 — Physical Account (Annex C)** | **[`docs/PHYSICAL_ACCOUNT.pdf`](docs/PHYSICAL_ACCOUNT.pdf)** ([Markdown](docs/PHYSICAL_ACCOUNT.md)) | **Strictly 1 page** · All 8 assumption families traced to `file.py::symbol` + `mast_4` counterfactual | `ASSUMPTIONS.yaml`, `budgets.py`, `evidence.py` |
+| **E1 & E2 — Golden Gate & Forecast** | **[`docs/FORECAST_AND_PUBLIC_DATA.pdf`](docs/FORECAST_AND_PUBLIC_DATA.pdf)** ([Markdown](docs/FORECAST_AND_PUBLIC_DATA.md)) | **Strictly <= 2 pages** · 11/11 Benchmark Gates PASS · Strict non-interference (`G-NI`) | `envdata.py`, `env_windows.py`, `forecast/*` |
+| **Technical Pitch Deck** | **[`docs/PITCH_SLIDES.pdf`](docs/PITCH_SLIDES.pdf)** ([Markdown](docs/PITCH_SLIDES.md)) | **8 Visual Slides** (`<= 10 pages`) | `pdf_export.py` |
+| **90-Second Live Demo Script** | **[`docs/DEMO_SCRIPT_90S.pdf`](docs/DEMO_SCRIPT_90S.pdf)** ([Markdown](docs/DEMO_SCRIPT_90S.md)) | **Strictly <= 2 pages** · Step-by-step operator runbook | `run_demo.sh`, `server.py`, `viz3d/` |
+| **Hardware Deployment & BOM** | **[`docs/DEPLOYMENT_AND_BOM.pdf`](docs/DEPLOYMENT_AND_BOM.pdf)** ([Markdown](docs/DEPLOYMENT_AND_BOM.md)) | **Strictly <= 2 pages** · Mac `arm64` <-> Arduino Ventuno Q `aarch64` parity | `deployment.py`, `hardware_inventory.json` |
+| **Provenance, AI & SBOM** | [`PROVENANCE.md`](PROVENANCE.md) · [`AI_USE_DISCLOSURE.md`](AI_USE_DISCLOSURE.md) · [`THIRD_PARTY_COMPONENTS.csv`](THIRD_PARTY_COMPONENTS.csv) | Audited compliance & licensing | `requirements_matrix.csv` |
+
+---
+<!-- pdf-ignore-end -->
+
 # SDV Resource Governor (`sdv-resource-governor`)
 
 **Run the demo (one command):** `./run_demo.sh` opens the single operator screen at `http://127.0.0.1:8765/` (ship schematic, eight gauges, decision log, jury test; legacy console at `/console/`) (creates `.venv` and installs on first run). The same governor runs on the Arduino Ventuno Q (`http://10.0.0.130:8765`, trusted LAN only: the console is unauthenticated).
@@ -5,6 +73,45 @@
 A deterministic resource governor for the 60-70 m reference vessel: it owns the eight Annex A budgets and decides **admission (D1), placement (D2), right of way (D3) and degradation (D4)**, treats **crew (D5: 14 / 6 / 0)** as a setting, and keeps every assumed number in the **Physical Account (D6)**. Every verdict names its binding constraint in one sentence built from the witness that bound it.
 
 ## 1. Architecture Diagram & Data Flow
+
+<!-- pdf-ignore-start -->
+```mermaid
+flowchart TB
+    subgraph INPUTS["1. Offline Authoritative Inputs (YAML / JSON)"]
+        I1["Ship Baseline & A.10 14-Day Envelope<br/>(data/ship/vessel_baseline.yaml)"]
+        I2["Guest Cards G1..G6 + Jury G7<br/>(B.0 Ontology, Errata 990 kg)"]
+        I3["Swappable Priority Profiles<br/>(survey_primary / rescue_primary / custom)"]
+        I4["Recorded Golden Gate Metocean Snapshot<br/>(Open-Meteo + NOAA NDBC 46237/46026/FTPC1)"]
+    end
+
+    subgraph VALIDATION["2. Fail-Closed Schema & Ontology Layer"]
+        V1["manifest.py · 9 Draft 2020-12 JSON Schemas<br/>DAG Cycle Detector · Component Allocation Conservation"]
+    end
+
+    subgraph ENGINE["3. Deterministic 8-Class Physical Resource Governor (Pure Python, Zero ML)"]
+        B1["budgets.py + acoustic.py<br/>Power (200/100 kW, Feeders A/B 150 kW) · Water C(T) & Air Domains<br/>Positions & Roof Clearance · Mass (10t) & Stability (12t-eq)<br/>SATCOM & Layered-Water Acoustic Link · Compute Rack · Crew · Time"]
+        D1["D1: admission.py + reconfiguration.py<br/>YES / YES_IF / NOT_NOW / NO (<= 30 s)<br/>1-Genset-Down Hold Check · 0-Crew Reconfig"]
+        D2["D2: placement.py<br/>D2_LEXICOGRAPHIC_V2 Objective<br/>Top-5 Ranked Alternatives & Rejected Witnesses"]
+        D3["D3: arbitration.py + scheduling.py<br/>Right of Way (<= 2 s) · A.6 Causal FSM<br/>T+1095 s (Survey) vs T+855 s (Rescue)"]
+        D4["D4: degradation.py<br/>Step-Down Before Shedding (<= 5 s)<br/>106.5 kW -> 69.5 kW · Safety < 1 ms"]
+        B1 --> D1 & D2 & D3 & D4
+    end
+
+    subgraph OBSERVER["4. Non-Interfering Advisory Layer"]
+        F1["forecast/ (holt.py, conformal.py, projector.py, advisory.py)<br/>Damped Holt + Split-Conformal Bands + 8-Class Bisection<br/>Median 60.5 s Early Warning · Never Alters Any Governor Verdict"]
+    end
+
+    subgraph OUTPUTS["5. Single Authoritative Session & Cryptographic Evidence"]
+        O1["server.py (:8765)<br/>Unified 3D Digital Twin (viz3d/) & 2D Console (ui/)"]
+        O2["evidence.py + pdf_export.py<br/>SHA-256 Manifests · 37/37 Mutations Rejected · D1..D6 PDFs"]
+    end
+
+    INPUTS --> VALIDATION --> ENGINE
+    ENGINE --> O1 & O2
+    ENGINE -. "Read-only state clone" .-> OBSERVER
+    OBSERVER -. "Advisory telemetry (/api/forecast)" .-> O1
+```
+<!-- pdf-ignore-end -->
 
 ```text
 +--------------------------+   +-------------------------+   +-------------------------+
@@ -102,3 +209,65 @@ Recorded Golden Gate metocean data (Open-Meteo, NOAA NDBC 46237) drive SST, sea 
 ## 9. Repository Structure
 
 `src/sdv_governor/` engine; `data/` and `schemas/` ship, guests, priorities, scenarios; `ui/`, `viz3d/` operator screens; `docs/` deliverables (Markdown + PDF); `tests/`, `artifacts/` test suites and evidence bundles.
+
+<!-- pdf-ignore-start -->
+```text
+sdv-resource-governor/
+├── assets/
+│   └── sdv_governor_banner.svg          # Vector hero banner & vessel telemetry overview
+├── data/
+│   ├── environment/golden_gate/         # Frozen NOAA NDBC (46237/46026/FTPC1) + Open-Meteo snapshot
+│   ├── forecast/holt_params.yaml        # Calibrated damped Holt & split-conformal quantiles
+│   ├── guests/G1..G6_*.yaml             # Official Annex B guest cards & component allocations
+│   ├── overrides/                       # Organizer errata (G4 990 kg = 140 + 850 kg) & clarifications
+│   ├── priorities/                      # Swappable mission priority profiles (survey_primary, rescue_primary)
+│   ├── scenarios/                       # Official Scenario A, A', B, C & Golden Gate recorded timelines
+│   └── ship/                            # Vessel baseline, A.10 14-day envelope, A.6 timing & acoustic policies
+├── docs/
+│   ├── PHYSICAL_ACCOUNT.pdf             # D6 Physical Account (strictly 1 page, zero truncation)
+│   ├── MEMO_SCENARIO_C.pdf              # D5 Crew 14/6/0 Memo (<= 2 pages, one explicit flight-deck rule)
+│   ├── FORECAST_AND_PUBLIC_DATA.pdf     # E1/E2 Golden Gate & Conformal Forecast report (<= 2 pages)
+│   ├── PITCH_SLIDES.pdf                 # 8-slide visual technical pitch deck
+│   ├── DEMO_SCRIPT_90S.pdf              # 90-second live operator runbook
+│   ├── DEPLOYMENT_AND_BOM.pdf           # Hardware deployment & bill of materials
+│   └── evidence/                        # Pre-registered benchmark reports (Mac arm64 & Ventuno Q aarch64)
+├── schemas/                             # 9 Draft 2020-12 JSON Schemas (strict additionalProperties: false)
+├── scripts/
+│   ├── verify_clean_clone.sh            # End-to-end clean-clone verification script
+│   └── bench_latency.py                 # Endpoint & tick latency benchmark harness
+├── src/sdv_governor/
+│   ├── admission.py                     # D1: 14-day A.10 admission, YES_IF options, 1-genset-down check
+│   ├── placement.py                     # D2: D2_LEXICOGRAPHIC_V2 solver, ranked alternatives & witnesses
+│   ├── arbitration.py                   # D3: Right-of-way utility optimizer & A.6 causal recovery timelines
+│   ├── degradation.py                   # D4: Step-down before shedding & < 1 ms urgent safety dispatch
+│   ├── scheduling.py                    # D5: Crew 14/6/0 confirmation, deck-clear & A' windows
+│   ├── reconfiguration.py               # C3: Logical reconfiguration proposals at 0 crew at sea
+│   ├── acoustic.py                      # C2: Layered-water acoustic link loss & G3 timeout hold
+│   ├── budgets.py                       # 8-class physical resource accounting & thermal inertia
+│   ├── envdata.py & env_windows.py      # E1: Golden Gate metocean series & guarded 48h window finder
+│   ├── forecast/                        # E2: Pure-Python damped Holt, conformal bands & physics bisection
+│   ├── evidence.py                      # Cryptographic bundle verifier & 37-mutation adversarial suite
+│   ├── server.py & cli.py               # Thread-safe HTTP server (:8765) & CLI entrypoints
+│   └── _bundled/                        # Byte-for-byte air-gapped wheel mirror
+├── viz3d/                               # Unified single-screen 3D Naval Digital Twin (Three.js r147 offline)
+├── ui/                                  # Classic 2D operator console (/console/)
+├── tests/                               # 280+ unit, integration, adversarial & performance tests
+├── ASSUMPTIONS.yaml                     # Machine-readable registry of every assumed physical parameter
+├── PROVENANCE.md & AI_USE_DISCLOSURE.md # Provenance, licensing & AI use disclosure
+└── run_demo.sh                          # One-command bootstrap & live server launcher
+```
+
+---
+
+## 🖥️ Cross-Platform Hardware Parity (Mac `arm64` ↔ Arduino Ventuno Q `aarch64`)
+
+| Metric / Verification Gate | Apple MacBook Pro (`arm64`, Python 3.13) | Arduino Ventuno Q (`aarch64`, Python 3.12) | Status |
+|---|---|---|---|
+| **Automated Test Suite (`pytest`)** | `280+ passed (100%)` | `280+ passed (100%)` | **PASS** |
+| **Adversarial Verifier (`--run-mutations`)** | `37 / 37 mutations rejected (0 false accepts)` | `37 / 37 mutations rejected (0 false accepts)` | **PASS** |
+| **Scenario B `survey_primary` Semantic SHA-256** | Bit-for-bit identical | Bit-for-bit identical | **PASS** |
+| **Scenario B `rescue_primary` Semantic SHA-256** | Bit-for-bit identical | Bit-for-bit identical | **PASS** |
+| **Forecast Observer `on_tick` Latency (p99)** | `0.007 ms` (budget `<= 50 ms`) | `2.42 ms` (budget `<= 50 ms`) | **PASS** |
+| **Urgent Safety Command Dispatch (`STOP`)** | `< 1 ms` (budget `<= 200 ms`) | `< 1 ms` (budget `<= 200 ms`) | **PASS** |
+| **Interactive HTTP API SLA (`GET /api/*`)** | `4 – 35 ms` (budget `<= 1,500 ms`) | `30 – 306 ms` (budget `<= 1,500 ms`) | **PASS** |
+<!-- pdf-ignore-end -->

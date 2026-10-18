@@ -27,7 +27,7 @@
   <a href="data/environment/golden_gate/"><img src="https://img.shields.io/badge/Metocean_Data-NOAA_NDBC_%2B_Open--Meteo-0284C7?style=flat-square" alt="NOAA NDBC + Open-Meteo" /></a>
   <a href="src/sdv_governor/forecast/"><img src="https://img.shields.io/badge/Forecast_Observer-Damped_Holt_%2B_Conformal_(11%2F11_PASS)-10B981?style=flat-square" alt="Conformal Forecast" /></a>
   <a href="PROVENANCE.md"><img src="https://img.shields.io/badge/Runtime-100%25_Air--Gapped_Offline-6366F1?style=flat-square" alt="100% Air-Gapped Offline" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-F59E0B?style=flat-square" alt="MIT License" /></a>
+  <a href="BACKGROUND_IP.md"><img src="https://img.shields.io/badge/IP_Status-Hackathon_Evaluation_(All_Rights_Reserved)-1E293B?style=flat-square" alt="Hackathon Evaluation Only" /></a>
 </p>
 
 <p align="center">

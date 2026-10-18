@@ -65,14 +65,13 @@
     }
     S.resize = resize;
     S.setOverlayWidth = function (px) { S.overlayW = px || 0; resize(); };
-    if (window.ResizeObserver) new ResizeObserver(resize).observe(stage); else window.addEventListener('resize', resize);
-    resize();
 
     // ------------------------------------------------------------ camera rig
     const rig = { cur: Object.assign({}, PRESETS.schematic), des: Object.assign({}, PRESETS.schematic), drag: false, pan: false, lx: 0, ly: 0 };
     S.setCam = function (name) {
       const p = PRESETS[name]; if (!p) return;
-      Object.assign(rig.des, p);
+      S.autoFit = name === 'schematic';
+      if (S.autoFit) fitSchematic(false); else Object.assign(rig.des, p);
       if (env.setUnderwaterView) env.setUnderwaterView(name === 'subsea');
       document.querySelectorAll('#segCam button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-cam') === name); });
     };
@@ -85,6 +84,7 @@
     window.addEventListener('pointerup', function () { rig.drag = false; canvas.classList.remove('drag'); });
     window.addEventListener('pointermove', function (e) {
       if (!rig.drag) return;
+      S.autoFit = false;
       const dx = e.clientX - rig.lx, dy = e.clientY - rig.ly;
       rig.lx = e.clientX; rig.ly = e.clientY;
       const d = rig.des;
@@ -100,73 +100,161 @@
     });
     canvas.addEventListener('wheel', function (e) {
       e.preventDefault();
+      S.autoFit = false;
       rig.des.r = clamp(rig.des.r * (1 + e.deltaY * 0.0012), 14, 190);
     }, { passive: false });
     canvas.addEventListener('dblclick', function () { S.setCam('schematic'); });
 
-    // ------------------------------------------------------------ labels (projected HTML tags)
+    // ------------------------------------------------------------ auto-framing (schematic preset adapts to the stage aspect)
+    const HULL = [[-30, 0, 5.5], [-30, 0, -5.5], [-30, 6.5, 5.5], [-30, 6.5, -5.5], [30, 0, 3.5], [30, 0, -3.5], [30, 8.5, 0],
+      [5.85, 21, 0], [-2, 9.5, 5], [-2, 9.5, -5], [12, 12, 4], [12, 12, -4]];
+    const fitCam = new THREE.PerspectiveCamera(36, 1, 1.4, 6500);
+    const fv = new THREE.Vector3(), fR = new THREE.Vector3(), fU = new THREE.Vector3();
+    S.autoFit = true;
+    S.fitInsets = function (w, h) {
+      // room for the KPI strip on top and a callout column on each side
+      const cw = S.colW || { L: 150, R: 150 };
+      const f = function (c) { return clamp(c * 0.8 + 10, 60, w * 0.24); };
+      return { l: f(cw.L), r: f(cw.R), t: h < 420 ? 64 : 70, b: 14 };
+    };
+    function projectHull(cam, w, h) {
+      vessel.root.updateMatrixWorld();
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      HULL.forEach(function (p) {
+        fv.set(p[0], p[1], p[2]); vessel.root.localToWorld(fv); fv.project(cam);
+        const x = (fv.x * 0.5 + 0.5) * w, y = (-fv.y * 0.5 + 0.5) * h;
+        x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      });
+      return { x0: x0, x1: x1, y0: y0, y1: y1 };
+    }
+    function placeCam(cam, c) {
+      cam.position.set(c.tx + c.r * Math.sin(c.ph) * Math.sin(c.th), Math.max(1.2, c.ty + c.r * Math.cos(c.ph)), c.tz + c.r * Math.sin(c.ph) * Math.cos(c.th));
+      cam.lookAt(c.tx, c.ty, c.tz); cam.updateMatrixWorld(); cam.updateProjectionMatrix();
+    }
+    function fitSchematic(snap) {
+      if (!S.autoFit) return;
+      const w = Math.max(320, stage.clientWidth), h = Math.max(200, stage.clientHeight);
+      const ins = S.fitInsets(w, h);
+      const rw = Math.max(120, w - ins.l - ins.r), rh = Math.max(100, h - ins.t - ins.b);
+      const d = Object.assign({}, PRESETS.schematic);
+      fitCam.aspect = w / h;
+      for (let i = 0; i < 10; i++) {
+        placeCam(fitCam, d);
+        const bb = projectHull(fitCam, w, h);
+        const s = Math.max((bb.x1 - bb.x0) / (rw * 0.94), (bb.y1 - bb.y0) / (rh * 0.94));
+        if (isFinite(s) && s > 0) d.r = clamp(d.r * s, 24, 220);
+        placeCam(fitCam, d);
+        const b2 = projectHull(fitCam, w, h);
+        const dx = (b2.x0 + b2.x1) / 2 - (ins.l + rw / 2), dy = (b2.y0 + b2.y1) / 2 - (ins.t + rh / 2);
+        const wpp = 2 * d.r * Math.tan(THREE.MathUtils.degToRad(fitCam.fov / 2)) / h;
+        fR.setFromMatrixColumn(fitCam.matrixWorld, 0); fU.setFromMatrixColumn(fitCam.matrixWorld, 1);
+        if (!isFinite(dx) || !isFinite(dy)) break;
+        d.tx += (fR.x * dx - fU.x * dy) * wpp; d.ty += (fR.y * dx - fU.y * dy) * wpp; d.tz += (fR.z * dx - fU.z * dy) * wpp;
+      }
+      Object.assign(rig.des, d);
+      if (snap) Object.assign(rig.cur, d);
+    }
+    S.refit = fitSchematic;
+    let fitFirst = true;
+    function onResize() { resize(); if (S.autoFit) { fitSchematic(fitFirst); fitFirst = false; } }
+    if (window.ResizeObserver) new ResizeObserver(onResize).observe(stage); else window.addEventListener('resize', onResize);
+    onResize();
+
+    // ------------------------------------------------------------ labels: side callouts with leader lines
     const pool = {};
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const leaders = document.createElementNS(svgNS, 'svg');
+    leaders.setAttribute('class', 'leaders');
+    $('labels').appendChild(leaders);
     S.setLabels = function (defs) {
       S.labels = defs;
       const seen = {};
+      const now = performance.now();
       defs.forEach(function (d) {
         seen[d.id] = 1;
         let el = pool[d.id];
-        if (!el) { el = pool[d.id] = document.createElement('div'); el.style.opacity = 0; $('labels').appendChild(el); }
-        el.className = 'tag ' + (d.cls || '') + (d.side ? ' side-' + d.side : '');
-        const html = '<i></i><span class="tt">' + d.title + '</span>' + (d.rows ? '<span class="rows">' + d.rows + '</span>' : '');
+        if (!el) {
+          el = pool[d.id] = document.createElement('div'); el.style.opacity = 0; $('labels').appendChild(el);
+          el._line = document.createElementNS(svgNS, 'path'); el._dot = document.createElementNS(svgNS, 'circle'); el._dot.setAttribute('r', '3');
+          leaders.appendChild(el._line); leaders.appendChild(el._dot);
+          el._sig = d.sig; el._hl = 0;
+        } else if (d.sig !== undefined && el._sig !== d.sig) { el._sig = d.sig; el._hl = now + 4500; el._pulse = true; }
+        el._cls = d.cls || '';
+        const html = '<span class="tt">' + d.title + '</span>' + (d.short ? '<span class="ts">' + d.short + '</span>' : '') + (d.rows ? '<span class="rows">' + d.rows + '</span>' : '');
         if (el._html !== html) { el.innerHTML = html; el._html = html; }
         if (d.tip !== undefined) el.title = d.tip;
       });
-      Object.keys(pool).forEach(function (k) { if (!seen[k]) { pool[k].remove(); delete pool[k]; } });
+      Object.keys(pool).forEach(function (k) { if (!seen[k]) { pool[k]._line.remove(); pool[k]._dot.remove(); pool[k].remove(); delete pool[k]; } });
+    };
+    S.labelRects = function () {
+      return Object.keys(pool).map(function (k) { const el = pool[k]; return el.style.opacity === '1' ? Object.assign({ id: k }, el.getBoundingClientRect().toJSON()) : null; }).filter(Boolean);
     };
     const tmpV = new THREE.Vector3();
-    function updateLabels() {
+    function layoutColumn(items, lo, hi, gap) {
+      items.sort(function (a, b) { return a.ay - b.ay; });
+      items.forEach(function (it) { it.y = it.ay - it.h / 2; });
+      for (let i = 0; i < items.length; i++) { if (i) items[i].y = Math.max(items[i].y, items[i - 1].y + items[i - 1].h + gap); }
+      for (let i = items.length - 1; i >= 0; i--) {
+        const lim = i === items.length - 1 ? hi - items[i].h : items[i + 1].y - gap - items[i].h;
+        items[i].y = Math.min(items[i].y, lim);
+      }
+      for (let i = 0; i < items.length; i++) { if (i) items[i].y = Math.max(items[i].y, items[i - 1].y + items[i - 1].h + gap); else items[i].y = Math.max(items[i].y, lo); }
+    }
+    function updateLabels(now) {
       const w = stage.clientWidth, h = stage.clientHeight;
+      const lab = $('labels');
+      if (S._cmpKey !== w + 'x' + h) { S._cmpKey = w + 'x' + h; S._needCompact = false; }
+      const compact = h < 440 || w < 700 || S._needCompact;
+      lab.classList.toggle('compact', compact);
+      lab.classList.toggle('narrow', compact && w < 900);
+      leaders.setAttribute('width', w); leaders.setAttribute('height', h);
       vessel.root.updateMatrixWorld();
-      const placed = [];
+      const bb = projectHull(camera, w, h);
+      const ov = S.overlayW > 0;
+      const cols = { L: [], R: [] };
       S.labels.forEach(function (d) {
         const el = pool[d.id]; if (!el) return;
         const a = d.pos || vessel.anchors[d.anchor];
-        if (!a || !S.labelsOn || (d.xray && !vessel.isXray()) || (S.overlayW > 0 && !/ghost/.test(d.cls || ''))) { el.style.opacity = 0; return; }
+        const hide = function () { el.style.opacity = 0; el._line.style.opacity = 0; el._dot.style.opacity = 0; };
+        if (!a || !S.labelsOn || (d.xray && !vessel.isXray()) || (ov && !/ghost/.test(d.cls || ''))) { hide(); return; }
         tmpV.set(a[0], a[1], a[2]); vessel.root.localToWorld(tmpV); tmpV.project(camera);
-        const vis = tmpV.z > -1 && tmpV.z < 1 && Math.abs(tmpV.x) < 1.02 && Math.abs(tmpV.y) < 1.02;
-        el.style.opacity = vis ? 1 : 0;
-        if (!vis) return;
-        let x = (tmpV.x * 0.5 + 0.5) * w, y = (-tmpV.y * 0.5 + 0.5) * h;
-        const ox = d.dx || 0, oy = d.dy || 0;
-        const ew = el.offsetWidth || 120, eh = el.offsetHeight || 34;
-        // keep tags inside the stage and away from the KPI strip / milestone bar
-        let lx = clamp(x + ox - ew / 2, 6 + S.overlayW, w - ew - 6);
-        let ly = clamp(y + oy - eh - 10, 56, h - eh - 52);
-        const lo = 56, hi = h - eh - 52;
-        function hits(yy) {
-          for (let k = 0; k < placed.length; k++) {
-            const p = placed[k];
-            if (lx < p.x + p.w + 4 && lx + ew + 4 > p.x && yy < p.y + p.h + 3 && yy + eh + 3 > p.y) return p;
-          }
-          return null;
-        }
-        // walk away from collisions (preferred direction first, then the other) until a free slot is found
-        if (hits(ly)) {
-          const dirs = d.side === 'down' ? [1, -1] : [-1, 1];
-          let best = ly;
-          for (let di = 0; di < 2; di++) {
-            let yy = ly, p, n = 0, ok = false;
-            while ((p = hits(yy)) && n++ < 12) {
-              yy = dirs[di] > 0 ? p.y + p.h + 3 : p.y - eh - 3;
-              if (yy < lo || yy > hi) break;
-            }
-            if (yy >= lo && yy <= hi && !hits(yy)) { best = yy; ok = true; }
-            if (ok) break;
-          }
-          ly = clamp(best, lo, hi);
-        }
-        placed.push({ x: lx, y: ly, w: ew, h: eh });
-        el.style.transform = 'translate(' + lx.toFixed(1) + 'px,' + ly.toFixed(1) + 'px)';
-        el.style.setProperty('--ax', (x - lx).toFixed(1) + 'px');
-        el.style.setProperty('--ay', (y - ly).toFixed(1) + 'px');
+        if (!(tmpV.z > -1 && tmpV.z < 1 && Math.abs(tmpV.x) < 1.02 && Math.abs(tmpV.y) < 1.02)) { hide(); return; }
+        const hl = el._hl > now;
+        el.className = 'tag ' + el._cls + (hl ? ' hl' : '') + (el._pulse ? ' pulse' : '');
+        if (el._pulse) { el._pulse = false; void el.offsetWidth; }
+        const it = { el: el, ax: (tmpV.x * 0.5 + 0.5) * w, ay: (-tmpV.y * 0.5 + 0.5) * h, w: el.offsetWidth || 120, h: el.offsetHeight || 24 };
+        (ov || a[0] < -5 ? cols.L : cols.R).push(it);
       });
+      const top = h < 420 ? 52 : 58, bot = h - 8, gap = 5, mg = 8;
+      const colW = { L: 0, R: 0 };
+      [['L', cols.L], ['R', cols.R]].forEach(function (pair) {
+        const left = pair[0] === 'L', items = pair[1];
+        if (!items.length) return;
+        if (!compact && items.reduce(function (sum, i) { return sum + i.h + gap; }, 0) > bot - top) S._needCompact = true;
+        layoutColumn(items, top, bot, gap);
+        const cw = Math.max.apply(null, items.map(function (i) { return i.w; }));
+        colW[pair[0]] = Math.max.apply(null, items.map(function (i) { return /\bhl\b/.test(i.el.className) ? 0 : i.w; }));
+        let edge = left ? Math.max(mg + cw, bb.x0 - 14) : Math.min(w - mg - cw - (ov ? S.overlayW + 10 : 0), bb.x1 + 14);
+        if (left && ov) edge = Math.min(edge, Math.max(mg + cw, w - S.overlayW - 24));
+        items.forEach(function (it) {
+          const x = left ? edge - it.w : edge;
+          const ex = left ? x + it.w : x, ey = it.y + it.h / 2;
+          const kx = left ? Math.min(ex + 16, it.ax) : Math.max(ex - 16, it.ax);
+          it.el.style.opacity = 1;
+          it.el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + it.y.toFixed(1) + 'px)';
+          it.el.classList.toggle('side-l', left); it.el.classList.toggle('side-r', !left);
+          it.el._line.setAttribute('d', 'M' + ex.toFixed(1) + ' ' + ey.toFixed(1) + 'H' + kx.toFixed(1) + 'L' + it.ax.toFixed(1) + ' ' + it.ay.toFixed(1));
+          it.el._line.setAttribute('class', 'ld ' + it.el._cls);
+          it.el._dot.setAttribute('cx', it.ax.toFixed(1)); it.el._dot.setAttribute('cy', it.ay.toFixed(1));
+          it.el._dot.setAttribute('class', 'ad ' + it.el._cls);
+          it.el._line.style.opacity = 1; it.el._dot.style.opacity = 1;
+        });
+      });
+      // re-frame the ship once the callout columns have a stable width
+      if (!ov && S.autoFit && (colW.L || colW.R)) {
+        const prev = S.colW || { L: 0, R: 0 };
+        if (Math.abs(prev.L - colW.L) > 24 || Math.abs(prev.R - colW.R) > 24) { const first = !S.colW; S.colW = colW; fitSchematic(first); }
+      }
     }
 
     // ------------------------------------------------------------ main loop
@@ -202,7 +290,7 @@
           coolingDegraded: view.coolingDegraded, g3: view.g3, drone: view.drone, g5AntennaPos: view.g5AntennaPos
         });
         renderer.render(scene, camera);
-        updateLabels();
+        updateLabels(now);
         if (firstFrame) { firstFrame = false; $('boot').classList.add('done'); SDV.running = true; }
       } catch (err) {
         failed = true;

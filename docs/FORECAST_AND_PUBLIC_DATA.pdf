@@ -85,7 +85,7 @@ BT /F2 7.60 Tf 0.11 0.24 0.44 rg 26.00 251.99 Td (3. Pre-Registered Acceptance G
 q 0.75 0.82 0.90 rg 26.00 249.99 560.00 0.60 re f Q
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 238.79 Td (Measured by tools/bench_forecast.py --split both on the production ForecastObserver \(on_sample + on_tick\), commit c6c1052, macOS arm64. Disjoint seeds: train) Tj ET
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 230.49 Td (1000--1239, calib 2000--2079, test 3000--3119, ood 4000--4119, control_steady_1h 5000--5005. Full output: docs/evidence/forecast_report_20261018.{md,json}. Re-run) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 222.19 Td (on the Arduino Ventuno Q \(aarch64, same code_sha256 c2408f6f? as Mac, verified by deploy-board\): identical metrics, G-LAT p99 2.42 ms) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 222.19 Td (on the Arduino Ventuno Q \(aarch64, same code_sha256 99ef1677? as Mac, verified by deploy-board\): identical metrics, G-LAT p99 2.68 ms) Tj ET
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 26.00 213.89 Td (\(forecast_report_ventunoq.{md,json}; git_commit reads unknown because the board copy has no .git\). Thresholds were not changed.) Tj ET
 q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 201.39 68.25 11.00 re B Q
 BT /F2 5.80 Tf 1.00 1.00 1.00 rg 29.00 204.39 Td (Gate ID) Tj ET
@@ -127,7 +127,7 @@ BT /F1 5.80 Tf 0.10 0.14 0.20 rg 97.25 164.39 Td (p99 full observer tick <= 50 m
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 230.70 154.39 81.56 18.00 re B Q
 BT /F1 5.80 Tf 0.10 0.14 0.20 rg 233.70 164.39 Td (test) Tj ET
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 312.26 154.39 205.48 18.00 re B Q
-BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 164.39 Td (p99 = 2.42 ms on Ventuno Q \(0.91 ms Mac\), <= 8 evals/tick) Tj ET
+BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 164.39 Td (p99 = 2.68 ms on Ventuno Q \(0.91 ms Mac\), <= 8 evals/tick) Tj ET
 BT /F1 5.80 Tf 0.10 0.14 0.20 rg 315.26 157.39 Td (\(<= 16 in OOD mode\)) Tj ET
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 517.75 154.39 68.25 18.00 re B Q
 BT /F1 5.80 Tf 0.10 0.14 0.20 rg 520.75 164.39 Td (PASS) Tj ET
@@ -247,7 +247,7 @@ BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 565.09 Td (and never changes the governor
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 555.29 Td (* 4. Thermal Baseline Adherence: At Golden Gate SST \(~16 deg C\), cooling is not the binding constraint; 14-day admission is still judged at 30 deg C design) Tj ET
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 546.99 Td (worst-case.) Tj ET
 BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 537.19 Td (* 5. Known trade-off: in OOD mode WARN is more conservative \(recall 0.90 vs 1.00 in distribution; 4 of 40 OOD ramps warned < 10 s ahead\). G-LAT on the Ventuno Q) Tj ET
-BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 528.89 Td (is 2.42 ms p99, far below 50 ms.) Tj ET
+BT /F1 6.80 Tf 0.12 0.15 0.20 rg 36.00 528.89 Td (is 2.68 ms p99, far below 50 ms.) Tj ET
 endstream
 endobj
 9 0 obj

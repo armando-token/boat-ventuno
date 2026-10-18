@@ -18,6 +18,412 @@ function setStaleBanner(isStale, reason = "") {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Jury-readable renderers. All server strings go through textContent only.
+// ---------------------------------------------------------------------------
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined && text !== null) node.textContent = String(text);
+  return node;
+}
+
+function rawJsonDetails(obj, label = "Raw JSON") {
+  const det = el("details", "raw-json");
+  det.appendChild(el("summary", null, label));
+  det.appendChild(el("pre", "raw-json-pre", JSON.stringify(obj, null, 2)));
+  return det;
+}
+
+const VERDICT_CLASSES = {
+  YES: "verdict-yes",
+  YES_IF: "verdict-yesif",
+  YES_WITH_STEP_DOWN: "verdict-yesif",
+  NO: "verdict-no",
+  NOT_NOW: "verdict-notnow",
+  REJECTED: "verdict-no",
+  VALIDATION_ERROR: "verdict-no",
+};
+
+function verdictBadge(verdict, big = false) {
+  const v = String(verdict || "—");
+  const cls = VERDICT_CLASSES[v] || "verdict-neutral";
+  return el("span", `verdict-badge ${cls}${big ? " verdict-big" : ""}`, v);
+}
+
+const RESOURCE_LABELS = {
+  power: "Power reserve",
+  cooling: "Chilled-water cooling",
+  mass_stability: "Guest mass / stability",
+  positions: "Deck / bay position",
+  data: "SATCOM / data link",
+  compute: "Compute",
+  time: "Install window",
+  crew: "Crew",
+  dependencies: "Dependency",
+  environment: "Sea / weather",
+  mast: "Mast",
+};
+
+const NON_NUMERIC_UNITS = new Set([
+  "slot", "slots", "window", "clearance", "condition", "conflict", "mode_conflict", "guest", "",
+]);
+
+function fmtNumber(v, maxDigits = 1) {
+  return Number(v).toLocaleString("en-US", { maximumFractionDigits: maxDigits });
+}
+
+function fmtQuantity(value, unit) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return `${value ?? "?"} ${unit || ""}`.trim();
+  switch (unit) {
+    case "W":
+      return Math.abs(value) >= 1000 ? `${fmtNumber(value / 1000)} kW` : `${fmtNumber(value, 0)} W`;
+    case "bps":
+      if (Math.abs(value) >= 1e6) return `${fmtNumber(value / 1e6, 2)} Mbps`;
+      if (Math.abs(value) >= 1e3) return `${fmtNumber(value / 1e3, 1)} kbps`;
+      return `${fmtNumber(value, 0)} bps`;
+    case "kg":
+      return `${fmtNumber(value, 0)} kg`;
+    case "kg_eq":
+      return `${fmtNumber(value, 0)} kg-eq`;
+    case "degC":
+      return `${fmtNumber(value)} °C`;
+    default:
+      return `${fmtNumber(value, 2)} ${unit || ""}`.trim();
+  }
+}
+
+function isNumericConstraint(bc) {
+  return bc && typeof bc.demand === "number" && typeof bc.capacity === "number" && !NON_NUMERIC_UNITS.has(bc.unit || "");
+}
+
+function plainConstraint(bc) {
+  if (!bc) return "";
+  const label = RESOURCE_LABELS[bc.resource_class] || bc.resource_class || bc.constraint_id || "Constraint";
+  if (!isNumericConstraint(bc)) {
+    return `${label}: ${bc.detail || bc.constraint_id || "blocked"}`;
+  }
+  const short = typeof bc.margin === "number" ? Math.abs(bc.margin) : bc.demand - bc.capacity;
+  return (
+    `${label} has ${fmtQuantity(bc.capacity, bc.unit)} available, ` +
+    `needs ${fmtQuantity(bc.demand, bc.unit)} (${fmtQuantity(short, bc.unit)} short)`
+  );
+}
+
+function primaryBindingConstraint(constraints) {
+  if (!Array.isArray(constraints) || constraints.length === 0) return null;
+  return constraints.find(isNumericConstraint) || constraints[0];
+}
+
+function stripAdmissionPrefix(sentence) {
+  if (!sentence) return "";
+  const m = String(sentence).match(/->\s*[A-Z_]+:\s*(.*)$/);
+  return m ? m[1] : String(sentence);
+}
+
+function describeAction(rd) {
+  const ids = (rd.displace_guest_ids || []).join(", ") || "?";
+  switch (rd.action_type) {
+    case "REMOVE_AT_PORT":
+      return `remove ${ids} at port`;
+    case "DEACTIVATE_AND_REPLACE":
+      return `switch off and replace ${ids}`;
+    default:
+      return `${String(rd.action_type || "displace").toLowerCase().replace(/_/g, " ")} ${ids}`;
+  }
+}
+
+function admissionHeadline(payload) {
+  const dec = (payload && payload.decision) || {};
+  const explicit = payload.headline || payload.plain_sentence || dec.headline || dec.plain_sentence;
+  if (explicit) return String(explicit);
+  const verdict = dec.verdict || "";
+  const cand = dec.candidate_guest_id || payload.candidate_guest_id || "candidate";
+  const bc = primaryBindingConstraint(dec.binding_constraints);
+  const why = bc ? plainConstraint(bc) : stripAdmissionPrefix(dec.causal_sentence || payload.causal_sentence);
+  if (verdict === "YES") {
+    return `Admitted: ${cand} fits — ${stripAdmissionPrefix(dec.causal_sentence || payload.causal_sentence) || "all resource classes feasible"}`;
+  }
+  if (verdict === "YES_IF") {
+    const first = (dec.ranked_displacements || [])[0];
+    const cond = first ? describeAction(first) : (dec.required_conditions || [])[0];
+    return cond ? `Yes, if we ${cond}: ${why}.` : `Yes, conditionally: ${why}.`;
+  }
+  if (verdict === "NOT_NOW") {
+    const nw = dec.next_window;
+    const when = nw && typeof nw.start_s === "number" ? ` Next window opens at T+${nw.start_s}s.` : "";
+    return `Not now: ${why}.${when}`;
+  }
+  if (verdict === "NO") return `Refused: ${why}.`;
+  return why || "No verdict returned.";
+}
+
+function addSection(parent, title) {
+  const sec = el("div", "rc-section");
+  sec.appendChild(el("div", "rc-section-title", title));
+  parent.appendChild(sec);
+  return sec;
+}
+
+function fmtPositions(m) {
+  return Object.entries(m || {})
+    .map(([k, v]) => `${k} → ${v}`)
+    .join(", ");
+}
+
+function renderAdmissionResult(payload, httpStatus = 200) {
+  const box = document.getElementById("admission-result-box");
+  if (!box) return;
+  box.textContent = "";
+  const card = el("div", "result-card");
+  const dec = (payload && payload.decision) || null;
+
+  if (!dec) {
+    const head = el("div", "rc-head");
+    head.appendChild(verdictBadge(payload && payload.status ? payload.status : `HTTP ${httpStatus}`, true));
+    card.appendChild(head);
+    card.appendChild(el("div", "rc-headline", (payload && (payload.message || payload.causal_sentence)) || "No decision returned."));
+    card.appendChild(rawJsonDetails(payload));
+    box.appendChild(card);
+    return;
+  }
+
+  const head = el("div", "rc-head");
+  head.appendChild(verdictBadge(dec.verdict, true));
+  const meta = el("div", "rc-meta");
+  meta.appendChild(el("strong", null, `Candidate ${dec.candidate_guest_id || payload.candidate_guest_id || "?"}`));
+  if (typeof payload.candidate_total_mass_kg === "number") {
+    meta.appendChild(el("span", null, ` · ${fmtQuantity(payload.candidate_total_mass_kg, "kg")}`));
+  }
+  if (typeof dec.calculation_elapsed_ms === "number") {
+    const ok = dec.within_30s_deadline !== false;
+    meta.appendChild(
+      el("span", ok ? "rc-ok" : "rc-bad", ` · decided in ${fmtNumber(dec.calculation_elapsed_ms, 1)} ms${ok ? " (≤ 30 s ✓)" : " (> 30 s ✗)"}`)
+    );
+  }
+  head.appendChild(meta);
+  card.appendChild(head);
+
+  card.appendChild(el("div", "rc-headline", admissionHeadline(payload)));
+
+  const bcs = dec.binding_constraints || [];
+  if (bcs.length) {
+    const sec = addSection(card, "Binding constraints");
+    const ul = el("ul", "rc-list");
+    bcs.forEach((bc) => {
+      const li = el("li", null, plainConstraint(bc));
+      if (bc.state_label) li.appendChild(el("span", "rc-dim", ` @ ${bc.state_label}`));
+      ul.appendChild(li);
+    });
+    sec.appendChild(ul);
+  }
+
+  const ranked = dec.ranked_displacements || [];
+  const reqs = dec.required_conditions || [];
+  if (dec.verdict === "YES_IF" && (ranked.length || reqs.length)) {
+    const sec = addSection(card, "Conditions (ranked, cheapest first)");
+    const ol = el("ol", "rc-list");
+    const MAX_SHOWN = 3;
+    ranked.slice(0, MAX_SHOWN).forEach((rd) => {
+      const li = el("li");
+      li.appendChild(el("strong", null, describeAction(rd)));
+      const cost = [];
+      if (typeof rd.total_score_lost === "number") cost.push(`capability lost ${fmtNumber(rd.total_score_lost)} pts`);
+      if (typeof rd.net_capability_delta === "number") {
+        cost.push(`net ${rd.net_capability_delta >= 0 ? "+" : ""}${fmtNumber(rd.net_capability_delta)}`);
+      }
+      if (cost.length) li.appendChild(el("span", null, ` — ${cost.join(", ")}`));
+      (rd.capability_lost_breakdown || []).forEach((c) => {
+        const mode = c.displaced_from_mode ? ` (was ${c.displaced_from_mode})` : "";
+        li.appendChild(el("div", "rc-dim", `${c.capability_lost_description || c.guest_id}${mode}`));
+      });
+      ol.appendChild(li);
+    });
+    reqs.forEach((r) => ol.appendChild(el("li", null, String(r))));
+    sec.appendChild(ol);
+    if (ranked.length > MAX_SHOWN) {
+      sec.appendChild(el("div", "rc-dim", `+${ranked.length - MAX_SHOWN} costlier option(s) — see Raw JSON`));
+    }
+  }
+
+  if (dec.verdict === "NOT_NOW" && dec.next_window) {
+    const sec = addSection(card, "Next window");
+    const nw = dec.next_window;
+    sec.appendChild(el("div", null, typeof nw.start_s === "number" ? `Opens at T+${nw.start_s}s` : nw.reason || "None in forecast horizon"));
+  }
+
+  const pl = dec.placement || {};
+  const alts = dec.placement_alternatives || [];
+  const rejected = dec.rejected_placements || [];
+  if (pl.subcomponent_positions || alts.length || rejected.length) {
+    const sec = addSection(card, "Placement (D2)");
+    if (pl.subcomponent_positions) {
+      const chosen = el("div");
+      chosen.appendChild(el("strong", null, "Chosen: "));
+      chosen.appendChild(
+        document.createTextNode(
+          `${fmtPositions(pl.subcomponent_positions)}${pl.compute_node ? ` · compute ${pl.compute_node}` : ""}${pl.initial_mode ? ` · starts in ${pl.initial_mode}` : ""}`
+        )
+      );
+      sec.appendChild(chosen);
+    }
+    if (alts.length || rejected.length) {
+      const ul = el("ul", "rc-list");
+      alts.forEach((a) =>
+        ul.appendChild(el("li", null, `Not chosen #${a.rank}: ${fmtPositions(a.subcomponent_positions)} — ${a.why_not_chosen || ""}`))
+      );
+      rejected.forEach((r) =>
+        ul.appendChild(el("li", null, `Rejected: ${fmtPositions(r.subcomponent_positions)} — ${r.why_rejected || ""}`))
+      );
+      sec.appendChild(ul);
+    }
+  }
+
+  const g = dec.one_genset_down;
+  if (g) {
+    const sec = addSection(card, "One genset down");
+    const row = el("div");
+    row.appendChild(verdictBadge(g.holds));
+    row.appendChild(document.createTextNode(` ${gensetDownLabel(g.holds)} — ${g.sentence || ""}`));
+    sec.appendChild(row);
+  }
+
+  if (payload.application_reason || payload.applied !== undefined) {
+    card.appendChild(
+      el("div", "rc-dim", `Plan ${payload.applied ? "applied" : "not applied"}${payload.application_reason ? ` (${payload.application_reason})` : ""}`)
+    );
+  }
+
+  card.appendChild(rawJsonDetails(payload));
+  box.appendChild(card);
+}
+
+function fmtSimTime(s) {
+  return typeof s === "number" ? `T+${s}s` : "T+?";
+}
+
+function entryLabel(entry) {
+  if (entry.type === "SESSION_ACTION" && entry.action) return String(entry.action);
+  return String(entry.type || entry.phase || "EVENT");
+}
+
+const ADMISSION_SENTENCE_RE =
+  /^Admission of (\S+) \(([^)]*)\) -> ([A-Z_]+): \[([a-z_]+)\.([^\]]+)\] demand=(-?[\d.]+) (\S+) vs capacity=(-?[\d.]+) \S+ \(margin=(-?[\d.]+) \S+\)(?: — (.*?))?\.?$/;
+
+const VERDICT_PREFIX = { NO: "refused", NOT_NOW: "not now", YES_IF: "yes, conditionally" };
+
+function plainEntrySentence(entry) {
+  const raw = entry.causal_sentence || entry.rationale || (entry.decision && (entry.decision.causal_sentence || entry.decision.rationale));
+  if (!raw) return "(no causal sentence)";
+  const m = String(raw).match(ADMISSION_SENTENCE_RE);
+  if (!m) return String(raw);
+  const [, gid, mass, verdict, rclass, cid, demand, unit, capacity, margin, detail] = m;
+  const bc = {
+    resource_class: rclass,
+    constraint_id: cid,
+    demand: Number(demand),
+    capacity: Number(capacity),
+    margin: Number(margin),
+    unit,
+    detail,
+  };
+  const prefix = VERDICT_PREFIX[verdict] || verdict;
+  return `${gid} (${mass}) ${prefix}: ${plainConstraint(bc)}.`;
+}
+
+function buildTimeline(entries) {
+  const indexed = (entries || []).map((e, i) => ({ e, i }));
+  indexed.sort((a, b) => {
+    const ta = typeof a.e.sim_time_s === "number" ? a.e.sim_time_s : -1;
+    const tb = typeof b.e.sim_time_s === "number" ? b.e.sim_time_s : -1;
+    if (tb !== ta) return tb - ta;
+    const va = a.e.state_version || 0;
+    const vb = b.e.state_version || 0;
+    if (vb !== va) return vb - va;
+    return b.i - a.i;
+  });
+  const ol = el("ol", "timeline");
+  if (!indexed.length) {
+    ol.appendChild(el("li", "timeline-empty", "No decisions yet."));
+    return ol;
+  }
+  indexed.forEach(({ e }) => {
+    const li = el("li", "timeline-item");
+    const head = el("div", "timeline-head");
+    head.appendChild(el("span", "timeline-time", fmtSimTime(e.sim_time_s)));
+    head.appendChild(el("span", "timeline-type", entryLabel(e)));
+    if (e.verdict) head.appendChild(verdictBadge(e.verdict));
+    li.appendChild(head);
+    const sentenceEl = el("div", "timeline-sentence", plainEntrySentence(e));
+    if (e.causal_sentence) sentenceEl.title = String(e.causal_sentence);
+    li.appendChild(sentenceEl);
+    ol.appendChild(li);
+  });
+  return ol;
+}
+
+const ELAPSED_LABELS = {
+  first_shedding_command_elapsed_ms: "first shed command",
+  total_sequence_elapsed_ms: "full sequence",
+  replan_elapsed_ms: "replan",
+  calculation_elapsed_ms: "decision",
+  command_latency_ms: "command latency",
+  elapsed_ms: "elapsed",
+  latency_ms: "latency",
+};
+
+function buildActionCard(title, result, fallbackStatus) {
+  const r = result || {};
+  const card = el("div", "result-card");
+  const head = el("div", "rc-head");
+  head.appendChild(verdictBadge(r.verdict || r.status || fallbackStatus, true));
+  const meta = el("div", "rc-meta");
+  meta.appendChild(el("strong", null, title));
+  if (r.status && r.verdict) meta.appendChild(el("span", "rc-dim", ` · ${r.status}`));
+  const timings = Object.keys(ELAPSED_LABELS)
+    .filter((k) => typeof r[k] === "number")
+    .map((k) => `${ELAPSED_LABELS[k]} ${fmtNumber(r[k], 1)} ms`);
+  if (timings.length) meta.appendChild(el("span", "rc-ok", ` · ${timings.join(", ")}`));
+  head.appendChild(meta);
+  card.appendChild(head);
+  const sentence = r.causal_sentence || r.rationale || r.message;
+  card.appendChild(el("div", "rc-headline", sentence || "No causal sentence returned."));
+  if (r.rationale && r.rationale !== sentence) card.appendChild(el("div", "rc-rationale", r.rationale));
+  const impacts = (r.guest_impacts || []).filter((gi) => gi && gi.guest_id);
+  if (impacts.length) {
+    const sec = addSection(card, "Guest impact");
+    const ul = el("ul", "rc-list");
+    impacts.forEach((gi) => {
+      const modes = gi.mode_before && gi.mode_after ? `${gi.mode_before} → ${gi.mode_after}` : gi.mode_after || "";
+      const loses = gi.loses ? `, loses ${gi.loses}` : "";
+      ul.appendChild(el("li", null, `${gi.guest_id}: ${modes}${loses}`));
+    });
+    sec.appendChild(ul);
+  }
+  return card;
+}
+
+function renderDecisionLogBox({ card = null, summary = null, entries = [], raw = null, rawLabel = "Raw JSON" } = {}) {
+  const box = document.getElementById("decision-log-box");
+  if (!box) return;
+  box.textContent = "";
+  if (card) box.appendChild(card);
+  if (summary) box.appendChild(el("div", "timeline-summary", summary));
+  box.appendChild(el("div", "rc-section-title", "Decision log (newest first)"));
+  box.appendChild(buildTimeline(entries));
+  if (raw !== null) box.appendChild(rawJsonDetails(raw, rawLabel));
+}
+
+function renderActionResponse(title, payload) {
+  const result = payload && (payload.result || payload);
+  renderDecisionLogBox({
+    card: buildActionCard(title, result, payload && payload.status),
+    entries: (payload && payload.decision_log) || (currentStatePayload && currentStatePayload.decision_log) || [],
+    raw: payload,
+  });
+}
+
 async function fetchConsoleState(priorityProfile = "survey_primary") {
   try {
     const res = await fetch(`/api/state?priority_profile=${encodeURIComponent(priorityProfile)}`);
@@ -201,8 +607,17 @@ function renderTimelineTick(tickIdx) {
   // Show decisions up to current tick + canonical decision_log causal sentences
   const relevantDecisions = (replay.decisions || []).filter((d) => d.tick <= clamped);
   const canonicalDecisionLog = (currentStatePayload.decision_log || []).filter((d) => d.tick <= clamped);
-  document.getElementById("decision-log-box").textContent = JSON.stringify(
-    {
+  const visibleLog = (currentStatePayload.decision_log || []).filter((d) =>
+    typeof d.tick === "number" ? d.tick <= clamped : (d.sim_time_s || 0) <= t.sim_time_s
+  );
+  const pendingCount = (currentStatePayload.pending_transitions || []).length;
+  renderDecisionLogBox({
+    summary:
+      `${fmtSimTime(t.sim_time_s)} · ${phaseTag} · profile ${replay.priority_profile_id || "?"}` +
+      (replay.executed_touchdown_time_s != null ? ` · G4 touchdown T+${replay.executed_touchdown_time_s}s` : "") +
+      (pendingCount ? ` · ${pendingCount} pending transition(s)` : ""),
+    entries: visibleLog,
+    raw: {
       run_id: currentStatePayload.run_id,
       tick_state: phaseTag,
       snapshot_id: tickSnapshotId,
@@ -214,9 +629,7 @@ function renderTimelineTick(tickIdx) {
       decision_log: canonicalDecisionLog,
       decisions_emitted_up_to_tick: relevantDecisions,
     },
-    null,
-    2
-  );
+  });
 }
 
 const GENSET_DOWN_LABELS = {
@@ -447,7 +860,11 @@ if (btnApplyCustomProfile) {
       });
       const payload = await res.json();
       if (res.status === 422) {
-        document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
+        renderDecisionLogBox({
+          card: buildActionCard("Custom priority profile rejected", payload, payload.status || "VALIDATION_ERROR"),
+          entries: (currentStatePayload && currentStatePayload.decision_log) || [],
+          raw: payload,
+        });
         return;
       }
       if (!res.ok) {
@@ -702,7 +1119,7 @@ document.querySelectorAll("[data-perturb]").forEach((btn) => {
       const payload = await res.json();
       setStaleBanner(false);
       await fetchConsoleState(prof);
-      document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
+      renderActionResponse(`Perturbation ${pType}`, payload);
     } catch (err) {
       setStaleBanner(true, err.message || "Network error");
     }
@@ -740,7 +1157,7 @@ document.getElementById("btn-layered-toggle").addEventListener("click", async ()
       ? "Enlace acústico G3: OK"
       : `Enlace acústico G3: CAÍDO (${causes}) — hold autónomo por timeout`;
     await fetchConsoleState(prof);
-    document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
+    renderActionResponse(`Water column layered: ${waterLayered ? "ON" : "OFF"}`, payload);
   } catch (err) {
     setStaleBanner(true, err.message || "Network error");
   }
@@ -792,12 +1209,22 @@ document.getElementById("btn-admit-live").addEventListener("click", async () => 
       }),
     });
     if (!res.ok) {
+      if (res.status >= 400 && res.status < 500) {
+        let errPayload = null;
+        try {
+          errPayload = await res.json();
+        } catch (_) {
+          errPayload = { status: `HTTP ${res.status}` };
+        }
+        renderAdmissionResult(errPayload, res.status);
+        return;
+      }
       setStaleBanner(true, `HTTP ${res.status} on /api/admit_live`);
       return;
     }
     const payload = await res.json();
     setStaleBanner(false);
-    document.getElementById("admission-result-box").textContent = JSON.stringify(payload, null, 2);
+    renderAdmissionResult(payload);
     renderGensetDownLine(payload);
     renderPlacementAlternatives(payload);
     renderLogicalReconfiguration(payload);

@@ -1035,6 +1035,13 @@ def _verify_independent_semantic_invariants(
             "scenario_B_cooling_limited_sha256": timeline_doc["cooling_limited_30c"]["semantic_sha256"],
             "scenario_C_crew_regimes": decisions_doc["scenario_C"],
         }
+        # Declared layered-water variant (C2): included in the campaign hash, recomputed from its replay blocks.
+        for variant_key, summary_key in (
+            ("layered_water_survey_primary", "scenario_B_layered_water_survey_primary_sha256"),
+            ("layered_water_rescue_primary", "scenario_B_layered_water_rescue_primary_sha256"),
+        ):
+            if variant_key in timeline_doc:
+                sem_summary[summary_key] = timeline_doc[variant_key]["semantic_sha256"]
         recomputed_camp_sha = canonical_json_hash(sem_summary)
         if recomputed_camp_sha != decisions_doc.get("campaign_semantic_sha256"):
             errors.append(
@@ -1680,6 +1687,15 @@ def generate_evidence_bundle(
             "horizon_obligations_summary": campaign_result["scenario_B"]["cooling_limited_30c"].get("horizon_obligations_summary"),
             "decisions": campaign_result["scenario_B"]["cooling_limited_30c"]["decisions"],
             "timeline_ticks": campaign_result["scenario_B"]["cooling_limited_30c"]["timeline_ticks"],
+        },
+        **{
+            variant_key: {
+                "semantic_sha256": campaign_result["scenario_B"][variant_key]["semantic_sha256"],
+                "executed_touchdown_time_s": campaign_result["scenario_B"][variant_key]["executed_touchdown_time_s"],
+                "decisions": campaign_result["scenario_B"][variant_key]["decisions"],
+                "timeline_ticks": campaign_result["scenario_B"][variant_key]["timeline_ticks"],
+            }
+            for variant_key in ("layered_water_survey_primary", "layered_water_rescue_primary")
         },
     }
     timeline_path = bundle_dir / "replay_timeline.json"

@@ -6,9 +6,11 @@ from itertools import combinations
 import time
 from typing import Any, Dict, List, Optional, Tuple
 
+from .acoustic import guests_requiring_acoustic_command_link
 from .budgets import evaluate_eight_class_budgets
 from .explanations import build_decision_rationale
 from .models import (
+    StrictValidationError,
     BindingConstraintWitness,
     GuestManifest,
     PriorityProfile,
@@ -213,6 +215,12 @@ def evaluate_mission_envelope_a10(
         w_state.cooling_loop_degraded = bool(w.get("cooling_loop_degraded", False))
         w_state.satcom_available_bps = int(w.get("satcom_available_bps", 6000000))
         w_state.emcon_silence = bool(w.get("emcon_silence", False))
+        raw_layered = w.get("water_column_layered", False)
+        if not isinstance(raw_layered, bool):
+            raise StrictValidationError(
+                "TYPE_ERROR", "water_column_layered must be a boolean", f"envelope_states.{wid}.water_column_layered"
+            )
+        w_state.water_column_layered = raw_layered
 
         is_degraded_or_heavy_window = (
             w_state.cooling_loop_degraded
@@ -301,19 +309,23 @@ def evaluate_mission_envelope_a10(
                     bw_copy["state_label"] = f"ENVELOPE:{wid}"
                     envelope_binding_witnesses.append(bw_copy)
 
-        window_reports.append(
-            {
-                "window_id": wid,
-                "seawater_temp_c": w_state.seawater_temp_c,
-                "sea_state": w_state.sea_state,
-                "wind_kn": w_state.wind_kn,
-                "feasible": window_passed,
-                "conditioned": conditioned_for_window,
-                "power_free_w": snap["classes"]["power"]["free"],
-                "cooling_free_w": snap["classes"]["cooling"]["free"],
-                "binding_witnesses": snap["binding_witnesses"],
-            }
-        )
+        window_report = {
+            "window_id": wid,
+            "seawater_temp_c": w_state.seawater_temp_c,
+            "sea_state": w_state.sea_state,
+            "wind_kn": w_state.wind_kn,
+            "feasible": window_passed,
+            "conditioned": conditioned_for_window,
+            "power_free_w": snap["classes"]["power"]["free"],
+            "cooling_free_w": snap["classes"]["cooling"]["free"],
+            "binding_witnesses": snap["binding_witnesses"],
+        }
+        if w_state.water_column_layered and guests_requiring_acoustic_command_link(w_state, aug_catalog):
+            # Informational only (A.5): the verdict is unchanged; the guest needs its autonomous lost-link behaviour.
+            window_report["acoustic_link_note"] = (
+                "LAYERED_WATER: acoustic command link unavailable; acoustic-commanded guests rely on autonomous timeout hold (ASSUMED)"
+            )
+        window_reports.append(window_report)
 
     return {
         "envelope_id": mission_envelope.get("envelope_id", "A10_14DAY_OFFSHORE_ENVELOPE"),

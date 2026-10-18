@@ -28,7 +28,7 @@ from sdv_governor.replay import (
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Golden pinned hashes before forecast work (Megaplan F0, NI-01)
-PINNED_CAMPAIGN_HASH = "ebff0e22a74e20fc781a3d9af31e8f591e725f993194c2a0ba31d17fdf715c3c"
+PINNED_CAMPAIGN_HASH = "fd806cda1c871f8c2c9db047f2b34f5547c70d2b60fe9111d4e35ba292646231"
 PINNED_B_SURVEY_HASH = "90a2ce1137b0d5729c466f2c313b143d0d189ab21ae9d13093b5d3e380b94a6d"
 PINNED_B_RESCUE_HASH = "d5b36570f0b6bf0ee068dff610a96e382a6c2192458f1cc93e31cc2fcfaf4c7a"
 PINNED_B_COOLING_HASH = "d4638ec023aef2f484f700b24ae314b7f7d0261456ee697b5b35e9ae332ec5ae"

@@ -92,6 +92,7 @@ MODE_KEYS: Set[str] = {
     "forbids_emcon_silence",
     "requires_deck_clear",
     "requires_quiet_acoustic_state",
+    "requires_acoustic_command_link",
     "capability_retention_ratio",
     "value_origin",
     "field_origins",
@@ -589,7 +590,7 @@ def parse_guest_manifest(
         require_dict(
             m_raw,
             mp,
-            required_keys=MODE_KEYS - {"field_origins", "component_allocations"},
+            required_keys=MODE_KEYS - {"field_origins", "component_allocations", "requires_acoustic_command_link"},
             allowed_keys=MODE_KEYS,
         )
 
@@ -639,6 +640,7 @@ def parse_guest_manifest(
         m_emcon = require_bool(m_raw["forbids_emcon_silence"], f"{mp}.forbids_emcon_silence")
         m_deck = require_bool(m_raw["requires_deck_clear"], f"{mp}.requires_deck_clear")
         m_quiet = require_bool(m_raw["requires_quiet_acoustic_state"], f"{mp}.requires_quiet_acoustic_state")
+        m_acoustic_cmd = require_bool(m_raw.get("requires_acoustic_command_link", False), f"{mp}.requires_acoustic_command_link")
         cap_ret = require_finite_number(
             m_raw["capability_retention_ratio"],
             f"{mp}.capability_retention_ratio",
@@ -820,6 +822,7 @@ def parse_guest_manifest(
             value_origin=m_origin,
             field_origins=m_field_origins,
             component_allocations=parsed_allocs,
+            requires_acoustic_command_link=m_acoustic_cmd,
         )
 
     inst_raw = require_dict(

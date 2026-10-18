@@ -175,6 +175,7 @@
           "forbids_emcon_silence": { "type": "boolean" },
           "requires_deck_clear": { "type": "boolean" },
           "requires_quiet_acoustic_state": { "type": "boolean" },
+          "requires_acoustic_command_link": { "type": "boolean" },
           "capability_retention_ratio": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
           "value_origin": {
             "type": "string",

@@ -6,6 +6,7 @@ import re
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from .acoustic import evaluate_acoustic_link
 from .areas import area_conflicts, exclusive_areas
 from .models import (
     BindingConstraintWitness,
@@ -367,6 +368,28 @@ def _select_primary_water_compute_subcomponent(
         if alloc is not None and alloc.nominal_power_w > 0:
             return sc.subcomponent_id
     return manifest.subcomponents[0].subcomponent_id
+
+
+def _acoustic_local_limit(state: ShipOperationalState, catalog: Dict[str, GuestManifest]) -> Dict[str, Any]:
+    """Informational acoustic-link entry (A.5), emitted only when layering or an outage is an explicit state input.
+
+    Manoeuvre/deck-machinery causes are transient consequences of plans and stay out of the budget so default
+    snapshots (and their hashes) are unchanged. The entry is not a binding witness: a lost link must not make the
+    autonomous-hold fallback infeasible.
+    """
+    if not (state.water_column_layered or state.acoustic_link_forced_down):
+        return {}
+    status = evaluate_acoustic_link(state, catalog)
+    return {
+        "acoustic": {
+            "available": status.available,
+            "causes": list(status.causes),
+            "rate_bps_max": status.rate_bps_max,
+            "policy_id": status.policy_id,
+            "binding": False,
+            "provenance": "ASSUMED" if state.water_column_layered else "SCENARIO_INPUT",
+        }
+    }
 
 
 def evaluate_eight_class_budgets(
@@ -1343,6 +1366,7 @@ def evaluate_eight_class_budgets(
                         "emcon_silence": state.emcon_silence,
                         "emcon_violated": emcon_violated,
                     },
+                    **_acoustic_local_limit(state, catalog),
                 },
             },
             "compute": {

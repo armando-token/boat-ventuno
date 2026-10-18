@@ -121,7 +121,6 @@ KNOWN_CAPABILITIES: Set[str] = {
     "salvage_assistance",
     "subsea_acoustic_survey",
     "aerial_sar_surveillance",
-    "sigint_ew_monitoring",
     "rov_hull_inspection",
     "meteo_passive_sensing",
     "water_column_sampling",
@@ -325,13 +324,11 @@ VALID_GUEST_CATEGORIES: Set[str] = {
     "AUV_HYDRO_SURVEY",
     "UAV_SAR_SURVEILLANCE",
     "EMERGENCY_COMMS_EDGE_COMPUTE",
-    "SIGINT_EDGE_PROCESSING",
     "CIVIL_HYDRO_SAMPLER",
     "METEO_SENSOR",
     "ROV_INSPECTION",
     "AUV_SURVEY",
     "UAV_SAR",
-    "SIGINT_EDGE",
     "AUXILIARY_PAYLOAD",
 }
 

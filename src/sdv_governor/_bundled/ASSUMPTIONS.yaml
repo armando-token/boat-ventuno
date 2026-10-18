@@ -85,7 +85,7 @@ assumptions:
       - "data/guests/G2_rov_inspection.yaml"
       - "data/guests/G3_auv_survey.yaml"
       - "data/guests/G4_uav_sar.yaml"
-      - "data/guests/G5_edge_sigint.yaml"
+      - "data/guests/G5_emergency_comms_edge.yaml"
       - "src/sdv_governor/manifest.py"
 
   - id: ASM-02
@@ -173,7 +173,7 @@ assumptions:
     concretized_values: "In FULL_SPECTRUM (45,000 W total): G5_COMPUTE_CONTAINER draws 43,800 W electrical / 43,800 W chilled water, and G5_MAST_ANTENNA draws 1,200 W electrical / 1,200 W local air. In DEGRADED_70PCT_LOSS (8,000 W total): G5_COMPUTE_CONTAINER draws 7,500 W electrical / 7,500 W water, and G5_MAST_ANTENNA draws 500 W electrical / 500 W air. In STANDBY (2,000 W nominal, 2,500 W peak): G5_COMPUTE_CONTAINER draws 2,000 W nominal (2,500 W peak) / 2,000 W water, and G5_MAST_ANTENNA draws 0 W. When +20% perturbation (+9,000 W) is applied to G5 FULL_SPECTRUM, the 9,000 W compute overload is attributed once to G5_COMPUTE_CONTAINER (52,800 W water + 1,200 W air = 54,000 W total)."
     justification: "Routes each G5 subcomponent's electrical draw and heat rejection to the feeder line and thermal domain of its actual placement (bay2 -> LINE_B_AFT/water; hangar_roof -> LINE_B_AFT/roof-air or mast_3 -> LINE_A_FWD/mast-air) while strictly conserving energy 1:1."
     code_references:
-      - "data/guests/G5_edge_sigint.yaml"
+      - "data/guests/G5_emergency_comms_edge.yaml"
       - "src/sdv_governor/budgets.py"
       - "src/sdv_governor/manifest.py"
 

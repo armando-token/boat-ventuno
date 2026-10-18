@@ -1,4 +1,4 @@
-/* viz3d/js/app.js — Authoritative 3D scene wiring, camera rig, synchronized clock & STALE banner (ALIGN-T37..T41). */
+/* viz3d/js/app.js — Authoritative 3D scene wiring, camera rig, synchronized clock & full D1-D6 scope controls. */
 (function () {
   'use strict';
   const THREE = window.THREE, SDV = window.SDV;
@@ -18,10 +18,10 @@
     cutaway:   { th: 0.32,  ph: 1.08, r: 52, tx: -2,  ty: 1.5,  tz: 0 }
   };
   const MODE_TEXT = {
-    QUIET_SURVEY: 'Mission 1: Quiet Seabed Survey — G3 AUV scanning seafloor · G4 Drone on base',
-    UAV_RECOVERY_HEADING: 'Mission 3: Turning into wind — G4 Drone returning to land on helideck',
-    DEGRADED_POWER: 'Mission 4: DG2 Power Degraded — Governor stepping down G5 to protect G3',
-    DEGRADED_THERMAL: 'Thermal Derating Active — Chilled water loop at 30 °C (−40 %)'
+    QUIET_SURVEY: 'Scenario B Nominal · G3 Seabed AUV scanning seafloor (1 kW + 24 kW firm reserve) · G4 VTOL Drone on SAR patrol',
+    UAV_RECOVERY_HEADING: 'D3 Arbitration Active · G3 AUV in HOLD_ACOUSTIC · Vessel turning into wind (045°, 8.0 kn) for G4 UAV recovery',
+    DEGRADED_POWER: 'D4 Power Degradation (100 kW Reserve) · Governor stepped down G5 (45→8 kW) to protect G3 AUV & G4 35 kW recovery',
+    DEGRADED_THERMAL: 'D4 Thermal Derating Active · Chilled-water loop C(30°C) −40% = 72.0 kW · G5 stepped down to 7.5 kW water load'
   };
 
   SDV.start = function () {
@@ -113,12 +113,7 @@
     let interpToSimT = 0;
     let interpStartWallMs = performance.now();
 
-    let view = SDV.deriveFromAuthoritative({
-      run_id: 'RUN_INIT',
-      snapshot_version: 1,
-      sim_time_s: 0,
-      runner_status: 'PAUSED'
-    }, 0);
+    let view = SDV.deriveFromAuthoritative(SDV.localSession.getStatePayload(), 0);
     let seaS = view.seaState, labelsOn = true;
 
     function applyAuthoritativePayload(payload, forceSnapClock) {
@@ -128,7 +123,6 @@
         ? payload.sim_time_s
         : (typeof payload.current_sim_time_s === 'number' ? payload.current_sim_time_s : 0);
 
-      // Invalidate interpolation buffers on run_id change or reset or backward jump (ALIGN-T40)
       if (forceSnapClock || newRunId !== currentRunId || newSimT < interpToSimT) {
         currentRunId = newRunId;
         interpFromSimT = newSimT;
@@ -140,7 +134,7 @@
         interpStartWallMs = performance.now();
       }
       if (payload.priority_profile_id && $('profile')) {
-        activeProfile = payload.priority_profile_id;
+        activeProfile = payload.priority_profile_id.toLowerCase();
         $('profile').value = activeProfile;
       }
       if (payload.runner_status === 'COMPLETED' && playing) {
@@ -154,21 +148,25 @@
 
     // ------------------------------------------------------------ 3D HUD Labels (ALIGN-T37: separate mast_3 G1 vs hangar_roof G5)
     const labelDefs = [
-      { k: 'auv', t: function () { return 'G3 Seabed AUV'; }, e: function () { return view.g3 === 'HOLD_ACOUSTIC' ? 'HOLD STATION' : 'SONAR SURVEY'; }, s: function () { return view.g3 === 'HOLD_ACOUSTIC' ? 'warn' : ''; } },
+      { k: 'auv', t: function () { return 'G3 Seabed AUV'; }, e: function () {
+        if (view.g3 === 'STOPPED_OFF') return 'STOPPED (0 W)';
+        return view.g3 === 'HOLD_ACOUSTIC' ? 'HOLD STATION (1 kW)' : 'SONAR SURVEY (1/25 kW)';
+      }, s: function () { return view.g3 === 'STOPPED_OFF' ? 'alarm' : (view.g3 === 'HOLD_ACOUSTIC' ? 'warn' : ''); } },
       { k: 'pad', t: function () { return 'G4 VTOL Drone'; }, e: function () {
-        if (view.drone.mode === 'landed') return 'LANDED · ' + view.drone.batt + '%';
-        if (view.drone.mode === 'recover') return 'RTB LANDING · ' + view.drone.batt + '%';
-        return 'PATROL · BATT ' + view.drone.batt + '%';
+        if (view.g4 === 'STOPPED_OFF') return 'STOPPED (0 W)';
+        if (view.drone.mode === 'landed') return 'HANGAR/PAD · ' + view.drone.batt + '%';
+        if (view.drone.mode === 'recover') return 'RTB LANDING (35 kW) · ' + view.drone.batt + '%';
+        return 'PATROL (10 kW) · BATT ' + view.drone.batt + '%';
       }, s: function () { return view.drone.mode === 'recover' ? 'warn' : ''; } },
       { k: 'target', t: function () { return 'SAR Distress Buoy'; }, e: function () { return view.drone.mode === 'patrol' ? 'SCANNING' : 'BEACON'; }, s: function () { return 'warn'; } },
       { k: 'pods', t: function () { return '2× Pod + Shaft + Rudder'; }, e: function () { return view.speedKn.toFixed(1) + ' kn'; }, s: function () { return ''; } },
-      { k: 'bay1', t: function () { return 'Bay 1 · G3 LARS'; }, e: function () { return '5.5 t · ' + view.g3; }, s: function () { return view.g3 === 'HOLD_ACOUSTIC' ? 'warn' : ''; } },
-      { k: 'bay2', t: function () { return 'Bay 2 · G5 Edge'; }, e: function () { return view.g5 === 'FULL_SPECTRUM' ? '45 kW' : '8 kW'; }, s: function () { return view.g5Degraded ? 'warn' : ''; } },
-      { k: 'mast', t: function () { return 'Mast 3 · ' + (view.mast3Owner || 'G1 (G1_MAST_UNIT)'); }, e: function () { return '45 kg (×3.0)'; }, s: function () { return ''; } },
-      { k: 'hangarRoof', t: function () { return 'Hangar Roof · ' + (view.hangarRoofOccupant || 'G5:G5_MAST_ANTENNA'); }, e: function () { return '25 kg (×1.2)'; }, s: function () { return view.g5Degraded ? 'warn' : ''; } },
+      { k: 'bay1', t: function () { return 'Bay 1 · G3 LARS'; }, e: function () { return '5,500 kg · ' + view.g3; }, s: function () { return view.g3 === 'HOLD_ACOUSTIC' ? 'warn' : ''; } },
+      { k: 'bay2', t: function () { return 'Bay 2 · G5 Edge'; }, e: function () { return view.g5 === 'FULL_SPECTRUM' ? '45 kW FULL' : '8 kW DEGRADED'; }, s: function () { return view.g5Degraded ? 'warn' : ''; } },
+      { k: 'mast', t: function () { return 'Mast 3 · ' + (view.mast3Owner || 'G1:G1_MAST_SENSOR_HEAD'); }, e: function () { return '45 kg (×3.0 = 135 kg-eq)'; }, s: function () { return ''; } },
+      { k: 'hangarRoof', t: function () { return 'Hangar Roof · ' + (view.hangarRoofOccupant || 'G5:G5_MAST_ANTENNA'); }, e: function () { return '25 kg (×1.2 = 30 kg-eq)'; }, s: function () { return view.g5Degraded ? 'warn' : ''; } },
       { k: 'gun', t: function () { return vessel.root.userData.civil ? 'Fire Monitor' : '76mm Bow Mount'; }, e: function () { return ''; }, s: function () { return ''; } },
       { k: 'dg2', t: function () { return 'DG2 · Reserve'; }, e: function () { return view.gen2Tripped ? 'TRIPPED (100 kW)' : '200 kW nominal'; }, s: function () { return view.gen2Tripped ? 'alarm' : ''; }, x: true },
-      { k: 'rack', t: function () { return 'Compute Rack'; }, e: function () { return '4 nodes'; }, s: function () { return view.coolingDegraded ? 'warn' : ''; }, x: true }
+      { k: 'rack', t: function () { return 'Compute Rack'; }, e: function () { return (view.computeCores || 26) + '/' + (view.computeCoresMax || 100) + ' cores · ' + (typeof view.computeAcc === 'number' ? view.computeAcc : 2) + '/' + (view.computeAccMax || 3) + ' acc'; }, s: function () { return view.coolingDegraded ? 'warn' : ''; }, x: true }
     ];
     labelDefs.forEach(function (d) {
       d.el = document.createElement('div'); d.el.className = 'tag'; d.el.style.opacity = 0;
@@ -195,7 +193,7 @@
       });
     }
 
-    // ------------------------------------------------------------ UI & STALE Banner Rendering
+    // ------------------------------------------------------------ UI & Connection Banner Rendering
     const fmtT = function (s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
     const nice = function (m) { const s = String(m || '').replace(/_/g, ' ').toLowerCase(); return s.charAt(0).toUpperCase() + s.slice(1); };
 
@@ -208,6 +206,9 @@
         if (conn === 'LIVE') {
           chip.textContent = '● LIVE GOVERNOR (' + SDV.apiState.bridgeMode + ')';
           chip.className = 'chip ok';
+        } else if (conn === 'LOCAL_ENGINE') {
+          chip.textContent = '● LOCAL ENGINE (1:1 AUTH)';
+          chip.className = 'chip src';
         } else if (conn === 'PREVIEW_SYNTHETIC') {
           chip.textContent = '● PREVIEW SYNTHETIC';
           chip.className = 'chip warn';
@@ -222,21 +223,34 @@
           $('staleBannerMeta').textContent = 'v' + view.version + ' · ' + view.snapshotId + ' · T+' + fmtT(view.simT);
         }
       }
-      const controls = document.querySelectorAll('[data-inject], #admRun, #btnPlay, #btnReset, #scrub, #profile, #segMission button');
-      controls.forEach(function (el) { el.disabled = isStale; });
+      // ALIGN-T38: Disable mutation controls when backend is STALE / DESCONECTADO
+      ['btnPlay', 'btnStep', 'btnReset', 'profile', 'scrub', 'crewRegime', 'deckClear', 'btnClear', 'admRun', 'admCommit'].forEach(function (id) {
+        const el = $(id);
+        if (el) el.disabled = isStale;
+      });
+      document.querySelectorAll('[data-inject], #segMission button').forEach(function (btn) {
+        btn.disabled = isStale;
+      });
     }
 
     function renderUI() {
       updateConnectionBanner();
       const exactSec = Math.min(1800, Math.round(view.simExact));
       $('chipClock').textContent = 'T+' + fmtT(exactSec);
-      if ($('chipVersion')) $('chipVersion').textContent = 'v' + view.version + ' · ' + view.snapshotId;
-      $('chipSea').textContent = 'Sea state ' + view.seaState;
+      if ($('chipVersion')) {
+        const shaShort = (view.semanticSha || '').slice(0, 8);
+        $('chipVersion').textContent = 'v' + view.version + ' · ' + view.snapshotId + (shaShort ? ' · ' + shaShort : '');
+      }
+      $('chipSea').textContent = 'Sea ' + view.seaState + ' · ' + (view.waterTempC || 24).toFixed(1) + '°C';
       $('chipWind').textContent = 'Wind ' + view.windKn + ' kn';
       $('kSpeed').innerHTML = view.speedKn.toFixed(1) + '<small>kn</small>';
       $('kHdg').innerHTML = String(Math.round(view.heading)).padStart(3, '0') + '<small>°</small>';
       $('kMode').textContent = nice(view.mode);
-      $('tlLabel').textContent = fmtT(exactSec) + ' / ' + fmtT(1800);
+      if ($('kTd') && view.d3Milestones) {
+        const tdS = view.d3Milestones.td;
+        $('kTd').textContent = 'T+' + fmtT(tdS) + ' (' + tdS + 's)';
+      }
+      $('tlLabel').textContent = fmtT(exactSec) + ' / ' + fmtT(1800) + ' (20×)';
       $('scrub').value = String(view.tick);
 
       document.querySelectorAll('#segMission button').forEach(function (b) {
@@ -245,17 +259,39 @@
 
       $('classes').innerHTML = view.classes.map(function (c) {
         const cls = c.bound ? 'a' : c.pct > 80 ? 'w' : '';
-        return '<div class="cls"><div class="row"><span>' + c.label + '</span><span>' + c.text + '</span></div><div class="meter"><i class="' + cls + '" style="width:' + c.pct + '%"></i></div></div>';
+        const subHtml = c.sub ? '<div class="sub">' + c.sub + '</div>' : '';
+        return '<div class="cls"><div class="row"><span>' + c.label + '</span><span>' + c.text + '</span></div>' + subHtml + '<div class="meter"><i class="' + cls + '" style="width:' + c.pct + '%"></i></div></div>';
       }).join('');
 
+      if ($('roofRuleState')) {
+        $('roofRuleState').textContent = view.roofRuleStatus || 'VERIFIED_COMPATIBLE';
+        $('roofRuleState').style.color = (view.roofRuleStatus || '').indexOf('INHIBITED') >= 0 ? 'var(--warn)' : 'var(--ok)';
+      }
+
+      if ($('d3Summary') && view.d3Milestones) {
+        const m = view.d3Milestones;
+        $('d3Summary').innerHTML = '<span>Profile: <b>' + (view.priorityProfile || 'survey_primary').toUpperCase() + '</b></span><span>Hold ' + m.holdCmd + 's → ACK ' + m.holdAck + 's → Stab ' + m.stab + 's → TD <b>' + m.td + 's</b></span>';
+      }
+
+      if ($('crewRegime') && view.crewRegime) {
+        $('crewRegime').value = view.crewRegime;
+      }
+      if ($('deckClear')) {
+        $('deckClear').checked = view.deckClear !== false;
+      }
+      if ($('crewMeta') && SDV.CREW_REGIMES) {
+        const cr = SDV.CREW_REGIMES[view.crewRegime] || SDV.CREW_REGIMES.FULL_CREW_14;
+        $('crewMeta').textContent = cr.avail + ' avail · ' + cr.confirm_s + 's ACK · ' + (cr.deck_clear_s ? cr.deck_clear_s + 's deck' : 'No deck ops');
+      }
+
       const hasAlarm = view.alerts.some(function (a) { return a.lvl === 'alarm'; });
-      const hasWarn = view.alerts.length > 0;
+      const hasWarn = view.alerts.some(function (a) { return a.lvl === 'warn'; });
       const gs = $('govState');
       gs.className = 'chip ' + (hasAlarm ? 'alarm' : hasWarn ? 'warn' : 'ok');
-      gs.textContent = hasAlarm ? 'Constrained' : hasWarn ? 'Adapting' : 'Nominal';
+      gs.textContent = hasAlarm ? 'Degraded / Protected' : hasWarn ? 'Arbitrating' : 'Nominal (8/8 OK)';
       $('alerts').innerHTML = view.alerts.length
         ? view.alerts.map(function (a) { return '<div class="alert ' + a.lvl + '"><b>' + a.code + '</b><span>' + a.msg + '</span></div>'; }).join('')
-        : '<div class="alert ok"><b>NOMINAL</b><span>All eight resource classes are within their envelope.</span></div>';
+        : '<div class="alert ok"><b>NOMINAL</b><span>All eight resource classes are within their physical envelope.</span></div>';
 
       const ev = view.events.length ? view.events.join(' · ') : (MODE_TEXT[view.mode] || nice(view.mode));
       $('eventMsg').textContent = ev;
@@ -298,14 +334,17 @@
           priority_profile_id: activeProfile,
           runner_status: playing ? 'RUNNING' : 'PAUSED'
         });
-        if (r.ok) await syncFromBackend(targetSimS <= view.simT);
-        else updateConnectionBanner();
+        if (r.ok && r.data) {
+          applyAuthoritativePayload(r.data, targetSimS <= view.simT);
+        } else {
+          await syncFromBackend(targetSimS <= view.simT);
+        }
       } finally {
         advanceInFlight = false;
       }
     }
 
-    // ------------------------------------------------------------ Interactive Mission Mode Selector (#segMission)
+    // ------------------------------------------------------------ Interactive Scenario B Milestone Selector (#segMission)
     async function selectMission(mName) {
       rig.director = false; if ($('tDirector')) $('tDirector').classList.remove('on');
       vessel.setXray(false); $('tXray').classList.remove('on');
@@ -314,14 +353,15 @@
         await advanceTargetSimTime(0);
       } else if (mName === 'sortie') {
         setCam('hero', true);
-        await advanceTargetSimTime(140);
-      } else if (mName === 'rtb') {
-        setCam('pad', true);
-        await advanceTargetSimTime(840);
+        await advanceTargetSimTime(480);
       } else if (mName === 'fault') {
         vessel.setXray(true); $('tXray').classList.add('on');
         setCam('cutaway', true);
         await advanceTargetSimTime(720);
+      } else if (mName === 'rtb') {
+        setCam('pad', true);
+        const tdTarget = activeProfile === 'rescue_primary' ? 860 : 1100;
+        await advanceTargetSimTime(tdTarget);
       }
     }
     document.querySelectorAll('#segMission button').forEach(function (b) {
@@ -369,6 +409,12 @@
         interpToSimT = view.simT;
       }
     });
+    if ($('btnStep')) {
+      $('btnStep').addEventListener('click', async function () {
+        playing = false; $('btnPlay').textContent = '▶ Play';
+        await advanceTargetSimTime(Math.min(1800, view.simT + 20));
+      });
+    }
     $('btnReset').addEventListener('click', async function () {
       playing = false; $('btnPlay').textContent = '▶ Play';
       document.querySelectorAll('[data-inject]').forEach(function (b) { b.classList.remove('on'); });
@@ -384,25 +430,48 @@
     $('profile').addEventListener('change', async function (e) {
       activeProfile = e.target.value;
       const r = await SDV.requestApi('POST', '/api/profile', { priority_profile_id: activeProfile });
-      if (r.ok) await syncFromBackend(false);
-      else updateConnectionBanner();
+      if (r.ok && r.data) applyAuthoritativePayload(r.data, false);
+      await syncFromBackend(false);
     });
+
+    // ------------------------------------------------------------ Scenario C Crew Regime & Deck Interlock (/api/crew)
+    async function updateCrewRegime() {
+      const regime = $('crewRegime') ? $('crewRegime').value : 'FULL_CREW_14';
+      const deckClear = $('deckClear') ? !!$('deckClear').checked : true;
+      const crewCount = regime === 'UNCREWED_0' ? 0 : (regime === 'REDUCED_CREW_6' ? 6 : 14);
+      const r = await SDV.requestApi('POST', '/api/crew', {
+        crew_count: crewCount,
+        deck_clear: deckClear,
+        priority_profile_id: activeProfile
+      });
+      if (r.ok && r.data) applyAuthoritativePayload(r.data, false);
+      else await syncFromBackend(false);
+    }
+    if ($('crewRegime')) $('crewRegime').addEventListener('change', updateCrewRegime);
+    if ($('deckClear')) $('deckClear').addEventListener('change', updateCrewRegime);
+
+    // ------------------------------------------------------------ All 6 Official Perturbations (/api/perturb)
     document.querySelectorAll('[data-inject]').forEach(function (b) {
       b.addEventListener('click', async function () {
         const k = b.getAttribute('data-inject');
         const map = {
-          genLoss: { perturbation_type: 'GENERATOR_LOSS_100KW' },
-          coolLoss: { perturbation_type: 'COOLING_LOSS_30C_40PCT' },
+          genLoss:  { perturbation_type: 'GENERATOR_LOSS_100KW', new_power_reserve_w: 100000 },
+          coolLoss: { perturbation_type: 'COOLING_LOSS_30C_40PCT', seawater_temp_c: 30.0 },
           overload: { perturbation_type: 'GUEST_OVERCONSUMPTION_20PCT', guest_id: 'G5', measured_power_w: 54000 },
-          hold: { perturbation_type: 'URGENT_HOLD', guest_id: 'G3' }
+          tempFeed: { perturbation_type: 'LOST_SEAWATER_TEMP_FEED' },
+          hold:     { perturbation_type: 'URGENT_HOLD', guest_id: 'G3' },
+          stop:     { perturbation_type: 'URGENT_STOP', guest_id: 'G3' }
         };
         const body = Object.assign({ priority_profile_id: activeProfile }, map[k] || {});
-        if (k === 'genLoss' || k === 'coolLoss') { vessel.setXray(true); $('tXray').classList.add('on'); setCam('cutaway', true); }
-        if (k === 'hold') setCam('subsea', true);
+        if (k === 'genLoss' || k === 'coolLoss' || k === 'tempFeed') {
+          vessel.setXray(true); $('tXray').classList.add('on'); setCam('cutaway', true);
+        }
+        if (k === 'hold' || k === 'stop') setCam('subsea', true);
         const r = await SDV.requestApi('POST', '/api/perturb', body);
         if (r.ok) {
           b.classList.add('on');
-          await syncFromBackend(false);
+          if (r.data && r.data.live_operational_state) applyAuthoritativePayload(r.data, false);
+          else await syncFromBackend(false);
         } else {
           updateConnectionBanner();
         }
@@ -414,31 +483,110 @@
       if (r.ok) await syncFromBackend(true);
       else updateConnectionBanner();
     });
-    $('admRun').addEventListener('click', async function () {
-      const cand = $('admCand').value, slot = $('admSlot').value;
-      const resp = await SDV.requestApi('POST', '/api/admit_live', {
-        candidate_guest_id: cand,
+
+    // ------------------------------------------------------------ Scenario A / A' Live Admission (/api/admit_live)
+    function buildG7Manifest(slot, massKg) {
+      const rawCat = (SDV.apiState.lastPayload && SDV.apiState.lastPayload.guest_manifests_raw) || {};
+      const baseRaw = rawCat.G1 || rawCat.G6;
+      if (baseRaw) {
+        const g7 = JSON.parse(JSON.stringify(baseRaw));
+        const targetSlot = slot || 'bay1_b';
+        g7.guest_id = 'G7';
+        g7.name = 'Declarative Compact MetOcean Buoy Launcher';
+        g7.subcomponents[0].part_of = 'G7';
+        g7.subcomponents[0].subcomponent_id = 'G7_LAUNCHER';
+        g7.subcomponents[0].mass_kg = massKg || 450;
+        g7.subcomponents[0].preferred_positions = [targetSlot];
+        g7.subcomponents[0].allowed_positions = [targetSlot, 'bay1_b', 'bay2', 'bay1', 'hangar', 'hangar_roof', 'mast_3'].filter(function (v, idx, arr) { return arr.indexOf(v) === idx; });
+        if (targetSlot === 'mast_3') {
+          g7.subcomponents[0].cooling_route = 'PASSIVE_AND_FORCED_AIR_MAST';
+          Object.keys(g7.modes || {}).forEach(function (mk) {
+            g7.modes[mk].cooling_air_mast_w = g7.modes[mk].sustained_power_w;
+            g7.modes[mk].cooling_water_w = 0;
+          });
+        } else {
+          g7.subcomponents[0].cooling_route = 'CHILLED_WATER_LOOP';
+          Object.keys(g7.modes || {}).forEach(function (mk) {
+            g7.modes[mk].cooling_water_w = g7.modes[mk].sustained_power_w;
+            g7.modes[mk].cooling_air_mast_w = 0;
+          });
+        }
+        return g7;
+      }
+      return null;
+    }
+
+    async function runAdmission(commitToShip) {
+      const cand = $('admCand').value;
+      const slot = $('admSlot').value;
+      const baseVal = $('admBase') ? $('admBase').value : 'LIVE';
+      const massVal = $('admMass') && $('admMass').value ? parseInt($('admMass').value, 10) : null;
+      const atPort = $('admAtPort') ? !!$('admAtPort').checked : true;
+      const roofOk = $('admRoofOk') ? !!$('admRoofOk').checked : true;
+
+      const overrides = { preferred_position: slot };
+      if (massVal && !isNaN(massVal) && massVal > 0) {
+        overrides.mass_kg = massVal;
+      }
+
+      const reqBody = {
         priority_profile_id: activeProfile,
-        at_port: true,
-        apply_if_admitted: false,
-        overrides: { preferred_position: slot }
-      });
+        at_port: atPort,
+        apply_if_admitted: !!commitToShip,
+        apply_if_accepted: !!commitToShip,
+        apply_yes_if: !!(commitToShip && roofOk),
+        hangar_roof_clearance_verified: roofOk,
+        overrides: overrides
+      };
+      if (baseVal && baseVal !== 'LIVE') {
+        reqBody.installed_guest_ids = baseVal.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+      }
+      if (cand === 'G7') {
+        const g7m = buildG7Manifest(slot, overrides.mass_kg || 450);
+        if (g7m) reqBody.candidate_manifest = g7m;
+        else reqBody.candidate_guest_id = 'G7';
+      } else {
+        reqBody.candidate_guest_id = cand;
+      }
+
+      const resp = await SDV.requestApi('POST', '/api/admit_live', reqBody);
       if (!resp.ok || !resp.data) {
         updateConnectionBanner();
         return;
       }
       const d = resp.data.decision || {};
       const verdict = d.verdict || 'NO';
-      const totalMass = resp.data.candidate_total_mass_kg || 0;
-      const note = resp.data.causal_sentence || d.causal_sentence || (d.conditions && d.conditions.join(' ')) || 'Evaluated by authoritative governor.';
-      vessel.showGhost(slot, verdict);
-      const col = verdict === 'YES' ? 'var(--ok)' : verdict === 'YES_IF' ? 'var(--warn)' : 'var(--alarm)';
+      const totalMass = resp.data.candidate_total_mass_kg || (overrides.mass_kg || (SDV.GUEST_CATALOG[cand] && SDV.GUEST_CATALOG[cand].mass_kg) || 0);
+      const calcMs = typeof d.calculation_elapsed_ms === 'number' ? d.calculation_elapsed_ms.toFixed(2) + ' ms' : '< 1 ms';
+      const appliedTag = resp.data.applied ? ' · COMMITTED' : ' · DRY-RUN';
+      const note = resp.data.causal_sentence || d.causal_sentence || (d.rationale && d.rationale.join(' ')) || (d.conditions && d.conditions.join(' ')) || 'Evaluated by authoritative governor.';
+
+      const ghostSlot = slot === 'bay1_b' ? 'bay2' : slot;
+      vessel.showGhost(ghostSlot, verdict);
+      const col = verdict === 'YES' ? 'var(--ok)' : (verdict === 'YES_IF' || verdict === 'NOT_NOW') ? 'var(--warn)' : 'var(--alarm)';
       $('admOut').style.borderLeftColor = col;
-      $('admOut').innerHTML = '<b>' + verdict.replace('_', ' ') + ' · ' + totalMass.toLocaleString('en-US') + ' kg (' + cand + ')</b>' + note;
-      const cam = { bay1: 'deck', bay2: 'deck', hangar: 'deck', hangar_roof: 'pad', mast_3: 'bridge' }[slot] || 'hero';
+      $('admOut').innerHTML = '<b>' + verdict + ' · ' + totalMass.toLocaleString('en-US') + ' kg (' + cand + ' · ' + calcMs + appliedTag + ')</b>' + note;
+      const cam = { bay1: 'deck', bay1_b: 'deck', bay2: 'deck', hangar: 'deck', hangar_roof: 'pad', mast_3: 'bridge' }[slot] || 'hero';
       rig.director = false; if ($('tDirector')) $('tDirector').classList.remove('on'); setCam(cam, true);
-      await syncFromBackend(false);
-    });
+      if (resp.data.live_operational_state) {
+        applyAuthoritativePayload(resp.data, false);
+      }
+      if (resp.data.applied) {
+        await syncFromBackend(false);
+      }
+    }
+
+    $('admRun').addEventListener('click', function () { runAdmission(false); });
+    if ($('admCommit')) {
+      $('admCommit').addEventListener('click', function () { runAdmission(true); });
+    }
+    if ($('admCand')) {
+      $('admCand').addEventListener('change', function () {
+        const c = $('admCand').value;
+        const spec = SDV.GUEST_CATALOG && SDV.GUEST_CATALOG[c];
+        if (spec && $('admSlot')) $('admSlot').value = spec.slot;
+      });
+    }
 
     // recording
     let rec = null, chunks = [];
@@ -465,10 +613,10 @@
     // Initial authoritative sync + periodic background state sync (1.5 s)
     syncFromBackend(true);
     setInterval(function () {
-      if (!advanceInFlight) syncFromBackend(false);
-    }, 1500);
+      if (!advanceInFlight && !playing) syncFromBackend(false);
+    }, 2000);
 
-    // ------------------------------------------------------------ main loop (smooth 60 FPS ocean + vessel + synchronized clock)
+    // ------------------------------------------------------------ main loop (smooth 60 FPS ocean + vessel + synchronized 20x clock)
     function showFatal(msg) {
       $('fatalMsg').textContent = msg; $('fatalHelp').textContent = 'Reload the page.';
       $('fatal').hidden = false;
@@ -480,14 +628,14 @@
       try {
         const dt = Math.min(0.05, (now - tPrev) / 1000); tPrev = now; t += dt;
 
-        // Authoritative clock stepping when playing (1 tick = 20s sim per 1.0s wall clock, ALIGN-T39/T40)
-        if (playing && SDV.apiState.connectionState === 'LIVE') {
-          if (!advanceInFlight && now - lastAdvanceWallMs >= 950) {
+        // Authoritative clock stepping when playing (1 tick = 20s sim per 1.0s wall clock = 20x compression, ALIGN-T39/T40)
+        if (playing) {
+          if (!advanceInFlight && now - lastAdvanceWallMs >= 980) {
             lastAdvanceWallMs = now;
             const nextSimT = Math.min(1800, view.simT + 20);
             advanceTargetSimTime(nextSimT);
           }
-          const alpha = clamp((now - interpStartWallMs) / 950, 0, 1);
+          const alpha = clamp((now - interpStartWallMs) / 980, 0, 1);
           const smoothSimT = interpFromSimT + (interpToSimT - interpFromSimT) * alpha;
           if (SDV.apiState.lastPayload) {
             view = SDV.deriveFromAuthoritative(SDV.apiState.lastPayload, smoothSimT);

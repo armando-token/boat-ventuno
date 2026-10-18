@@ -43,35 +43,35 @@
         <span class="badge env-snapshot-badge" id="env-snapshot-label">Recorded public data — snapshot loading...</span>
       </div>
       <div class="env-cooling-callout" id="env-cooling-callout">
-        Refrigeración: SST <span id="env-sst-val">16.3 °C</span> &rarr; C(T) = <span id="env-cooling-eff">150.4 kW</span>
+        Refrigeración: SST <span id="env-sst-val">--</span> &rarr; C(T) = <span id="env-cooling-eff">--</span>
         <span class="small-note">(admisión 14 días juzgada a 30 °C = 120.0 kW)</span>
       </div>
     </div>
     <div class="env-metrics-grid">
       <div class="env-metric-card">
         <span class="env-metric-label">Sea Surface Temp (SST)</span>
-        <span class="env-metric-val" id="env-val-sst">16.3 °C</span>
-        <span class="env-metric-sub" id="env-sub-sst">DERIVED Open-Meteo GG_BAR</span>
+        <span class="env-metric-val" id="env-val-sst">--</span>
+        <span class="env-metric-sub" id="env-sub-sst">loading…</span>
       </div>
       <div class="env-metric-card">
         <span class="env-metric-label">Wind &amp; Gusts (10m)</span>
-        <span class="env-metric-val" id="env-val-wind">16.1 kn (Gust 19.8 kn)</span>
-        <span class="env-metric-sub" id="env-sub-wind">Guard band: +3.0 kn</span>
+        <span class="env-metric-val" id="env-val-wind">--</span>
+        <span class="env-metric-sub" id="env-sub-wind">loading…</span>
       </div>
       <div class="env-metric-card">
         <span class="env-metric-label">Significant Wave Height (Hs)</span>
-        <span class="env-metric-val" id="env-val-hs">1.42 m (Sea State 4)</span>
-        <span class="env-metric-sub" id="env-sub-hs">WMO 3700 | Guard band: +0.15 m</span>
+        <span class="env-metric-val" id="env-val-hs">--</span>
+        <span class="env-metric-sub" id="env-sub-hs">loading…</span>
       </div>
       <div class="env-metric-card">
         <span class="env-metric-label">Operational Deck Window (A')</span>
-        <span class="env-metric-val" id="env-val-window">NOT_NOW (SS 4 &gt; 3)</span>
+        <span class="env-metric-val" id="env-val-window">--</span>
         <span class="env-metric-sub" id="env-sub-window">G4 At-Sea Replacement</span>
       </div>
     </div>
     <div class="outlook-container mt-6">
       <div class="outlook-header">
-        <span class="outlook-title">48-Hour Deck Availability Outlook (G4 At-Sea Replacement, Green=Open, Red=Closed, Ribbon):</span>
+        <span class="outlook-title">48-Hour Deck Availability Outlook (G4 At-Sea Replacement, guarded limits from /api/environment/windows):</span>
         <span class="outlook-legend">
           <span class="legend-dot open"></span> Open
           <span class="legend-dot closed"></span> Closed
@@ -87,14 +87,15 @@
     <div class="panel-header">
       <div class="forecast-title-group">
         <h2>Forecast (advisory) — Observador predictivo de consumo (Holt amortiguado + física)</h2>
-        <span class="pill pill-quiet" id="forecast-status-chip">QUIET</span>
+        <span class="pill pill-quiet" id="forecast-status-chip">--</span>
         <span class="badge" id="forecast-lead-badge">Advance Warning: -- s</span>
       </div>
       <span class="small-note">Observer only — Informa, no decide; gobernador sin cambios (INV-1)</span>
+      <span class="badge" id="forecast-source-label">source: loading…</span>
     </div>
     <div class="forecast-content-grid">
       <div class="forecast-sentence-box" id="forecast-sentence-box">
-        All guest telemetry nominal. Predictive observer running at 1 Hz across 10–60s horizons (Holt damped + conformal bands).
+        Loading observer output…
       </div>
       <div class="forecast-guest-cards" id="forecast-guest-cards"></div>
     </div>

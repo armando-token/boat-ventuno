@@ -65,6 +65,22 @@ class HoltParams:
         )
 
 
+def interp_quantile(qmap: Dict[int, float], h: float, default: float = 0.05) -> float:
+    """Calibrated conformal quantile at horizon h: linear between calibrated horizons, clamped at the ends."""
+    if not qmap:
+        return default
+    keys = sorted(qmap)
+    if h <= keys[0]:
+        return float(qmap[keys[0]])
+    if h >= keys[-1]:
+        return float(qmap[keys[-1]])
+    for k0, k1 in zip(keys, keys[1:]):
+        if k0 <= h <= k1:
+            frac = (h - k0) / float(k1 - k0)
+            return float(qmap[k0] + frac * (qmap[k1] - qmap[k0]))
+    return float(qmap[keys[-1]])
+
+
 @dataclass
 class HoltState:
     """State tracking for a single guest's Holt-Winters forecaster."""
@@ -204,11 +220,12 @@ def holt_update(
         else:
             new_status = st.status
 
+        # last_t tracks the last VALID sample so that gaps accumulate across dropouts.
         return HoltState(
             level=new_level,
             trend=new_trend,
             n_obs=st.n_obs,
-            last_t=t,
+            last_t=st.last_t,
             resid_ewm_var=st.resid_ewm_var,
             break_streak=st.break_streak,
             mode=st.mode,

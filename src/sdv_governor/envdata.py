@@ -364,7 +364,74 @@ def load_active_snapshot(repo_root: Path, site_id: str = "golden_gate") -> Dict[
         "series": validated_series,
         "snapshot_sha256": snap_sha,
         "anchor_utc": validated_series.get("anchor_utc"),
+        "guard_bands": load_guard_bands(snapshot_dir, series_raw_sha256=raw_sha),
     }
+
+
+# Declared conservative guard bands used when no valid backtest exists (ASM-ENV-GUARD-DEFAULT, n < 72).
+DEFAULT_GUARD_BANDS: Dict[str, float] = {"wind_kn": 5.0, "wave_hs_m": 0.5, "sst_c": 1.0}
+MIN_GUARD_PAIRS = 72
+
+
+def load_guard_bands(snapshot_dir: Path, *, series_raw_sha256: Optional[str] = None) -> Dict[str, Any]:
+    """Load backtest-derived guard bands bound to this snapshot (§5.10), or the declared defaults.
+
+    Derived bands are used only when guard_bands.json exists, is bound to the same env_series.json
+    bytes (sha256), has n >= 72 pairs per variable and passed G-ENV; otherwise status=DEFAULT.
+    """
+    out: Dict[str, Any] = {
+        "status": "DEFAULT",
+        "reason": "",
+        "assumption": "ASM-ENV-GUARD-DEFAULT",
+        "guard": dict(DEFAULT_GUARD_BANDS),
+        "quantile_used": None,
+        "metrics": None,
+        "window_backtest": None,
+        "gate_g_env_status": None,
+        "period": None,
+    }
+    gb_path = Path(snapshot_dir) / "guard_bands.json"
+    if not gb_path.is_file():
+        out["reason"] = "guard_bands.json missing"
+        return out
+    try:
+        raw = json.loads(gb_path.read_text(encoding="utf-8"))
+        gb = raw["guard_bands"]
+        metrics = raw.get("metrics") or {}
+        bound_sha = raw.get("snapshot_sha256")
+        if series_raw_sha256 and bound_sha != series_raw_sha256:
+            out["reason"] = f"guard_bands.json bound to {str(bound_sha)[:12]}, series is {series_raw_sha256[:12]}"
+            return out
+        n_min = min(int(metrics[k]["n"]) for k in ("wind_kn", "wave_hs_m", "sst_c"))
+        if n_min < MIN_GUARD_PAIRS:
+            out["reason"] = f"only {n_min} backtest pairs (< {MIN_GUARD_PAIRS})"
+            return out
+        if raw.get("gate_g_env_status") != "PASS":
+            out["reason"] = f"G-ENV {raw.get('gate_g_env_status')}"
+            return out
+        guard = {
+            "wind_kn": float(gb["guard_wind_kn"]),
+            "wave_hs_m": float(gb["guard_hs_m"]),
+            "sst_c": float(gb["guard_sst_c"]),
+        }
+        if any((not math.isfinite(v)) or v < 0 for v in guard.values()):
+            out["reason"] = "non-finite or negative guard value"
+            return out
+    except Exception as exc:  # malformed file -> declared defaults (fail closed)
+        out["reason"] = f"guard_bands.json invalid: {exc}"
+        return out
+    out.update(
+        status="DERIVED",
+        reason=f"backtest q{int(round(float(gb.get('quantile_used', 0.9)) * 100))} of |forecast - observed|, n={n_min}",
+        assumption=None,
+        guard=guard,
+        quantile_used=gb.get("quantile_used"),
+        metrics=metrics,
+        window_backtest=raw.get("window_backtest"),
+        gate_g_env_status=raw.get("gate_g_env_status"),
+        period=raw.get("period"),
+    )
+    return out
 
 
 def _extract_series_rows(series: Union[List[Dict[str, Any]], Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -660,36 +727,46 @@ def build_env_feed_readings(sample: EnvSample, sim_time_s: int) -> Dict[str, Fee
 def cooling_capacity_outlook(
     series: Any,
     *,
+    anchor_utc: Optional[str] = None,
     loop_degraded: bool = False,
     horizon_s: int = 172800,
+    step_s: int = 3600,
 ) -> List[Dict[str, Any]]:
-    """Compute cooling water capacity outlook over forecast series using compute_cooling_water_capacity_w.
+    """Cooling-water capacity outlook C(T) over the forecast horizon [0, horizon_s] from the anchor.
+
+    Rows are sampled with sample_at() (same interpolation/provenance as the runtime), so sim_time_s is
+    measured from the snapshot anchor and past (observed) days are excluded. Missing SST is never
+    replaced by a nicer number: the A.10 30 C fallback is applied and flagged.
 
     Returns:
-        [{"t_utc", "sim_time_s", "sst_c", "cooling_nominal_w", "cooling_effective_w", "policy_note"}]
+        [{"t_utc", "sim_time_s", "sst_c", "wind_kn", "wave_hs_m", "sea_state", "cooling_nominal_w",
+          "cooling_effective_w", "policy_note", "provenance", "sst_fallback"}]
     """
-    rows = _extract_series_rows(series)
-    if not rows and isinstance(series, list):
-        rows = series
+    if anchor_utc is None:
+        anchor_utc = series.get("anchor_utc") if isinstance(series, dict) else None
+    if not anchor_utc:
+        raise StrictValidationError("ENV_SNAPSHOT_INVALID", "cooling_capacity_outlook requires anchor_utc", "anchor_utc")
 
     outlook: List[Dict[str, Any]] = []
-    for row in rows:
-        sim_time_s = row.get("sim_time_s", row.get("lead_s", 0))
-        if sim_time_s is not None and sim_time_s > horizon_s:
-            continue
-        sst_c = row.get("sst_c")
-        if sst_c is not None:
-            nom_w, eff_w, note = compute_cooling_water_capacity_w(float(sst_c), loop_degraded=loop_degraded)
-        else:
-            nom_w, eff_w, note = compute_cooling_water_capacity_w(30.0, loop_degraded=loop_degraded)
-
+    for sim_time_s in range(0, int(horizon_s) + 1, int(step_s)):
+        smp = sample_at(series, sim_time_s=sim_time_s, anchor_utc=anchor_utc)
+        sst_c = smp.sst_c
+        fallback = sst_c is None
+        nom_w, eff_w, note = compute_cooling_water_capacity_w(
+            30.0 if fallback else float(sst_c), loop_degraded=loop_degraded
+        )
         outlook.append({
-            "t_utc": row.get("t_utc", ""),
-            "sim_time_s": sim_time_s if sim_time_s is not None else 0,
+            "t_utc": smp.t_utc,
+            "sim_time_s": sim_time_s,
             "sst_c": sst_c,
+            "wind_kn": None if smp.wind_kn is None else round(float(smp.wind_kn), 1),
+            "wave_hs_m": None if smp.wave_hs_m is None else round(float(smp.wave_hs_m), 2),
+            "sea_state": smp.sea_state_wmo,
             "cooling_nominal_w": nom_w,
             "cooling_effective_w": eff_w,
             "policy_note": note,
+            "provenance": smp.provenance,
+            "sst_fallback": "A.10 30C" if fallback else None,
         })
     return outlook
 

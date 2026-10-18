@@ -228,11 +228,9 @@ def project_guest_physics(
     # Step 2: Exact verification via monotonic bisection on h in [1, 60]
     infeasible_cache: Dict[int, Dict[str, Any]] = {}
 
-    if evaluator_override is not None:
-        eval_fn = evaluator_override
-    else:
-        def eval_fn(h: int) -> bool:
-            p_override_w = int(round(power_trajectory_hi(h)))
+    def make_eval(trajectory: Callable[[int], float], cache: Optional[Dict[int, Dict[str, Any]]]) -> Callable[[int], bool]:
+        def _eval(h: int) -> bool:
+            p_override_w = int(round(trajectory(h)))
             threshold_w = int(round(declared_w * ASM_FCST_OVERRUN_THRESHOLD))
             if p_override_w > threshold_w:
                 return False
@@ -241,9 +239,15 @@ def project_guest_physics(
                 cloned.installed_guests[guest_id].actual_power_override_w = p_override_w
             res = evaluate_eight_class_budgets(ship_profile, catalog, cloned)
             is_feas = bool(res.get("feasible", False))
-            if not is_feas:
-                infeasible_cache[h] = res
+            if not is_feas and cache is not None:
+                cache[h] = res
             return is_feas
+        return _eval
+
+    if evaluator_override is not None:
+        eval_fn = evaluator_override
+    else:
+        eval_fn = make_eval(power_trajectory_hi, infeasible_cache)
 
     h_star_hi, evals_used = bisection_first_infeasible(eval_fn, min_h=1, max_h=60)
 
@@ -299,17 +303,35 @@ def project_guest_physics(
             "status": "NOT_APPLICABLE",
         }
 
-    # Derive h_star_s and h_star_band_s [earliest_breach, latest_breach]
-    if power_trajectory_mid is not None and power_trajectory_lo is not None and slope_w_per_s > 0.1:
-        # Time shift from upper bound to point estimate and lower bound
-        delta_hi_w = power_trajectory_hi(h_star_hi) - power_trajectory_mid(h_star_hi)
-        shift_hi_s = int(round(delta_hi_w / slope_w_per_s))
-        h_star_s = h_star_hi + shift_hi_s
+    # Derive h_star_s (point forecast) and h_star_band_s [earliest, latest] without extra full
+    # evaluations: all other loads are frozen, so feasibility depends only on this guest's power and
+    # is monotone in it. hi(h*_hi) is a verified-infeasible power level; the mid/lower trajectories
+    # cross at the first h where they reach that level. Everything is clamped to the [h*_hi, 60] s
+    # horizon (a crossing beyond 60 s is reported as 60 with band_open_upper=True, never extrapolated).
+    max_h = 60
+    band_open_upper = False
+    point_crosses = True
 
-        delta_lo_w = power_trajectory_mid(h_star_hi) - power_trajectory_lo(h_star_hi)
-        shift_lo_s = int(round(delta_lo_w / slope_w_per_s))
-        h_star_lo = h_star_s + shift_lo_s
-        h_star_band_s = [h_star_hi, max(h_star_hi, h_star_lo)]
+    def first_reach(trajectory: Optional[Callable[[int], float]], level_w: float) -> Optional[int]:
+        if trajectory is None:
+            return None
+        for h in range(h_star_hi, max_h + 1):
+            if trajectory(h) >= level_w:
+                return h
+        return None
+
+    if evaluator_override is None and power_trajectory_mid is not None:
+        infeasible_level_w = float(int(round(power_trajectory_hi(h_star_hi))))
+        h_mid = first_reach(power_trajectory_mid, infeasible_level_w)
+        point_crosses = h_mid is not None
+        h_star_s = h_mid if h_mid is not None else max_h
+        h_lo = first_reach(power_trajectory_lo, infeasible_level_w) if power_trajectory_lo is not None else h_mid
+        if h_lo is None:
+            band_open_upper = True
+            h_late = max_h
+        else:
+            h_late = max(h_star_s, h_lo)
+        h_star_band_s = [h_star_hi, min(max_h, h_late)]
     else:
         h_star_s = h_star_hi
         h_star_band_s = [h_star_hi, h_star_hi]
@@ -331,6 +353,8 @@ def project_guest_physics(
         "guest_id": guest_id,
         "h_star_s": h_star_s,
         "h_star_band_s": h_star_band_s,
+        "band_open_upper": band_open_upper,
+        "point_forecast_crosses": point_crosses,
         "witness": witness_dict,
         "declared_w": int(round(declared_w)),
         "threshold_w": threshold_w,

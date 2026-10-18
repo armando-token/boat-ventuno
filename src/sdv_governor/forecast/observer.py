@@ -24,7 +24,7 @@ from sdv_governor.ship_state import ShipOperationalState
 
 from .advisory import AdvisoryStateMachine, advisory_sentence
 from .conformal import compute_conformal_band
-from .holt import HoltParams, HoltState, holt_forecast, holt_update
+from .holt import HoltParams, HoltState, holt_forecast, holt_update, interp_quantile
 from .projector import project_guest_physics
 
 
@@ -153,6 +153,7 @@ class ForecastObserver:
         sim_time_s: int,
         state_clone: ShipOperationalState,
         budgets_snapshot: Dict[str, Any],
+        reactive_breach_guests: Optional[Sequence[str]] = None,
     ) -> None:
         """Run physical projector and advisory machine on tick completion (§6.8).
         
@@ -160,7 +161,9 @@ class ForecastObserver:
             sim_time_s: Current simulation tick timestamp.
             state_clone: Cloned state instance (isolated for projection).
             budgets_snapshot: Evaluated 8-class budget snapshot from this tick.
+            reactive_breach_guests: Guests on which the reactive governor detector acted this tick.
         """
+        reactive = set(reactive_breach_guests or ())
         t0 = time.perf_counter()
         tick_evals = 0
 
@@ -175,7 +178,10 @@ class ForecastObserver:
 
             status = st.status
             if status != "OK":
-                machine.update(sim_time_s, h_star_hi=None, status=status)
+                machine.update(
+                    sim_time_s, h_star_hi=None, status=status,
+                    reactive_breach_active=guest_id in reactive,
+                )
                 self.last_projections[guest_id] = None
                 self.last_forecasts[guest_id] = None
                 continue
@@ -196,7 +202,7 @@ class ForecastObserver:
             def get_hi(h: int) -> float:
                 scale = float(h) if abs(1.0 - phi) < 1e-9 else phi * (1.0 - math.pow(phi, h)) / (1.0 - phi)
                 y_hat = (st.level + st.trend * scale) * nominal_w
-                q_hi = self.params.conformal_q_hi.get(h, self.params.conformal_q.get(h, 0.05))
+                q_hi = interp_quantile(self.params.conformal_q_hi or self.params.conformal_q, h)
                 _, hi_w = compute_conformal_band(y_hat, nominal_w, q_lo=0.0, q_hi=q_hi, status=status)
                 return hi_w
 
@@ -207,14 +213,16 @@ class ForecastObserver:
             def get_lo(h: int) -> float:
                 scale = float(h) if abs(1.0 - phi) < 1e-9 else phi * (1.0 - math.pow(phi, h)) / (1.0 - phi)
                 y_hat = (st.level + st.trend * scale) * nominal_w
-                q_lo = self.params.conformal_q_lo.get(h, -self.params.conformal_q.get(h, 0.05))
+                q_lo = (interp_quantile(self.params.conformal_q_lo, h) if self.params.conformal_q_lo
+                        else -interp_quantile(self.params.conformal_q, h))
                 lo_w, _ = compute_conformal_band(y_hat, nominal_w, q_lo=q_lo, q_hi=0.0, status=status)
                 return lo_w
 
             # Band at 30s
             y_30 = get_mid(30)
-            q_lo_30 = self.params.conformal_q_lo.get(30, -self.params.conformal_q.get(30, 0.05))
-            q_hi_30 = self.params.conformal_q_hi.get(30, self.params.conformal_q.get(30, 0.05))
+            q_lo_30 = (interp_quantile(self.params.conformal_q_lo, 30) if self.params.conformal_q_lo
+                       else -interp_quantile(self.params.conformal_q, 30))
+            q_hi_30 = interp_quantile(self.params.conformal_q_hi or self.params.conformal_q, 30)
             band_30 = compute_conformal_band(y_30, nominal_w, q_lo=q_lo_30, q_hi=q_hi_30, status=status)
 
             # Project physics
@@ -248,11 +256,12 @@ class ForecastObserver:
                 t=sim_time_s,
                 h_star_hi=h_star_hi,
                 status=status,
-                reactive_breach_active=False,
+                reactive_breach_active=guest_id in reactive,
                 p=p,
             )
 
-            if new_state == "WARN" and p is not None:
+            # One alert per WARN episode (on entry), not one per tick while in WARN.
+            if new_state == "WARN" and prev_state != "WARN" and p is not None:
                 guest_name = manifest.name if manifest else guest_id
                 sent = advisory_sentence(p, guest_name=guest_name, src=f"telemetry:{guest_id}")
                 self.alerts_history.append({

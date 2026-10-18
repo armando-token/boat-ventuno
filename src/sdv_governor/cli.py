@@ -319,59 +319,28 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0
 
     if args.command == "public-env-suite":
-        try:
-            from .replay import run_public_env_suite
-            res = run_public_env_suite(root)
-        except (ImportError, AttributeError):
-            scenarios = []
-            scen_dir = data_dir / "scenarios"
-            scen_b = scen_dir / "scenario_B_golden_gate_recorded.yaml"
-            scen_ap = scen_dir / "scenario_Aprime_golden_gate_window.yaml"
-            if scen_b.exists():
-                scenarios.append("scenario_B_golden_gate_recorded.yaml")
-            if scen_ap.exists():
-                scenarios.append("scenario_Aprime_golden_gate_window.yaml")
-            res = {
-                "status": "PASS",
-                "suite": "public-env-suite",
-                "scenarios": scenarios if scenarios else ["scenario_B_golden_gate_recorded.yaml", "scenario_Aprime_golden_gate_window.yaml"],
-                "message": "Golden Gate public environmental suite executed",
-            }
-        print(json.dumps(res, indent=2, sort_keys=True))
-        return 0 if res.get("status") in ("OK", "PASS", "SUCCESS") or "public_env_semantic_sha256" in res else 1
+        from .forecast.observer import ForecastObserver
+        from .replay import run_public_env_suite
+        pes_catalog = load_guest_catalog(
+            data_dir / "guests", errata_path=data_dir / "overrides" / "brief_errata.yaml"
+        )
+        pes_ship = validate_ship_profile(load_yaml_file(data_dir / "ship" / "vessel_baseline.yaml"))
+        res = run_public_env_suite(root, observer=ForecastObserver(ship_profile=pes_ship, catalog=pes_catalog))
+        print(json.dumps(res, indent=2, sort_keys=True, default=str))
+        return 0
 
     if args.command == "forecast-bench":
         bench_script = root / "tools" / "bench_forecast.py"
-        if bench_script.exists():
-            import subprocess
-            cmd = [sys.executable, str(bench_script), "--split", args.split]
-            out_dir = args.output_dir or (root / "docs" / "evidence")
-            cmd.extend(["--out", str(out_dir)])
-            proc = subprocess.run(cmd, cwd=str(root))
-            return proc.returncode
-        else:
-            report = {
-                "status": "PASS",
-                "split": args.split,
-                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
-                "metrics": {
-                    "ratio_MAE@30": 0.78,
-                    "coverage@30": 0.91,
-                    "recall_alarm": 0.94,
-                    "median_lead_time_s": 38.0,
-                    "false_alarms_per_h": 0.0,
-                },
-                "gates": {
-                    "G-ACC-RAMP": "PASS",
-                    "G-ACC-STEADY": "PASS",
-                    "G-COV": "PASS",
-                    "G-RECALL": "PASS",
-                    "G-LEAD": "PASS",
-                    "G-FA": "PASS",
-                },
-            }
-            print(json.dumps(report, indent=2, sort_keys=True))
-            return 0
+        if not bench_script.exists():
+            # Never print canned metrics: without the benchmark tool there is no evidence.
+            print(json.dumps({"status": "TOOL_NOT_AVAILABLE", "missing": str(bench_script)}, indent=2))
+            return 2
+        import subprocess
+        cmd = [sys.executable, str(bench_script), "--split", args.split]
+        out_dir = args.output_dir or (root / "docs" / "evidence")
+        cmd.extend(["--out", str(out_dir)])
+        proc = subprocess.run(cmd, cwd=str(root))
+        return proc.returncode
 
     return 1
 

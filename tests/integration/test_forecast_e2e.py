@@ -88,7 +88,7 @@ def test_e2e_01_g5_ramp_warning_before_action(e2e_setup: Dict[str, Any]) -> None
     # Verify sentence is parameterized with actual numbers
     first_sentence = warn_alerts[0]["sentence"]
     assert "G5" in first_sentence
-    assert "projected to exceed" in first_sentence
+    assert ("projected to exceed" in first_sentence) or ("upper 90% bound reaches" in first_sentence)
     assert "110% of declared" in first_sentence
     assert "Advisory only — governor action unchanged." in first_sentence
 

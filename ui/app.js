@@ -678,146 +678,142 @@ async function fetchForecastState() {
   }
 }
 
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+  return el;
+}
+
+function fmtNum(v, digits, unit) {
+  return v !== null && v !== undefined && Number.isFinite(Number(v)) ? `${Number(v).toFixed(digits)} ${unit}` : "n/a";
+}
+
 function renderEnvironmentData(data) {
   if (!data || !data.available) {
-    renderEnvironmentFallback(data ? data.reason || "NO_ACTIVE_SNAPSHOT" : "No data");
+    renderEnvironmentFallback(data ? `${data.reason || "NO_ACTIVE_SNAPSHOT"}${data.detail ? " — " + data.detail : ""}` : "No data");
     return;
   }
-  const snapLbl = document.getElementById("env-snapshot-label");
-  if (snapLbl) {
-    snapLbl.textContent = `Recorded public data — snapshot ${data.snapshot_id || "Golden Gate"} (${data.anchor_utc ? data.anchor_utc.slice(0, 16) + 'Z' : 'UTC'})`;
-  }
+  setText("env-snapshot-label",
+    `Recorded public data — snapshot ${data.snapshot_id} (anchor ${data.anchor_utc ? data.anchor_utc.slice(0, 16) + "Z" : "n/a"})`);
   const cur = data.current || {};
-  const sstVal = cur.sst_c !== null && cur.sst_c !== undefined ? `${Number(cur.sst_c).toFixed(1)} °C` : "16.3 °C";
-  const coolEff = data.cooling && data.cooling.effective_w ? `${(data.cooling.effective_w / 1000).toFixed(1)} kW` : "150.4 kW";
+  const gb = data.guard_bands || {};
+  const sstVal = fmtNum(cur.sst_c, 1, "°C");
+  const cool = data.cooling || {};
+  const coolEff = cool.effective_w !== null && cool.effective_w !== undefined ? fmtNum(cool.effective_w / 1000, 1, "kW") : "n/a";
+  setText("env-sst-val", sstVal + (cool.sst_fallback ? ` (fallback ${cool.sst_fallback})` : ""));
+  setText("env-cooling-eff", coolEff);
+  setText("env-val-sst", sstVal);
+  setText("env-sub-sst", `${cur.provenance || "UNKNOWN"} ${cur.source_id || ""} | lead ${cur.lead_s ?? "n/a"} s`);
 
-  const elSst = document.getElementById("env-sst-val");
-  if (elSst) elSst.textContent = sstVal;
-  const elCoolEff = document.getElementById("env-cooling-eff");
-  if (elCoolEff) elCoolEff.textContent = coolEff;
-  const elValSst = document.getElementById("env-val-sst");
-  if (elValSst) elValSst.textContent = sstVal;
-  const elSubSst = document.getElementById("env-sub-sst");
-  if (elSubSst) elSubSst.textContent = `${cur.provenance || 'DERIVED'} ${cur.source_id || 'Open-Meteo GG_BAR'} | Age: ${cur.age_s ?? 0}s`;
+  const gust = cur.gust_kn !== null && cur.gust_kn !== undefined ? ` (Gust ${Number(cur.gust_kn).toFixed(1)} kn)` : "";
+  setText("env-val-wind", `${fmtNum(cur.wind_kn, 1, "kn")}${gust}`);
+  setText("env-sub-wind", `Guard band ${gb.status || "n/a"}: +${gb.guard_wind_kn ?? "n/a"} kn`);
+  const ss = cur.sea_state_wmo !== null && cur.sea_state_wmo !== undefined ? ` (Sea State ${cur.sea_state_wmo})` : "";
+  setText("env-val-hs", `${fmtNum(cur.hs_m, 2, "m")}${ss}`);
+  setText("env-sub-hs", `WMO 3700 | Guard band ${gb.status || "n/a"}: +${gb.guard_hs_m ?? "n/a"} m`);
 
-  const windStr = cur.wind_kn !== null && cur.wind_kn !== undefined ? `${Number(cur.wind_kn).toFixed(1)} kn` : "-- kn";
-  const gustStr = cur.gust_kn !== null && cur.gust_kn !== undefined ? ` (Gust ${Number(cur.gust_kn).toFixed(1)} kn)` : "";
-  const elWind = document.getElementById("env-val-wind");
-  if (elWind) elWind.textContent = `${windStr}${gustStr}`;
-  const elSubWind = document.getElementById("env-sub-wind");
-  if (elSubWind) {
-    const gw = data.guard_bands ? data.guard_bands.guard_wind_kn : 3.0;
-    elSubWind.textContent = `Guard band: +${gw} kn`;
-  }
-
-  const hsStr = cur.hs_m !== null && cur.hs_m !== undefined ? `${Number(cur.hs_m).toFixed(2)} m` : "1.42 m";
-  const ssStr = cur.sea_state_wmo !== null && cur.sea_state_wmo !== undefined ? ` (Sea State ${cur.sea_state_wmo})` : " (Sea State 4)";
-  const elHs = document.getElementById("env-val-hs");
-  if (elHs) elHs.textContent = `${hsStr}${ssStr}`;
-  const elSubHs = document.getElementById("env-sub-hs");
-  if (elSubHs) {
-    const gh = data.guard_bands ? data.guard_bands.guard_hs_m : 0.15;
-    elSubHs.textContent = `WMO 3700 | Guard band: +${gh}m`;
-  }
-
-  const ribbonContainer = document.getElementById("outlook-ribbon-cells");
-  if (ribbonContainer && data.outlook_48h && Array.isArray(data.outlook_48h)) {
-    ribbonContainer.innerHTML = "";
-    data.outlook_48h.slice(0, 48).forEach((cell, idx) => {
-      const cellEl = document.createElement("div");
-      const ss = cell.sea_state_wmo ?? 4;
-      const wKn = cell.wind_kn ?? 16;
-      const isOpen = ss <= 3 && wKn <= 20;
-      cellEl.className = `outlook-cell ${isOpen ? "open" : "closed"}`;
-      cellEl.title = `T+${idx}h (${cell.t_utc || ""}): Sea State ${ss}, Wind ${wKn} kn, SST ${cell.sst_c ?? "--"}°C -> ${isOpen ? "OPEN" : "CLOSED"}`;
-      cellEl.dataset.hour = idx;
-      ribbonContainer.appendChild(cellEl);
+  const ribbon = document.getElementById("outlook-ribbon-cells");
+  if (ribbon && Array.isArray(data.outlook_48h)) {
+    ribbon.replaceChildren();
+    data.outlook_48h.forEach((cell) => {
+      const el = document.createElement("div");
+      el.className = "outlook-cell unavail";
+      el.dataset.simTimeS = String(cell.sim_time_s);
+      el.title = `${cell.t_utc || ""}: Hs ${cell.wave_hs_m ?? "n/a"} m (SS ${cell.sea_state ?? "n/a"}), wind ${cell.wind_kn ?? "n/a"} kn, SST ${cell.sst_c ?? "n/a"} °C — awaiting guarded window evaluation`;
+      ribbon.appendChild(el);
     });
   }
-
   fetchWindowsForGuest("G4", "VEHICLE_REPLACEMENT_AT_SEA");
 }
 
 function renderWindowsData(winData) {
   if (!winData) return;
   const elWin = document.getElementById("env-val-window");
-  const elSubWin = document.getElementById("env-sub-window");
+  if (!winData.available) {
+    setText("env-val-window", `UNAVAILABLE (${winData.reason || "no snapshot"})`);
+    return;
+  }
   if (elWin) {
     if (winData.permitted_now) {
-      elWin.textContent = "PERMITTED (Window Open)";
+      elWin.textContent = "PERMITTED now";
       elWin.style.color = "var(--ok)";
     } else {
-      const reason = (winData.blocking_reasons_now && winData.blocking_reasons_now[0]) || "SS > 3";
-      elWin.textContent = `NOT_NOW (${reason.length > 25 ? reason.slice(0, 25) + '...' : reason})`;
+      const reason = (winData.blocking_reasons_now && winData.blocking_reasons_now[0]) || "not permitted";
+      elWin.textContent = "NOT_NOW";
+      elWin.title = (winData.blocking_reasons_now || []).join("\n") || reason;
       elWin.style.color = "var(--warn)";
     }
   }
-  if (elSubWin && winData.next_window) {
-    const nw = winData.next_window;
-    elSubWin.textContent = `Next: T+${nw.start_s ?? 0}s (${nw.start_utc ? nw.start_utc.slice(11, 16) + 'Z' : ''})`;
-  } else if (elSubWin) {
-    elSubWin.textContent = "G4 At-Sea Replacement (A')";
+  const nw = winData.next_window || {};
+  if (nw.start_s !== null && nw.start_s !== undefined) {
+    setText("env-sub-window", `Next window: T+${nw.start_s}s (${nw.start_utc ? nw.start_utc.slice(11, 16) + "Z" : ""}), min ${Math.round((winData.min_window_s || 0) / 60)} min`);
+  } else {
+    setText("env-sub-window", nw.reason ? `No window in 48 h: ${nw.reason}` : "G4 At-Sea Replacement (A')");
+  }
+  const ribbon = document.getElementById("outlook-ribbon-cells");
+  if (ribbon && Array.isArray(winData.timeline)) {
+    const bySim = new Map(winData.timeline.map((r) => [String(r.sim_time_s), r]));
+    ribbon.querySelectorAll(".outlook-cell").forEach((el) => {
+      const row = bySim.get(el.dataset.simTimeS);
+      if (!row) return;
+      const reasons = (row.reasons || []).join("; ");
+      el.className = `outlook-cell ${row.permitted ? "open" : "closed"}`;
+      el.title = `${row.t_utc}: guarded SS ${row.sea_state_guarded ?? "n/a"}, guarded wind ${row.wind_kn_guarded ?? "n/a"} kn -> ${row.permitted ? "OPEN" : "CLOSED"}${reasons ? " (" + reasons + ")" : ""}`;
+    });
   }
 }
 
 function renderEnvironmentFallback(reason = "Snapshot offline") {
-  const snapLbl = document.getElementById("env-snapshot-label");
-  if (snapLbl) snapLbl.textContent = `Snapshot offline: ${reason} (A.10 fallback active)`;
+  setText("env-snapshot-label", `Snapshot unavailable: ${reason} (A.10 30 °C fallback active)`);
+  ["env-sst-val", "env-cooling-eff", "env-val-sst", "env-val-wind", "env-val-hs", "env-val-window"].forEach((id) => setText(id, "n/a"));
+  ["env-sub-sst", "env-sub-wind", "env-sub-hs"].forEach((id) => setText(id, "no validated public data"));
+  const ribbon = document.getElementById("outlook-ribbon-cells");
+  if (ribbon) ribbon.replaceChildren();
 }
 
 function renderForecastData(data) {
   const chip = document.getElementById("forecast-status-chip");
-  const badge = document.getElementById("forecast-lead-badge");
-  const sentenceBox = document.getElementById("forecast-sentence-box");
   const guestContainer = document.getElementById("forecast-guest-cards");
 
   if (!data || !data.enabled) {
-    renderForecastFallback("Observer disabled / idle");
+    renderForecastFallback(data && data.reason ? data.reason : "Observer disabled");
     return;
   }
+  const prov = data.telemetry_provenance || "UNKNOWN";
+  setText("forecast-source-label",
+    `source: ${data.source || "n/a"} | telemetry ${prov} | as of T+${data.as_of_sim_time_s ?? "n/a"} s`);
 
-  let highestAlert = null;
-  if (data.alerts && data.alerts.length > 0) {
-    highestAlert = data.alerts[0];
-  }
-
+  const states = data.status_by_guest || {};
+  const rank = { BREACH_OBSERVED: 4, WARN: 3, WATCH: 2, SUPPRESSED: 1, QUIET: 0 };
+  let worst = "QUIET";
+  Object.values(states).forEach((s) => { if ((rank[s] ?? 0) > (rank[worst] ?? 0)) worst = s; });
   if (chip) {
-    if (highestAlert && highestAlert.state === "WARN") {
-      chip.textContent = "WARN";
-      chip.className = "pill pill-warn";
-    } else if (highestAlert && highestAlert.state === "WATCH") {
-      chip.textContent = "WATCH";
-      chip.className = "pill pill-watch";
-    } else {
-      chip.textContent = "QUIET";
-      chip.className = "pill pill-quiet";
-    }
+    chip.textContent = worst;
+    chip.className = `pill ${worst === "WARN" || worst === "BREACH_OBSERVED" ? "pill-warn" : worst === "WATCH" ? "pill-watch" : "pill-quiet"}`;
   }
 
-  if (badge) {
-    if (highestAlert && highestAlert.h_star_s !== undefined) {
-      badge.textContent = `Advance Warning: ~${highestAlert.h_star_s} s`;
-    } else {
-      badge.textContent = `Advance Warning: nominal`;
-    }
-  }
-
-  if (sentenceBox) {
-    if (highestAlert && highestAlert.sentence) {
-      sentenceBox.textContent = highestAlert.sentence;
-    } else {
-      sentenceBox.textContent = "All guest telemetry nominal. Predictive observer running at 1 Hz across 10–60s horizons (Holt damped + conformal bands).";
-    }
+  const alerts = Array.isArray(data.alerts) ? data.alerts.slice() : [];
+  alerts.sort((a, b) => (b.sim_time_s ?? 0) - (a.sim_time_s ?? 0));
+  const latest = alerts[0] || null;
+  if (latest) {
+    const band = Array.isArray(latest.band_s) ? `${latest.band_s[0]}–${latest.band_s[1]} s` : "n/a";
+    setText("forecast-lead-badge", `Latest WARN at T+${latest.sim_time_s} s (${latest.guest_id}): h* band ${band}`);
+    setText("forecast-sentence-box", `[${prov} telemetry replay] ${latest.sentence}`);
+  } else {
+    setText("forecast-lead-badge", "No WARN in replay");
+    setText("forecast-sentence-box", `No advisory raised in ${data.source || "replay"} (${prov} telemetry).`);
   }
 
   if (guestContainer && data.series) {
-    guestContainer.innerHTML = "";
+    guestContainer.replaceChildren();
     Object.entries(data.series).forEach(([gid, sData]) => {
       const card = document.createElement("div");
       card.className = "forecast-guest-card";
-      const lastY = sData.y && sData.y.length ? (sData.y[sData.y.length - 1] / 1000).toFixed(1) : "--";
-      const st = (data.status_by_guest && data.status_by_guest[gid]) || "OK";
-      card.innerHTML = `<strong>${gid}</strong> ${lastY} kW [${st}]`;
+      const lastY = sData.y && sData.y.length ? (sData.y[sData.y.length - 1] / 1000).toFixed(1) : "n/a";
+      const strong = document.createElement("strong");
+      strong.textContent = gid;
+      card.appendChild(strong);
+      card.appendChild(document.createTextNode(` ${lastY} kW [${states[gid] || "n/a"}]`));
       guestContainer.appendChild(card);
     });
   }
@@ -825,16 +821,15 @@ function renderForecastData(data) {
 
 function renderForecastFallback(reason = "Observer unavailable") {
   const chip = document.getElementById("forecast-status-chip");
-  const badge = document.getElementById("forecast-lead-badge");
-  const sentenceBox = document.getElementById("forecast-sentence-box");
   if (chip) {
-    chip.textContent = "QUIET";
+    chip.textContent = "UNAVAILABLE";
     chip.className = "pill pill-quiet";
   }
-  if (badge) badge.textContent = "Advance Warning: -- s";
-  if (sentenceBox) {
-    sentenceBox.textContent = `Predictive observer idle: ${reason}. System operating under reactive degradation rules.`;
-  }
+  setText("forecast-lead-badge", "Advance Warning: n/a");
+  setText("forecast-source-label", "source: none");
+  setText("forecast-sentence-box", `Predictive observer unavailable: ${reason}. Governor operates under its reactive rules (unchanged).`);
+  const gc = document.getElementById("forecast-guest-cards");
+  if (gc) gc.replaceChildren();
 }
 
 fetchConsoleState("survey_primary");

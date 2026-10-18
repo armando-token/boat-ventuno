@@ -7,7 +7,9 @@ import os
 import platform
 import socket
 import time
+import logging
 from typing import Any, Dict, List, Optional, Set
+
 import yaml
 
 from .admission import evaluate_admission, evaluate_four_guest_combinations
@@ -51,6 +53,8 @@ try:
 except ImportError:
     ForecastObserver = Any
 
+
+_LOG = logging.getLogger(__name__)
 
 def load_yaml_file(path: Path) -> Dict[str, Any]:
     raw = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -192,8 +196,12 @@ def build_initial_state_from_scenario(
                 st_obj.sea_state = int(sample0.sea_state_wmo)
             feeds = build_env_feed_readings(sample0, st_obj.sim_time_s)
             st_obj.feeds.update(feeds)
-        except Exception:
-            pass
+        except Exception as exc:
+            # Fail closed (INV-6): an invalid/missing public snapshot must never leave the
+            # scenario's optimistic seawater value in place; force the A.10 30 C fallback.
+            _LOG.warning("ENV_SNAPSHOT_UNAVAILABLE site=%s: %s -> A.10 30C fallback", site_id, exc)
+            st_obj.seawater_temp_c = None
+            st_obj.seawater_temp_is_stale = True
 
     return st_obj
 
@@ -356,8 +364,9 @@ def run_scenario_b_replay(
             for e_ev in env_evs:
                 if int(e_ev["sim_time_s"]) not in existing_env_times:
                     raw_events.append(e_ev)
-        except Exception:
-            pass
+        except Exception as exc:
+            # No environment feed updates are injected; the initial state already carries the 30 C fallback.
+            _LOG.warning("ENV_SNAPSHOT_UNAVAILABLE (events): %s", exc)
 
     telemetry_source = getattr(observer, "telemetry_source", None)
     if telemetry_source is None and observer is not None and "observer_telemetry" in scenario_data:
@@ -370,10 +379,15 @@ def run_scenario_b_replay(
             ot_prof = TelemetryProfile(kind=ot_kind, params=ot_params)
             ot_dur = max(int(max_sim_time_s) + 60, 1860)
             ot_seed = int(ot.get("seed", 3000))
+            ot_mode = str(ot.get("mode", "FULL_SPECTRUM"))
             ot_nom = 45000.0
-            if ot_gid in catalog and "FULL_SPECTRUM" in catalog[ot_gid].modes:
-                ot_nom = float(catalog[ot_gid].modes["FULL_SPECTRUM"].nominal_power_w)
+            if ot_gid in catalog and ot_mode in catalog[ot_gid].modes:
+                ot_nom = float(catalog[ot_gid].modes[ot_mode].nominal_power_w)
+            ot_params.pop("mode", None)
+            ot_prof = TelemetryProfile(kind=ot_kind, params=ot_params)
             ep = generate_episode(ot_gid, ot_nom, ot_prof, ot_dur, ot_seed)
+            # The recorded episode is only valid while the guest stays in the mode it was recorded in.
+            ep["recorded_mode"] = ot_mode
             telemetry_source = {ot_gid: ep}
         except Exception:
             telemetry_source = None
@@ -418,6 +432,7 @@ def run_scenario_b_replay(
         sub_steps = [base_sim_time_s] if tick == start_tick else list(range(state.sim_time_s + 1, target_sim_time_s + 1))
 
         events_at_tick: List[str] = []
+        reactive_overconsumption_guests: Set[str] = set()
 
         for sim_s in sub_steps:
             state.sim_time_s = sim_s
@@ -787,6 +802,7 @@ def run_scenario_b_replay(
                         )
                         state = ov_res["resulting_state"]
                         active_plan_version += 1
+                        reactive_overconsumption_guests.add(off_gid)
                         events_at_tick.append(f"GUEST_OVERCONSUMPTION_{off_gid}_{meas_w}W_MITIGATED@{ev_time}s")
                         sem_ov = {k: v for k, v in ov_res.items() if k != "resulting_state"}
                         sem_ov["plan_version"] = active_plan_version
@@ -932,10 +948,20 @@ def run_scenario_b_replay(
                         telemetry_readings[gid] = float(catalog[gid].modes[ginst.active_mode].nominal_power_w)
                 if isinstance(telemetry_source, dict):
                     for gid, ep in telemetry_source.items():
-                        if isinstance(ep, dict) and "y_obs" in ep:
-                            y_obs_list = ep["y_obs"]
-                            if sim_s < len(y_obs_list) and y_obs_list[sim_s] is not None:
-                                telemetry_readings[gid] = float(y_obs_list[sim_s])
+                        if not (isinstance(ep, dict) and "y_obs" in ep):
+                            continue
+                        ginst_t = state.installed_guests.get(gid)
+                        rec_mode = ep.get("recorded_mode")
+                        if ginst_t is None or not ginst_t.powered_on:
+                            continue
+                        if rec_mode is not None and ginst_t.active_mode != rec_mode:
+                            # Guest left the recorded mode (throttled/shed): recording no longer applies.
+                            continue
+                        y_obs_list = ep["y_obs"]
+                        if sim_s < len(y_obs_list):
+                            y_val = y_obs_list[sim_s]
+                            # Dropouts are passed as None so the observer can declare STALE/UNAVAILABLE.
+                            telemetry_readings[gid] = float(y_val) if y_val is not None else None
                 elif hasattr(telemetry_source, "read"):
                     try:
                         read_res = telemetry_source.read(sim_s)
@@ -956,7 +982,10 @@ def run_scenario_b_replay(
         snap["classes"]["time"]["feasible"] = 0.0 <= calc_ms <= 200.0
 
         if observer is not None:
-            observer.on_tick(state.sim_time_s, state.clone(), snap)
+            observer.on_tick(
+                state.sim_time_s, state.clone(), snap,
+                reactive_breach_guests=sorted(reactive_overconsumption_guests),
+            )
 
         timeline_ticks.append(
             {
@@ -1566,12 +1595,14 @@ def run_public_env_suite(repo_root: Path, observer: Optional[Any] = None) -> Dic
 
     timeline_g4: List[Dict[str, Any]] = []
     next_win: Optional[Dict[str, Any]] = None
+    guard_info: Optional[Dict[str, Any]] = None
     try:
         from .envdata import load_active_snapshot
-        from .env_windows import availability_timeline, find_next_window
+        from .env_windows import availability_timeline, describe_no_window, find_next_window
         snap_data = load_active_snapshot(repo_root, site_id="golden_gate")
-        anchor_utc = snap_data.get("anchor_utc") or "2026-10-18T03:00:00Z"
-        series = snap_data.get("series", {})
+        anchor_utc = snap_data["anchor_utc"]
+        series = snap_data["series"]
+        guard_info = snap_data["guard_bands"]
         timeline_g4 = availability_timeline(
             guest=catalog["G4"],
             operation_type="VEHICLE_REPLACEMENT_AT_SEA",
@@ -1580,18 +1611,16 @@ def run_public_env_suite(repo_root: Path, observer: Optional[Any] = None) -> Dic
             ship_profile=ship_profile,
             env_series=series,
             anchor_utc=anchor_utc,
+            guard=guard_info,
         )
         next_win = find_next_window(timeline_g4, min_duration_s=1800, now_sim_s=0)
         if next_win is None:
-            next_win = {
-                "start_s": None,
-                "reason": "no valid operational window within the 48 h forecast (sea state >= 4 throughout, Hs 1.3–1.9 m); re-evaluate on next snapshot",
-            }
-    except Exception:
+            next_win = describe_no_window(timeline_g4, min_duration_s=1800)
+    except StrictValidationError as exc:
         timeline_g4 = []
         next_win = {
             "start_s": None,
-            "reason": "no valid operational window within the 48 h forecast; re-evaluate on next snapshot",
+            "reason": f"public environment snapshot unavailable ({exc.code}); no window can be asserted (fail-closed)",
         }
 
     from .explanations import build_decision_rationale
@@ -1603,10 +1632,27 @@ def run_public_env_suite(repo_root: Path, observer: Optional[Any] = None) -> Dic
         ship_profile=ship_profile,
     )
     verdict = "NOT_NOW" if not eval_now["permitted"] else "YES"
+    from .models import BindingConstraintWitness
+    vr_g4 = catalog["G4"].vehicle_replacement
+    aprime_witnesses: List[BindingConstraintWitness] = []
+    if state_aprime.sea_state > vr_g4.max_sea_state:
+        aprime_witnesses.append(BindingConstraintWitness(
+            resource_class="environment", constraint_id="A11_SEA_STATE", state_label="NOW",
+            demand=int(state_aprime.sea_state), capacity=int(vr_g4.max_sea_state),
+            margin=int(vr_g4.max_sea_state) - int(state_aprime.sea_state), unit="sea_state_wmo",
+            provenance="DERIVED", detail="Golden Gate snapshot sea state vs A' replacement limit",
+        ))
+    if state_aprime.wind_kn > vr_g4.max_wind_kn:
+        aprime_witnesses.append(BindingConstraintWitness(
+            resource_class="environment", constraint_id="A11_WIND", state_label="NOW",
+            demand=int(state_aprime.wind_kn), capacity=int(vr_g4.max_wind_kn),
+            margin=int(vr_g4.max_wind_kn) - int(state_aprime.wind_kn), unit="kn",
+            provenance="DERIVED", detail="Golden Gate snapshot wind vs A' replacement limit",
+        ))
     explanation = build_decision_rationale(
         verdict=verdict,
         candidate_guest_id="G4",
-        binding_constraints=[],
+        binding_constraints=aprime_witnesses,
         placement={},
         ranked_displacements=[],
         capability_lost=[],
@@ -1625,6 +1671,8 @@ def run_public_env_suite(repo_root: Path, observer: Optional[Any] = None) -> Dic
         "scenario_aprime_golden_gate_verdict": verdict,
         "scenario_aprime_golden_gate_next_window_start_s": next_win.get("start_s") if next_win else None,
         "scenario_aprime_golden_gate_rationale": explanation,
+        "guard_band_status": guard_info.get("status") if guard_info else None,
+        "guard_band": guard_info.get("guard") if guard_info else None,
     }
     public_env_semantic_sha256 = canonical_json_hash(semantic_summary)
     wall_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)

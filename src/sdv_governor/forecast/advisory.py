@@ -51,6 +51,13 @@ class AdvisoryStateMachine:
         self.clear_streak_s: int = 0
         self.transitions: List[AdvisoryTransition] = []
         self.last_p: Optional[Dict[str, Any]] = None
+        # Streaks are measured in simulated seconds (t - first qualifying sample + 1),
+        # so the hysteresis is cadence-independent (1 Hz or coarser ticks).
+        self._risk_since_t: Optional[int] = None
+        self._clear_since_t: Optional[int] = None
+        self.first_warn_t: Optional[int] = None
+        self.breach_observed_t: Optional[int] = None
+        self.lead_s: Optional[int] = None
 
     def _transition(
         self,
@@ -62,6 +69,8 @@ class AdvisoryStateMachine:
     ) -> None:
         if new_state == self.state:
             return
+        if new_state == "WARN" and self.first_warn_t is None:
+            self.first_warn_t = t
         rec = AdvisoryTransition(
             t=t,
             from_state=self.state,
@@ -72,6 +81,12 @@ class AdvisoryStateMachine:
         )
         self.transitions.append(rec)
         self.state = new_state
+
+    def _reset_streaks(self) -> None:
+        self._risk_since_t = None
+        self._clear_since_t = None
+        self.risk_streak_s = 0
+        self.clear_streak_s = 0
 
     def update(
         self,
@@ -106,19 +121,20 @@ class AdvisoryStateMachine:
         if reactive_breach_active:
             if self.state != "BREACH_OBSERVED":
                 self._transition(t, "BREACH_OBSERVED", "REACTIVE_BREACH_DETECTED", h_star_hi, status)
-            self.risk_streak_s = 0
-            self.clear_streak_s = 0
+                if self.breach_observed_t is None:
+                    self.breach_observed_t = t
+                    if self.first_warn_t is not None:
+                        self.lead_s = t - self.first_warn_t
+            self._reset_streaks()
             return self.state
         elif self.state == "BREACH_OBSERVED":
             # Reactive event closed by governor
             self._transition(t, "QUIET", "REACTIVE_BREACH_RESOLVED", h_star_hi, status)
-            self.risk_streak_s = 0
-            self.clear_streak_s = 0
+            self._reset_streaks()
 
         # 2. Telemetry suppression checks
         if status in ("WARMUP", "STALE", "UNAVAILABLE", "REGIME_BREAK"):
-            self.risk_streak_s = 0
-            self.clear_streak_s = 0
+            self._reset_streaks()
             if self.state != "SUPPRESSED":
                 self._transition(t, "SUPPRESSED", f"TELEMETRY_STATUS_{status}", h_star_hi, status)
             return self.state
@@ -131,13 +147,19 @@ class AdvisoryStateMachine:
         is_clear = (h_star_hi is None or h_star_hi > 60.0)
 
         if is_in_risk_45:
-            self.risk_streak_s += 1
+            if self._risk_since_t is None:
+                self._risk_since_t = t
+            self.risk_streak_s = t - self._risk_since_t + 1
         else:
+            self._risk_since_t = None
             self.risk_streak_s = 0
 
         if is_clear:
-            self.clear_streak_s += 1
+            if self._clear_since_t is None:
+                self._clear_since_t = t
+            self.clear_streak_s = t - self._clear_since_t + 1
         else:
+            self._clear_since_t = None
             self.clear_streak_s = 0
 
         # 4. State transitions
@@ -171,6 +193,9 @@ def advisory_sentence(p: Dict[str, Any], guest_name: str, src: str = "") -> str:
     "Advisory only — governor action unchanged."
     """
     gid = p.get("guest_id", "")
+    name = guest_name or ""
+    if gid and name.startswith(gid):
+        name = name[len(gid):].lstrip(" -—:")
     slope = float(p.get("slope_w_per_s", 0.0))
     threshold_kw = float(p.get("threshold_w", 0.0)) / 1000.0
     declared_kw = float(p.get("declared_w", 0.0)) / 1000.0
@@ -183,10 +208,23 @@ def advisory_sentence(p: Dict[str, Any], guest_name: str, src: str = "") -> str:
     w_proj_kw = float(w.get("projected_w", w.get("demand", 0.0))) / 1000.0
     w_cap_kw = float(w.get("capacity_w", w.get("capacity", 0.0))) / 1000.0
 
+    if slope >= 0.5:
+        trend = f"rising {slope:+.0f} W/s"
+    elif slope <= -0.5:
+        trend = f"falling {slope:+.0f} W/s"
+    else:
+        trend = "flat (|slope| < 0.5 W/s)"
+    upper = f">{band[1]}" if p.get("band_open_upper") else f"{band[1]}"
+    if p.get("point_forecast_crosses", True):
+        when = f"projected to exceed {threshold_kw:.1f} kW (110% of declared {declared_kw:.1f} kW) in ~{h_star} s "
+    else:
+        when = (
+            f"upper 90% bound reaches {threshold_kw:.1f} kW (110% of declared {declared_kw:.1f} kW) in ~{band[0]} s; "
+            f"point forecast stays below within 60 s "
+        )
     return (
-        f"{gid} {guest_name} rising {slope:+.0f} W/s; "
-        f"projected to exceed {threshold_kw:.1f} kW (110% of declared {declared_kw:.1f} kW) "
-        f"in ~{h_star} s (90% band {band[0]}–{band[1]} s); "
+        f"{gid} {name} {trend}; "
+        f"{when}(90% band {band[0]}–{upper} s); "
         f"binding: {w_class} {w_comp} {w_proj_kw:.1f}/{w_cap_kw:.1f} kW. "
         f"Advisory only — governor action unchanged."
     )

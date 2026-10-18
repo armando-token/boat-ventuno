@@ -49,4 +49,10 @@ artifacts/validation_alignment_local/
 artifacts/_scratch_mutations/
 artifacts/audit_*/
 artifacts/*.zip
-tools/
+/tools/*
+!/tools/fetch_public_env.py
+!/tools/backtest_public_env.py
+!/tools/fit_forecast.py
+!/tools/bench_forecast.py
+viz3d/tools/
+src/sdv_governor/_bundled/viz3d/tools/

@@ -367,7 +367,9 @@ def test_cooling_capacity_outlook() -> None:
     ]
 
     with patch("sdv_governor.envdata.compute_cooling_water_capacity_w", wraps=compute_cooling_water_capacity_w) as spy:
-        outlook = cooling_capacity_outlook(series, loop_degraded=False)
+        outlook = cooling_capacity_outlook(
+            series, anchor_utc="2026-10-18T03:00:00Z", loop_degraded=False, horizon_s=3600, step_s=3600
+        )
         assert spy.call_count == 2
         assert len(outlook) == 2
 
@@ -380,7 +382,13 @@ def test_cooling_capacity_outlook() -> None:
         assert outlook[1]["cooling_effective_w"] == 120000
 
     # Test loop_degraded=True -> 0.60x
-    outlook_degraded = cooling_capacity_outlook(series, loop_degraded=True)
+    outlook_degraded = cooling_capacity_outlook(
+        series, anchor_utc="2026-10-18T03:00:00Z", loop_degraded=True, horizon_s=3600, step_s=3600
+    )
+    assert [r["sim_time_s"] for r in outlook_degraded] == [0, 3600]
+
+    with pytest.raises(StrictValidationError):
+        cooling_capacity_outlook(series, loop_degraded=False)
     assert outlook_degraded[0]["cooling_effective_w"] == int(round(150444 * 0.60))
     assert outlook_degraded[1]["cooling_effective_w"] == int(round(120000 * 0.60))
 

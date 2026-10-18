@@ -67,7 +67,7 @@ blueprint_stations_x_from_ap_m:
   midships_boat_recess_and_bay2: [25.5, 34.0]
   bridge_superstructure: [32.0, 44.5]
   integrated_mast_tower: [34.2, 38.0]
-  foredeck_weapon_or_sar_mount: [45.5, 50.2]
+  foredeck_sar_mount: [45.5, 50.2]
   forecastle_bow_peak: [50.2, 60.0]
   bulbous_bow_tip: 60.0
   rov_hangar_lower_bow: [42.0, 51.0]

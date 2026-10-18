@@ -23,6 +23,8 @@ viz3d/dist/
 # Legacy prototypes & old handoff reproductions (kept locally on disk, excluded from GitHub)
 research/
 v5.1*/
+scope/
+scope copy/
 
 # Internal plans, megaplans, audit logs & historical baselines (kept locally on disk, excluded from GitHub)
 *MEGAPLAN*

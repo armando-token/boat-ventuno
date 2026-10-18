@@ -32,13 +32,11 @@
         "AUV_HYDRO_SURVEY",
         "UAV_SAR_SURVEILLANCE",
         "EMERGENCY_COMMS_EDGE_COMPUTE",
-        "SIGINT_EDGE_PROCESSING",
         "CIVIL_HYDRO_SAMPLER",
         "METEO_SENSOR",
         "ROV_INSPECTION",
         "AUV_SURVEY",
         "UAV_SAR",
-        "SIGINT_EDGE",
         "AUXILIARY_PAYLOAD"
       ]
     },

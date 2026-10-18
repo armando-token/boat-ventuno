@@ -1,6 +1,10 @@
 # SDV Eight-Class Resource Governor (`sdv-resource-governor`)
 
-Deterministic, ontology-driven **Admission (`D1`), Physical Placement & Trade-off Solver (`D2`), Live Conflict Arbitration (`D3`), Graceful Degradation (`D4`), Multi-Crew Regime Governance (`D5`: `14/6/0`), and Physical Account & Fail-Closed Evidence Governance (`D6`)**, paired with a unified **Operator Interface (Single-Screen 2D Console & Synchronized 3D Vessel Twin)** for a 72 m Offshore Software-Defined Vessel (SDV).
+**Run the demo (one command):** `./run_demo.sh` → opens the operator console at `http://127.0.0.1:8765` (creates `.venv` and installs on first run).
+
+**Arduino LAN console:** `http://10.0.0.130:8765` runs the governor on Ventuno Q, with the browser on the Mac. This is an unauthenticated development console: use only on the trusted local network, never expose it to the Internet. Inspect or restart it with `ssh arduq 'systemctl --user status sdv-governor --no-pager'` or `ssh arduq 'systemctl --user restart sdv-governor'`.
+
+Deterministic, ontology-driven **Admission (`D1`), Placement (`D2`), Right of Way (`D3`), Degradation (`D4`), Crew as a setting (`D5`: `14/6/0`), and Physical Account (`D6`)**, paired with a unified **Operator Interface (Single-Screen 2D Console & Synchronized 3D Vessel Twin)** for a 60–70 m Offshore Software-Defined Vessel (SDV).
 
 ---
 
@@ -37,15 +41,15 @@ Deterministic, ontology-driven **Admission (`D1`), Physical Placement & Trade-of
 
 ## 2. Deliverables, Objectives & Scope (`D1`–`D6` + Operator Interface)
 
-| ID | Deliverable / Capability | Brief Tier | Status & Implementation Scope |
-|---|---|---|---|
-| **D1** | Guest Manifest Ontology, 7 Formal JSON Schemas & Port Admission | **Mandatory** | **Implemented:** `schemas/*.schema.json`, G1–G6 YAML cards (`G4=990 kg` per `GRAZIANO_ROOF_AND_G4_MASS_0904`) + dynamic G7 card, `YES` / `YES_IF` / `NOT_NOW` / `NO` verdicts. |
-| **D2** | Physical Placement, Roof Clearance & Trade-off Solver (Scenario A) | **Mandatory** | **Implemented:** Exact 8-class + 14-day Mission Envelope A.10 placement solver (`ROOF_OUTSIDE_G4_RECOVERY_V1` conditional clearance for `G5` antenna on `hangar_roof`), ranked displacements, atomic `apply_yes_if`. |
-| **D3** | Live Conflict Arbitration & Causal Recovery (Scenario B: `G1+G3+G4+G5`) | **Mandatory** | **Implemented:** Installed set `G1+G3+G4+G5` (`9,560 kg`, `9,853 kg-eq`); causal state machine (`HOLD_CMD -> HOLD_ACK -> TURN_INTO_WIND -> RECOVERY_APPROACH -> TOUCHDOWN <= 1200 s`) under `survey_primary` (`1095 s`) & `rescue_primary` (`855 s`). |
-| **D4** | Graceful Degradation, Thermal Inertia & Hysteresis (Scenario B) | **Mandatory** | **Implemented:** At `T=720 s` (`100 kW` generator reserve / `72 kW` degraded water loop at `30 deg C`), steps down `G5` (`45 -> 8 kW`), reducing committed power `106.5 kW -> 69.5 kW` (`LINE_A_FWD=26.5 kW`, `LINE_B_AFT=80.0 -> 43.0 kW`) and committed chilled water `103.8 kW -> 67.5 kW <= 72 kW`. |
-| **D5** | Multi-Crew Regimes (`14/6/0`), A' Window & Fault Resilience (Scenario C) | **Mandatory / Desirable** | **Implemented:** Quantitative `14/6/0` crew dial (`30 s` / `120 s` / automated confirmation; `240 s` / `600 s` / prohibited deck clearing), A' earliest window (`T+1260 s`), `G5` `+20%` (`54.0 kW` = `52.8 kW` water + `1.2 kW` air) step-down, and stale-feed `30 deg C` fallback. |
-| **D6** | Physical Account (1p), Assumption Register & Fail-Closed Verifier | **Mandatory** | **Implemented:** `docs/PHYSICAL_ACCOUNT_D6.pdf` (1 page, 8 assumption families + `mast_4` counterfactual), 28-mutation fail-closed verifier (`false_accepts=0`), and Mac `arm64` <-> Ventuno Q `aarch64` parity. |
-| **UI** | Operator Interface (Single-Screen 2D Console & 3D Vessel Twin) | **Operator Interface** | **Implemented:** Zero-build 2D console (`http://127.0.0.1:8765`) + Three.js 3D twin (`viz3d/`) bound to the same authoritative `GovernorSession` (visible `STALE / DESCONECTADO` banner if disconnected). |
+| ID | Decision / Deliverable | Brief Tier | What it optimises (declared objective) | Component & Status |
+|---|---|---|---|---|
+| **D1** | Admission in 30 s (+ Guest Manifest, Annex B.0) | **Mandatory** | Feasibility over the whole 14-day A.10 envelope (degraded states included, never the pier); for `YES_IF`, displacements ranked by **least capability score lost**, then fewest guests displaced. | `admission.py` — `YES`/`YES_IF`/`NOT_NOW`/`NO`, names the binding class (e.g. Scenario B set binds on **data/SATCOM** in A.10 cruise). G1–G6 cards + own G7 card, `schemas/*.schema.json`. |
+| **D2** | Placement | **One of D2/D4** (addressed) | Lexicographic: avoid conditional roof positions → preferred positions → **minimum stability-equivalent mass** (max stability margin) → least-loaded compute node; alternatives kept as ranked candidates. | `placement.py` — bay/mast/deck/power line/cooling manifold; `ROOF_OUTSIDE_G4_RECOVERY_V1` conditional roof clearance, enforced in D1/D3 (`scheduling.py::evaluate_roof_drone_clearance_safe`). |
+| **D3** | Right of way in 2 s (Scenario B min 8) | **Mandatory** | Max `utility_score` = priority-weighted survey continuity + priority-weighted drone landing margin, subject to the hard G4 <20 % battery deadline; tie-break declared in the priority file. | `arbitration.py` — one-sentence captain rationale + cost to the loser; `survey_primary` lands G4 at T+1095 s (105 s margin, G3 loses 14 min), `rescue_primary` at T+855 s (345 s margin, G3 loses 26 min). |
+| **D4** | Degradation (Scenario B min 12) | **One of D2/D4** (addressed) | Restore power/cooling feasibility with **least capability lost**: step down before shedding, in the priority file's declared order; never shed safety-critical, uninterruptible, airborne or submerged guests. | `degradation.py` — generator trip at T=720 s: committed `106.5 kW > 100 kW` → `G5 45 → 8 kW`; rationale lists what every guest keeps or loses. |
+| **D5** | Crew as a setting (Scenario C) | **Design deliverable** | Same rule, crew-dependent timings: `14/6/0` aboard → `30 s/120 s/automated` confirmation, `240 s/600 s/prohibited` deck clearing. | `scheduling.py`, `docs/MEMO_SCENARIO_C.pdf`. |
+| **D6** | Physical Account (Annex C) | **Required deliverable** | Every assumed number traceable to the code line that uses it. | `docs/PHYSICAL_ACCOUNT_D6.pdf`, `ASSUMPTIONS.yaml`, fail-closed evidence verifier (28 mutations, `false_accepts=0`). |
+| **UI** | Operator Interface (Single-Screen 2D Console & 3D Vessel Twin) | **Operator Interface** | One screen showing the same authoritative session the engine decides on. | **Implemented:** Zero-build 2D console (`http://127.0.0.1:8765`) + Three.js 3D twin (`viz3d/`) bound to the same authoritative `GovernorSession` (visible `STALE / DESCONECTADO` banner if disconnected). |
 
 ---
 
@@ -75,11 +79,11 @@ python3 -m venv .venv --system-site-packages
 | Class | Physical / Operational Constraint | Source Module |
 |---|---|---|
 | **1. Power** | `200 kW` net reserve (`LINE_A_FWD <= 150 kW`, `LINE_B_AFT <= 150 kW`), `actual` vs. `committed` firm reservations (`106.5 kW -> 69.5 kW`) | `budgets.py` |
-| **2. Cooling** | Chilled water `160 kW @ <=12 deg C -> 120 kW @ 30 deg C` (`72 kW` with `-40%` loop loss; `103.8 kW -> 67.5 kW`), `30 kW x 60 s` (`1.8 MJ`) inertia | `budgets.py` |
+| **2. Cooling** | Scenario B nominal: `24 deg C`, `133.3 kW` water capacity; generator trip at T=720 s is an electrical fault, not a cooling-loop loss. Separate hot-water stress case: `30 deg C`, `120 kW` capacity (`72 kW` with `-40%` loop loss; committed heat `103.8 -> 67.5 kW`). Thermal inertia: `30 kW x 60 s` (`1.8 MJ`). | `budgets.py` |
 | **3. Compute** | 4 physical rack nodes (`node_1..node_4`, `32c / 128 GiB / 1 acc` each; `80%` allocatable = `25c / 102.4 GiB` per node, `3` assignable discrete accelerators across cluster, `16 TB` storage) | `placement.py` |
 | **4. Mast & Roof** | `mast_3` (`<= 60 kg`, `<= 0.6 m2`, `<= 2,000 W` air) + `hangar_roof` (`<= 150 kg`, `<= 2.0 m2`, `<= 2,000 W` air, conditional `ROOF_OUTSIDE_G4_RECOVERY_V1`) | `budgets.py` |
 | **5. Mass & Stability** | Global `<= 10,000 kg` and `<= 12,000 kg-eq` (`G1+G3+G4+G5 = 9,560 kg`, `9,853 kg-eq`, `G3+G4+G5 = 9,515 kg ≈ 9.52 t`); `bay1 <= 8t`, `bay2 <= 4t` | `budgets.py` |
-| **6. Data Links** | `10 Gbps` LAN (`<= 1 Gbps/port`), SATCOM `10 Mbps` port / `6 Mbps` offshore / `2 Mbps` degraded / `0 bps` EMCON (`W4`) | `budgets.py` |
+| **6. Data Links** | `10 Gbps` LAN (`<= 1 Gbps/port`), SATCOM `8 Mbit/s` nominal (brief A.5: shared `2–8 Mbit/s`) / `6 Mbit/s` A.10 cruise / `2 Mbit/s` degraded / `0 bps` EMCON (`W4`) | `budgets.py` |
 | **7. Crew & Deck** | Regimes `14` (`9` deck avail, `30 s` confirm, `240 s` deck clear), `6` (`2` deck avail, `120 s` confirm, `600 s` deck clear), `0` (`0` avail, manual evolutions prohibited) | `scheduling.py` |
 | **8. Time** | 1 Hz tick budget (`<= 1,000 ms`), Scenario A admission (`<= 30 s`), A.6 transition durations, local urgent command (`<= 200 ms`, `< 1 ms` measured) | `replay.py` |
 

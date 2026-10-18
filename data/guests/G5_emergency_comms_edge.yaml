@@ -241,4 +241,3 @@ component_allocations:
       cooling_air_w: 0
       source_kind: "ASSUMED"
       assumption_ref: "ASM-G5-COMPONENT-POWER-SPLIT"
-

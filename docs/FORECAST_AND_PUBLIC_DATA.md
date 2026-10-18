@@ -64,19 +64,19 @@ Measured by `tools/bench_forecast.py --split both` on the **production** `Foreca
 
 | Gate ID | Requirement | Split | Measured | Status |
 |---|---|---|---|---|
-| **G-NI** | Campaign decisions/hash unchanged with observer | pytest non-interference | 6 tests green; `fd806cda…` (C2: +2 layered-water variant entries; official B hashes unchanged) | **PASS** |
+| **G-NI** | Campaign decisions/hash unchanged with observer | pytest non-interference | 6 tests green; `3a0aa7f6…` (scope fixes C2–C6; artifacts/merge_scope/GOLDEN_DIFF.md) | **PASS** |
 | **G-OFF** | Offline runtime, zero network | pytest `-k offline` | 2 tests green | **PASS** |
-| **G-LAT** | p99 full observer tick $\le 50$ ms | test | p99 = 2.42 ms on Ventuno Q (0.83 ms Mac), $\le 8$ evals/tick | **PASS** |
+| **G-LAT** | p99 full observer tick $\le 50$ ms | test | p99 = 2.42 ms on Ventuno Q (0.91 ms Mac), $\le 8$ evals/tick ($\le 16$ in OOD mode) | **PASS** |
 | **G-ACC-RAMP** | ratio MAE@30 $\le 0.85$ | test | 0.785 | **PASS** |
 | **G-ACC-STEADY** | ratio MAE@30 $\le 1.05$ | test | 0.858 | **PASS** |
 | **G-COV** | 90% band coverage in [0.85, 0.95] | test | 0.908 | **PASS** |
 | **G-RECALL** | recall $\ge 0.90$ (WARN active at crossing) | test | 1.00 | **PASS** |
 | **G-LEAD** | median $\ge 20$ s, p10 $\ge 10$ s | test | median 60.5 s, p10 37.9 s | **PASS** |
-| **G-FA** | $\le 1.0$ false WARN / h | test + control 1 h | 0.173 / h (3 in 17.33 h) | **PASS** |
-| **G-OOD** | recall $\ge 0.75$ and FA $\le 3$ / h | ood | recall 0.95, **FA 9.7 / h** | **FAIL** |
+| **G-FA** | $\le 1.0$ false WARN / h | test + control 1 h | 0.115 / h (2 in 17.33 h) | **PASS** |
+| **G-OOD** | recall $\ge 0.75$ and FA $\le 3$ / h | ood | recall 0.90, FA 1.5 / h (was 9.7 before the OOD guard) | **PASS** |
 | **G-ENV** | false-open windows = 0 with guard | 7-day backtest, 169 h | 0 (guarded) vs 20 (raw) | **PASS** |
 
-**G-OOD fails** on false alarms under out-of-distribution profiles: the observer still warns (recall 0.95) but is noisy. All five gates required to publish E2 (G-NI, G-OFF, G-LAT, G-RECALL, G-FA) pass; the OOD failure is declared, not hidden.
+**OOD guard (`forecast/ood.py`).** When the live one-step residual scale exceeds 1.9x its calibration median (exit < 1.6x), the guest enters OOD mode: (1) widened-band-only risk stays at WATCH; WARN needs the point forecast + 0.5x the calibrated band to cross the physical limit within 45 s; (2) the displayed band is widened by the live/calibrated residual ratio; (3) that risk must persist 6 s (not 3 s). The sentence states the mode. Thresholds unchanged; the 0.5 / 6 s settings were chosen on a held-out OOD validation set (seeds 6000-6119; 0.7 FA/h, recall 0.90), not on the benchmark `ood` split. In-distribution behaviour (Golden Gate replay, test split) is unchanged except one fewer false WARN on spikes.
 
 ---
 
@@ -98,4 +98,4 @@ Guarded windows from the base state show **no G4 window in the 48 h outlook**: `
 2. **Coastal Model Resolution & Empirical Guard Bands:** Open-Meteo is a coastal model product at ~8 km resolution; validated against NDBC 46237/46026/FTPC1 over 7 days (169 hourly pairs); guard bands are the derived 90% error quantiles: +7.34 kn wind, +0.24 m $H_s$, +0.51 deg C SST (`guard_bands.json`, status DERIVED). Without the guard the backtest gives 20 false-open hours; with it, 0.
 3. **Synthetic Telemetry & Advisory Non-Interference:** Consumption telemetry is synthetic (seeded); `/api/forecast` is a labelled replay. The forecaster is advisory and never changes the governor's decision.
 4. **Thermal Baseline Adherence:** At Golden Gate SST (~16 deg C), cooling is not the binding constraint; 14-day admission is still judged at 30 deg C design worst-case.
-5. **Known weakness:** G-OOD fails (9.7 false WARN / h on out-of-distribution profiles); G-LAT on the Ventuno Q is 2.42 ms p99, far below 50 ms.
+5. **Known trade-off:** in OOD mode WARN is more conservative (recall 0.90 vs 1.00 in distribution; 4 of 40 OOD ramps warned < 10 s ahead). G-LAT on the Ventuno Q is 2.42 ms p99, far below 50 ms.

@@ -16,6 +16,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
+from .ood import OOD_WARN_PERSIST_S
+
 
 VALID_ADVISORY_STATES = ("QUIET", "WATCH", "WARN", "BREACH_OBSERVED", "SUPPRESSED")
 
@@ -55,6 +57,7 @@ class AdvisoryStateMachine:
         # so the hysteresis is cadence-independent (1 Hz or coarser ticks).
         self._risk_since_t: Optional[int] = None
         self._clear_since_t: Optional[int] = None
+        self._point_risk_since_t: Optional[int] = None
         self.first_warn_t: Optional[int] = None
         self.breach_observed_t: Optional[int] = None
         self.lead_s: Optional[int] = None
@@ -85,6 +88,7 @@ class AdvisoryStateMachine:
     def _reset_streaks(self) -> None:
         self._risk_since_t = None
         self._clear_since_t = None
+        self._point_risk_since_t = None
         self.risk_streak_s = 0
         self.clear_streak_s = 0
 
@@ -95,6 +99,7 @@ class AdvisoryStateMachine:
         status: str = "OK",
         reactive_breach_active: bool = False,
         p: Optional[Dict[str, Any]] = None,
+        ood_active: bool = False,
     ) -> str:
         """Advance the advisory state machine by one second tick.
         
@@ -104,6 +109,9 @@ class AdvisoryStateMachine:
             status: Telemetry status ("OK", "WARMUP", "STALE", "UNAVAILABLE", "REGIME_BREAK").
             reactive_breach_active: True if reactive governor event is currently active.
             p: Projection dictionary from projector.py (optional).
+            ood_active: Telemetry residuals are outside the calibrated range (see ood.py). WARN then
+                requires the point forecast (not just the upper band) to cross within 45 s for
+                OOD_WARN_PERSIST_S consecutive seconds; upper-band-only risk stays at WATCH.
             
         Returns:
             Current state string.
@@ -162,16 +170,37 @@ class AdvisoryStateMachine:
             self._clear_since_t = None
             self.clear_streak_s = 0
 
+        point_risk_45 = bool(
+            p is not None
+            and p.get("point_forecast_crosses", False)
+            and p.get("h_star_s") is not None
+            and float(p["h_star_s"]) <= 45.0
+        )
+        if point_risk_45:
+            if self._point_risk_since_t is None:
+                self._point_risk_since_t = t
+            point_streak_s = t - self._point_risk_since_t + 1
+        else:
+            self._point_risk_since_t = None
+            point_streak_s = 0
+
+        if ood_active:
+            warn_ready = point_streak_s >= OOD_WARN_PERSIST_S
+            warn_cause = f"OOD_POINT_RISK_LE_45S_FOR_{OOD_WARN_PERSIST_S}S"
+        else:
+            warn_ready = self.risk_streak_s >= 3
+            warn_cause = "RISK_LE_45S_FOR_3S"
+
         # 4. State transitions
         if self.state == "QUIET":
-            if self.risk_streak_s >= 3:
-                self._transition(t, "WARN", "RISK_LE_45S_FOR_3S", h_star_hi, status)
+            if warn_ready:
+                self._transition(t, "WARN", warn_cause, h_star_hi, status)
             elif is_in_risk_60:
                 self._transition(t, "WATCH", "RISK_LE_60S_SAMPLE", h_star_hi, status)
 
         elif self.state == "WATCH":
-            if self.risk_streak_s >= 3:
-                self._transition(t, "WARN", "RISK_LE_45S_FOR_3S", h_star_hi, status)
+            if warn_ready:
+                self._transition(t, "WARN", warn_cause, h_star_hi, status)
             elif self.clear_streak_s >= 10:
                 self._transition(t, "QUIET", "CLEAR_GT_60S_FOR_10S", h_star_hi, status)
 
@@ -215,6 +244,12 @@ def advisory_sentence(p: Dict[str, Any], guest_name: str, src: str = "") -> str:
     else:
         trend = "flat (|slope| < 0.5 W/s)"
     upper = f">{band[1]}" if p.get("band_open_upper") else f"{band[1]}"
+    ood_note = ""
+    if p.get("ood_ratio") is not None:
+        ood_note = (
+            f"Unfamiliar telemetry (residual noise x{float(p['ood_ratio']):.1f} calibration): "
+            f"band widened, WARN on point forecast only. "
+        )
     if p.get("point_forecast_crosses", True):
         when = f"projected to exceed {threshold_kw:.1f} kW (110% of declared {declared_kw:.1f} kW) in ~{h_star} s "
     else:
@@ -226,5 +261,6 @@ def advisory_sentence(p: Dict[str, Any], guest_name: str, src: str = "") -> str:
         f"{gid} {name} {trend}; "
         f"{when}(90% band {band[0]}–{upper} s); "
         f"binding: {w_class} {w_comp} {w_proj_kw:.1f}/{w_cap_kw:.1f} kW. "
+        f"{ood_note}"
         f"Advisory only — governor action unchanged."
     )

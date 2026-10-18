@@ -182,20 +182,20 @@ Measured on the production observer (`docs/evidence/forecast_report_20261018.md`
 
 | Gate | Requirement | Measured | Status |
 |---|---|---|---|
-| **G-NI** | Campaign hash/decisions unchanged with observer | 6 tests; `fd806cda…` (C2: +2 layered-water variant entries; official B hashes unchanged) | **PASS** |
+| **G-NI** | Campaign hash/decisions unchanged with observer | 6 tests; `3a0aa7f6…` (scope fixes C2–C6; artifacts/merge_scope/GOLDEN_DIFF.md) | **PASS** |
 | **G-OFF** | Offline runtime, zero network | 2 tests | **PASS** |
-| **G-LAT** | p99 observer tick <= 50 ms | 2.42 ms on Ventuno Q (0.83 ms Mac) | **PASS** |
+| **G-LAT** | p99 observer tick <= 50 ms | 2.42 ms on Ventuno Q (0.91 ms Mac) | **PASS** |
 | **G-ACC-RAMP / STEADY** | ratio MAE@30 <= 0.85 / <= 1.05 | 0.785 / 0.858 | **PASS** |
 | **G-COV** | 90% band coverage in [0.85, 0.95] | 0.908 | **PASS** |
 | **G-RECALL / G-LEAD** | recall >= 0.90; lead median >= 20 s, p10 >= 10 s | 1.00; 60.5 s / 37.9 s | **PASS** |
-| **G-FA** | <= 1.0 false WARN / h | 0.173 / h | **PASS** |
-| **G-OOD** | OOD recall >= 0.75 and FA <= 3 / h | recall 0.95, FA 9.7 / h | **FAIL (declared)** |
+| **G-FA** | <= 1.0 false WARN / h | 0.115 / h | **PASS** |
+| **G-OOD** | OOD recall >= 0.75 and FA <= 3 / h | recall 0.90, FA 1.5 / h (OOD guard; was 9.7) | **PASS** |
 | **G-ENV** | 0 false-open windows with guard (7-day backtest) | 0 guarded vs 20 raw | **PASS** |
 
 ### 8.4 Honest Operational Disclosures & Verification Boundaries
 - "Recorded public data snapshot (UTC 2026-10); runtime is offline."
 - "Open-Meteo is a coastal model product at ~8 km; validated against NDBC 46237/46026/FTPC1; derived guard bands +7.3 kn wind, +0.24 m Hs, +0.51 °C SST."
-- "The forecaster is noisy out of distribution (G-OOD FAIL, 9.7 false WARN / h); it is advisory only."
+- "On unfamiliar telemetry an OOD guard holds WARN to point-forecast risk sustained 6 s (G-OOD: 1.5 false WARN / h, recall 0.90); it is advisory only."
 - "Consumption telemetry is synthetic (seeded); the forecaster is advisory and never changes the governor's decision."
 - "At Golden Gate SST (~16 °C), cooling is not the binding constraint; 14-day admission is still judged at 30 °C."
 

@@ -2,6 +2,8 @@
 
 **Run the demo (one command):** `./run_demo.sh` → opens the operator console at `http://127.0.0.1:8765` (creates `.venv` and installs on first run).
 
+**Arduino LAN console:** `http://10.0.0.130:8765` runs the governor on Ventuno Q, with the browser on the Mac. This is an unauthenticated development console: use only on the trusted local network, never expose it to the Internet. Inspect or restart it with `ssh arduq 'systemctl --user status sdv-governor --no-pager'` or `ssh arduq 'systemctl --user restart sdv-governor'`.
+
 Deterministic, ontology-driven **Admission (`D1`), Placement (`D2`), Right of Way (`D3`), Degradation (`D4`), Crew as a setting (`D5`: `14/6/0`), and Physical Account (`D6`)**, paired with a unified **Operator Interface (Single-Screen 2D Console & Synchronized 3D Vessel Twin)** for a 60–70 m Offshore Software-Defined Vessel (SDV).
 
 ---
@@ -77,7 +79,7 @@ python3 -m venv .venv --system-site-packages
 | Class | Physical / Operational Constraint | Source Module |
 |---|---|---|
 | **1. Power** | `200 kW` net reserve (`LINE_A_FWD <= 150 kW`, `LINE_B_AFT <= 150 kW`), `actual` vs. `committed` firm reservations (`106.5 kW -> 69.5 kW`) | `budgets.py` |
-| **2. Cooling** | Chilled water `160 kW @ <=12 deg C -> 120 kW @ 30 deg C` (`72 kW` with `-40%` loop loss; `103.8 kW -> 67.5 kW`), `30 kW x 60 s` (`1.8 MJ`) inertia | `budgets.py` |
+| **2. Cooling** | Scenario B nominal: `24 deg C`, `133.3 kW` water capacity; generator trip at T=720 s is an electrical fault, not a cooling-loop loss. Separate hot-water stress case: `30 deg C`, `120 kW` capacity (`72 kW` with `-40%` loop loss; committed heat `103.8 -> 67.5 kW`). Thermal inertia: `30 kW x 60 s` (`1.8 MJ`). | `budgets.py` |
 | **3. Compute** | 4 physical rack nodes (`node_1..node_4`, `32c / 128 GiB / 1 acc` each; `80%` allocatable = `25c / 102.4 GiB` per node, `3` assignable discrete accelerators across cluster, `16 TB` storage) | `placement.py` |
 | **4. Mast & Roof** | `mast_3` (`<= 60 kg`, `<= 0.6 m2`, `<= 2,000 W` air) + `hangar_roof` (`<= 150 kg`, `<= 2.0 m2`, `<= 2,000 W` air, conditional `ROOF_OUTSIDE_G4_RECOVERY_V1`) | `budgets.py` |
 | **5. Mass & Stability** | Global `<= 10,000 kg` and `<= 12,000 kg-eq` (`G1+G3+G4+G5 = 9,560 kg`, `9,853 kg-eq`, `G3+G4+G5 = 9,515 kg ≈ 9.52 t`); `bay1 <= 8t`, `bay2 <= 4t` | `budgets.py` |

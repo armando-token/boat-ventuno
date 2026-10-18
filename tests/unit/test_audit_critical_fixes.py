@@ -27,6 +27,20 @@ def _one_sentence(text: str) -> bool:
     return text.endswith(".") and text.count(". ") == 0
 
 
+def test_civil_g5_catalog_and_nominal_temperature_match_bundle() -> None:
+    for root in (REPO_ROOT, REPO_ROOT / "src" / "sdv_governor" / "_bundled"):
+        guests = root / "data" / "guests"
+        assert [p.name for p in guests.glob("G5_*.yaml")] == ["G5_emergency_comms_edge.yaml"]
+        catalog = load_guest_catalog(guests)
+        assert catalog["G5"].category == "EMERGENCY_COMMS_EDGE_COMPUTE"
+        scenario = load_yaml_file(root / "data" / "scenarios" / "scenario_B_arbitration_degradation.yaml")
+        state = build_initial_state_from_scenario(scenario, catalog)
+        assert state.seawater_temp_c == 24.0
+        schema = (root / "schemas" / "guest_manifest.schema.json").read_text(encoding="utf-8")
+        assert '"EMERGENCY_COMMS_EDGE_COMPUTE"' in schema
+    assert "foredeck_sar_mount:" in (REPO_ROOT / "viz3d" / "spec" / "vessel_spec.yaml").read_text()
+
+
 def test_d1_scenario_b_conditional_witness_names_real_binding_class() -> None:
     catalog, ship, _, survey, _ = _load()
     env = validate_mission_envelope(load_yaml_file(DATA_DIR / "ship" / "mission_envelope_a10.yaml"))

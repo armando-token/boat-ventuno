@@ -30,7 +30,7 @@ def _setup_deg():
 
 def test_ont_03_part_of_coherence() -> None:
     """ONT-03: Subcomponent part_of must match parent guest_id, and shedding/mode step-down acts coherently on the parent guest."""
-    g5_raw, _ = load_manifest_yaml(DATA_DIR / "guests" / "G5_edge_sigint.yaml")
+    g5_raw, _ = load_manifest_yaml(DATA_DIR / "guests" / "G5_emergency_comms_edge.yaml")
     bad_g5 = copy.deepcopy(g5_raw)
     bad_g5["subcomponents"][1]["part_of"] = "G1"
     with pytest.raises(StrictValidationError) as exc_info:

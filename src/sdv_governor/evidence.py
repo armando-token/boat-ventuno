@@ -1348,7 +1348,7 @@ def _generate_extended_release_artifacts(
         "data/guests/G2_rov_inspection.yaml",
         "data/guests/G3_auv_survey.yaml",
         "data/guests/G4_uav_sar.yaml",
-        "data/guests/G5_edge_sigint.yaml",
+        "data/guests/G5_emergency_comms_edge.yaml",
         "data/guests/G6_civil_hydro_sampler.yaml",
         "data/priorities/survey_primary.yaml",
         "data/priorities/rescue_primary.yaml",

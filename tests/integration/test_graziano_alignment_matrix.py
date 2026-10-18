@@ -270,7 +270,7 @@ def test_align_t10_independent_air_cooling_domains_mast3_1500w_plus_roof_1200w_f
 
 def test_align_t11_air_cooling_mast3_2500w_rejected_even_with_empty_roof() -> None:
     """ALIGN-T11: >2000 W air cooling on mast_3 is rejected at manifest and budget level even when hangar_roof has 0 W."""
-    g5_raw, _ = load_manifest_yaml(DATA_DIR / "guests" / "G5_edge_sigint.yaml")
+    g5_raw, _ = load_manifest_yaml(DATA_DIR / "guests" / "G5_emergency_comms_edge.yaml")
     g5_over = copy.deepcopy(g5_raw)
     g5_over["modes"]["FULL_SPECTRUM"]["cooling_air_mast_w"] = 2500
     g5_over["modes"]["FULL_SPECTRUM"]["cooling_water_w"] = 42500

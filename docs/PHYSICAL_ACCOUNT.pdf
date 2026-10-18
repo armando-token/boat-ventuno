@@ -16,7 +16,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 23381 >>
+<< /Length 23390 >>
 stream
 q 0.10 0.21 0.36 rg 26.00 755.72 560.00 12.29 re f Q
 BT /F2 7.30 Tf 1.00 1.00 1.00 rg 34.00 759.71 Td (Physical Account \(D6\) -- Annex C: every number we assumed, narrowed or overrode, and where the code uses it) Tj ET
@@ -128,7 +128,7 @@ q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 608.82 92.84 15.20 re B Q
 BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 617.42 Td (Brief gives no roof air limit;) Tj ET
 BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 611.82 Td (we copy the mast one) Tj ET
 q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 608.82 166.19 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 617.42 Td (vessel_baseline.yaml:194-198, G5_edge_sigint.yaml) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 617.42 Td (vessel_baseline.yaml:194-198, G5_emergency_comms_edge.yaml) Tj ET
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 576.82 33.73 32.00 re B Q
 BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 602.22 Td (Positions) Tj ET
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 576.82 78.64 32.00 re B Q
@@ -297,9 +297,9 @@ xref
 0000000191 00000 n 
 0000000266 00000 n 
 0000000334 00000 n 
-0000023768 00000 n 
+0000023777 00000 n 
 trailer
 << /Size 8 /Root 1 0 R >>
 startxref
-23914
+23923
 %%EOF

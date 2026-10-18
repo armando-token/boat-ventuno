@@ -12,7 +12,7 @@ case "$(uname -s)-$(uname -m)" in
   *) LOCK="" ;;
 esac
 
-if [ ! -x .venv/bin/sdv-governor ]; then
+if [ ! -x .venv/bin/python ]; then
   python3 -m venv .venv --system-site-packages
   if [ -n "$LOCK" ]; then
     .venv/bin/pip install -q -r "$LOCK"
@@ -20,6 +20,7 @@ if [ ! -x .venv/bin/sdv-governor ]; then
   .venv/bin/pip install -q --no-build-isolation --no-deps -e .
 fi
 
-.venv/bin/sdv-governor doctor >/dev/null
+export PYTHONPATH="${PWD}/src${PYTHONPATH:+:${PYTHONPATH}}"
+.venv/bin/python -m sdv_governor.cli doctor --no-remote >/dev/null
 echo "SDV governor UI: http://${HOST}:${PORT}  (Ctrl+C to stop)"
-exec .venv/bin/sdv-governor serve --host "$HOST" --port "$PORT"
+exec .venv/bin/python -m sdv_governor.cli serve --host "$HOST" --port "$PORT"

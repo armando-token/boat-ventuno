@@ -14,6 +14,7 @@ from .models import (
     PriorityProfile,
     canonical_json_hash,
 )
+from .capability_effects import effective_capability_retention
 from .placement import compute_guest_capability_score, find_feasible_placement
 from .scheduling import evaluate_a_prime_window, evaluate_roof_drone_clearance_safe
 from .ship_state import InstalledGuestState, ShipOperationalState
@@ -756,10 +757,23 @@ def evaluate_admission(
 
                 cap_lost_items: List[Dict[str, Any]] = []
                 total_score_lost = 0.0
+                cand_ret, _ = effective_capability_retention(
+                    candidate,
+                    env_trial.installed_guests[candidate.guest_id],
+                    env_trial,
+                    ship_profile,
+                    mode_name=candidate.default_mode,
+                )
+                cand_score = compute_guest_capability_score(
+                    candidate, candidate.default_mode, priority_profile, cand_ret
+                )
                 for gid in drop_tuple:
                     g_man = aug_catalog[gid]
                     orig_mode = state.installed_guests[gid].active_mode
-                    sc_lost = compute_guest_capability_score(g_man, orig_mode, priority_profile)
+                    eff_ret, _ = effective_capability_retention(
+                        g_man, state.installed_guests[gid], state, ship_profile
+                    )
+                    sc_lost = compute_guest_capability_score(g_man, orig_mode, priority_profile, eff_ret)
                     total_score_lost += sc_lost
                     cap_lost_items.append(
                         {

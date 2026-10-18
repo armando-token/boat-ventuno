@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import functools
 import hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 import json
@@ -56,6 +57,12 @@ from .scheduling import (
     evaluate_a_prime_window,
     evaluate_crew_regimes_comparison,
     handle_lost_or_stale_feed,
+)
+from .capability_effects import (
+    OWN_RADAR_POLICIES,
+    check_own_radar_policy,
+    effective_capability_retention,
+    own_radar_transmitting,
 )
 from .ship_state import InstalledGuestState, ShipOperationalState
 
@@ -846,6 +853,29 @@ def _validate_custom_profile_domain(
             )
 
 
+@functools.lru_cache(maxsize=8)
+def _own_radar_profile(repo_root_str: str) -> Dict[str, Any]:
+    raw = validate_ship_profile(load_yaml_file(Path(repo_root_str) / "data" / "ship" / "vessel_baseline.yaml"))
+    return {"own_radar": raw.get("own_radar")}
+
+
+def _capability_effects_by_guest(sess: GovernorSession) -> Dict[str, List[str]]:
+    """Environmental capability effects per installed guest (C6), for the UI badge."""
+    state = sess.live_state
+    if state is None:
+        return {}
+    profile = _own_radar_profile(str(sess.repo_root))
+    out: Dict[str, List[str]] = {}
+    for gid, inst in sorted(state.installed_guests.items()):
+        man = sess.session_catalog.get(gid)
+        if man is None or not inst.powered_on:
+            continue
+        _, causes = effective_capability_retention(man, inst, state, profile)
+        if causes:
+            out[gid] = list(causes)
+    return out
+
+
 def _augment_canonical_envelope(
     payload: Dict[str, Any],
     sess: GovernorSession,
@@ -864,6 +894,7 @@ def _augment_canonical_envelope(
     payload["connection_state"] = "LIVE"
     payload["source"] = "AUTHORITATIVE_GOVERNOR"
     payload["state"] = state_dict
+    payload["state"]["capability_effects"] = _capability_effects_by_guest(sess)
     payload["budgets"] = budget_snap
     payload["pending_transitions"] = pending_trans
     payload["decision_log"] = sess.build_decision_log(replay_decisions)
@@ -1658,6 +1689,7 @@ def dispatch_api_request(
                         "sim_time_s",
                         "crew_count",
                         "deck_clear",
+                        "value",
                     },
                     "POST /api/perturb",
                 )
@@ -1711,6 +1743,67 @@ def dispatch_api_request(
                             "crew_regime": sess.live_state.crew_regime,
                             "available_crew": sess.live_state.available_crew,
                             "deck_clear": sess.live_state.deck_clear,
+                            "causal_sentence": c_sent,
+                            "budget_snapshot": snap_after,
+                        },
+                    }
+                    return 200, _augment_canonical_envelope(resp, sess, snap_after)
+
+                if perturbation == "OWN_RADAR_POLICY":
+                    policy = require_str(req.get("value", ""), "value", allowed_enum=set(OWN_RADAR_POLICIES))
+                    witness = check_own_radar_policy(policy, sess.live_state)
+                    if witness is not None:
+                        return 200, _augment_canonical_envelope(
+                            {
+                                "status": "REJECTED",
+                                "run_id": sess.run_id,
+                                "state_version": sess.state_version,
+                                "snapshot_id": sess.snapshot_id,
+                                "perturbation": perturbation,
+                                "result": {
+                                    "status": "OWN_RADAR_POLICY_REJECTED",
+                                    "own_radar_policy": sess.live_state.own_radar_policy,
+                                    "binding_witness": witness.to_dict(),
+                                    "causal_sentence": witness.detail,
+                                },
+                            },
+                            sess,
+                            {},
+                        )
+                    sess.live_state.own_radar_policy = policy
+                    sess.has_live_mutations = True
+                    sess.state_version += 1
+                    snap_after = sess._sync_current_executed_tick(
+                        ship_profile,
+                        f"LIVE_PERTURBATION_OWN_RADAR_{policy}@{sess.live_state.sim_time_s}s",
+                    )
+                    c_sent = (
+                        "Own radar silenced by bridge decision: guests on exposed positions recover full capability."
+                        if policy == "QUIET_RADIO"
+                        else "Own radar transmitting: capable guests on exposed positions lose capability (G1 -30%)."
+                    )
+                    sess.action_history.append(
+                        {
+                            "state_version": sess.state_version,
+                            "snapshot_id": sess.snapshot_id,
+                            "sim_time_s": sess.live_state.sim_time_s,
+                            "action": f"PERTURB:{perturbation}:{policy}",
+                            "run_id": sess.run_id,
+                            "causal_sentence": c_sent,
+                        }
+                    )
+                    resp = {
+                        "status": "OK",
+                        "run_id": sess.run_id,
+                        "state_version": sess.state_version,
+                        "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
+                        "perturbation": perturbation,
+                        "current_budget_snapshot": snap_after,
+                        "result": {
+                            "status": "OWN_RADAR_POLICY_UPDATED",
+                            "own_radar_policy": policy,
+                            "own_radar_transmitting": own_radar_transmitting(sess.live_state),
                             "causal_sentence": c_sent,
                             "budget_snapshot": snap_after,
                         },

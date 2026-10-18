@@ -243,6 +243,7 @@ class ShipOperationalState:
     requested_vessel_mode: Optional[str] = None
     pending_transitions: List[StateTransition] = field(default_factory=list)
     transition_history: List[StateTransition] = field(default_factory=list)
+    own_radar_policy: str = "TRANSMIT"
 
     def __post_init__(self) -> None:
         if self.speed_kn is not None:
@@ -577,6 +578,7 @@ class ShipOperationalState:
             "quiet_acoustic_state": self.quiet_acoustic_state,
             "deck_machinery_active": self.deck_machinery_active,
             "emcon_silence": self.emcon_silence,
+            "own_radar_policy": self.own_radar_policy,
             "power_reserve_w": self.power_reserve_w,
             "cooling_loop_degraded": self.cooling_loop_degraded,
             "satcom_available_bps": self.satcom_available_bps,

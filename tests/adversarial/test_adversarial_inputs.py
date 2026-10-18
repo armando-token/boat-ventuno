@@ -18,7 +18,7 @@ DATA_DIR = REPO_ROOT / "data"
 
 def test_dat_04_corrupt_inputs_rejected() -> None:
     """DAT-04: Reject NaN, Inf, negative budgets, zero budgets, booleans-as-numbers, unknown missions, and unknown fields."""
-    repro_path = REPO_ROOT / "research" / "handoff_repro" / "resource_engine_repro.json"
+    repro_path = REPO_ROOT / "tests" / "fixtures" / "handoff_repro" / "resource_engine_repro.json"
     repro_data = json.loads(repro_path.read_text(encoding="utf-8"))
     assert isinstance(repro_data, list) and len(repro_data) >= 10
     known_missions = {"patrol", "sar"}

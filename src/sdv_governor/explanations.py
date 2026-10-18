@@ -48,10 +48,37 @@ def build_decision_rationale(
             parts.append(f"Capability trade-off: {lost_summary}.")
     elif verdict == "NOT_NOW":
         if next_window is not None:
-            parts.append(
-                f"Temporarily deferred; next valid operational window starts at "
-                f"T+{next_window.get('start_s')}s ({next_window.get('reason', 'scheduled window')})."
-            )
+            if next_window.get("start_s") is None:
+                reason = str(next_window.get("reason", "no valid operational window within the 48 h forecast"))
+                if not reason.endswith("."):
+                    reason = reason + "."
+                if "no valid operational window" in reason or "no window" in reason:
+                    parts.append(f"Temporarily deferred; {reason}")
+                else:
+                    parts.append(f"Temporarily deferred; no valid operational window within the 48 h forecast ({reason})")
+            elif "start_utc" in next_window and next_window["start_utc"]:
+                start_utc = str(next_window["start_utc"])
+                clean_utc = start_utc.replace("T", " ").rstrip("Z") + "Z" if "T" in start_utc and not start_utc.endswith("Z") else start_utc
+                dur_prefix = ""
+                if "duration_s" in next_window and next_window["duration_s"] is not None:
+                    dur_h = next_window["duration_s"] // 3600
+                    dur_prefix = f", {dur_h} h long: " if dur_h > 0 else f", {next_window['duration_s']}s long: "
+                reason = str(next_window.get("reason", "scheduled window"))
+                if clean_utc in reason:
+                    details = reason
+                else:
+                    details = f"{clean_utc}{dur_prefix}{reason}"
+                if "source" in next_window and next_window["source"] and str(next_window["source"]) not in details:
+                    details += f"; source {next_window['source']}"
+                parts.append(
+                    f"Temporarily deferred; next valid operational window starts at "
+                    f"T+{next_window.get('start_s')}s ({details})."
+                )
+            else:
+                parts.append(
+                    f"Temporarily deferred; next valid operational window starts at "
+                    f"T+{next_window.get('start_s')}s ({next_window.get('reason', 'scheduled window')})."
+                )
         else:
             parts.append("Temporarily deferred; next_window=null (future operational window not yet known).")
     elif verdict == "NO":

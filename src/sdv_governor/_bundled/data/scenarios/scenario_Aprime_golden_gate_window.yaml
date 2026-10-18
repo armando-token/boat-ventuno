@@ -1,0 +1,40 @@
+schema_version: "sdv-scenario/1.0"
+scenario_id: "SCENARIO_APRIME_GOLDEN_GATE_WINDOW"
+name: "Scenario A-Prime — Golden Gate Operational Window & At-Sea Replacement / Install"
+scenario_class: "PUBLIC_DATA_REPLAY"
+seed: 20261017
+environment_profile:
+  site_id: "golden_gate"
+  snapshot: "ACTIVE"
+initial_state:
+  sim_time_s: 0
+  vessel_mode: "SURVEY"
+  ship_speed_kn: 6
+  wind_kn: 16
+  sea_state: 4
+  seawater_temp_c: 16.3
+  crew_count: 14
+  deck_clear: true
+  power_reserve_w: 200000
+  cooling_loop_degraded: false
+  installed_guests:
+    - guest_id: "G4"
+      mode: "FLIGHT_PATROL"
+      battery_pct: 54.0
+      placements:
+        G4_DRONE_VEHICLE: "flight_deck"
+        G4_HANGAR_STATION: "hangar"
+      compute_node: "node_3"
+events:
+  - seq: 1
+    sim_time_s: 0
+    priority: 10
+    event_type: "MISSION_START"
+    description: "T=0: Vessel at 6 kn in Golden Gate. Sea state is 4 (>3 threshold), blocking at-sea replacement."
+  - seq: 2
+    sim_time_s: 0
+    priority: 10
+    event_type: "EVALUATE_OPERATIONAL_WINDOW"
+    guest_id: "G4"
+    operation_type: "VEHICLE_REPLACEMENT_AT_SEA"
+    description: "Evaluate G4 at-sea vehicle replacement under Golden Gate public marine forecast: expected NOT_NOW with computed next_window."

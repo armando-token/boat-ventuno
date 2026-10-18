@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdv-governor.local/schemas/forecast_params.schema.json",
+  "title": "SDV Holt Forecast Model Parameters Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "model",
+    "alpha",
+    "beta",
+    "phi",
+    "horizons_s",
+    "warmup_s",
+    "regime_k",
+    "fit",
+    "generator_sha256",
+    "params_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "sdv-forecast-params/1.0"
+    },
+    "model": {
+      "type": "string",
+      "enum": ["holt_damped", "persistence", "ols30"]
+    },
+    "alpha": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "beta": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "phi": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "horizons_s": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "minItems": 1
+    },
+    "warmup_s": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "regime_k": {
+      "type": "number",
+      "exclusiveMinimum": 0.0
+    },
+    "conformal_q": {
+      "type": "object",
+      "patternProperties": {
+        "^[0-9]+$": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "conformal_q_hi": {
+      "type": "object",
+      "patternProperties": {
+        "^[0-9]+$": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "conformal_q_lo": {
+      "type": "object",
+      "patternProperties": {
+        "^[0-9]+$": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "fit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "train_seeds",
+        "calib_seeds",
+        "loss",
+        "grid_size"
+      ],
+      "properties": {
+        "train_seeds": {
+          "type": "string"
+        },
+        "calib_seeds": {
+          "type": "string"
+        },
+        "loss": {
+          "type": "string"
+        },
+        "grid_size": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "generator_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "params_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

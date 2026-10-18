@@ -1,0 +1,135 @@
+{
+  "gate_g_env_status": "PASS",
+  "generated_at_utc": "2026-10-18T03:10:58Z",
+  "guard_bands": {
+    "guard_hs_m": 0.24,
+    "guard_sst_c": 0.513,
+    "guard_wind_kn": 7.339,
+    "quantile_used": 0.9,
+    "status": "DERIVED"
+  },
+  "metrics": {
+    "gust_kn": {
+      "bias": -2.229,
+      "mae": 4.3,
+      "n": 169,
+      "q90": 9.438,
+      "q95": 10.801
+    },
+    "sst_c": {
+      "bias": 0.01,
+      "mae": 0.33,
+      "n": 169,
+      "q90": 0.633,
+      "q95": 0.833
+    },
+    "wave_hs_m": {
+      "bias": -0.048,
+      "mae": 0.116,
+      "n": 169,
+      "q90": 0.24,
+      "q95": 0.271
+    },
+    "wind_kn": {
+      "bias": -1.745,
+      "mae": 3.357,
+      "n": 169,
+      "q90": 7.339,
+      "q95": 8.512
+    }
+  },
+  "n_pairs": {
+    "gust": 169,
+    "hs": 169,
+    "sst": 169,
+    "wind": 169
+  },
+  "period": {
+    "end_utc": "2026-10-18T03:00:00Z",
+    "start_utc": "2026-10-11T03:00:00Z"
+  },
+  "schema_version": "sdv-guard-bands/1.0",
+  "sea_state_confusion": {
+    "fc_3_obs_3": 54,
+    "fc_3_obs_4": 20,
+    "fc_4_obs_3": 1,
+    "fc_4_obs_4": 94
+  },
+  "site_id": "golden_gate",
+  "snapshot_id": "20261018T0300Z",
+  "snapshot_sha256": "45183e72a0643fab92a13922a8ded2ab7ab71146e7db03ee871c483ae886ce92",
+  "window_backtest": {
+    "AT_SEA_INSTALL": {
+      "guarded": {
+        "false_closed": 27,
+        "false_open": 0,
+        "true_closed": 114,
+        "true_open": 28
+      },
+      "limits": {
+        "sea_state": 3,
+        "wind_kn": 20.0
+      },
+      "raw": {
+        "false_closed": 1,
+        "false_open": 20,
+        "true_closed": 94,
+        "true_open": 54
+      }
+    },
+    "G3_LAUNCH_RECOVERY": {
+      "guarded": {
+        "false_closed": 16,
+        "false_open": 0,
+        "true_closed": 3,
+        "true_open": 150
+      },
+      "limits": {
+        "sea_state": 4,
+        "wind_kn": 22.0
+      },
+      "raw": {
+        "false_closed": 0,
+        "false_open": 3,
+        "true_closed": 0,
+        "true_open": 166
+      }
+    },
+    "G4_LAUNCH_RECOVERY": {
+      "guarded": {
+        "false_closed": 13,
+        "false_open": 0,
+        "true_closed": 0,
+        "true_open": 156
+      },
+      "limits": {
+        "sea_state": 4,
+        "wind_kn": 25.0
+      },
+      "raw": {
+        "false_closed": 0,
+        "false_open": 0,
+        "true_closed": 0,
+        "true_open": 169
+      }
+    },
+    "VEHICLE_REPLACEMENT_AT_SEA": {
+      "guarded": {
+        "false_closed": 27,
+        "false_open": 0,
+        "true_closed": 114,
+        "true_open": 28
+      },
+      "limits": {
+        "sea_state": 3,
+        "wind_kn": 20.0
+      },
+      "raw": {
+        "false_closed": 1,
+        "false_open": 20,
+        "true_closed": 94,
+        "true_open": 54
+      }
+    }
+  }
+}

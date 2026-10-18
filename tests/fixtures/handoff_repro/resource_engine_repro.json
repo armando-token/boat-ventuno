@@ -1,0 +1,146 @@
+[
+  {
+    "mission": "patrol",
+    "budget_in": "0",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_PATROL",
+    "cost_total": 55,
+    "compute_budget": 0
+  },
+  {
+    "mission": "patrol",
+    "budget_in": "-50",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_PATROL",
+    "cost_total": 55,
+    "compute_budget": -50
+  },
+  {
+    "mission": "patrol",
+    "budget_in": "True",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_PATROL",
+    "cost_total": 55,
+    "compute_budget": 1
+  },
+  {
+    "mission": "patrol",
+    "budget_in": "False",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_PATROL",
+    "cost_total": 55,
+    "compute_budget": 0
+  },
+  {
+    "mission": "sar",
+    "budget_in": "0",
+    "admitted": null,
+    "selected": null,
+    "action": "REJECT_SAR_KEEP_PATROL",
+    "cost_total": 55,
+    "compute_budget": 0
+  },
+  {
+    "mission": "sar",
+    "budget_in": "-1",
+    "admitted": null,
+    "selected": null,
+    "action": "REJECT_SAR_KEEP_PATROL",
+    "cost_total": 55,
+    "compute_budget": -1
+  },
+  {
+    "mission": "sar",
+    "budget_in": "70",
+    "admitted": null,
+    "selected": null,
+    "action": "REJECT_SAR_KEEP_PATROL",
+    "cost_total": 55,
+    "compute_budget": 70
+  },
+  {
+    "mission": "sar",
+    "budget_in": "100",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_SAR_LIGHT",
+    "cost_total": 75,
+    "compute_budget": 100
+  },
+  {
+    "mission": "sar",
+    "budget_in": "130",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_SAR_FULL",
+    "cost_total": 105,
+    "compute_budget": 130
+  },
+  {
+    "mission": "unknown_mission",
+    "budget_in": "0",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_PATROL",
+    "cost_total": 55,
+    "compute_budget": 0
+  },
+  {
+    "mission": "UNKNOWN",
+    "budget_in": "130",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_PATROL",
+    "cost_total": 55,
+    "compute_budget": 130
+  },
+  {
+    "mission": "",
+    "budget_in": "100",
+    "admitted": null,
+    "selected": null,
+    "action": "ADMIT_PATROL",
+    "cost_total": 55,
+    "compute_budget": 100
+  },
+  {
+    "mission": "sar",
+    "budget_in": "74.9",
+    "admitted": null,
+    "selected": null,
+    "action": "REJECT_SAR_KEEP_PATROL",
+    "cost_total": 55,
+    "compute_budget": 74
+  },
+  {
+    "mission": "patrol",
+    "budget_in": "nan",
+    "exception": "ValueError: cannot convert float NaN to integer"
+  },
+  {
+    "mission": "patrol",
+    "budget_in": "inf",
+    "exception": "OverflowError: cannot convert float infinity to integer"
+  },
+  {
+    "mission": "patrol",
+    "budget_in": "-inf",
+    "exception": "OverflowError: cannot convert float infinity to integer"
+  },
+  {
+    "mission": "patrol",
+    "budget_in": "'100'",
+    "action": "ADMIT_PATROL",
+    "cost_total": 55,
+    "compute_budget": 100
+  },
+  {
+    "mission": "patrol",
+    "budget_in": "None",
+    "exception": "TypeError: int() argument must be a string, a bytes-like object or a number, not 'NoneType'"
+  }
+]

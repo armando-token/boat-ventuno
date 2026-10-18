@@ -81,9 +81,10 @@ def _escape_pdf_text(s: str) -> str:
 
 
 def strip_markdown_inline(text: str) -> str:
-    """Remove raw Markdown inline formatting tokens (**, `, *, leading #) while preserving readable text."""
+    """Remove raw Markdown inline formatting tokens (**, `, *, leading #, [label](url)) while preserving readable text."""
     s = text.strip()
     s = re.sub(r"^#{1,6}\s+", "", s)
+    s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)
     s = s.replace("**", "")
     s = s.replace("`", "")
     s = re.sub(r"\*([^*]+)\*", r"\1", s)
@@ -107,6 +108,13 @@ def _parse_markdown_blocks(md_text: str) -> List[Dict[str, Any]]:
     while i < n:
         raw = lines[i]
         s = raw.strip()
+        if s == "<!-- pdf-ignore-start -->":
+            i += 1
+            while i < n and lines[i].strip() != "<!-- pdf-ignore-end -->":
+                i += 1
+            if i < n:
+                i += 1
+            continue
         if not s or s == "---":
             i += 1
             continue

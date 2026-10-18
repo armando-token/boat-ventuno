@@ -375,7 +375,7 @@ BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 759.50 Td (* Public Metocean Replay & Adv
 BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 751.00 Td (computes guarded, fail-closed operational windows over a 48 h outlook; when none exists it states why \(weather or operational blockers\).) Tj ET
 BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 741.00 Td (* Predictive Advisory Forecaster \(E2\): Recursively estimates normalized power level and damped trend \(phi = 0.98\) at 1 Hz, projecting conformal bounds across) Tj ET
 BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 732.50 Td (h in {10, 20, 30, 45, 60} s. When projected upper bounds exceed 110% of declared load \(ASM-FCST-OVERRUN-THRESHOLD\), a bisection search over the 8-class) Tj ET
-BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 724.00 Td (budget engine identifies the binding bottleneck \(<= 8 evaluations; p99 full tick 2.42 ms on Ventuno Q\) and issues advisory alerts before reactive shedding) Tj ET
+BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 724.00 Td (budget engine identifies the binding bottleneck \(<= 8 evaluations; p99 full tick 2.68 ms on Ventuno Q\) and issues advisory alerts before reactive shedding) Tj ET
 BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 715.50 Td (\(benchmark median lead 60.5 s; Golden Gate replay ~37 s\). /api/forecast is a labelled REPLAY with SIMULATED telemetry.) Tj ET
 BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 705.50 Td (* Strict Non-Interference: The forecaster runs outside the authoritative decision core \(observer=None by default\) and never modifies governor verdicts,) Tj ET
 BT /F1 7.00 Tf 0.12 0.15 0.20 rg 36.00 697.00 Td (priority shedding, or semantic hashes \(FC-INT-01..03\).) Tj ET
@@ -420,7 +420,7 @@ BT /F1 6.00 Tf 0.10 0.14 0.20 rg 29.00 567.05 Td (G-LAT) Tj ET
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 110.56 564.05 164.80 11.20 re B Q
 BT /F1 6.00 Tf 0.10 0.14 0.20 rg 113.56 567.05 Td (p99 observer tick <= 50 ms) Tj ET
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 275.36 564.05 229.43 11.20 re B Q
-BT /F1 6.00 Tf 0.10 0.14 0.20 rg 278.36 567.05 Td (2.42 ms on Ventuno Q \(0.91 ms Mac\)) Tj ET
+BT /F1 6.00 Tf 0.10 0.14 0.20 rg 278.36 567.05 Td (2.68 ms on Ventuno Q \(0.91 ms Mac\)) Tj ET
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 504.80 564.05 81.20 11.20 re B Q
 BT /F1 6.00 Tf 0.10 0.14 0.20 rg 507.80 567.05 Td (PASS) Tj ET
 q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 552.85 84.56 11.20 re B Q

@@ -1,7 +1,7 @@
 # Benchmark Report: Predictive Consumption Observer (E2)
-**Date:** 2026-10-18T04:06:46.695779+00:00
+**Date:** 2026-10-18T04:12:39.075207+00:00
 **Host / Device:** Mac
-**Code Revision:** `880c0e9a244316eac91348b7b3b2d51fdd3e93b6`
+**Code Revision:** `c6c1052fee860961f902c967f8210dc2ac1447cb`
 **Evaluated Splits:** test, ood, control_steady_1h
 
 ---
@@ -17,9 +17,9 @@
 | `G-LEAD` | Alarm lead time before physical breach | `test` | `median >= 20.0s and p10 >= 10.0s` | median=60.5s, p10=37.9s | **PASS** |
 | `G-FA` | False alarm rate on non-breaching operational series | `test+control_steady_1h` | `false_alarms_per_h <= 1.0` | 0.173 / h (3 WARN in 17.33 h) | **PASS** |
 | `G-OOD` | Robustness on out-of-distribution episodes (2x faster, 3x noise) | `ood` | `recall >= 0.75 and false_alarms_per_h <= 3.0` | recall=0.9500, FA=9.706/h | ❌ **FAIL** |
-| `G-LAT` | Observer execution latency p99 per tick | `test` | `p99_on_tick_ms <= 50.0 ms` | 0.833 ms (full observer tick, max evals/tick 8) | **PASS** |
-| `G-NI` | Non-interference NI-01..03 (campaign hash, payload, state) | `all` | `selected tests green` | 6 passed in 1.44s | **PASS** |
-| `G-OFF` | Offline runtime ENV-INT-05 + FC-INT-06 (sockets blocked) | `all` | `selected tests green` | 2 passed, 11 deselected in 0.58s | **PASS** |
+| `G-LAT` | Observer execution latency p99 per tick | `test` | `p99_on_tick_ms <= 50.0 ms` | 0.839 ms (full observer tick, max evals/tick 8) | **PASS** |
+| `G-NI` | Non-interference NI-01..03 (campaign hash, payload, state) | `all` | `selected tests green` | 6 passed in 1.45s | **PASS** |
+| `G-OFF` | Offline runtime ENV-INT-05 + FC-INT-06 (sockets blocked) | `all` | `selected tests green` | 2 passed, 11 deselected in 0.59s | **PASS** |
 | `G-ENV` | Guarded false-open windows in 7-day backtest | `backtest` | `false_open = 0 with guard (DERIVED)` | guard DERIVED, backtest PASS, false_open_guarded={'AT_SEA_INSTALL': 0, 'G3_LAUNCH_RECOVERY': 0, 'G4_LAUNCH_RECOVERY': 0, 'VEHICLE_REPLACEMENT_AT_SEA': 0} | **PASS** |
 
 **Overall Verdict:** **SOME GATES FAILED (See baseline check)**
@@ -51,7 +51,7 @@
 - **Lead Time:** Median = `60.5 s`, 10th percentile = `37.9 s`
 - **Late Alarm Rate:** `0.00%`
 - **False Alarms Rate:** `0.265 / hour` (3 false triggers across 11.33 h)
-- **Observer Latency (on_tick):** p50 = `0.093 ms`, p99 = `0.833 ms`
+- **Observer Latency (on_tick):** p50 = `0.094 ms`, p99 = `0.839 ms`
 
 ---
 
@@ -80,7 +80,7 @@
 - **Lead Time:** Median = `47.0 s`, 10th percentile = `22.0 s`
 - **Late Alarm Rate:** `5.00%`
 - **False Alarms Rate:** `9.706 / hour` (110 false triggers across 11.33 h)
-- **Observer Latency (on_tick):** p50 = `0.093 ms`, p99 = `0.928 ms`
+- **Observer Latency (on_tick):** p50 = `0.094 ms`, p99 = `0.929 ms`
 
 ---
 
@@ -109,6 +109,6 @@
 - **Lead Time:** Median = `0.0 s`, 10th percentile = `0.0 s`
 - **Late Alarm Rate:** `0.00%`
 - **False Alarms Rate:** `0.0 / hour` (0 false triggers across 6.0 h)
-- **Observer Latency (on_tick):** p50 = `0.09 ms`, p99 = `0.119 ms`
+- **Observer Latency (on_tick):** p50 = `0.09 ms`, p99 = `0.118 ms`
 
 ---

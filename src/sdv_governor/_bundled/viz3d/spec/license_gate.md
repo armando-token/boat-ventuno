@@ -1,25 +1,24 @@
-# Puerta de Licencias y Cumplimiento de IA (Fase 0 — `viz3d/`)
+# License Gate & AI Compliance Audit (Phase 0 — `viz3d/`)
 
-**Fecha de verificación:** 17 de octubre de 2026  
-**Normativa aplicable:** Fincantieri Maritime Dual-Use Hackathon — *Data Use Authorization §1–§3* y *Background/Foreground IP*.
-
----
-
-## 1. Verificación de Restricciones de IA (Data Use Authorization §2)
-
-- **Prohibición expresa:** *"AI models developed by companies based in China, or models built on or derived from such models may not be used at any stage of the Hackathon."*
-- **Aplicación en `viz3d/`:**
-  - ❌ **Cero uso** de generadores 3D de origen chino (Hunyuan3D / Tencent, Tripo3D / VAST, Rodin / Deemos, Meshy).
-  - ✅ **100% de la geometría 3D del buque y de los guests (G1–G6)** se genera mediante **modelado paramétrico procedural propio** (en tiempo real con geometría NURBS/loft por estaciones en Three.js y en el script de exportación `viz3d/tools/blender/build_vessel.py`), constituyendo *Foreground IP* del equipo conforme al Artículo 11 de las Bases.
+**Verification Date:** October 17, 2026  
+**Applicable Rules:** Fincantieri Maritime Dual-Use Hackathon — *Data Use Authorization §1–§3* and *Background/Foreground IP*.
 
 ---
 
-## 2. Auditoría de Licencias de Componentes de Terceros (`viz3d/`)
+## 1. AI Restrictions Verification (Data Use Authorization §2)
 
-| Componente / Referencia | Licencia | Decisión de arquitectura en `viz3d/` |
+- **Express Prohibition:** *"AI models developed by companies based in China, or models built on or derived from such models may not be used at any stage of the Hackathon."*
+- **Enforcement in `viz3d/`:**
+  - **Zero usage** of Chinese-origin 3D generators (e.g., Hunyuan3D / Tencent, Tripo3D / VAST, Rodin / Deemos, Meshy).
+  - **100% of the 3D vessel and guest geometry (G1–G6)** is generated via **in-house procedural parametric modeling** (real-time station-lofted geometry in Three.js), constituting team *Foreground IP* under Article 11 of the Challenge Rules.
+
+---
+
+## 2. Third-Party Component License Audit (`viz3d/`)
+
+| Component / Reference | License | Architectural Decision in `viz3d/` |
 |---|---|---|
-| **Three.js** (`mrdoob/three.js`) | **MIT** | ✅ Aprobado. Se utiliza para el motor 3D, materiales físicos PBR, post-procesado y shaders GLSL de océano FFT/JONSWAP y atmósfera. |
-| **OpenBridge Design System** (`Ocean-Industries-Concept-Lab/openbridge-webcomponents`) | **AGPL-3.0 / JIP Comercial** | ⚠️ **No se empaqueta código AGPL-3.0** para evitar contaminación copyleft del repositorio MIT. En su lugar, implementamos nuestros propios componentes limpios (`viz3d/src/console/`) siguiendo directamente las normas públicas **IEC 62288:2021** (paletas Day/Dusk/Night), **IEC 62923 / IMO MSC.302(87)** (Bridge Alert Management — BAM), **IMO S-Mode** e **ISO 14726**. |
-| **Algoritmo de Océano FFT / JONSWAP** (Tessendorf 2001) | **Dominio público matemático / Código propio MIT** | ✅ Implementación limpia propia del espectro direccional JONSWAP multicascada con espuma por determinante Jacobiano, estela Kelvin ($19.47^\circ$) y 8 sondas de flotabilidad 6DOF. |
-| **Atmósfera Física Rayleigh/Mie + Bahía de San Francisco** | **Código propio MIT** | ✅ Shader físico propio con dispersión Rayleigh/Mie, sol astronómico y silueta topográfica 3D del puente Golden Gate y Marin Headlands. |
-| **Blender 4.5 LTS (`bpy`)** | **GPL-3.0 (herramienta externa)** | ✅ El script `viz3d/tools/blender/build_vessel.py` es código propio MIT; los archivos `.glb` generados por Blender son propiedad exclusiva del autor (no cubiertos por la GPL de Blender). |
+| **Three.js** (`mrdoob/three.js`) | **MIT** | Approved. Used for the 3D WebGL engine, PBR materials, and custom GLSL shaders for the JONSWAP ocean and atmosphere. |
+| **OpenBridge Design System** (`Ocean-Industries-Concept-Lab/openbridge-webcomponents`) | **AGPL-3.0 / Commercial JIP** | **Zero AGPL-3.0 code bundled** to avoid copyleft contamination. Instead, we implement clean-room CSS/JS components following the public **IEC 62288:2021** (Day/Dusk/Night palettes), **IEC 62923 / IMO MSC.302(87)** (Bridge Alert Management — BAM), **IMO S-Mode**, and **ISO 14726** standards directly. |
+| **FFT / JONSWAP Ocean Algorithm** (Tessendorf 2001) | **Public Mathematical Domain / Own Code** | Clean-room implementation of multi-cascade directional JONSWAP waves with Jacobian crest foam, Kelvin wake (`19.47 deg`), and 8 hydrostatic 6DOF buoyancy probes. |
+| **Physical Rayleigh/Mie Atmosphere + San Francisco Bay** | **Own Code** | In-house physical sky shader with Rayleigh/Mie scattering, solar positioning, and 3D topographic silhouette of the Golden Gate Bridge and Marin Headlands. |

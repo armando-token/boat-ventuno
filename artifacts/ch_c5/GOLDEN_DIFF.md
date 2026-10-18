@@ -1,25 +1,25 @@
 # GOLDEN_DIFF — C5 (Scenario A: "holds with one genset down")
 
-| Campo | Valor |
+| Field | Value |
 |---|---|
-| Cambio que lo justifica | C5 (`feat/scope-chain`): D1 declara `one_genset_down`; frase fija en `rationale`; ventana `DEGRADED_GEN_LOSS_100KW_30C` marcada `represents: SINGLE_GENSET_LOSS` |
-| `campaign_semantic_sha256` anterior | `ebff0e22a74e20fc781a3d9af31e8f591e725f993194c2a0ba31d17fdf715c3c` |
-| `campaign_semantic_sha256` nuevo | `2050a9ddb0d72aef590d931aa212b11b9b24a3a4bc876f1824bc0aec29b12900` |
-| Hashes B (survey / rescue / cooling) y C (eventos) | **Sin cambio** (siguen fijados en `test_forecast_non_interference.py`) |
-| Triple replay | 3 corridas de `run_full_campaign_suite` devuelven el mismo hash (medido) |
-| Veredictos y colocaciones | **Ninguno cambió** |
+| Justifying change | C5 (`feat/scope-chain`): D1 declares `one_genset_down`; fixed sentence in `rationale`; `DEGRADED_GEN_LOSS_100KW_30C` window tagged `represents: SINGLE_GENSET_LOSS` |
+| Previous `campaign_semantic_sha256` | `ebff0e22a74e20fc781a3d9af31e8f591e725f993194c2a0ba31d17fdf715c3c` |
+| New `campaign_semantic_sha256` | `2050a9ddb0d72aef590d931aa212b11b9b24a3a4bc876f1824bc0aec29b12900` |
+| Scenario B (survey / rescue / cooling) and C (events) hashes | **Unchanged** (pinned in `test_forecast_non_interference.py`) |
+| Triple replay | 3 consecutive runs of `run_full_campaign_suite` return the identical hash (measured) |
+| Verdicts and placements | **None changed** |
 
-## Deltas semánticos (diff JSON, 35 rutas)
+## Semantic Deltas (JSON diff, 35 paths)
 
-Solo se añaden campos y cambia texto/hash derivado del YAML:
+Only new fields added and text/hash derived from the YAML update:
 
-| Ruta (índices colapsados) | Tipo | Nº |
+| Path (collapsed indices) | Type | Count |
 |---|---|---|
-| `scenario_A_four_guest_combinations/combinations[]/fourth_guest_one_genset_down_holds` | añadido | 5 |
-| `.../fourth_guest_ranked_displacements[]/conditioned_availability/one_genset_down` | añadido | 26 |
-| `scenario_A_g6_admission/one_genset_down` | añadido | 1 |
-| `scenario_A_g6_admission/conditioned_availability/one_genset_down` | añadido | 1 |
-| `scenario_A_g6_admission/rationale` | cambiado (segunda frase fija tras el veredicto) | 1 |
-| `scenario_A_g6_admission/mission_envelope_hash` | cambiado (el YAML recibió `represents`) | 1 |
+| `scenario_A_four_guest_combinations/combinations[]/fourth_guest_one_genset_down_holds` | added | 5 |
+| `.../fourth_guest_ranked_displacements[]/conditioned_availability/one_genset_down` | added | 26 |
+| `scenario_A_g6_admission/one_genset_down` | added | 1 |
+| `scenario_A_g6_admission/conditioned_availability/one_genset_down` | added | 1 |
+| `scenario_A_g6_admission/rationale` | updated (second sentence appended after verdict) | 1 |
+| `scenario_A_g6_admission/mission_envelope_hash` | updated (YAML received `represents` field) | 1 |
 
-Método: volcar `semantic_summary` en el commit base y en este commit y comparar por ruta.
+Method: dump `semantic_summary` on the base commit and on this commit and compare by JSON path.

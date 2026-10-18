@@ -436,12 +436,12 @@ def _evaluate_candidate_feasibility_and_score(
         priority_profile.capability_weights.get("maritime_sar_rescue", 50.0)
         + priority_profile.capability_weights.get("surface_surveillance", 50.0)
     )
-    sigint_w = priority_profile.capability_weights.get("wideband_spectrum_monitoring", 30.0)
+    spectrum_w = priority_profile.capability_weights.get("wideband_spectrum_monitoring", 30.0)
 
     preserved_fraction = preserved_s / max(1, remaining_survey_waypoint_s)
     safety_margin_s = hard_deadline_s - touchdown_time_s
     safety_margin_fraction = safety_margin_s / max(1, uav_max_endurance_s)
-    g5_stepdown_penalty = (0.70 * sigint_w) if pre_stepdown_g5 else 0.0
+    g5_stepdown_penalty = (0.70 * spectrum_w) if pre_stepdown_g5 else 0.0
 
     survey_score_component = preserved_fraction * survey_w - (total_survey_interruption_min / 40.0) * survey_w
     rescue_score_component = safety_margin_fraction * rescue_w * 2.2

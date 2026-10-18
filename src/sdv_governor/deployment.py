@@ -151,6 +151,7 @@ def sync_and_run_remote_parity(
     # Sync files via tar over ssh
     candidate_sync_paths = [
         "pyproject.toml",
+        "run_demo.sh",
         "README.md",
         "README.pdf",
         "FINAL_STATUS.md",
@@ -188,14 +189,28 @@ def sync_and_run_remote_parity(
             "reason": f"Remote tar sync failed: {sync_res.stderr.strip()}",
         }
 
+    # Tar overlays files, so renamed guest cards otherwise survive as duplicate guest IDs.
+    guest_manifest_inventory = {
+        rel: sorted(p.name for p in (repo_root / rel).glob("*.yaml"))
+        for rel in ("data/guests", "src/sdv_governor/_bundled/data/guests")
+        if (repo_root / rel).is_dir()
+    }
+
     # Execute remote campaign and capture JSON output
     remote_py_snippet = (
         "import json; from pathlib import Path; "
         "from sdv_governor.deployment import compute_source_tree_sha256, get_process_rss_kib; "
         "from sdv_governor.replay import run_full_campaign_suite; "
         f"root = Path('{remote_dir}'); "
+        "removed_stale_guest_manifests = []\n"
+        f"for rel_dir, expected_names in {guest_manifest_inventory!r}.items():\n"
+        "    for path in sorted((root / rel_dir).glob('*.yaml')):\n"
+        "        if path.name not in expected_names:\n"
+        "            path.unlink()\n"
+        "            removed_stale_guest_manifests.append(str(path.relative_to(root)))\n"
         "camp = run_full_campaign_suite(root); "
         "out = {"
+        "'removed_stale_guest_manifests': removed_stale_guest_manifests, "
         "'code_sha256': compute_source_tree_sha256(root / 'src' / 'sdv_governor'), "
         "'campaign_semantic_sha256': camp['campaign_semantic_sha256'], "
         "'semantic_summary': camp['semantic_summary'], "
@@ -262,6 +277,7 @@ def sync_and_run_remote_parity(
         "scenario_B_survey_primary_match": survey_hash_match,
         "scenario_B_rescue_primary_match": rescue_hash_match,
         "scenario_B_cooling_limited_match": cooling_hash_match,
+        "removed_stale_guest_manifests": remote_payload["removed_stale_guest_manifests"],
         "local_execution": {
             "hostname": local_campaign["runtime_telemetry"]["hostname"],
             "system": local_campaign["runtime_telemetry"]["platform_system"],

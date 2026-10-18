@@ -1,4 +1,4 @@
-/* viz3d/js/tabs.js — Shocks (D4 / Scenario C) and Priority (D6) tabs. Every action is a live server call. */
+/* viz3d/js/tabs.js — Shocks (D4), Crew (Scenario C) and Priority (D6) tabs. Every action is a live server call. */
 (function () {
   'use strict';
   const SDV = (window.SDV = window.SDV || {});
@@ -13,7 +13,8 @@
     });
     SDV.tabs.show = function (name) {
       document.querySelectorAll('#tabbar button').forEach(function (x) { x.classList.toggle('active', x.getAttribute('data-tab') === name); });
-      ['jury', 'shocks', 'prio'].forEach(function (n) { $('tab-' + n).hidden = n !== name; });
+      ['jury', 'shocks', 'crew', 'prio'].forEach(function (n) { $('tab-' + n).hidden = n !== name; });
+      if (ctx.onTab) ctx.onTab(name);
     };
 
     // ---------------------------------------------------------------- shocks

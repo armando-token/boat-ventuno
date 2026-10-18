@@ -6,6 +6,7 @@ import re
 import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+from .areas import area_conflicts, exclusive_areas
 from .models import (
     BindingConstraintWitness,
     ComponentAllocationSpec,
@@ -826,7 +827,9 @@ def evaluate_eight_class_budgets(
         len(pos_occupants[slot]) > 1
         for slot in ("bay1", "bay1_a", "bay1_b", "bay2", "mast_3", "hangar_roof", "flight_deck", "stern_ramp")
     )
-    deck_ramp_conflict = len(pos_occupants["flight_deck"]) > 0 and len(pos_occupants["stern_ramp"]) > 0
+    deck_ramp_conflict = bool(
+        area_conflicts([slot for slot in sorted(exclusive_areas(ship_profile)) if len(pos_occupants.get(slot, [])) > 0], ship_profile)
+    )
 
     bay1_total_mass_kg = pos_mass_kg["bay1"] + pos_mass_kg["bay1_a"] + pos_mass_kg["bay1_b"]
     bay1_max_mass_kg = int(ship_profile["positions"]["bays"]["bay1"].get("max_mass_kg", 8000))

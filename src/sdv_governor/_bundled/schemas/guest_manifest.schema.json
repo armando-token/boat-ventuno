@@ -270,7 +270,8 @@
         "low_battery_threshold_pct": { "type": ["number", "null"], "minimum": 1.0, "maximum": 100.0 },
         "emergency_landing_deadline_s": { "type": ["integer", "null"], "minimum": 1 },
         "max_flight_endurance_min": { "type": ["integer", "null"], "minimum": 1 },
-        "radar_tx_degradation_ratio": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+        "radar_tx_degradation_ratio": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "launch_recovery_area": { "type": "string", "enum": ["flight_deck", "stern_ramp", "none"] }
       }
     },
     "dependencies": {

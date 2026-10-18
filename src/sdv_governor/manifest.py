@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 import yaml
 
+from .areas import exclusive_area_pairs
+
 from .models import (
     ComponentAllocationSpec,
     DependencySpec,
@@ -168,6 +170,7 @@ SHIP_STATE_CONSTRAINT_KEYS: Set[str] = {
     "emergency_landing_deadline_s",
     "max_flight_endurance_min",
     "radar_tx_degradation_ratio",
+    "launch_recovery_area",
 }
 
 DEPENDENCY_KEYS: Set[str] = {
@@ -859,6 +862,7 @@ def parse_guest_manifest(
         "radar_tx_degradation_ratio",
         "launch_recovery_min_speed_kn",
         "launch_recovery_max_speed_kn",
+        "launch_recovery_area",
     }
     sc_con_raw = require_dict(
         raw["ship_state_constraints"],
@@ -890,6 +894,11 @@ def parse_guest_manifest(
         radar_tx_degradation_ratio=require_finite_number(sc_con_raw.get("radar_tx_degradation_ratio", 0.0), "ship_state_constraints.radar_tx_degradation_ratio", min_value=0.0, max_value=1.0),
         launch_recovery_min_speed_kn=None if lr_min_spd is None else require_finite_number(lr_min_spd, "ship_state_constraints.launch_recovery_min_speed_kn", min_value=0.0),
         launch_recovery_max_speed_kn=None if lr_max_spd is None else require_finite_number(lr_max_spd, "ship_state_constraints.launch_recovery_max_speed_kn", min_value=0.0),
+        launch_recovery_area=require_str(
+            sc_con_raw.get("launch_recovery_area", "none"),
+            "ship_state_constraints.launch_recovery_area",
+            allowed_enum={"flight_deck", "stern_ramp", "none"},
+        ),
     )
 
     dep_raw = require_dict(
@@ -1273,6 +1282,7 @@ def validate_ship_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
                 "ship_profile.roof_drone_clearance_policy.constraint_id",
                 allowed_enum={ROOF_DRONE_CLEARANCE_CONSTRAINT_ID},
             )
+    exclusive_area_pairs(raw)
     return raw
 
 

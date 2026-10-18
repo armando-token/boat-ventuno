@@ -134,6 +134,8 @@ mission_capabilities: {hydro_sampling_value: 20.0}
 manifest = parse_guest_manifest(raw)
 ```
 
+If the new card launches or recovers a craft, set `ship_state_constraints.launch_recovery_area` to `flight_deck` or `stern_ramp` (default `none`). The flight deck ↔ stern ramp exclusion (Annex A.3) is then inherited from the `mutually_exclusive_with_*` flags of `data/ship/vessel_baseline.yaml` (`areas.py`); asymmetric flags are rejected at load time (fail-closed).
+
 ---
 
 ## 6. Explicit Limitations & Honest Operational Boundaries

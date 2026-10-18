@@ -1,0 +1,17 @@
+# data/ship/acoustic_link_policy.yaml — Acoustic link to the underwater vehicle (Annex A.5)
+policy_id: "ACOUSTIC_LINK_POLICY_V1"
+source: "Brief A.5: acoustic 1-5 kbit/s, 10-60 s latency; breaks with manoeuvre, deck machinery or layered water"
+breaks_on:  # OFFICIAL_BRIEF
+  - LAYERED_WATER
+  - OWN_SHIP_MANOEUVRE
+  - DECK_MACHINERY_ACTIVE
+nominal_rate_bps: {min: 1000, max: 5000, provenance: OFFICIAL_BRIEF}
+latency_s: {min: 10, max: 60, provenance: OFFICIAL_BRIEF}
+layered_water_default:
+  value: false
+  provenance: ASSUMED
+  note: "No public vertical temperature profile in the E1 dataset; layering is a scenario/operator input"
+g3_lost_link_behaviour:  # ASSUMED (common AUV practice; not stated in the brief)
+  timeout_s: 120
+  action: AUTONOMOUS_HOLD_LOITER
+  provenance: ASSUMED

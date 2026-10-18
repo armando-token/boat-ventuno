@@ -85,6 +85,7 @@ modes:
     forbids_emcon_silence: false
     requires_deck_clear: false
     requires_quiet_acoustic_state: false
+    requires_acoustic_command_link: true
     capability_retention_ratio: 0.45
     value_origin: "OFFICIAL_BRIEF"
     field_origins:

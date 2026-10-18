@@ -1,0 +1,99 @@
+schema_version: "sdv-scenario/1.0"
+scenario_id: "SCENARIO_B_LAYERED_WATER"
+name: "Scenario B (layered water variant) — D3 Live Arbitration (Min 8 Drone 18% Battery) & D4 Generator Loss (Min 12 200->100 kW, G1+G3+G4+G5)"
+scenario_class: "DECLARED_VARIANT"
+purpose: "Declared variant of Scenario B: layered water column (A.5) breaks the acoustic command link, so G3 holds only by its autonomous timeout (ASSUMED 120 s)."
+seed: 20261017
+initial_state:
+  sim_time_s: 0
+  water_column_layered: true
+  vessel_mode: "QUIET_SURVEY"
+  ship_speed_kn: 3
+  wind_kn: 14
+  sea_state: 2
+  seawater_temp_c: 24.0
+  crew_count: 14
+  deck_clear: true
+  power_reserve_w: 200000
+  cooling_loop_degraded: false
+  hangar_roof_clearance_verified: true
+  roof_clearance_verification:
+    verified: true
+    policy_id: "ROOF_OUTSIDE_G4_RECOVERY_V1"
+    policy_version: 1
+    layout_version: "VESSEL_BASELINE_LAYOUT_V1"
+    constraint_id: "hangar_roof_drone_clearance"
+    assumption_ref: "ASM-ROOF-G4-CLEARANCE"
+    antenna_guest_id: "G5"
+    antenna_subcomponent_id: "G5_MAST_ANTENNA"
+    antenna_position: "hangar_roof"
+    drone_guest_id: "G4"
+    antenna_zone: "ROOF_ANTENNA_OUTSIDE_RECOVERY_ENVELOPE"
+    excluded_zones: ["G4_ROTOR_DISC", "G4_RECOVERY_CORRIDOR"]
+  firm_reserved_loads:
+    - reservation_id: "RES-G3-RECHARGE-CRADLE"
+      guest_id: "G3"
+      reserved_mode: "RECHARGE_CRADLE"
+      reserved_power_w: 25000
+      reason: "Guaranteed post-leg uninterruptible AUV battery recharge reservation"
+  installed_guests:
+    - guest_id: "G1"
+      mode: "NOMINAL"
+      placements:
+        G1_MAST_SENSOR_HEAD: "mast_3"
+      compute_node: "node_4"
+    - guest_id: "G3"
+      mode: "SURVEY_QUIET"
+      leg_duration_s: 2400
+      leg_elapsed_s: 0
+      placements:
+        G3_AUV_CRADLE_BAY1_20FT: "bay1"
+      compute_node: "node_1"
+    - guest_id: "G4"
+      mode: "FLIGHT_PATROL"
+      battery_pct: 54.0
+      placements:
+        G4_DRONE_VEHICLE: "flight_deck"
+        G4_HANGAR_STATION: "hangar"
+      compute_node: "node_3"
+    - guest_id: "G5"
+      mode: "FULL_SPECTRUM"
+      placements:
+        G5_COMPUTE_CONTAINER: "bay2"
+        G5_MAST_ANTENNA: "hangar_roof"
+      compute_node: "node_2"
+events:
+  - seq: 1
+    sim_time_s: 0
+    priority: 10
+    event_type: "MISSION_START"
+    description: "Minute 0: G1 nominal on mast_3 (1.5 kW air); G3 begins 40-min (2400 s) quiet acoustic survey leg at 3 kn (1 kW actual, 25 kW firm recharge reserve); G4 patrolling (10 kW); G5 full spectrum (45 kW: 43.8 kW water + 1.2 kW roof air). Actual power = 57.5 kW, committed power = 81.5 kW."
+  - seq: 2
+    sim_time_s: 480
+    priority: 1
+    event_type: "DRONE_BATTERY_AND_WIND_ALERT"
+    guest_id: "G4"
+    battery_pct: 18.0
+    max_flight_remaining_s: 720
+    uav_approach_margin_s: 360
+    remaining_survey_waypoint_s: 240
+    wind_kn: 22
+    sea_state: 3
+    required_recovery_mode: "LAUNCH_RECOVERY_OPTICS"
+    description: "Minute 8 (480 s): G4 battery drops to 18% (<20% threshold -> must land within 12 min / 720 s by t=1200 s or ditch); wind rises to 22 kn. Reserving G4 35 kW recovery raises committed power to 106.5 kW (57.5 kW actual before touchdown, 82.5 kW actual during 35 kW phase)."
+  - seq: 3
+    sim_time_s: 720
+    priority: 1
+    event_type: "GENERATOR_LOSS"
+    new_power_reserve_w: 100000
+    description: "Minute 12 (720 s): Generator fault reduces net mission power reserve from 200 kW to 100 kW. Firm committed power with G1 (1.5 kW) + G3 reserve (25 kW) + G4 recovery/charge (35 kW) + G5 full (45 kW) is 106.5 kW (>100 kW), triggering D4 throttling of G5 from 45 kW to 8 kW (committed -> 69.5 kW, actual -> 45.5 kW or 20.5 kW)."
+  - seq: 4
+    sim_time_s: 1500
+    priority: 2
+    event_type: "POWER_COOLING_RESTORATION"
+    new_power_reserve_w: 200000
+    cooling_loop_degraded: false
+    seawater_temp_c: 24.0
+    reconnect_guest_id: "G5"
+    reconnect_mode: "FULL_SPECTRUM"
+    description: "Minute 25 (1500 s): Generator reserve restored to 200 kW after 780 s restart (within 5-15 min A.6 window); evaluate G5 reconnection to FULL_SPECTRUM with cooldown and hysteresis."

@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional, Set
 import yaml
 
 from .admission import evaluate_admission, evaluate_four_guest_combinations
+from .acoustic import default_acoustic_link_policy, evaluate_acoustic_link
 from .arbitration import arbitrate_live_conflict
 from .budgets import compute_cooling_water_capacity_w, evaluate_eight_class_budgets
 from .degradation import (
@@ -174,6 +175,12 @@ def build_initial_state_from_scenario(
         installed_guests=installed,
         firm_reserved_loads=firm_loads,
     )
+    raw_layered = init.get("water_column_layered", False)
+    if not isinstance(raw_layered, bool):
+        raise StrictValidationError("TYPE_ERROR", "water_column_layered must be a boolean", "initial_state.water_column_layered")
+    st_obj.water_column_layered = raw_layered
+    if raw_layered:
+        st_obj.water_column_layered_provenance = "SCENARIO_INPUT"
     if st_obj.hangar_roof_clearance_verified and st_obj.roof_clearance_verification is None:
         if hasattr(st_obj, "stamp_roof_clearance_verification"):
             st_obj.stamp_roof_clearance_verification()
@@ -410,7 +417,11 @@ def run_scenario_b_replay(
     # If the scenario explicitly supplies ACOUSTIC_HOLD_CONFIRMED / ACOUSTIC_LINK_LOSS events or disables
     # automatic acoustic ACK, do not synthesize an automatic modem ACK at hold_ack_t (R1.2, V2-F02).
     has_explicit_acoustic_ack_control = (
-        any(e.get("event_type") in ("ACOUSTIC_HOLD_CONFIRMED", "ACOUSTIC_LINK_LOSS") for e in raw_events)
+        any(e.get("event_type") == "ACOUSTIC_HOLD_CONFIRMED" for e in raw_events)
+        or (
+            any(e.get("event_type") == "ACOUSTIC_LINK_LOSS" for e in raw_events)
+            and not any(e.get("event_type") == "ACOUSTIC_LINK_RESTORED" for e in raw_events)
+        )
         or bool(scenario_data.get("acoustic_link_failed", False))
         or bool(scenario_data.get("require_explicit_acoustic_ack", False))
     )
@@ -568,7 +579,12 @@ def run_scenario_b_replay(
                         )
 
                     elif ev_type == "ACOUSTIC_LINK_LOSS":
+                        state.acoustic_link_forced_down = True
                         events_at_tick.append(f"ACOUSTIC_LINK_LOSS@{ev_time}s")
+
+                    elif ev_type == "ACOUSTIC_LINK_RESTORED":
+                        state.acoustic_link_forced_down = False
+                        events_at_tick.append(f"ACOUSTIC_LINK_RESTORED@{ev_time}s")
 
                     elif ev_type == "SHIP_HEADING_STABILIZED_INTO_WIND":
                         if (
@@ -1177,6 +1193,11 @@ def _apply_due_d3_milestones(
     if up_to_time_s >= hold_cmd_t and "HOLD_CMD" not in fired_d3_milestones:
         fired_d3_milestones.add("HOLD_CMD")
         cmd_id = f"CMD_HOLD_G3_V{active_plan_version}_{hold_cmd_t}"
+        link = evaluate_acoustic_link(state, catalog or {})
+        if not link.available:
+            # No acoustic command path (A.5): G3 can only hold autonomously after its timeout; no ACK is synthesized.
+            lost_timeout_s = default_acoustic_link_policy().lost_link_timeout_s
+            hold_ack_t = max(hold_ack_t, hold_cmd_t + lost_timeout_s)
         state.pending_commands["G3"] = {
             "command_id": cmd_id,
             "guest_id": "G3",
@@ -1188,13 +1209,39 @@ def _apply_due_d3_milestones(
             "confirmed": False,
             "confirmed_at_s": None,
         }
+        if not link.available:
+            state.pending_commands["G3"].update(
+                {
+                    "operation": "LOST_LINK_TIMEOUT_HOLD",
+                    "link_down": True,
+                    "link_causes": list(link.causes),
+                    "expected_ack_at_s": hold_ack_t,
+                    "timeout_at_s": hold_ack_t,
+                }
+            )
+            arb_decision["g3_lost_link_hold"] = {"causes": list(link.causes), "autonomous_hold_at_s": hold_ack_t}
         arb_decision["executed_hold_cmd_time_s"] = hold_cmd_t
         events_at_tick.append(f"G3_ACOUSTIC_HOLD_CMD_SENT@{hold_cmd_t}s")
+
+    pending_at_cmd = state.pending_commands.get("G3")
+    link_down_cmd = bool(pending_at_cmd and pending_at_cmd.get("link_down"))
+    if link_down_cmd:
+        hold_ack_t = int(pending_at_cmd["expected_ack_at_s"])
 
     # Step 2: Acoustic modem ACK arrival (simulated link-layer ACK unless overridden by explicit scenario ACK events)
     if up_to_time_s >= hold_ack_t and "HOLD_ACK" not in fired_d3_milestones:
         pending_g3 = state.pending_commands.get("G3")
-        if not has_explicit_acoustic_ack_control and pending_g3 is not None:
+        if link_down_cmd and pending_g3 is not None:
+            pending_g3["confirmed"] = True
+            pending_g3["confirmed_at_s"] = hold_ack_t
+            pending_g3["confirmation_source"] = "AUTONOMOUS_TIMEOUT"
+            if "G3" in state.installed_guests and state.installed_guests["G3"].powered_on:
+                state.installed_guests["G3"].active_mode = "HOLD_ACOUSTIC"
+                state.installed_guests["G3"].acoustic_hold_confirmed = True
+                state.installed_guests["G3"].mode_elapsed_s = 0
+            fired_d3_milestones.add("HOLD_ACK")
+            events_at_tick.append(f"G3_LOST_LINK_AUTONOMOUS_HOLD@{hold_ack_t}s")
+        elif not has_explicit_acoustic_ack_control and pending_g3 is not None:
             _process_acoustic_hold_ack_event(
                 ev={
                     "guest_id": "G3",
@@ -1491,6 +1538,7 @@ def run_full_campaign_suite(repo_root: Path) -> Dict[str, Any]:
     scen_b = load_yaml_file(data_dir / "scenarios" / "scenario_B_arbitration_degradation.yaml")
     scen_b_cool = load_yaml_file(data_dir / "scenarios" / "scenario_B_cooling_limited_30c.yaml")
     scen_c = load_yaml_file(data_dir / "scenarios" / "scenario_C_crew_regimes.yaml")
+    scen_b_layered = load_yaml_file(data_dir / "scenarios" / "scenario_B_layered_water.yaml")
 
     # 1. Scenario A: 5 four-guest combinations + G6 custom admission
     combos_report = evaluate_four_guest_combinations(catalog, ship_profile, mission_envelope, prof_survey)
@@ -1525,6 +1573,8 @@ def run_full_campaign_suite(repo_root: Path) -> Dict[str, Any]:
     replay_b_survey = run_scenario_b_replay(scen_b, ship_profile, prof_survey, catalog)
     replay_b_rescue = run_scenario_b_replay(scen_b, ship_profile, prof_rescue, catalog)
     replay_b_cooling = run_scenario_b_replay(scen_b_cool, ship_profile, prof_survey, catalog)
+    replay_b_layered_survey = run_scenario_b_replay(scen_b_layered, ship_profile, prof_survey, catalog)
+    replay_b_layered_rescue = run_scenario_b_replay(scen_b_layered, ship_profile, prof_rescue, catalog)
 
     # 3. Scenario C crew regimes comparison + event replay
     state_c = build_initial_state_from_scenario(scen_b, catalog)
@@ -1540,6 +1590,8 @@ def run_full_campaign_suite(repo_root: Path) -> Dict[str, Any]:
         "scenario_B_survey_primary_sha256": replay_b_survey["semantic_sha256"],
         "scenario_B_rescue_primary_sha256": replay_b_rescue["semantic_sha256"],
         "scenario_B_cooling_limited_sha256": replay_b_cooling["semantic_sha256"],
+        "scenario_B_layered_water_survey_primary_sha256": replay_b_layered_survey["semantic_sha256"],
+        "scenario_B_layered_water_rescue_primary_sha256": replay_b_layered_rescue["semantic_sha256"],
         "scenario_C_crew_regimes": crew_comparison,
     }
     campaign_semantic_sha256 = canonical_json_hash(semantic_summary)
@@ -1556,6 +1608,8 @@ def run_full_campaign_suite(repo_root: Path) -> Dict[str, Any]:
             "survey_primary": replay_b_survey,
             "rescue_primary": replay_b_rescue,
             "cooling_limited_30c": replay_b_cooling,
+            "layered_water_survey_primary": replay_b_layered_survey,
+            "layered_water_rescue_primary": replay_b_layered_rescue,
         },
         "scenario_C": crew_comparison,
         "runtime_telemetry": {

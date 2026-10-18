@@ -310,6 +310,7 @@ class GuestModeSpec:
     value_origin: str
     field_origins: Dict[str, str] = field(default_factory=dict)
     component_allocations: Dict[str, ComponentAllocationSpec] = field(default_factory=dict)
+    requires_acoustic_command_link: bool = False
 
 
 @dataclass(frozen=True)

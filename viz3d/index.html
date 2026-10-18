@@ -12,43 +12,54 @@
   <div id="fatal" hidden><div class="fatal-card"><h3>The 3D schematic could not start</h3><pre id="fatalMsg"></pre><p id="fatalHelp"></p></div></div>
 
   <div class="app">
-    <header class="topbar">
+    <header class="topbar" id="topbar">
       <div class="brand">
         <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 21h26l-3.5 5H7z"/><path d="M7 21v-5h9l4 5"/><path d="M11 16v-4h5"/><path d="M14 12V6"/><path d="M12 8h4"/>
         </svg>
-        <span><b>SDV Resource Governor</b><small>Fincantieri 60 m · decision engine</small></span>
+        <span class="brand-t"><b>SDV Resource Governor</b><small>Fincantieri 60 m · decision engine</small></span>
       </div>
       <span class="chip" id="chipLink">● Connecting…</span>
       <span class="chip mono clockchip" id="chipClock">T+00:00</span>
-      <div class="envstrip" id="envStrip" title="Environment snapshot">
-        <span class="env-site">Golden Gate</span>
-        <span class="env-v" id="envSst">SST —</span>
-        <span class="env-v" id="envWind">Wind —</span>
-        <span class="env-v" id="envHs">Hs —</span>
-        <span class="env-v" id="envSs">SS —</span>
-        <span class="chip sm" id="envWin">A′ —</span>
+      <div class="seg scen" id="segScen" role="tablist" aria-label="Scenario">
+        <button data-scen="A" class="active"><b>A</b><span> · Admission</span></button>
+        <button data-scen="B"><b>B</b><span> · 90 s mission</span></button>
+        <button data-scen="C"><b>C</b><span> · Crew &amp; fleet</span></button>
       </div>
       <span class="spacer"></span>
-      <div class="hgroup"><span class="hlbl">Priority</span>
+      <div class="hx hgroup" data-pri="9"><span class="hlbl">Priority</span>
         <div class="seg" id="segProfile">
           <button data-profile="survey_primary">Survey</button>
           <button data-profile="rescue_primary">Rescue</button>
           <button data-profile="custom" id="btnProfileCustom">Custom…</button>
         </div>
       </div>
-      <div class="hgroup"><span class="hlbl">Crew</span>
-        <div class="seg" id="segCrew">
+      <div class="hx" data-pri="6"><span class="chip sm" id="envWin">A′ —</span></div>
+      <div class="hx envstrip" data-pri="3" id="envStrip" title="Environment snapshot">
+        <span class="env-site">Golden Gate</span>
+        <span class="env-v" id="envSst">SST —</span>
+        <span class="env-v" id="envWind">Wind —</span>
+        <span class="env-v" id="envHs">Hs —</span>
+        <span class="env-v" id="envSs">SS —</span>
+      </div>
+      <div class="hx hgroup" data-pri="4"><span class="hlbl">Crew</span>
+        <div class="seg crewseg" id="segCrew">
           <button data-crew="14">14</button><button data-crew="6">6</button><button data-crew="0">0</button>
         </div>
-        <button class="btn sm toggle on" id="btnDeck" title="Flight deck clear (Annex A.3 interlock)">Deck clear</button>
+        <button class="btn sm toggle on deckbtn" id="btnDeck" title="Flight deck clear (Annex A.3 interlock)">Deck clear</button>
       </div>
-      <div class="seg" id="segTime"><button data-time="day" class="active">Day</button><button data-time="night">Night</button></div>
-      <button class="btn sm" id="btnRec" title="Record the 3D schematic as WebM">● Rec</button>
+      <div class="hx" data-pri="1"><div class="seg" id="segTime"><button data-time="day" class="active">Day</button><button data-time="night">Night</button></div></div>
+      <div class="hx" data-pri="0"><button class="btn sm" id="btnRec" title="Record the 3D schematic as WebM">● Rec</button></div>
+      <div class="more" id="moreWrap" hidden>
+        <button class="btn sm" id="btnMore" aria-expanded="false" title="More controls">⋯</button>
+        <div class="menu glass morepop" id="morePop" hidden></div>
+      </div>
     </header>
+    <div class="caption" id="scenCap"></div>
 
     <div id="staleBanner" hidden>
-      <span id="staleBannerText">⚠ STALE / DESCONECTADO — governor API unreachable. Controls disabled; showing the last verified snapshot (no local engine).</span>
+      <!-- legacy audit token kept for tests: "STALE / DESCONECTADO" -->
+      <span id="staleBannerText">⚠ STALE / DISCONNECTED — governor API unreachable. Controls disabled; showing the last verified snapshot (no local engine).</span>
       <span class="mono" id="staleBannerMeta">v0 · T+00:00</span>
     </div>
 
@@ -87,12 +98,6 @@
           </div>
         </div>
 
-        <div class="milestones glass" id="milestones">
-          <span class="ms-t">Scenario B</span>
-          <div class="ms-track" id="msTrack"><i class="ms-fill" id="msFill"></i></div>
-          <span class="ms-sha mono" id="msSha"></span>
-        </div>
-
         <div class="overlay glass" id="overlay" hidden>
           <button class="ov-close" id="ovClose" title="Close">✕</button>
           <div id="overlayBody"></div>
@@ -101,7 +106,7 @@
 
       <section class="card logpanel">
         <h3><span>Decision log <em>decisions &amp; rationales · newest first</em></span><span class="chip sm" id="logCount">0</span></h3>
-        <div class="fcline" id="fcLine">Forecast (advisory only): —</div>
+        <details class="fcline" id="fcBox"><summary><i class="chev">▸</i><span id="fcLine">Forecast (advisory only): —</span></summary><div class="fcbody" id="fcBody"></div></details>
         <ol class="log" id="log"></ol>
       </section>
 
@@ -113,8 +118,9 @@
 
         <section class="card tabs">
           <nav class="tabbar" id="tabbar">
-            <button data-tab="jury" class="active">Jury test · A</button>
-            <button data-tab="shocks">Shocks · D4 / C</button>
+            <button data-tab="jury" class="active">Jury · A</button>
+            <button data-tab="shocks">Shocks · B</button>
+            <button data-tab="crew">Crew · C</button>
             <button data-tab="prio">Priority · D6</button>
           </nav>
 
@@ -222,12 +228,28 @@
                 <button class="shock danger" data-inject="hold"><b>Urgent HOLD G3</b><span>≤ 200 ms</span></button>
                 <button class="shock danger" data-inject="stop"><b>Urgent STOP G3</b><span>≤ 200 ms</span></button>
               </div>
-              <div class="crewbox" id="crewBox">Crew regime: —</div>
               <div class="shock-out" id="shockOut">Each shock is executed by the governor; its causal sentence lands in the decision log.</div>
             </div>
             <div class="tabactions">
               <span class="hint">Shocks act on the live session</span>
               <button class="btn" id="btnClear">Reset session</button>
+            </div>
+          </div>
+
+          <!-- ============================================ Crew (Scenario C) -->
+          <div class="tabpane" id="tab-crew" hidden>
+            <div class="tabscroll">
+              <div class="frow crewctl">
+                <div class="field">Crew on board
+                  <div class="seg crewseg"><button data-crew="14">14 · full</button><button data-crew="6">6 · reduced</button><button data-crew="0">0 · uncrewed</button></div>
+                </div>
+                <button class="btn sm toggle on deckbtn" title="Flight deck clear (Annex A.3 interlock)">Deck clear</button>
+              </div>
+              <div class="crewbox" id="crewBox">Crew regime: —</div>
+              <table class="crew-table" id="crewTable"><tbody><tr><td>waiting for engine…</td></tr></tbody></table>
+            </div>
+            <div class="tabactions">
+              <span class="hint">POST /api/crew · regimes from the engine (Scenario C)</span>
             </div>
           </div>
 
@@ -255,12 +277,21 @@
       </aside>
     </main>
 
-    <footer class="transport">
-      <button class="btn primary" id="btnPlay">▶ Play 90 s Scenario B</button>
-      <button class="btn" id="btnStep">+20 s</button>
-      <button class="btn" id="btnReset">Reset</button>
-      <input type="range" id="scrub" min="0" max="90" value="0" />
-      <span class="clock mono" id="tlLabel">T+00:00 / 30:00 (20×)</span>
+    <footer class="transport" id="transport">
+      <div class="tp-btns">
+        <button class="btn primary" id="btnPlay">▶ Play 90 s Scenario B</button>
+        <button class="btn" id="btnStep" title="Advance 20 s of mission time">+20 s</button>
+        <button class="btn" id="btnReset" title="Reset the live session to T+00:00">Reset</button>
+      </div>
+      <div class="tl-cap" title="One timeline: Play, the slider and the event chips all drive the same live session.">
+        <b>Scenario B mission</b><span>30 min at 20× · drag or click an event</span><span class="mono dim" id="msSha"></span>
+      </div>
+      <div class="tl" id="tl">
+        <div class="tl-marks" id="tlMarks"></div>
+        <div class="tl-rail"><i class="tl-fill" id="tlFill"></i></div>
+        <input type="range" id="scrub" min="0" max="90" value="0" aria-label="Mission time" />
+      </div>
+      <span class="clock mono" id="tlLabel">T+00:00 / 30:00</span>
     </footer>
   </div>
 

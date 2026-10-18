@@ -37,6 +37,22 @@
     return '<b>Forecast (advisory only) · ' + esc(a.state) + ' ' + F.T(a.sim_time_s) + ':</b> ' + esc(a.sentence);
   };
 
+  P.forecastBody = function (fc, simT) {
+    const al = P.forecastAlerts(fc, simT).slice().sort(function (a, b) { return (b.sim_time_s || 0) - (a.sim_time_s || 0); });
+    if (!fc || !fc.enabled) return '<div class="dim">The forecast is advisory only and is not available on this server.</div>';
+    const head = '<div class="dim">Advisory only: the governor\'s decisions never depend on it · source ' + esc(fc.source || '—') + (fc.telemetry_profile ? ' · telemetry ' + esc(fc.telemetry_profile) : '') + '</div>';
+    if (!al.length) return head + '<div class="dim">No alert raised up to ' + F.T(simT) + '.</div>';
+    return head + '<ul class="fc-list">' + al.map(function (a) {
+      const w = a.witness || {};
+      const un = w.class === 'power' || w.class === 'cooling' ? ' kW' : '';
+      const v = function (x) { return typeof x === 'number' ? (un ? F.fix(x / 1000, 1) : F.num(x)) : '—'; };
+      return '<li><span class="fc ' + esc(a.state) + '">' + esc(a.state) + '</span> <b class="mono">' + F.T(a.sim_time_s) + '</b> ' + esc(a.guest_id || '') +
+        '<div>' + esc(a.sentence) + '</div>' +
+        '<div class="kvs"><span>witness</span><b>' + esc(w.class || '—') + ' · ' + esc(w.component || '—') + ' · projected ' + v(w.projected_w) + ' / capacity ' + v(w.capacity_w) + un + '</b>' +
+        (a.band_s ? '<span>90% band</span><b>' + esc(a.band_s[0]) + '–' + esc(a.band_s[1]) + ' s</b>' : '') + '</div></li>';
+    }).join('') + '</ul>';
+  };
+
   // ------------------------------------------------------------ eight gauges
   function occ(list) {
     if (!Array.isArray(list) || !list.length) return 'free';
@@ -89,8 +105,28 @@
       } }
   ];
 
+  const gPrev = {}, gDelta = {};
+  let gPrevVer = null;
+  function sparkline(live, k, simT, full, scale) {
+    const ticks = (live && (live.executed_timeline_ticks || (live.scenario_B_replay || {}).timeline_ticks)) || [];
+    const pts = [];
+    ticks.forEach(function (t) {
+      if (t.is_prediction || typeof t.sim_time_s !== 'number' || t.sim_time_s > simT) return;
+      const c = ((t.budget_snapshot || {}).classes || {})[k];
+      if (c && typeof c.actual === 'number') pts.push([t.sim_time_s, c.actual]);
+    });
+    if (pts.length < 2) return '';
+    const W = 64, H = 16, t1 = Math.max(simT, pts[pts.length - 1][0], 1);
+    const d = pts.map(function (p, i) { return (i ? 'L' : 'M') + (W * p[0] / t1).toFixed(1) + ' ' + (H - 1 - (H - 2) * Math.min(1, Math.max(0, p[1] / full))).toFixed(1); }).join('');
+    const last = pts[pts.length - 1][1];
+    return '<span class="sp" title="actual over the mission so far (' + pts.length + ' engine ticks) · now ' + esc(F.fix(last * scale, 1)) + '"><svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '"><path d="' + d + '"/></svg></span>';
+  }
+
   P.renderGauges = function (el, live, fc, simT) {
     const snap = P.snapshot(live);
+    const now = performance.now();
+    const ver = live ? (live.state_version || 0) + '|' + simT : null;
+    const fresh = ver !== gPrevVer; gPrevVer = ver;
     const classes = (snap && snap.classes) || {};
     const witnesses = (snap && snap.binding_witnesses) || [];
     const fcBy = P.forecastByClass(fc, simT);
@@ -118,14 +154,22 @@
       const fcChip = a && a.state !== 'QUIET'
         ? '<span class="fc ' + esc(a.state) + '" title="forecast · advisory only — ' + esc(a.sentence) + '">↗ ~' + esc((a.band_s && a.band_s[0]) || a.h_star_s || '?') + ' s · ' + esc(a.state) + '</span>' : '';
       const w0 = wit[0];
+      if (fresh && typeof com === 'number') {
+        const p = gPrev[g.k];
+        if (typeof p === 'number' && Math.abs(com - p) >= 0.005 * full) gDelta[g.k] = { d: com - p, t0: now };
+        gPrev[g.k] = com;
+      }
+      const dl = gDelta[g.k] && now - gDelta[g.k].t0 < 4000 ? gDelta[g.k] : null;
+      const age = dl ? Math.round(now - dl.t0) : 0;
+      const deltaTxt = dl ? '<span class="dlt ' + (dl.d > 0 ? 'up' : 'dn') + '" style="animation-delay:-' + age + 'ms">' + (dl.d > 0 ? '+' : '−') + F.fix(Math.abs(dl.d) * g.scale, g.dp) + ' ' + g.unit + '</span>' : '';
       const witLine = binding ? '<span class="wit">binding: ' + esc(w0 ? (w0.detail || F.plainConstraint(w0)) : 'class infeasible') + '</span>' : '';
       const nomTxt = degraded ? '<span class="deg">capacity derated from ' + fmtv(nom) + ' ' + g.unit + '</span> · ' : '';
-      return '<div class="g ' + state + (binding ? ' binding' : '') + '" title="' + esc(w0 ? (w0.detail || '') : '') + '">' +
+      return '<div class="g ' + state + (binding ? ' binding' : '') + (dl ? ' flash' : '') + '"' + (dl ? ' style="--fa:-' + age + 'ms"' : '') + ' title="' + esc(w0 ? (w0.detail || '') : '') + '">' +
         '<span class="nm"><small>' + g.code + '</small>' + esc(title) + '</span>' +
         '<div class="bar">' + (degraded ? '<i class="hatch" style="left:' + pc(cap) + '%"></i>' : '') +
         '<i class="com" style="width:' + pc(com) + '%"></i><i class="act" style="width:' + pc(act) + '%"></i><i class="cap" style="left:calc(' + pc(cap) + '% - 1px)"></i></div>' +
         '<span class="v">' + fmtv(com) + '<small>/</small>' + fmtv(cap) + ' <small>' + g.unit + '</small></span>' +
-        '<div class="sub">' + fcChip + (witLine || nomTxt + g.sub(c)) + '</div></div>';
+        '<div class="sub">' + fcChip + (witLine || nomTxt + g.sub(c)) + '</div><span class="spark">' + deltaTxt + sparkline(live, g.k, simT, full, g.scale) + '</span></div>';
     }).join('');
     return { binding: nBind, warn: nWarn, have: !!snap };
   };
@@ -165,31 +209,100 @@
     });
     return idx.map(function (x) { return x.e; });
   };
+  function kv(k, v) { return v === undefined || v === null || v === '' ? '' : '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>'; }
+  function tS(x) { return typeof x === 'number' ? '<span class="mono">' + F.T(x) + '</span>' : null; }
+  function yn(x) { return x === true ? '<span class="ok-t">yes</span>' : x === false ? '<span class="bad-t">no</span>' : null; }
+  function bindList(list) { return Array.isArray(list) && list.length ? list.map(function (b) { return esc(F.plainConstraint(b)); }).join('<br>') : null; }
+  function human(k) { return String(k).replace(/_/g, ' ').replace(/\bw\b/, '(W)').replace(/\bs\b$/, '(s)'); }
+  function scalar(v) { return v === null || ['string', 'number', 'boolean'].indexOf(typeof v) >= 0; }
+  function elapsed(d) {
+    let out = '';
+    Object.keys(d || {}).forEach(function (k) { if (/elapsed|_ms$/.test(k) && typeof d[k] === 'number') out += kv(human(k), '<span class="mono">' + F.num(d[k], 2) + ' ms</span>'); });
+    return out;
+  }
+  P.entryDetail = function (e, cached) {
+    const d = e.details || e.decision || {};
+    let h = '';
+    if (cached) {
+      const dec = cached.decision || {};
+      h += kv('verdict', F.badge(dec.verdict)) + kv('candidate', esc(dec.candidate_guest_id) + (cached.candidate_total_mass_kg ? ' · ' + F.num(cached.candidate_total_mass_kg, 0) + ' kg' : ''));
+      h += kv('binding constraint', bindList(dec.binding_constraints) || 'none — every class feasible');
+      if (Array.isArray(dec.ranked_displacements) && dec.ranked_displacements.length) h += kv('displacements (ranked)', dec.ranked_displacements.map(function (r, i) { return (i + 1) + '. ' + esc(F.describeAction(r)); }).join('<br>'));
+      if (dec.placement) h += kv('placement', esc(typeof dec.placement === 'string' ? dec.placement : (dec.placement.slot || dec.placement.slot_id || dec.placement.position || JSON.stringify(dec.placement))));
+      if (Array.isArray(dec.placement_alternatives) && dec.placement_alternatives.length) h += kv('alternatives considered', dec.placement_alternatives.length + ' placements');
+      if (Array.isArray(dec.rejected_placements) && dec.rejected_placements.length) h += kv('rejected placements', dec.rejected_placements.length + '');
+      if (dec.one_genset_down) h += kv('one genset down', esc(F.GENSET[dec.one_genset_down.verdict] || dec.one_genset_down.verdict || ''));
+      if (dec.jury_ship_overrides && dec.jury_ship_overrides.note) h += kv('jury overrides', esc(dec.jury_ship_overrides.note));
+      h += kv('priority profile', dec.priority_profile_sha256 ? '<span class="mono">sha ' + esc(String(dec.priority_profile_sha256).slice(0, 12)) + '</span>' : null);
+      h += kv('within 30 s', yn(dec.within_30s_deadline));
+      h += kv('elapsed', typeof dec.calculation_elapsed_ms === 'number' ? '<span class="mono">' + F.num(dec.calculation_elapsed_ms, 1) + ' ms</span>' : null);
+    } else if (e.type === 'D3_ARBITRATION') {
+      h += kv('decision', esc(String(d.decision_type || '').replace(/_/g, ' ')));
+      h += kv('binding constraint', bindList(d.binding_constraints));
+      h += kv('hold command', tS(d.hold_cmd_time_s)) + kv('planned touchdown', tS(d.planned_touchdown_time_s)) + kv('hard touchdown deadline', tS(d.hard_touchdown_deadline_s));
+      h += kv('hard safety satisfied', yn(d.hard_safety_satisfied)) + kv('decided within 2 s', yn(d.within_2s_deadline));
+      h += kv('tie-break rule', d.tie_break_rule ? esc(String(d.tie_break_rule)) : null);
+      const lm = d.losing_mission_cost || {};
+      if (lm.losing_guest_id) h += kv('losing mission cost', esc(lm.losing_guest_id) + ' interrupted <b>' + F.num(lm.total_survey_interruption_min) + ' min</b>' + (lm.g3_mode_during_recovery ? ' · ' + esc(lm.g3_mode_during_recovery) : '') + (typeof lm.survey_segment_preserved_s === 'number' ? ' · ' + lm.survey_segment_preserved_s + ' s preserved' : ''));
+      h += kv('crew timing', typeof d.human_confirmation_s === 'number' ? 'confirm ' + d.human_confirmation_s + ' s · deck clear ' + (d.deck_clear_duration_s === null || d.deck_clear_duration_s === undefined ? 'n/a' : d.deck_clear_duration_s + ' s') : null);
+      if (Array.isArray(d.evaluated_candidates) && d.evaluated_candidates.length) {
+        h += kv('alternatives considered', '<table class="alt"><tr><th></th><th>strategy</th><th>touchdown</th><th>margin</th><th>utility</th></tr>' + d.evaluated_candidates.map(function (c) {
+          const chosen = c.candidate_id === d.selected_candidate_id;
+          return '<tr class="' + (c.feasible ? '' : 'inf') + '"><td>' + (c.feasible ? '<span class="ok-t">✓</span>' : '<span class="bad-t">✕</span>') + '</td><td>' + esc(String(c.strategy_label || c.candidate_id).replace(/_/g, ' ').toLowerCase()) + (chosen ? ' <b>(chosen)</b>' : '') + '</td><td>' + (typeof c.touchdown_time_s === 'number' ? F.T(c.touchdown_time_s) : '—') + '</td><td>' + (typeof c.safety_margin_s === 'number' ? c.safety_margin_s + ' s' : '—') + '</td><td>' + (typeof c.utility_score === 'number' ? F.num(c.utility_score, 1) : '—') + '</td></tr>';
+        }).join('') + '</table>');
+      }
+      h += kv('priority profile', esc(d.priority_profile_id || '') + (d.priority_profile_sha256 ? ' <span class="mono dim">sha ' + esc(String(d.priority_profile_sha256).slice(0, 8)) + '</span>' : ''));
+      h += elapsed(d);
+      h += kv('rationale', d.rationale ? esc(d.rationale) : null);
+    } else if (e.type === 'D4_DEGRADATION') {
+      h += kv('status', esc([d.status, d.verdict].filter(Boolean).join(' · ')));
+      const da = d.deficit_analysis || {};
+      if (typeof da.power_capacity_w === 'number') h += kv('power deficit', 'committed ' + kw(da.initial_power_committed_w) + ' vs capacity ' + kw(da.power_capacity_w) + ' kW → deficit <b>' + kw(da.power_committed_deficit_w) + ' kW</b>');
+      if (typeof da.cooling_capacity_w === 'number') h += kv('cooling deficit', 'committed ' + kw(da.initial_cooling_committed_w) + ' vs capacity ' + kw(da.cooling_capacity_w) + ' kW → deficit <b>' + kw(da.cooling_committed_deficit_w) + ' kW</b>');
+      if (Array.isArray(d.actions_taken) && d.actions_taken.length) h += kv('actions', d.actions_taken.map(function (a) { return (a.step_index || '') + '. ' + esc(a.guest_id) + ' ' + esc(a.from_mode || '') + ' → ' + esc(a.to_mode || '') + (typeof a.power_saved_w === 'number' ? ' · saves ' + kw(a.power_saved_w) + ' kW' : ''); }).join('<br>'));
+      h += kv('first shed ≤ 5 s', yn(d.within_5s_first_shed_deadline)) + kv('sequence ≤ 60 s', yn(d.within_60s_sequence_deadline));
+      h += kv('priority profile', d.priority_profile_id ? esc(d.priority_profile_id) : null);
+      h += elapsed(d);
+      h += kv('rationale', d.rationale ? esc(d.rationale) : null);
+      if (Array.isArray(d.guest_impacts) && d.guest_impacts.length) h += kv('what every guest lost', impactsTable(d.guest_impacts));
+    } else if (e.type === 'D4_RECONNECTION') {
+      h += kv('guest', esc(d.guest_id)) + kv('reconnect allowed', yn(d.reconnect_allowed)) + kv('target mode', esc(d.target_mode || ''));
+      h += kv('power free after', typeof d.post_reconnect_power_free_w === 'number' ? kw(d.post_reconnect_power_free_w) + ' kW' : null);
+      h += kv('cooling free after', typeof d.post_reconnect_cooling_free_w === 'number' ? kw(d.post_reconnect_cooling_free_w) + ' kW' : null);
+      h += kv('reason', d.reason ? esc(d.reason) : null);
+      h += elapsed(d);
+    } else {
+      if (e.verdict) h += kv('verdict', F.badge(e.verdict));
+      if (e.candidate_guest_id) h += kv('candidate', esc(e.candidate_guest_id));
+      Object.keys(d).forEach(function (k) { if (scalar(d[k]) && !/sentence/.test(k)) h += kv(human(k), esc(String(d[k]))); });
+      const imp = d.guest_impacts || (d.result && d.result.guest_impacts);
+      if (Array.isArray(imp) && imp.length) h += kv('what every guest lost', impactsTable(imp));
+    }
+    if (typeof e.state_version === 'number') h += kv('state version', '<span class="mono">v' + e.state_version + '</span>');
+    return '<dl class="kv">' + h + '</dl>';
+  };
   P.renderLog = function (el, entries, admitCache, openKeys, seenKeys) {
+    el._entries = {};
     if (!entries.length) { el.innerHTML = '<li class="empty">No decisions yet — press Play or run a jury test.</li>'; return; }
     el.innerHTML = entries.slice(0, 80).map(function (e, i) {
       const tb = typeBadge(e);
       const key = (e.type || '') + '|' + (e.action || '') + '|' + e.sim_time_s + '|' + (e.state_version || '') + '|' + (e.candidate_guest_id || '') + '|' + i;
       const stable = key.replace(/\|\d+$/, '');
       let sentence = F.plainEntrySentence(e);
-      let extra = '';
       const cached = e.type === 'ADMISSION_ATTEMPT' && admitCache[(e.candidate_guest_id || '') + '|' + (e.verdict || '') + '|' + (e.state_version || '')];
-      if (cached) {
-        sentence = cached.decision.headline || sentence;
-        const bcs = cached.decision.binding_constraints || [];
-        if (bcs.length) extra += '<div><b>Binding:</b> ' + bcs.map(function (b) { return esc(F.plainConstraint(b)); }).join(' · ') + '</div>';
-      }
-      const d = e.details || e.decision || {};
-      if (d.rationale && typeof d.rationale === 'string' && d.rationale !== e.causal_sentence) extra += '<div>' + esc(d.rationale) + '</div>';
-      if (Array.isArray(d.binding_constraints) && d.binding_constraints.length && !cached) extra += '<div><b>Binding:</b> ' + d.binding_constraints.map(function (b) { return esc(F.plainConstraint(b)); }).join(' · ') + '</div>';
-      const imp = d.guest_impacts || (d.result && d.result.guest_impacts);
-      if (imp) extra += '<div><b>What every guest lost</b></div>' + impactsTable(imp);
+      if (cached) sentence = cached.decision.headline || sentence;
       const isNew = seenKeys && !seenKeys[stable];
-      return '<li class="' + (isNew ? 'fresh' : '') + '"><details' + (openKeys[stable] ? ' open' : '') + ' data-k="' + esc(stable) + '"><summary>' +
-        '<span class="t">' + F.T(e.sim_time_s) + '</span><span class="ty ' + tb[0] + '">' + esc(tb[1]) + '</span>' +
+      const open = !!openKeys[stable];
+      el._entries[stable] = [e, cached, sentence];
+      return '<li class="' + (isNew ? 'fresh' : '') + '"><details' + (open ? ' open' : '') + ' data-k="' + esc(stable) + '"><summary>' +
+        '<i class="chev">▸</i><span class="t">' + F.T(e.sim_time_s) + '</span><span class="ty ' + tb[0] + '">' + esc(tb[1]) + '</span>' +
         (e.verdict ? F.badge(e.verdict) : '<span></span>') + '<span class="s" title="' + esc(e.causal_sentence || '') + '">' + esc(sentence) + '</span></summary>' +
-        '<div class="body">' + (e.causal_sentence && e.causal_sentence !== sentence ? '<div>' + esc(e.causal_sentence) + '</div>' : '') + extra + F.rawDetails(e) + '</div></details></li>';
+        '<div class="body">' + (open ? P.entryBody(e, cached, sentence) : '') + '</div></details></li>';
     }).join('');
+  };
+  P.entryBody = function (e, cached, sentence) {
+    return (e.causal_sentence && e.causal_sentence !== sentence ? '<div class="cs">' + esc(e.causal_sentence) + '</div>' : '') + P.entryDetail(e, cached) +
+      '<details class="raw"><summary>raw</summary><pre>' + esc(JSON.stringify(e, null, 2)) + '</pre></details>';
   };
 
   // ------------------------------------------------------------ env strip (A′ public data)
@@ -230,6 +343,23 @@
     el.innerHTML = '<b>Crew ' + n + '</b> (' + esc(P.crewRegimeId(n)) + ') · available for guest ops <b>' + esc(r.available_for_guest_ops) + '</b> · human confirm <b>' + esc(r.human_confirmation_s) + ' s</b> · deck clear <b>' +
       (r.deck_clear_duration_s === null || r.deck_clear_duration_s === undefined ? 'n/a' : esc(r.deck_clear_duration_s) + ' s') + '</b> · deck ' + (st.deck_clear ? 'clear' : '<span class="bad-t">occupied</span>') +
       '<br>G4 launch/recovery ' + yn(r.g4_uav_launch_recovery_permitted) + ' · G4 swap at sea ' + yn(r.g4_uav_at_sea_replacement_permitted) + ' · G3 swap at sea ' + yn(r.g3_auv_at_sea_replacement_permitted) + ' · G2 ROV L/R ' + yn(r.g2_rov_launch_recovery_permitted);
+  };
+
+  P.renderCrewTable = function (el, live) {
+    const regs = (live && live.scenario_C_crew_regimes && live.scenario_C_crew_regimes.regimes) || {};
+    const ids = ['FULL_CREW_14', 'REDUCED_CREW_6', 'UNCREWED_0'].filter(function (k) { return regs[k]; });
+    if (!ids.length) { el.innerHTML = '<tbody><tr><td class="dim">Crew regimes not available from the engine.</td></tr></tbody>'; return; }
+    const cur = P.crewRegimeId((live.state || {}).crew_count);
+    const yn2 = function (v) { return v === true ? '<span class="ok-t">yes</span>' : v === false ? '<span class="bad-t">no</span>' : esc(v === null || v === undefined ? 'n/a' : v); };
+    const rows = [
+      ['available for guest ops', 'available_for_guest_ops', esc], ['human confirmation', 'human_confirmation_s', function (v) { return typeof v === 'number' ? v + ' s' : 'n/a'; }],
+      ['deck clear time', 'deck_clear_duration_s', function (v) { return typeof v === 'number' ? v + ' s' : 'n/a'; }],
+      ['G4 drone launch / recovery', 'g4_uav_launch_recovery_permitted', yn2], ['G4 swap at sea', 'g4_uav_at_sea_replacement_permitted', yn2],
+      ['G3 AUV swap at sea', 'g3_auv_at_sea_replacement_permitted', yn2], ['G2 ROV launch / recovery', 'g2_rov_launch_recovery_permitted', yn2]
+    ];
+    const lbl = { FULL_CREW_14: '14 · full', REDUCED_CREW_6: '6 · reduced', UNCREWED_0: '0 · uncrewed' };
+    el.innerHTML = '<thead><tr><th></th>' + ids.map(function (k) { return '<th class="' + (k === cur ? 'cur' : '') + '">' + lbl[k] + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr><td>' + r[0] + '</td>' + ids.map(function (k) { return '<td class="' + (k === cur ? 'cur' : '') + '">' + r[2](regs[k][r[1]]) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody>';
   };
 
   // ------------------------------------------------------------ Scenario A C(5,4) proof (engine data)

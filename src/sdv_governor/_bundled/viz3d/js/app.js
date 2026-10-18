@@ -9,6 +9,7 @@
 
   SDV.start = function () {
     const S = SDV.createScene();
+    SDV.scene = S;
     const app = {
       live: null, env: null, win: null, fc: null, conn: 'CONNECTING', simT: 0,
       playing: false, busy: false, polling: false, lastEnvMs: 0,
@@ -31,7 +32,7 @@
     };
     function refreshDisabled() {
       const off = app.conn === 'STALE' || app.conn === 'CONNECTING';
-      document.querySelectorAll('.right button, .right select, .right input, .right textarea, .transport button, .transport input, #segProfile button, #segCrew button, #btnDeck').forEach(function (el) {
+      document.querySelectorAll('.right button, .right select, .right input, .right textarea, .transport button, .transport input, #segProfile button, .crewseg button, .deckbtn').forEach(function (el) {
         if (el.closest('#tabbar') || el.closest('details.raw')) return;
         el.disabled = off;
       });
@@ -81,7 +82,7 @@
         if (st && st.cls === 'alarm') worst = 'alarm'; else if (st && st.cls === 'warn' && worst !== 'alarm') worst = 'warn';
         return '<em>' + esc(id) + (st ? ' · ' + esc(st.mode.replace(/_/g, ' ').toLowerCase()) : '') + '</em>';
       });
-      return { rows: rows.join('') || '<em class="free">free</em>', cls: ids.length ? worst : 'dim', ids: ids };
+      return { rows: rows.join('') || '<em class="free">free</em>', cls: ids.length ? worst : 'dim', ids: ids, short: ids.join('+') || 'free' };
     }
     function renderLabels() {
       const live = app.live, snap = P.snapshot(live);
@@ -93,11 +94,14 @@
       const kg = function (a, b) { return typeof a === 'number' ? ' <small>' + F.num(a, 0) + '/' + F.num(b, 0) + ' kg</small>' : ''; };
       const defs = [];
       function push(id, anchor, title, o, extra) {
-        const d = Object.assign({ id: id, anchor: anchor, title: title, rows: o.rows, cls: o.cls }, extra || {});
+        const name = title.replace(/<[^>]*>.*$/, '').trim();
+        const d = Object.assign({ id: id, anchor: anchor, title: title, rows: o.rows, cls: o.cls, short: esc(name) + ' <small>· ' + esc(o.short || '') + '</small>' }, extra || {});
         if (gl === id) {
           d.cls = 'ghost' + ((g.binding || []).some(function (c) { return c === 'positions' || c === 'mast'; }) ? ' binding' : '');
           d.rows = (d.rows || '') + '<em class="gh">+ ' + esc(g.cand) + ' · ' + esc(String(g.verdict).replace(/_/g, ' ')) + '</em>';
+          d.short = esc(name) + ' <small>· + ' + esc(g.cand) + '</small>';
         }
+        d.sig = d.cls + '|' + d.rows;
         defs.push(d);
       }
       const b1 = occRows([].concat(L.bay1_20ft || [], L.bay1_a_10ft || [], L.bay1_b_10ft || []));
@@ -112,18 +116,19 @@
       push('flightDeck', 'flightDeck', 'Flight deck' + (st.deck_clear === false ? ' <small class="bad-t">occupied</small>' : ''), occRows(L.flight_deck), { side: 'down', dy: 60 });
       const m3 = M.guest_slot_mast_3 || {};
       const mo = occRows(m3.owner ? [m3.owner] : []);
+      mo.short = 'M3 ' + mo.short;
       mo.rows = '<em>M1 · M2 ship sensors</em>' + mo.rows.replace('<em>', '<em>M3 · ').replace('<em class="free">', '<em class="free">M3 · ');
       if (binds.indexOf('mast') >= 0) mo.cls = 'alarm binding';
       push('mast', 'mast', 'Mast slots', mo);
       const g3 = guestState('G3');
-      if (g3) push('auv', 'auv', 'G3 AUV', { rows: '<em>' + esc(g3.mode.replace(/_/g, ' ').toLowerCase()) + '</em>', cls: g3.cls });
+      if (g3) push('auv', 'auv', 'G3 AUV', { rows: '<em>' + esc(g3.mode.replace(/_/g, ' ').toLowerCase()) + '</em>', cls: g3.cls, short: g3.mode.replace(/_/g, ' ').toLowerCase() });
       const g4 = guestState('G4');
       if (g4) {
         const batt = ((st.installed_guests || {}).G4 || {}).battery_pct;
-        push('drone', 'pad', 'G4 drone', { rows: '<em>' + esc(g4.mode.replace(/_/g, ' ').toLowerCase()) + (typeof batt === 'number' ? ' · ' + F.num(batt, 0) + '%' : '') + '</em>', cls: g4.cls });
+        push('drone', 'pad', 'G4 drone', { rows: '<em>' + esc(g4.mode.replace(/_/g, ' ').toLowerCase()) + (typeof batt === 'number' ? ' · ' + F.num(batt, 0) + '%' : '') + '</em>', cls: g4.cls, short: g4.mode.replace(/_/g, ' ').toLowerCase() });
       }
       if (typeof st.power_reserve_w === 'number') {
-        push('gens', 'dg2', 'Gensets', { rows: '<em>' + (st.power_reserve_w < 200000 ? '1 online · ' : '2 online · ') + F.num(st.power_reserve_w / 1000, 0) + ' kW reserve</em>', cls: st.power_reserve_w < 200000 ? 'alarm' : '' }, { xray: true });
+        push('gens', 'dg2', 'Gensets', { rows: '<em>' + (st.power_reserve_w < 200000 ? '1 online · ' : '2 online · ') + F.num(st.power_reserve_w / 1000, 0) + ' kW reserve</em>', cls: st.power_reserve_w < 200000 ? 'alarm' : '', short: (st.power_reserve_w < 200000 ? '1' : '2') + ' online' }, { xray: true });
       }
       S.setLabels(defs);
     }
@@ -136,8 +141,7 @@
       const st = live.state || {};
       app.simT = typeof live.sim_time_s === 'number' ? live.sim_time_s : (st.sim_time_s || 0);
       $('chipClock').textContent = F.T(app.simT);
-      $('tlLabel').textContent = F.T(app.simT) + ' / 30:00 (20×)';
-      if (!app.scrubbing) $('scrub').value = Math.round(app.simT / STEP_T);
+      if (!app.scrubbing) { $('scrub').value = Math.round(app.simT / STEP_T); setClock(app.simT); }
       $('kSpeed').innerHTML = typeof st.ship_speed_kn === 'number' ? F.num(st.ship_speed_kn) + '<small> kn</small>' : '—';
       $('kHdg').innerHTML = typeof st.heading_deg === 'number' ? F.num(st.heading_deg, 0) + '<small>°</small>' : '—';
       $('kSst').innerHTML = typeof st.seawater_temp_c === 'number' ? F.num(st.seawater_temp_c) + '<small> °C</small>' : '—';
@@ -161,13 +165,17 @@
       $('log').querySelectorAll('details').forEach(function (d) { app.seenKeys[d.getAttribute('data-k')] = 1; });
       $('logCount').textContent = entries.length + ' entries';
       $('fcLine').innerHTML = P.forecastLine(app.fc, app.simT);
+      if ($('fcBox').open) $('fcBody').innerHTML = P.forecastBody(app.fc, app.simT);
 
       P.renderCrew($('crewBox'), live);
+      P.renderCrewTable($('crewTable'), live);
       P.renderC54($('c54Table'), live);
       SDV.tabs.renderPrioMini(live);
-      document.querySelectorAll('#segCrew button').forEach(function (b) { b.classList.toggle('active', Number(b.getAttribute('data-crew')) === st.crew_count); });
-      $('btnDeck').classList.toggle('on', st.deck_clear !== false);
-      $('btnDeck').textContent = st.deck_clear !== false ? 'Deck clear' : 'Deck occupied';
+      document.querySelectorAll('.crewseg button').forEach(function (b) { b.classList.toggle('active', Number(b.getAttribute('data-crew')) === st.crew_count); });
+      document.querySelectorAll('.deckbtn').forEach(function (b) {
+        b.classList.toggle('on', st.deck_clear !== false);
+        b.textContent = st.deck_clear !== false ? 'Deck clear' : 'Deck occupied';
+      });
       const pid = String(live.priority_profile_id || '').toLowerCase();
       let known = false;
       document.querySelectorAll('#segProfile button').forEach(function (b) {
@@ -186,15 +194,26 @@
     }
     $('log').addEventListener('toggle', function (e) {
       const d = e.target; if (!d || d.tagName !== 'DETAILS' || !d.getAttribute('data-k')) return;
-      if (d.open) app.openKeys[d.getAttribute('data-k')] = 1; else delete app.openKeys[d.getAttribute('data-k')];
+      const k = d.getAttribute('data-k');
+      if (d.open) {
+        app.openKeys[k] = 1;
+        const body = d.querySelector('.body'), ent = ($('log')._entries || {})[k];
+        if (body && ent && !body.innerHTML) body.innerHTML = P.entryBody(ent[0], ent[1], ent[2]);
+      } else delete app.openKeys[k];
     }, true);
+    $('fcBox').addEventListener('toggle', function () { if ($('fcBox').open) $('fcBody').innerHTML = P.forecastBody(app.fc, app.simT); });
 
+    function setClock(t) {
+      $('tlLabel').textContent = F.T(t) + ' / 30:00';
+      $('tlFill').style.width = (100 * Math.min(1, t / END_T)).toFixed(2) + '%';
+      $('tl').style.setProperty('--ph', (100 * Math.min(1, t / END_T)).toFixed(2) + '%');
+    }
+    let marksSig = '';
     function renderMilestones(live) {
       const r = live.scenario_B_replay || {};
-      $('msFill').style.width = (100 * Math.min(1, app.simT / END_T)).toFixed(2) + '%';
       const raw = [];
       (r.decisions || []).forEach(function (d) {
-        const lab = d.phase === 'D3_ARBITRATION' ? 'D3' : d.phase === 'D4_DEGRADATION' ? 'D4 trip' : d.phase === 'D4_RECONNECTION' ? 'reconnect' : d.phase;
+        const lab = d.phase === 'D3_ARBITRATION' ? 'D3' : d.phase === 'D4_DEGRADATION' ? 'D4 trip' : d.phase === 'D4_RECONNECTION' ? 'Reconnect' : d.phase;
         raw.push({ t: d.sim_time_s, l: lab, c: d.phase === 'D4_DEGRADATION' ? 'alarm' : d.phase === 'D3_ARBITRATION' ? 'warn' : 'ok' });
         const dd = d.decision || {};
         if (d.phase === 'D3_ARBITRATION' && typeof dd.hold_cmd_time_s === 'number') raw.push({ t: dd.hold_cmd_time_s, l: 'hold', c: 'warn' });
@@ -208,14 +227,52 @@
         byT[k].l.push(m.l);
         if (m.c === 'alarm') byT[k].c = 'alarm';
       });
-      const html = Object.keys(byT).map(function (k) { return byT[k]; }).sort(function (a, b) { return a.t - b.t; }).map(function (m) {
-        return '<span class="ms-mark ' + m.c + (m.t <= app.simT ? ' past' : '') + '" style="left:' + (100 * m.t / END_T).toFixed(2) + '%" title="' + esc(m.l.join(' + ')) + ' at ' + F.T(m.t) + '"><i></i><span>' + esc(m.l.join(' + ')) + ' ' + F.T(m.t).slice(2) + '</span></span>';
-      }).join('');
-      const track = $('msTrack');
-      track.querySelectorAll('.ms-mark').forEach(function (n) { n.remove(); });
-      track.insertAdjacentHTML('beforeend', html);
+      const marks = Object.keys(byT).map(function (k) { return byT[k]; }).sort(function (a, b) { return a.t - b.t; });
       $('msSha').textContent = (r.priority_profile_id ? String(r.priority_profile_id).toLowerCase().replace('_primary', '') + ' · ' : '') + (r.semantic_sha256 ? 'sha ' + String(r.semantic_sha256).slice(0, 8) : '');
+      const sig = JSON.stringify(marks) + '|' + $('tlMarks').clientWidth;
+      const box = $('tlMarks');
+      if (sig !== marksSig) {
+        marksSig = sig;
+        box.classList.remove('tight', 'tighter');
+        box.innerHTML = marks.map(function (m) {
+          const lab = m.l.join(' + ');
+          return '<button class="tl-chip ' + m.c + '" data-t="' + m.t + '" style="left:' + (100 * m.t / END_T).toFixed(3) + '%" title="Jump to ' + F.T(m.t) + ' — ' + esc(lab) + '">' +
+            '<span><span class="cl">' + esc(lab) + '</span><span class="cs"> ' + esc(m.l[0]) + '</span> <b class="mono">' + F.T(m.t).slice(2) + '</b></span></button>';
+        }).join('');
+        // collision-free: two staggered rows; a chip slides right of its time if needed (its stem still points at the exact time),
+        // and if the track is too narrow the time is dropped from the chip text (it stays in the tooltip)
+        const W = box.clientWidth;
+        const place = function () {
+          const ends = [-1e9, -1e9], res = [];
+          let ok = true;
+          box.querySelectorAll('.tl-chip').forEach(function (c) {
+            const cw = c.offsetWidth, cx = W * Number(c.getAttribute('data-t')) / END_T;
+            const want = Math.max(0, Math.min(W - cw, cx - cw / 2));
+            const xs = ends.map(function (e) { return Math.max(want, e + 4); });
+            const row = xs[0] - want <= xs[1] - want ? 0 : 1;
+            const x = xs[row];
+            if (x + cw > W + 0.5 || cx < x - 2 || cx > x + cw + 2) ok = false;
+            ends[row] = x + cw;
+            res.push([c, x, row, cx]);
+          });
+          return ok ? res : null;
+        };
+        let res = place();
+        if (!res) { box.classList.add('tight'); res = place(); }
+        if (!res) { box.classList.add('tighter'); res = place(); }
+        (res || []).forEach(function (r) {
+          r[0].style.left = r[1].toFixed(1) + 'px';
+          r[0].style.setProperty('--sx', (r[3] - r[1]).toFixed(1) + 'px');
+          r[0].classList.toggle('r1', r[2] === 1);
+        });
+      }
+      box.querySelectorAll('.tl-chip').forEach(function (c) { c.classList.toggle('past', Number(c.getAttribute('data-t')) <= app.simT); });
     }
+    $('tlMarks').addEventListener('click', function (e) {
+      const c = e.target.closest('.tl-chip'); if (!c || c.disabled) return;
+      seek(Math.min(END_T, Math.ceil(Number(c.getAttribute('data-t')) / STEP_T) * STEP_T));
+    });
+    if (window.ResizeObserver) new ResizeObserver(function () { if (app.live) renderMilestones(app.live); }).observe($('tlMarks'));
 
     // ---------------------------------------------------------------- polling (one in flight at a time)
     async function poll(force) {
@@ -237,6 +294,7 @@
           app.env = res[2].ok ? res[2].data : null;
           app.win = res[3].ok ? res[3].data : null;
           P.renderEnv(app.env, app.win);
+          fitHeader();
         }
         renderAll();
       } finally { app.polling = false; }
@@ -267,7 +325,7 @@
         await poll(true);
       });
     });
-    document.querySelectorAll('#segCrew button').forEach(function (b) {
+    document.querySelectorAll('.crewseg button').forEach(function (b) {
       b.addEventListener('click', async function () {
         app.busy = true;
         const st = (app.live && app.live.state) || {};
@@ -276,13 +334,84 @@
         await poll(true);
       });
     });
-    $('btnDeck').addEventListener('click', async function () {
-      const st = (app.live && app.live.state) || {};
-      app.busy = true;
-      await api('POST', '/api/crew', { crew_count: typeof st.crew_count === 'number' ? st.crew_count : 14, deck_clear: st.deck_clear === false });
-      app.busy = false;
-      await poll(true);
+    document.querySelectorAll('.deckbtn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        const st = (app.live && app.live.state) || {};
+        app.busy = true;
+        await api('POST', '/api/crew', { crew_count: typeof st.crew_count === 'number' ? st.crew_count : 14, deck_clear: st.deck_clear === false });
+        app.busy = false;
+        await poll(true);
+      });
     });
+
+    // ---------------------------------------------------------------- scenario selector (A / B / C) + caption
+    const SCEN = {
+      A: { tab: 'jury', cap: '<b>Scenario A</b> — the jury hands us a card; the engine answers YES / YES-IF / NOT NOW / NO with the binding constraint, and the ghost shows where it would go.' },
+      B: { tab: 'shocks', cap: '<b>Scenario B</b> — 30 min mission replayed in 90 s: drone recovery vs AUV survey (D3), generator trip and shedding (D4), reconnection. Play or click an event on the timeline; Priority · D6 swaps the priority file.' },
+      C: { tab: 'crew', cap: '<b>Scenario C</b> — crew 14 / 6 / 0 changes confirmation times, deck clearing and which launches the governor may allow (regimes read from the engine).' }
+    };
+    const TAB2SCEN = { jury: 'A', shocks: 'B', prio: 'B', crew: 'C' };
+    function setScen(k) {
+      app.scen = k;
+      document.querySelectorAll('#segScen button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-scen') === k); });
+      $('scenCap').innerHTML = SCEN[k].cap;
+    }
+    document.querySelectorAll('#segScen button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        const k = b.getAttribute('data-scen');
+        SDV.tabs.show(SCEN[k].tab);
+        setScen(k);
+        const tabs = document.querySelector('.tabs');
+        if (document.documentElement.classList.contains('flow')) tabs.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        const focus = k === 'B' ? $('transport') : tabs;
+        focus.classList.remove('focus'); void focus.offsetWidth; focus.classList.add('focus');
+        setTimeout(function () { focus.classList.remove('focus'); }, 1800);
+      });
+    });
+
+    // the selector follows the action: mission controls → B, admission → A, crew → C
+    const FOLLOW = [
+      ['#btnPlay, #btnStep, .tl-chip, #tab-shocks .shock', 'B'],
+      ['#admRun, #admCommit', 'A'],
+      ['.crewseg button', 'C']
+    ];
+    document.addEventListener('click', function (e) {
+      for (let i = 0; i < FOLLOW.length; i++) {
+        if (e.target.closest && e.target.closest(FOLLOW[i][0])) { if (app.scen !== FOLLOW[i][1]) setScen(FOLLOW[i][1]); return; }
+      }
+    }, true);
+    $('scrub').addEventListener('input', function () { if (app.scen !== 'B') setScen('B'); });
+
+    // ---------------------------------------------------------------- header overflow → "⋯" popover
+    const hItems = Array.prototype.slice.call(document.querySelectorAll('#topbar > .hx'));
+    hItems.forEach(function (it) { const ph = document.createComment('hx'); it.parentNode.insertBefore(ph, it.nextSibling); it._ph = ph; });
+    const byPri = hItems.slice().sort(function (a, b) { return Number(a.getAttribute('data-pri')) - Number(b.getAttribute('data-pri')); });
+    function fitHeader() {
+      const bar = $('topbar'), pop = $('morePop');
+      hItems.forEach(function (it) { it._ph.parentNode.insertBefore(it, it._ph); });
+      $('moreWrap').hidden = true;
+      const over = function () { return bar.scrollWidth > bar.clientWidth + 1; };
+      let moved = [];
+      for (let i = 0; i < byPri.length && over(); i++) { $('moreWrap').hidden = false; moved.push(byPri[i]); byPri[i].remove(); }
+      moved = hItems.filter(function (it) { return moved.indexOf(it) >= 0; });
+      moved.forEach(function (it) { pop.appendChild(it); });
+      if (!moved.length) pop.hidden = true;
+    }
+    $('btnMore').addEventListener('click', function (e) {
+      e.stopPropagation();
+      const pop = $('morePop'); pop.hidden = !pop.hidden; $('btnMore').setAttribute('aria-expanded', String(!pop.hidden));
+    });
+    document.addEventListener('click', function (e) { if (!e.target.closest('#moreWrap')) $('morePop').hidden = true; });
+    window.addEventListener('resize', fitHeader);
+    SDV.fitHeader = fitHeader;
+
+    // ---------------------------------------------------------------- flow layout (short / narrow windows scroll)
+    function setFlow() {
+      const flow = window.matchMedia('(max-height: 759px), (max-width: 1199px)').matches;
+      document.documentElement.classList.toggle('flow', flow);
+    }
+    window.addEventListener('resize', setFlow);
+    setFlow();
     document.querySelectorAll('#segTime button').forEach(function (b) {
       b.addEventListener('click', function () {
         S.setTime(b.getAttribute('data-time'));
@@ -348,16 +477,17 @@
     });
     $('btnStep').addEventListener('click', function () { pause(); if (app.simT < END_T) advanceTo(Math.min(END_T, app.simT + STEP_T)); });
     $('btnReset').addEventListener('click', reset);
-    $('scrub').addEventListener('input', function () { app.scrubbing = true; $('tlLabel').textContent = F.T(Number($('scrub').value) * STEP_T) + ' / 30:00 (20×)'; });
-    $('scrub').addEventListener('change', async function () {
+    $('scrub').addEventListener('input', function () { app.scrubbing = true; setClock(Number($('scrub').value) * STEP_T); });
+    async function seek(target) {
       pause();
-      const target = Number($('scrub').value) * STEP_T;
       app.scrubbing = false;
       if (target < app.simT) {
         await reset();
         if (target > 0) await advanceTo(target);
       } else if (target > app.simT) await advanceTo(target);
-    });
+      else renderAll();
+    }
+    $('scrub').addEventListener('change', function () { seek(Number($('scrub').value) * STEP_T); });
 
     // ---------------------------------------------------------------- recording (secondary)
     let rec = null, chunks = [];
@@ -383,10 +513,15 @@
     const ctx = {
       openOverlay: openOverlay, closeOverlay: closeOverlay, setGhost: setGhost, afterAction: afterAction,
       rememberAdmission: rememberAdmission, refreshDisabled: refreshDisabled, reset: reset, pause: pause,
+      onTab: function (name) { if (TAB2SCEN[name] && app.scen !== TAB2SCEN[name]) setScen(TAB2SCEN[name]); },
       isPlaying: function () { return app.playing; }, profile: profile, flags: app.flags,
       state: function () { return app.live && app.live.state; }
     };
     SDV.tabs.init(ctx);
+    SDV.tabs.show('shocks');
+    setScen('B');
+    fitHeader();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitHeader);
     SDV.jury.init(ctx);
     SDV.app = app;
     SDV.setConnectionState(SDV.isPreviewRequested && SDV.isPreviewRequested() ? 'PREVIEW' : 'CONNECTING');

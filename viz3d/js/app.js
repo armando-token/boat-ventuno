@@ -1,692 +1,398 @@
-/* viz3d/js/app.js — Authoritative 3D scene wiring, camera rig, synchronized clock & full D1-D6 scope controls. */
+/* viz3d/js/app.js — one-screen jury console: live state polling, header controls, gauges, decision log,
+   schematic labels, transport. Every value shown is read from the live governor API. */
 (function () {
   'use strict';
-  const THREE = window.THREE, SDV = window.SDV;
+  const SDV = window.SDV;
+  const F = SDV.fmt, P = SDV.panels, esc = F.esc;
   const $ = function (id) { return document.getElementById(id); };
-  const clamp = SDV.clamp;
-
-  const PRESETS = {
-    hero:      { th: 0.42,  ph: 1.25, r: 70, tx: 1,   ty: 3.2,  tz: 2 },
-    blueprint: { th: 0.0,   ph: 1.49, r: 72, tx: 0,   ty: 4.0,  tz: 0 },
-    subsea:    { th: -0.35, ph: 1.43, r: 46, tx: -6,  ty: -1.2, tz: 4 },
-    bow:       { th: 1.05,  ph: 1.36, r: 34, tx: 22,  ty: 3.5,  tz: 0 },
-    bridge:    { th: 0.78,  ph: 1.26, r: 30, tx: 8,   ty: 11.5, tz: 0 },
-    deck:      { th: -0.75, ph: 1.15, r: 30, tx: -20, ty: 4.2,  tz: 0 },
-    stern:     { th: -2.15, ph: 1.44, r: 32, tx: -24, ty: -0.5, tz: 0 },
-    plan:      { th: 0.0,   ph: 0.12, r: 92, tx: 0,   ty: 0,    tz: 0 },
-    pad:       { th: 0.65,  ph: 1.18, r: 24, tx: 2,   ty: 8.0,  tz: 0 },
-    cutaway:   { th: 0.32,  ph: 1.08, r: 52, tx: -2,  ty: 1.5,  tz: 0 }
-  };
-  const MODE_TEXT = {
-    QUIET_SURVEY: 'Scenario B Nominal · G3 Seabed AUV scanning seafloor (1 kW + 24 kW firm reserve) · G4 VTOL Drone on SAR patrol',
-    UAV_RECOVERY_HEADING: 'D3 Arbitration Active · G3 AUV in HOLD_ACOUSTIC · Vessel turning into wind (045°, 8.0 kn) for G4 UAV recovery',
-    DEGRADED_POWER: 'D4 Power Degradation (100 kW Reserve) · Governor stepped down G5 (45→8 kW) to protect G3 AUV & G4 35 kW recovery',
-    DEGRADED_THERMAL: 'D4 Thermal Derating Active · Chilled-water loop C(30°C) −40% = 72.0 kW · G5 stepped down to 7.5 kW water load'
-  };
+  const END_T = 1800, STEP_T = 20;
 
   SDV.start = function () {
-    const stage = $('stage'); let canvas = $('gl');
-    let renderer = null, lastErr = null;
-    const attempts = [
-      { antialias: true, powerPreference: 'high-performance' },
-      { antialias: true },
-      { antialias: false },
-      { antialias: false, failIfMajorPerformanceCaveat: false, alpha: true, stencil: false, depth: true }
-    ];
-    for (let i = 0; i < attempts.length && !renderer; i++) {
-      try {
-        let cv = canvas;
-        if (i > 0) { cv = canvas.cloneNode(false); canvas.parentNode.replaceChild(cv, canvas); }
-        renderer = new THREE.WebGLRenderer(Object.assign({ canvas: cv }, attempts[i]));
-      } catch (e) { lastErr = e; renderer = null; }
-    }
-    if (!renderer) {
-      throw new Error('This browser refused to create a WebGL context (' + (lastErr && lastErr.message) + ').');
-    }
-    canvas = renderer.domElement;
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const S = SDV.createScene();
+    const app = {
+      live: null, env: null, win: null, fc: null, conn: 'CONNECTING', simT: 0,
+      playing: false, busy: false, polling: false, lastEnvMs: 0,
+      admitCache: {}, openKeys: {}, seenKeys: null, ghost: null, flags: { layered: false }
+    };
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(36, 1, 1.4, 6500);
-    const env = SDV.createEnvironment(scene, renderer);
-    const vessel = SDV.createVessel();
-    scene.add(vessel.root);
-
-    let eco = false;
-    function resize() {
-      const w = Math.max(320, stage.clientWidth), h = Math.max(240, stage.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, eco ? 1 : 2.0));
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
-    if (window.ResizeObserver) new ResizeObserver(resize).observe(stage); else window.addEventListener('resize', resize);
-    resize();
-
-    // ------------------------------------------------------------ camera rig
-    const rig = { cur: Object.assign({}, PRESETS.hero), des: Object.assign({}, PRESETS.hero), drag: false, pan: false, lx: 0, ly: 0, orbit: false, director: false };
-    function setCam(name, keepDirector) {
-      const p = PRESETS[name]; if (!p) return;
-      Object.assign(rig.des, p);
-      if (env.setUnderwaterView) env.setUnderwaterView(name === 'subsea');
-      if (!keepDirector) { rig.director = false; if ($('tDirector')) $('tDirector').classList.remove('on'); }
-      document.querySelectorAll('#segCam button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-cam') === name); });
-    }
-    canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-    canvas.addEventListener('pointerdown', function (e) {
-      rig.drag = true; rig.pan = e.button === 2 || e.shiftKey; rig.lx = e.clientX; rig.ly = e.clientY;
-      rig.director = false; if ($('tDirector')) $('tDirector').classList.remove('on');
-      canvas.classList.add('drag');
-      try { canvas.setPointerCapture(e.pointerId); } catch (_err) { /* ignore */ }
-    });
-    window.addEventListener('pointerup', function () { rig.drag = false; canvas.classList.remove('drag'); });
-    window.addEventListener('pointermove', function (e) {
-      if (!rig.drag) return;
-      const dx = e.clientX - rig.lx, dy = e.clientY - rig.ly;
-      rig.lx = e.clientX; rig.ly = e.clientY;
-      const d = rig.des;
-      if (rig.pan) {
-        const k = d.r * 0.0016;
-        d.tx = clamp(d.tx - dx * k * Math.cos(d.th), -70, 70);
-        d.tz = clamp(d.tz + dx * k * Math.sin(d.th), -70, 70);
-        d.ty = clamp(d.ty + dy * k, -4, 30);
-      } else {
-        d.th -= dx * 0.006;
-        d.ph = clamp(d.ph - dy * 0.005, 0.08, 1.51);
-      }
-    });
-    canvas.addEventListener('wheel', function (e) {
-      e.preventDefault();
-      rig.des.r = clamp(rig.des.r * (1 + e.deltaY * 0.0012), 14, 190);
-    }, { passive: false });
-
-    // ------------------------------------------------------------ Authoritative State & Clock Interpolation
-    let activeProfile = 'survey_primary';
-    let playing = false;
-    let advanceInFlight = false;
-    let lastAdvanceWallMs = 0;
-    let currentRunId = '';
-    let interpFromSimT = 0;
-    let interpToSimT = 0;
-    let interpStartWallMs = performance.now();
-
-    let view = SDV.deriveFromAuthoritative(SDV.localSession.getStatePayload(), 0);
-    let seaS = view.seaState, labelsOn = true;
-
-    function applyAuthoritativePayload(payload, forceSnapClock) {
-      if (!payload) return;
-      const newRunId = payload.run_id || 'RUN_LIVE';
-      const newSimT = typeof payload.sim_time_s === 'number'
-        ? payload.sim_time_s
-        : (typeof payload.current_sim_time_s === 'number' ? payload.current_sim_time_s : 0);
-
-      if (forceSnapClock || newRunId !== currentRunId || newSimT < interpToSimT) {
-        currentRunId = newRunId;
-        interpFromSimT = newSimT;
-        interpToSimT = newSimT;
-        interpStartWallMs = performance.now();
-      } else if (newSimT > interpToSimT) {
-        interpFromSimT = interpToSimT;
-        interpToSimT = newSimT;
-        interpStartWallMs = performance.now();
-      }
-      if (payload.priority_profile_id && $('profile')) {
-        activeProfile = payload.priority_profile_id.toLowerCase();
-        $('profile').value = activeProfile;
-      }
-      if (payload.runner_status === 'COMPLETED' && playing) {
-        playing = false;
-        $('btnPlay').textContent = '▶ Play';
-      }
-      view = SDV.deriveFromAuthoritative(payload, interpToSimT);
-      renderUI();
-      directorShot();
-    }
-
-    // ------------------------------------------------------------ 3D HUD Labels (ALIGN-T37: separate mast_3 G1 vs hangar_roof G5)
-    const labelDefs = [
-      { k: 'auv', t: function () { return 'G3 Seabed AUV'; }, e: function () {
-        if (view.g3 === 'STOPPED_OFF') return 'STOPPED (0 W)';
-        return view.g3 === 'HOLD_ACOUSTIC' ? 'HOLD STATION (1 kW)' : 'SONAR SURVEY (1/25 kW)';
-      }, s: function () { return view.g3 === 'STOPPED_OFF' ? 'alarm' : (view.g3 === 'HOLD_ACOUSTIC' ? 'warn' : ''); } },
-      { k: 'pad', t: function () { return 'G4 VTOL Drone'; }, e: function () {
-        if (view.g4 === 'STOPPED_OFF') return 'STOPPED (0 W)';
-        if (view.drone.mode === 'landed') return 'HANGAR/PAD · ' + view.drone.batt + '%';
-        if (view.drone.mode === 'recover') return 'RTB LANDING (35 kW) · ' + view.drone.batt + '%';
-        return 'PATROL (10 kW) · BATT ' + view.drone.batt + '%';
-      }, s: function () { return view.drone.mode === 'recover' ? 'warn' : ''; } },
-      { k: 'target', t: function () { return 'SAR Distress Buoy'; }, e: function () { return view.drone.mode === 'patrol' ? 'SCANNING' : 'BEACON'; }, s: function () { return 'warn'; } },
-      { k: 'pods', t: function () { return '2× Pod + Shaft + Rudder'; }, e: function () { return view.speedKn.toFixed(1) + ' kn'; }, s: function () { return ''; } },
-      { k: 'bay1', t: function () { return 'Bay 1 · G3 LARS'; }, e: function () { return '5,500 kg · ' + view.g3; }, s: function () { return view.g3 === 'HOLD_ACOUSTIC' ? 'warn' : ''; } },
-      { k: 'bay2', t: function () { return 'Bay 2 · G5 Edge'; }, e: function () { return view.g5 === 'FULL_SPECTRUM' ? '45 kW FULL' : '8 kW DEGRADED'; }, s: function () { return view.g5Degraded ? 'warn' : ''; } },
-      { k: 'mast', t: function () { return 'Mast 3 · ' + (view.mast3Owner || 'G1:G1_MAST_SENSOR_HEAD'); }, e: function () { return '45 kg (×3.0 = 135 kg-eq)'; }, s: function () { return ''; } },
-      { k: 'hangarRoof', t: function () { return 'Hangar Roof · ' + (view.hangarRoofOccupant || 'G5:G5_MAST_ANTENNA'); }, e: function () { return '25 kg (×1.2 = 30 kg-eq)'; }, s: function () { return view.g5Degraded ? 'warn' : ''; } },
-      { k: 'gun', t: function () { return vessel.root.userData.civil ? 'Fire Monitor' : '76mm Bow Mount'; }, e: function () { return ''; }, s: function () { return ''; } },
-      { k: 'dg2', t: function () { return 'DG2 · Reserve'; }, e: function () { return view.gen2Tripped ? 'TRIPPED (100 kW)' : '200 kW nominal'; }, s: function () { return view.gen2Tripped ? 'alarm' : ''; }, x: true },
-      { k: 'rack', t: function () { return 'Compute Rack'; }, e: function () { return (view.computeCores || 26) + '/' + (view.computeCoresMax || 100) + ' cores · ' + (typeof view.computeAcc === 'number' ? view.computeAcc : 2) + '/' + (view.computeAccMax || 3) + ' acc'; }, s: function () { return view.coolingDegraded ? 'warn' : ''; }, x: true }
-    ];
-    labelDefs.forEach(function (d) {
-      d.el = document.createElement('div'); d.el.className = 'tag'; d.el.style.opacity = 0;
-      $('labels').appendChild(d.el);
-    });
-    function refreshLabelText() {
-      labelDefs.forEach(function (d) {
-        d.el.className = 'tag ' + d.s();
-        const em = d.e();
-        d.el.innerHTML = '<i></i>' + d.t() + (em ? ' <em>' + em + '</em>' : '');
-      });
-    }
-    const tmpV = new THREE.Vector3();
-    function updateLabels() {
-      const w = stage.clientWidth, h = stage.clientHeight;
-      vessel.root.updateMatrixWorld();
-      labelDefs.forEach(function (d) {
-        const a = vessel.anchors[d.k];
-        if (!a || !labelsOn || (d.x && !vessel.isXray())) { d.el.style.opacity = 0; return; }
-        tmpV.set(a[0], a[1], a[2]); vessel.root.localToWorld(tmpV); tmpV.project(camera);
-        const vis = tmpV.z > -1 && tmpV.z < 1 && Math.abs(tmpV.x) < 1.02 && Math.abs(tmpV.y) < 1.02;
-        d.el.style.opacity = vis ? 1 : 0;
-        if (vis) d.el.style.transform = 'translate(' + ((tmpV.x * 0.5 + 0.5) * w).toFixed(1) + 'px,' + ((-tmpV.y * 0.5 + 0.5) * h).toFixed(1) + 'px) translate(-50%,-135%)';
-      });
-    }
-
-    // ------------------------------------------------------------ UI & Connection Banner Rendering
-    const fmtT = function (s) { return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
-    const nice = function (m) { const s = String(m || '').replace(/_/g, ' ').toLowerCase(); return s.charAt(0).toUpperCase() + s.slice(1); };
-
-    function updateConnectionBanner() {
-      const conn = SDV.apiState.connectionState;
+    // ---------------------------------------------------------------- connection state
+    SDV.setConnectionState = function (st) {
+      app.conn = st;
       const chip = $('chipLink');
-      const banner = $('staleBanner');
-      const isStale = conn === 'STALE';
-      if (chip) {
-        if (conn === 'LIVE') {
-          chip.textContent = '● LIVE GOVERNOR (' + SDV.apiState.bridgeMode + ')';
-          chip.className = 'chip ok';
-        } else if (conn === 'LOCAL_ENGINE') {
-          chip.textContent = '● LOCAL ENGINE (1:1 AUTH)';
-          chip.className = 'chip src';
-        } else if (conn === 'PREVIEW_SYNTHETIC') {
-          chip.textContent = '● PREVIEW SYNTHETIC';
-          chip.className = 'chip warn';
-        } else if (isStale) {
-          chip.textContent = '● STALE / DESCONECTADO';
-          chip.className = 'chip alarm';
-        }
-      }
-      if (banner) {
-        banner.hidden = !isStale;
-        if (isStale && $('staleBannerMeta')) {
-          $('staleBannerMeta').textContent = 'v' + view.version + ' · ' + view.snapshotId + ' · T+' + fmtT(view.simT);
-        }
-      }
-      // ALIGN-T38: Disable mutation controls when backend is STALE / DESCONECTADO
-      ['btnPlay', 'btnStep', 'btnReset', 'profile', 'scrub', 'crewRegime', 'deckClear', 'btnClear', 'admRun', 'admCommit'].forEach(function (id) {
-        const el = $(id);
-        if (el) el.disabled = isStale;
-      });
-      document.querySelectorAll('[data-inject], #segMission button').forEach(function (btn) {
-        btn.disabled = isStale;
+      chip.className = 'chip ' + (st === 'LIVE' ? 'ok' : st === 'PREVIEW' ? 'cyan' : st === 'STALE' ? 'alarm' : '');
+      chip.textContent = st === 'LIVE' ? '● LIVE engine' : st === 'PREVIEW' ? '◆ PREVIEW (not the engine)' : st === 'STALE' ? '● STALE' : '● Connecting…';
+      const ban = $('staleBanner');
+      ban.hidden = !(st === 'STALE' || st === 'PREVIEW');
+      ban.classList.toggle('preview', st === 'PREVIEW');
+      if (st === 'PREVIEW') $('staleBannerText').textContent = '◆ PREVIEW (not the engine) — ?preview=1 runs a local replay for layout checks only. Verdicts here are NOT the governor.';
+      else $('staleBannerText').textContent = '⚠ STALE / DESCONECTADO — governor API unreachable. Controls disabled; showing the last verified snapshot (no local engine).';
+      $('staleBannerMeta').textContent = 'v' + ((app.live && app.live.state_version) || 0) + ' · ' + F.T(app.simT);
+      refreshDisabled();
+    };
+    function refreshDisabled() {
+      const off = app.conn === 'STALE' || app.conn === 'CONNECTING';
+      document.querySelectorAll('.right button, .right select, .right input, .right textarea, .transport button, .transport input, #segProfile button, #segCrew button, #btnDeck').forEach(function (el) {
+        if (el.closest('#tabbar') || el.closest('details.raw')) return;
+        el.disabled = off;
       });
     }
+    function track(resp) {
+      if (!resp) return resp;
+      if (resp.connectionState === 'PREVIEW') SDV.setConnectionState('PREVIEW');
+      else if (resp.status > 0 && app.conn !== 'LIVE') SDV.setConnectionState('LIVE');
+      return resp;
+    }
+    const api = function (method, path, body, opts) { return SDV.requestApi(method, path, body, opts).then(track); };
 
-    function renderUI() {
-      updateConnectionBanner();
-      const exactSec = Math.min(1800, Math.round(view.simExact));
-      $('chipClock').textContent = 'T+' + fmtT(exactSec);
-      if ($('chipVersion')) {
-        const shaShort = (view.semanticSha || '').slice(0, 8);
-        $('chipVersion').textContent = 'v' + view.version + ' · ' + view.snapshotId + (shaShort ? ' · ' + shaShort : '');
-      }
-      $('chipSea').textContent = 'Sea ' + view.seaState + ' · ' + (view.waterTempC || 24).toFixed(1) + '°C';
-      $('chipWind').textContent = 'Wind ' + view.windKn + ' kn';
-      $('kSpeed').innerHTML = view.speedKn.toFixed(1) + '<small>kn</small>';
-      $('kHdg').innerHTML = String(Math.round(view.heading)).padStart(3, '0') + '<small>°</small>';
-      $('kMode').textContent = nice(view.mode);
-      if ($('kTd') && view.d3Milestones) {
-        const tdS = view.d3Milestones.td;
-        $('kTd').textContent = 'T+' + fmtT(tdS) + ' (' + tdS + 's)';
-      }
-      $('tlLabel').textContent = fmtT(exactSec) + ' / ' + fmtT(1800) + ' (20×)';
-      $('scrub').value = String(view.tick);
+    // ---------------------------------------------------------------- overlay (result card inside the stage)
+    function openOverlay(html, wide) {
+      $('overlayBody').innerHTML = html;
+      const ov = $('overlay');
+      ov.classList.toggle('wide', !!wide);
+      ov.hidden = false;
+      requestAnimationFrame(function () { S.setOverlayWidth(wide ? 0 : ov.offsetWidth); });
+    }
+    function closeOverlay() { $('overlay').hidden = true; S.setOverlayWidth(0); }
+    $('ovClose').addEventListener('click', function () { closeOverlay(); setGhost({ slot: null }); });
+    window.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('overlay').hidden) { closeOverlay(); setGhost({ slot: null }); } });
 
-      document.querySelectorAll('#segMission button').forEach(function (b) {
-        b.classList.toggle('active', b.getAttribute('data-mission') === view.missionId);
+    // ---------------------------------------------------------------- ghost preview of the candidate
+    function setGhost(g) {
+      app.ghost = g && g.slot ? g : null;
+      S.vessel.showGhost(app.ghost ? app.ghost.slot : null, app.ghost ? app.ghost.verdict : null);
+      renderLabels();
+    }
+
+    // ---------------------------------------------------------------- schematic labels (occupant + state from the engine)
+    const SLOT_LABEL = { flight_deck: 'flightDeck', mast_3: 'mast', hangar_roof: 'hangarRoof', bay1: 'bay1', bay1_a: 'bay1', bay1_b: 'bay1', bay2: 'bay2', hangar: 'hangar', stern_ramp: 'sternRamp' };
+    function guestState(gid) {
+      const g = ((app.live && app.live.state && app.live.state.installed_guests) || {})[gid];
+      if (!g) return null;
+      const m = String(g.active_mode || '');
+      const cls = (!g.powered_on || /STOP|OFF|SHED/.test(m)) ? 'alarm' : /DEGRADED|STANDBY|HOLD|LOW|REDUCED|CONTINUOUS/.test(m) ? 'warn' : '';
+      return { mode: m, cls: cls, on: g.powered_on };
+    }
+    function occRows(list) {
+      const ids = [];
+      (list || []).forEach(function (s) { const id = String(s).split(':')[0]; if (ids.indexOf(id) < 0) ids.push(id); });
+      let worst = '';
+      const rows = ids.map(function (id) {
+        const st = guestState(id);
+        if (st && st.cls === 'alarm') worst = 'alarm'; else if (st && st.cls === 'warn' && worst !== 'alarm') worst = 'warn';
+        return '<em>' + esc(id) + (st ? ' · ' + esc(st.mode.replace(/_/g, ' ').toLowerCase()) : '') + '</em>';
       });
+      return { rows: rows.join('') || '<em class="free">free</em>', cls: ids.length ? worst : 'dim', ids: ids };
+    }
+    function renderLabels() {
+      const live = app.live, snap = P.snapshot(live);
+      const L = (snap && snap.classes && snap.classes.positions && snap.classes.positions.local_limits) || {};
+      const M = (snap && snap.classes && snap.classes.mast && snap.classes.mast.local_limits) || {};
+      const st = (live && live.state) || {};
+      const binds = ((snap && snap.binding_witnesses) || []).map(function (w) { return w.resource_class; });
+      const g = app.ghost, gl = g ? SLOT_LABEL[g.slot] : null;
+      const kg = function (a, b) { return typeof a === 'number' ? ' <small>' + F.num(a, 0) + '/' + F.num(b, 0) + ' kg</small>' : ''; };
+      const defs = [];
+      function push(id, anchor, title, o, extra) {
+        const d = Object.assign({ id: id, anchor: anchor, title: title, rows: o.rows, cls: o.cls }, extra || {});
+        if (gl === id) {
+          d.cls = 'ghost' + ((g.binding || []).some(function (c) { return c === 'positions' || c === 'mast'; }) ? ' binding' : '');
+          d.rows = (d.rows || '') + '<em class="gh">+ ' + esc(g.cand) + ' · ' + esc(String(g.verdict).replace(/_/g, ' ')) + '</em>';
+        }
+        defs.push(d);
+      }
+      const b1 = occRows([].concat(L.bay1_20ft || [], L.bay1_a_10ft || [], L.bay1_b_10ft || []));
+      push('bay1', 'bay1', 'Bay 1' + kg(L.bay1_total_mass_kg, L.bay1_max_mass_kg), b1, { dy: -6 });
+      push('bay2', 'bay2', 'Bay 2' + kg(L.bay2_total_mass_kg, L.bay2_max_mass_kg), occRows(L.bay2_10ft), { dy: -6 });
+      push('sternRamp', 'sternRamp', 'Stern ramp', occRows(L.stern_ramp), { side: 'down', dy: 70 });
+      push('hangar', 'hangar', 'Hangar' + kg(L.hangar_total_mass_kg, L.hangar_max_mass_kg), occRows(L.hangar), { side: 'down', dy: 64 });
+      const roof = occRows(L.hangar_roof);
+      const rc = L.hangar_roof_drone_clearance;
+      if (rc && rc.feasible === false) roof.cls = 'alarm';
+      push('hangarRoof', 'hangarRoof', 'Hangar roof', roof);
+      push('flightDeck', 'flightDeck', 'Flight deck' + (st.deck_clear === false ? ' <small class="bad-t">occupied</small>' : ''), occRows(L.flight_deck), { side: 'down', dy: 60 });
+      const m3 = M.guest_slot_mast_3 || {};
+      const mo = occRows(m3.owner ? [m3.owner] : []);
+      mo.rows = '<em>M1 · M2 ship sensors</em>' + mo.rows.replace('<em>', '<em>M3 · ').replace('<em class="free">', '<em class="free">M3 · ');
+      if (binds.indexOf('mast') >= 0) mo.cls = 'alarm binding';
+      push('mast', 'mast', 'Mast slots', mo);
+      const g3 = guestState('G3');
+      if (g3) push('auv', 'auv', 'G3 AUV', { rows: '<em>' + esc(g3.mode.replace(/_/g, ' ').toLowerCase()) + '</em>', cls: g3.cls });
+      const g4 = guestState('G4');
+      if (g4) {
+        const batt = ((st.installed_guests || {}).G4 || {}).battery_pct;
+        push('drone', 'pad', 'G4 drone', { rows: '<em>' + esc(g4.mode.replace(/_/g, ' ').toLowerCase()) + (typeof batt === 'number' ? ' · ' + F.num(batt, 0) + '%' : '') + '</em>', cls: g4.cls });
+      }
+      if (typeof st.power_reserve_w === 'number') {
+        push('gens', 'dg2', 'Gensets', { rows: '<em>' + (st.power_reserve_w < 200000 ? '1 online · ' : '2 online · ') + F.num(st.power_reserve_w / 1000, 0) + ' kW reserve</em>', cls: st.power_reserve_w < 200000 ? 'alarm' : '' }, { xray: true });
+      }
+      S.setLabels(defs);
+    }
 
-      $('classes').innerHTML = view.classes.map(function (c) {
-        const cls = c.bound ? 'a' : c.pct > 80 ? 'w' : '';
-        const subHtml = c.sub ? '<div class="sub">' + c.sub + '</div>' : '';
-        return '<div class="cls"><div class="row"><span>' + c.label + '</span><span>' + c.text + '</span></div>' + subHtml + '<div class="meter"><i class="' + cls + '" style="width:' + c.pct + '%"></i></div></div>';
+    // ---------------------------------------------------------------- render everything from the live payload
+    let viewFrom = 0, viewTo = 0, viewWall = 0;
+    function renderAll() {
+      const live = app.live;
+      if (!live) return;
+      const st = live.state || {};
+      app.simT = typeof live.sim_time_s === 'number' ? live.sim_time_s : (st.sim_time_s || 0);
+      $('chipClock').textContent = F.T(app.simT);
+      $('tlLabel').textContent = F.T(app.simT) + ' / 30:00 (20×)';
+      if (!app.scrubbing) $('scrub').value = Math.round(app.simT / STEP_T);
+      $('kSpeed').innerHTML = typeof st.ship_speed_kn === 'number' ? F.num(st.ship_speed_kn) + '<small> kn</small>' : '—';
+      $('kHdg').innerHTML = typeof st.heading_deg === 'number' ? F.num(st.heading_deg, 0) + '<small>°</small>' : '—';
+      $('kSst').innerHTML = typeof st.seawater_temp_c === 'number' ? F.num(st.seawater_temp_c) + '<small> °C</small>' : '—';
+      $('kSst').title = 'provenance: ' + (st.seawater_temp_provenance || '—');
+      if (typeof st.power_reserve_w === 'number') {
+        const one = st.power_reserve_w < 200000;
+        $('kGen').innerHTML = (one ? '1' : '2') + '<small> · ' + F.num(st.power_reserve_w / 1000, 0) + ' kW</small>';
+        $('kGen').parentNode.classList.toggle('alarm', one);
+      }
+      $('kMode').textContent = String(st.vessel_mode || '—').replace(/_/g, ' ');
+      $('kMode').parentNode.classList.toggle('warn', !!st.cooling_loop_degraded);
+
+      const g = P.renderGauges($('gauges'), live, app.fc, app.simT);
+      $('govState').textContent = !g.have ? '—' : g.binding ? g.binding + ' binding' : g.warn ? g.warn + ' near limit' : 'all feasible';
+      $('govState').className = 'chip sm ' + (g.binding ? 'alarm' : g.warn ? 'warn' : 'ok');
+
+      const entries = P.logEntries(live, app.simT);
+      const seen = app.seenKeys;
+      P.renderLog($('log'), entries, app.admitCache, app.openKeys, seen);
+      app.seenKeys = {};
+      $('log').querySelectorAll('details').forEach(function (d) { app.seenKeys[d.getAttribute('data-k')] = 1; });
+      $('logCount').textContent = entries.length + ' entries';
+      $('fcLine').innerHTML = P.forecastLine(app.fc, app.simT);
+
+      P.renderCrew($('crewBox'), live);
+      P.renderC54($('c54Table'), live);
+      SDV.tabs.renderPrioMini(live);
+      document.querySelectorAll('#segCrew button').forEach(function (b) { b.classList.toggle('active', Number(b.getAttribute('data-crew')) === st.crew_count); });
+      $('btnDeck').classList.toggle('on', st.deck_clear !== false);
+      $('btnDeck').textContent = st.deck_clear !== false ? 'Deck clear' : 'Deck occupied';
+      const pid = String(live.priority_profile_id || '').toLowerCase();
+      let known = false;
+      document.querySelectorAll('#segProfile button').forEach(function (b) {
+        const on = b.getAttribute('data-profile') === pid; known = known || on; b.classList.toggle('active', on);
+      });
+      if (!known && pid) { $('btnProfileCustom').classList.add('active'); $('btnProfileCustom').title = 'Live custom profile: ' + pid; }
+      $('radarState').textContent = st.own_radar_policy || '—';
+      $('btnQuietRadio').classList.toggle('on', st.own_radar_policy === 'QUIET_RADIO');
+      renderMilestones(live);
+      renderLabels();
+      if (app.conn === 'STALE' || app.conn === 'PREVIEW') $('staleBannerMeta').textContent = 'v' + (live.state_version || 0) + ' · ' + F.T(app.simT);
+
+      viewFrom = viewTo; viewTo = app.simT; viewWall = performance.now();
+      if (!app.playing) viewFrom = viewTo;
+      try { S.view = SDV.deriveFromAuthoritative(live, app.simT); } catch (e) { /* 3D animation only */ }
+    }
+    $('log').addEventListener('toggle', function (e) {
+      const d = e.target; if (!d || d.tagName !== 'DETAILS' || !d.getAttribute('data-k')) return;
+      if (d.open) app.openKeys[d.getAttribute('data-k')] = 1; else delete app.openKeys[d.getAttribute('data-k')];
+    }, true);
+
+    function renderMilestones(live) {
+      const r = live.scenario_B_replay || {};
+      $('msFill').style.width = (100 * Math.min(1, app.simT / END_T)).toFixed(2) + '%';
+      const raw = [];
+      (r.decisions || []).forEach(function (d) {
+        const lab = d.phase === 'D3_ARBITRATION' ? 'D3' : d.phase === 'D4_DEGRADATION' ? 'D4 trip' : d.phase === 'D4_RECONNECTION' ? 'reconnect' : d.phase;
+        raw.push({ t: d.sim_time_s, l: lab, c: d.phase === 'D4_DEGRADATION' ? 'alarm' : d.phase === 'D3_ARBITRATION' ? 'warn' : 'ok' });
+        const dd = d.decision || {};
+        if (d.phase === 'D3_ARBITRATION' && typeof dd.hold_cmd_time_s === 'number') raw.push({ t: dd.hold_cmd_time_s, l: 'hold', c: 'warn' });
+      });
+      if (typeof r.executed_touchdown_time_s === 'number') raw.push({ t: r.executed_touchdown_time_s, l: 'touchdown', c: 'ok' });
+      const byT = {};
+      raw.forEach(function (m) {
+        if (typeof m.t !== 'number' || m.t > END_T) return;
+        const k = String(m.t);
+        if (!byT[k]) byT[k] = { t: m.t, l: [], c: m.c };
+        byT[k].l.push(m.l);
+        if (m.c === 'alarm') byT[k].c = 'alarm';
+      });
+      const html = Object.keys(byT).map(function (k) { return byT[k]; }).sort(function (a, b) { return a.t - b.t; }).map(function (m) {
+        return '<span class="ms-mark ' + m.c + (m.t <= app.simT ? ' past' : '') + '" style="left:' + (100 * m.t / END_T).toFixed(2) + '%" title="' + esc(m.l.join(' + ')) + ' at ' + F.T(m.t) + '"><i></i><span>' + esc(m.l.join(' + ')) + ' ' + F.T(m.t).slice(2) + '</span></span>';
       }).join('');
-
-      if ($('roofRuleState')) {
-        $('roofRuleState').textContent = view.roofRuleStatus || 'VERIFIED_COMPATIBLE';
-        $('roofRuleState').style.color = (view.roofRuleStatus || '').indexOf('INHIBITED') >= 0 ? 'var(--warn)' : 'var(--ok)';
-      }
-
-      if ($('d3Summary') && view.d3Milestones) {
-        const m = view.d3Milestones;
-        $('d3Summary').innerHTML = '<span>Profile: <b>' + (view.priorityProfile || 'survey_primary').toUpperCase() + '</b></span><span>Hold ' + m.holdCmd + 's → ACK ' + m.holdAck + 's → Stab ' + m.stab + 's → TD <b>' + m.td + 's</b></span>';
-      }
-
-      if ($('crewRegime') && view.crewRegime) {
-        $('crewRegime').value = view.crewRegime;
-      }
-      if ($('deckClear')) {
-        $('deckClear').checked = view.deckClear !== false;
-      }
-      if ($('crewMeta') && SDV.CREW_REGIMES) {
-        const cr = SDV.CREW_REGIMES[view.crewRegime] || SDV.CREW_REGIMES.FULL_CREW_14;
-        $('crewMeta').textContent = cr.avail + ' avail · ' + cr.confirm_s + 's ACK · ' + (cr.deck_clear_s ? cr.deck_clear_s + 's deck' : 'No deck ops');
-      }
-
-      const hasAlarm = view.alerts.some(function (a) { return a.lvl === 'alarm'; });
-      const hasWarn = view.alerts.some(function (a) { return a.lvl === 'warn'; });
-      const gs = $('govState');
-      gs.className = 'chip ' + (hasAlarm ? 'alarm' : hasWarn ? 'warn' : 'ok');
-      gs.textContent = hasAlarm ? 'Degraded / Protected' : hasWarn ? 'Arbitrating' : 'Nominal (8/8 OK)';
-      $('alerts').innerHTML = view.alerts.length
-        ? view.alerts.map(function (a) { return '<div class="alert ' + a.lvl + '"><b>' + a.code + '</b><span>' + a.msg + '</span></div>'; }).join('')
-        : '<div class="alert ok"><b>NOMINAL</b><span>All eight resource classes are within their physical envelope.</span></div>';
-
-      const ev = view.events.length ? view.events.join(' · ') : (MODE_TEXT[view.mode] || nice(view.mode));
-      $('eventMsg').textContent = ev;
-      refreshLabelText();
+      const track = $('msTrack');
+      track.querySelectorAll('.ms-mark').forEach(function (n) { n.remove(); });
+      track.insertAdjacentHTML('beforeend', html);
+      $('msSha').textContent = (r.priority_profile_id ? String(r.priority_profile_id).toLowerCase().replace('_primary', '') + ' · ' : '') + (r.semantic_sha256 ? 'sha ' + String(r.semantic_sha256).slice(0, 8) : '');
     }
 
-    function directorShot() {
-      if (!rig.director) return;
-      const t = view.simT;
-      let shot = 'hero', x = false;
-      if (t >= 120 && t < 360) shot = 'hero';
-      else if (t >= 360 && t < 560) shot = 'subsea';
-      else if (t >= 560 && t < 720) shot = 'blueprint';
-      else if (t >= 720 && t < 840) { shot = 'cutaway'; x = true; }
-      else if (t >= 840 && t < 1150) shot = 'pad';
-      setCam(shot, true);
-      vessel.setXray(x); $('tXray').classList.toggle('on', x);
-    }
-
-    async function syncFromBackend(forceSnap) {
-      const resp = await SDV.requestApi('GET', '/api/state?priority_profile=' + encodeURIComponent(activeProfile));
-      if (resp.ok && resp.data) {
-        applyAuthoritativePayload(resp.data, !!forceSnap);
-      } else {
-        updateConnectionBanner();
-      }
-    }
-
-    async function advanceTargetSimTime(targetSimS) {
-      if (advanceInFlight) return;
-      advanceInFlight = true;
+    // ---------------------------------------------------------------- polling (one in flight at a time)
+    async function poll(force) {
+      if (app.polling || (!force && (app.playing || app.busy))) return;
+      app.polling = true;
       try {
-        if (targetSimS < view.simT) {
-          await SDV.requestApi('POST', '/api/reset', { priority_profile_id: activeProfile });
+        const now = performance.now();
+        const reqs = [api('GET', '/api/state'), api('GET', '/api/forecast', null, { merge: false })];
+        const envDue = force || now - app.lastEnvMs > 15000;
+        if (envDue) {
+          reqs.push(api('GET', '/api/environment', null, { merge: false }));
+          reqs.push(api('GET', '/api/environment/windows?guest=G4&op=VEHICLE_REPLACEMENT_AT_SEA', null, { merge: false }));
         }
-        const r = await SDV.requestApi('POST', '/api/advance', {
-          target_sim_time_s: targetSimS,
-          from_sim_time_s: view.simT,
-          expected_state_version: view.version,
-          priority_profile_id: activeProfile,
-          runner_status: playing ? 'RUNNING' : 'PAUSED'
-        });
-        if (r.ok && r.data) {
-          applyAuthoritativePayload(r.data, targetSimS <= view.simT);
-        } else {
-          await syncFromBackend(targetSimS <= view.simT);
+        const res = await Promise.all(reqs);
+        if (res[0].ok && res[0].data) app.live = SDV.apiState.lastPayload || res[0].data;
+        if (res[1].ok && res[1].data) app.fc = res[1].data;
+        if (envDue) {
+          app.lastEnvMs = now;
+          app.env = res[2].ok ? res[2].data : null;
+          app.win = res[3].ok ? res[3].data : null;
+          P.renderEnv(app.env, app.win);
         }
-      } finally {
-        advanceInFlight = false;
-      }
+        renderAll();
+      } finally { app.polling = false; }
     }
 
-    // ------------------------------------------------------------ Interactive Scenario B Milestone Selector (#segMission)
-    async function selectMission(mName) {
-      rig.director = false; if ($('tDirector')) $('tDirector').classList.remove('on');
-      vessel.setXray(false); $('tXray').classList.remove('on');
-      if (mName === 'survey') {
-        setCam('subsea', true);
-        await advanceTargetSimTime(0);
-      } else if (mName === 'sortie') {
-        setCam('hero', true);
-        await advanceTargetSimTime(480);
-      } else if (mName === 'fault') {
-        vessel.setXray(true); $('tXray').classList.add('on');
-        setCam('cutaway', true);
-        await advanceTargetSimTime(720);
-      } else if (mName === 'rtb') {
-        setCam('pad', true);
-        const tdTarget = activeProfile === 'rescue_primary' ? 860 : 1100;
-        await advanceTargetSimTime(tdTarget);
-      }
+    async function afterAction(full) {
+      if (full !== false) await poll(true);
     }
-    document.querySelectorAll('#segMission button').forEach(function (b) {
-      b.addEventListener('click', function () { selectMission(b.getAttribute('data-mission')); });
-    });
+    function rememberAdmission(data) {
+      const log = data.decision_log || [];
+      for (let i = log.length - 1; i >= 0; i--) {
+        const e = log[i];
+        if (e.type === 'ADMISSION_ATTEMPT') { app.admitCache[(e.candidate_guest_id || '') + '|' + (e.verdict || '') + '|' + (e.state_version || '')] = data; break; }
+      }
+      const d = data.decision;
+      app.admitCache[(d.candidate_guest_id || '') + '|' + (d.verdict || '') + '|' + (data.state_version || '')] = data;
+    }
 
-    // ------------------------------------------------------------ Camera & Environment Controls
-    document.querySelectorAll('#segCam button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        setCam(b.getAttribute('data-cam'));
-        vessel.setXray(false); $('tXray').classList.remove('on');
+    // ---------------------------------------------------------------- header controls
+    document.querySelectorAll('#segProfile button').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        const pid = b.getAttribute('data-profile');
+        if (pid === 'custom') { SDV.tabs.show('prio'); $('customDetails').open = true; return; }
+        pause();
+        app.busy = true;
+        await api('POST', '/api/profile', { priority_profile_id: pid });
+        app.busy = false;
+        await poll(true);
       });
     });
-    document.querySelectorAll('#segLivery button').forEach(function (b) {
-      b.addEventListener('click', function () {
-        const n = b.getAttribute('data-livery'); vessel.setLivery(n); vessel.root.userData.civil = n === 'civil';
-        document.querySelectorAll('#segLivery button').forEach(function (x) { x.classList.toggle('active', x === b); });
-        refreshLabelText();
+    document.querySelectorAll('#segCrew button').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        app.busy = true;
+        const st = (app.live && app.live.state) || {};
+        await api('POST', '/api/crew', { crew_count: Number(b.getAttribute('data-crew')), deck_clear: st.deck_clear !== false });
+        app.busy = false;
+        await poll(true);
       });
+    });
+    $('btnDeck').addEventListener('click', async function () {
+      const st = (app.live && app.live.state) || {};
+      app.busy = true;
+      await api('POST', '/api/crew', { crew_count: typeof st.crew_count === 'number' ? st.crew_count : 14, deck_clear: st.deck_clear === false });
+      app.busy = false;
+      await poll(true);
     });
     document.querySelectorAll('#segTime button').forEach(function (b) {
       b.addEventListener('click', function () {
-        const n = b.getAttribute('data-time'); env.setMode(n); vessel.setNight(n === 'night');
+        S.setTime(b.getAttribute('data-time'));
         document.querySelectorAll('#segTime button').forEach(function (x) { x.classList.toggle('active', x === b); });
       });
     });
-    $('tXray').addEventListener('click', function () {
-      rig.director = false; if ($('tDirector')) $('tDirector').classList.remove('on');
-      const on = !vessel.isXray(); vessel.setXray(on); $('tXray').classList.toggle('on', on);
-      if (on) setCam('cutaway', true);
-    });
-    $('tLabels').addEventListener('click', function () { labelsOn = !labelsOn; $('tLabels').classList.toggle('on', labelsOn); });
-    $('tOrbit').addEventListener('click', function () { rig.orbit = !rig.orbit; rig.director = false; if ($('tDirector')) $('tDirector').classList.remove('on'); $('tOrbit').classList.toggle('on', rig.orbit); });
-    $('tEco').addEventListener('click', function () { eco = !eco; $('tEco').classList.toggle('on', eco); resize(); });
-    if ($('tDirector')) {
-      $('tDirector').addEventListener('click', function () { rig.director = !rig.director; $('tDirector').classList.toggle('on', rig.director); if (rig.director) directorShot(); });
-    }
 
+    // ---------------------------------------------------------------- views menu
+    $('btnViews').addEventListener('click', function (e) {
+      e.stopPropagation();
+      const m = $('viewsMenu'); m.hidden = !m.hidden; $('btnViews').setAttribute('aria-expanded', String(!m.hidden));
+    });
+    document.addEventListener('click', function (e) { if (!e.target.closest('#viewsMenu')) $('viewsMenu').hidden = true; });
+    document.querySelectorAll('#segCam button').forEach(function (b) {
+      b.addEventListener('click', function () { S.setCam(b.getAttribute('data-cam')); });
+    });
+    $('tXray').addEventListener('click', function () { S.setXray(!S.vessel.isXray()); });
+    $('tLabels').addEventListener('click', function () { S.labelsOn = !S.labelsOn; $('tLabels').classList.toggle('on', S.labelsOn); });
+    $('tEco').addEventListener('click', function () { S.setEco(!S.eco); });
+    $('tLivery').addEventListener('click', function () { S.setLivery(!S.vessel.root.userData.civil); });
+
+    // ---------------------------------------------------------------- transport (Scenario B, 20 s per tick)
+    function setPlayBtn() { $('btnPlay').textContent = app.playing ? '❚❚ Pause' : '▶ Play 90 s Scenario B'; $('btnPlay').classList.toggle('on', app.playing); }
+    function pause() { app.playing = false; setPlayBtn(); }
+    async function advanceTo(target) {
+      const live = app.live || {};
+      const resp = await api('POST', '/api/advance', {
+        target_sim_time_s: target, from_sim_time_s: app.simT, expected_state_version: live.state_version,
+        priority_profile_id: profile(), runner_status: app.playing ? 'RUNNING' : 'PAUSED'
+      });
+      if (resp.ok && SDV.apiState.lastPayload) app.live = SDV.apiState.lastPayload;
+      else if (resp.status === 409 || resp.status === 422) await poll(true);
+      if (resp.status === 0) pause();
+      renderAll();
+      return resp;
+    }
+    async function reset() {
+      pause();
+      app.busy = true;
+      await api('POST', '/api/reset', { priority_profile_id: profile() });
+      app.busy = false;
+      app.flags.layered = false; $('layeredState').textContent = 'A.5 acoustic · OFF'; $('btnLayered').classList.remove('on');
+      app.seenKeys = null;
+      closeOverlay(); setGhost({ slot: null });
+      await poll(true);
+    }
+    function profile() {
+      const pid = app.live && app.live.priority_profile_id;
+      return pid ? String(pid) : 'survey_primary';
+    }
+    let lastStepWall = 0, stepping = false;
+    S.onFrame = function (now) {
+      if (!app.playing || stepping || now - lastStepWall < 950) return;
+      if (app.simT >= END_T) { pause(); return; }
+      lastStepWall = now; stepping = true;
+      advanceTo(Math.min(END_T, app.simT + STEP_T)).finally(function () { stepping = false; });
+    };
     $('btnPlay').addEventListener('click', async function () {
-      playing = !playing;
-      $('btnPlay').textContent = playing ? '❚❚ Pause' : '▶ Play';
-      lastAdvanceWallMs = performance.now();
-      if (!playing) {
-        interpFromSimT = view.simT;
-        interpToSimT = view.simT;
-      }
+      if (app.playing) { pause(); return; }
+      if (app.simT >= END_T) await reset();
+      closeOverlay(); setGhost({ slot: null });
+      app.playing = true; setPlayBtn();
     });
-    if ($('btnStep')) {
-      $('btnStep').addEventListener('click', async function () {
-        playing = false; $('btnPlay').textContent = '▶ Play';
-        await advanceTargetSimTime(Math.min(1800, view.simT + 20));
-      });
-    }
-    $('btnReset').addEventListener('click', async function () {
-      playing = false; $('btnPlay').textContent = '▶ Play';
-      document.querySelectorAll('[data-inject]').forEach(function (b) { b.classList.remove('on'); });
-      vessel.setXray(false); $('tXray').classList.remove('on'); setCam('hero', true);
-      const r = await SDV.requestApi('POST', '/api/reset', { priority_profile_id: activeProfile });
-      if (r.ok) await syncFromBackend(true);
-      else updateConnectionBanner();
-    });
-    $('scrub').addEventListener('change', function (e) {
-      const targetTick = parseInt(e.target.value, 10) || 0;
-      advanceTargetSimTime(targetTick * 20);
-    });
-    $('profile').addEventListener('change', async function (e) {
-      activeProfile = e.target.value;
-      const r = await SDV.requestApi('POST', '/api/profile', { priority_profile_id: activeProfile });
-      if (r.ok && r.data) applyAuthoritativePayload(r.data, false);
-      await syncFromBackend(false);
+    $('btnStep').addEventListener('click', function () { pause(); if (app.simT < END_T) advanceTo(Math.min(END_T, app.simT + STEP_T)); });
+    $('btnReset').addEventListener('click', reset);
+    $('scrub').addEventListener('input', function () { app.scrubbing = true; $('tlLabel').textContent = F.T(Number($('scrub').value) * STEP_T) + ' / 30:00 (20×)'; });
+    $('scrub').addEventListener('change', async function () {
+      pause();
+      const target = Number($('scrub').value) * STEP_T;
+      app.scrubbing = false;
+      if (target < app.simT) {
+        await reset();
+        if (target > 0) await advanceTo(target);
+      } else if (target > app.simT) await advanceTo(target);
     });
 
-    // ------------------------------------------------------------ Scenario C Crew Regime & Deck Interlock (/api/crew)
-    async function updateCrewRegime() {
-      const regime = $('crewRegime') ? $('crewRegime').value : 'FULL_CREW_14';
-      const deckClear = $('deckClear') ? !!$('deckClear').checked : true;
-      const crewCount = regime === 'UNCREWED_0' ? 0 : (regime === 'REDUCED_CREW_6' ? 6 : 14);
-      const r = await SDV.requestApi('POST', '/api/crew', {
-        crew_count: crewCount,
-        deck_clear: deckClear,
-        priority_profile_id: activeProfile
-      });
-      if (r.ok && r.data) applyAuthoritativePayload(r.data, false);
-      else await syncFromBackend(false);
-    }
-    if ($('crewRegime')) $('crewRegime').addEventListener('change', updateCrewRegime);
-    if ($('deckClear')) $('deckClear').addEventListener('change', updateCrewRegime);
-
-    // ------------------------------------------------------------ All 6 Official Perturbations (/api/perturb)
-    document.querySelectorAll('[data-inject]').forEach(function (b) {
-      b.addEventListener('click', async function () {
-        const k = b.getAttribute('data-inject');
-        const map = {
-          genLoss:  { perturbation_type: 'GENERATOR_LOSS_100KW', new_power_reserve_w: 100000 },
-          coolLoss: { perturbation_type: 'COOLING_LOSS_30C_40PCT', seawater_temp_c: 30.0 },
-          overload: { perturbation_type: 'GUEST_OVERCONSUMPTION_20PCT', guest_id: 'G5', measured_power_w: 54000 },
-          tempFeed: { perturbation_type: 'LOST_SEAWATER_TEMP_FEED' },
-          hold:     { perturbation_type: 'URGENT_HOLD', guest_id: 'G3' },
-          stop:     { perturbation_type: 'URGENT_STOP', guest_id: 'G3' }
-        };
-        const body = Object.assign({ priority_profile_id: activeProfile }, map[k] || {});
-        if (k === 'genLoss' || k === 'coolLoss' || k === 'tempFeed') {
-          vessel.setXray(true); $('tXray').classList.add('on'); setCam('cutaway', true);
-        }
-        if (k === 'hold' || k === 'stop') setCam('subsea', true);
-        const r = await SDV.requestApi('POST', '/api/perturb', body);
-        if (r.ok) {
-          b.classList.add('on');
-          if (r.data && r.data.live_operational_state) applyAuthoritativePayload(r.data, false);
-          else await syncFromBackend(false);
-        } else {
-          updateConnectionBanner();
-        }
-      });
-    });
-    $('btnClear').addEventListener('click', async function () {
-      document.querySelectorAll('[data-inject]').forEach(function (b) { b.classList.remove('on'); });
-      const r = await SDV.requestApi('POST', '/api/reset', { priority_profile_id: activeProfile });
-      if (r.ok) await syncFromBackend(true);
-      else updateConnectionBanner();
-    });
-
-    // ------------------------------------------------------------ Scenario A / A' Live Admission (/api/admit_live)
-    function buildG7Manifest(slot, massKg) {
-      const rawCat = (SDV.apiState.lastPayload && SDV.apiState.lastPayload.guest_manifests_raw) || {};
-      const baseRaw = rawCat.G1 || rawCat.G6;
-      if (baseRaw) {
-        const g7 = JSON.parse(JSON.stringify(baseRaw));
-        const targetSlot = slot || 'bay1_b';
-        g7.guest_id = 'G7';
-        g7.name = 'Declarative Compact MetOcean Buoy Launcher';
-        g7.subcomponents[0].part_of = 'G7';
-        g7.subcomponents[0].subcomponent_id = 'G7_LAUNCHER';
-        g7.subcomponents[0].mass_kg = massKg || 450;
-        g7.subcomponents[0].preferred_positions = [targetSlot];
-        g7.subcomponents[0].allowed_positions = [targetSlot, 'bay1_b', 'bay2', 'bay1', 'hangar', 'hangar_roof', 'mast_3'].filter(function (v, idx, arr) { return arr.indexOf(v) === idx; });
-        if (targetSlot === 'mast_3') {
-          g7.subcomponents[0].cooling_route = 'PASSIVE_AND_FORCED_AIR_MAST';
-          Object.keys(g7.modes || {}).forEach(function (mk) {
-            g7.modes[mk].cooling_air_mast_w = g7.modes[mk].sustained_power_w;
-            g7.modes[mk].cooling_water_w = 0;
-          });
-        } else {
-          g7.subcomponents[0].cooling_route = 'CHILLED_WATER_LOOP';
-          Object.keys(g7.modes || {}).forEach(function (mk) {
-            g7.modes[mk].cooling_water_w = g7.modes[mk].sustained_power_w;
-            g7.modes[mk].cooling_air_mast_w = 0;
-          });
-        }
-        return g7;
-      }
-      return null;
-    }
-
-    async function runAdmission(commitToShip) {
-      const cand = $('admCand').value;
-      const slot = $('admSlot').value;
-      const baseVal = $('admBase') ? $('admBase').value : 'LIVE';
-      const massVal = $('admMass') && $('admMass').value ? parseInt($('admMass').value, 10) : null;
-      const atPort = $('admAtPort') ? !!$('admAtPort').checked : true;
-      const roofOk = $('admRoofOk') ? !!$('admRoofOk').checked : true;
-
-      const overrides = { preferred_position: slot };
-      if (massVal && !isNaN(massVal) && massVal > 0) {
-        overrides.mass_kg = massVal;
-      }
-
-      const reqBody = {
-        priority_profile_id: activeProfile,
-        at_port: atPort,
-        apply_if_admitted: !!commitToShip,
-        apply_if_accepted: !!commitToShip,
-        apply_yes_if: !!(commitToShip && roofOk),
-        hangar_roof_clearance_verified: roofOk,
-        overrides: overrides
-      };
-      if (baseVal && baseVal !== 'LIVE') {
-        reqBody.installed_guest_ids = baseVal.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
-      }
-      if (cand === 'G7') {
-        const g7m = buildG7Manifest(slot, overrides.mass_kg || 450);
-        if (g7m) reqBody.candidate_manifest = g7m;
-        else reqBody.candidate_guest_id = 'G7';
-      } else {
-        reqBody.candidate_guest_id = cand;
-      }
-
-      const resp = await SDV.requestApi('POST', '/api/admit_live', reqBody);
-      if (!resp.ok || !resp.data) {
-        updateConnectionBanner();
-        return;
-      }
-      const d = resp.data.decision || {};
-      const verdict = d.verdict || 'NO';
-      const totalMass = resp.data.candidate_total_mass_kg || (overrides.mass_kg || (SDV.GUEST_CATALOG[cand] && SDV.GUEST_CATALOG[cand].mass_kg) || 0);
-      const calcMs = typeof d.calculation_elapsed_ms === 'number' ? d.calculation_elapsed_ms.toFixed(2) + ' ms' : '< 1 ms';
-      const appliedTag = resp.data.applied ? ' · COMMITTED' : ' · DRY-RUN';
-      const note = resp.data.causal_sentence || d.causal_sentence || (d.rationale && d.rationale.join(' ')) || (d.conditions && d.conditions.join(' ')) || 'Evaluated by authoritative governor.';
-
-      const ghostSlot = slot === 'bay1_b' ? 'bay2' : slot;
-      vessel.showGhost(ghostSlot, verdict);
-      const col = verdict === 'YES' ? 'var(--ok)' : (verdict === 'YES_IF' || verdict === 'NOT_NOW') ? 'var(--warn)' : 'var(--alarm)';
-      $('admOut').style.borderLeftColor = col;
-      $('admOut').innerHTML = '<b>' + verdict + ' · ' + totalMass.toLocaleString('en-US') + ' kg (' + cand + ' · ' + calcMs + appliedTag + ')</b>' + note;
-      const cam = { bay1: 'deck', bay1_b: 'deck', bay2: 'deck', hangar: 'deck', hangar_roof: 'pad', mast_3: 'bridge' }[slot] || 'hero';
-      rig.director = false; if ($('tDirector')) $('tDirector').classList.remove('on'); setCam(cam, true);
-      if (resp.data.live_operational_state) {
-        applyAuthoritativePayload(resp.data, false);
-      }
-      if (resp.data.applied) {
-        await syncFromBackend(false);
-      }
-    }
-
-    $('admRun').addEventListener('click', function () { runAdmission(false); });
-    if ($('admCommit')) {
-      $('admCommit').addEventListener('click', function () { runAdmission(true); });
-    }
-    if ($('admCand')) {
-      $('admCand').addEventListener('change', function () {
-        const c = $('admCand').value;
-        const spec = SDV.GUEST_CATALOG && SDV.GUEST_CATALOG[c];
-        if (spec && $('admSlot')) $('admSlot').value = spec.slot;
-      });
-    }
-
-    // recording
+    // ---------------------------------------------------------------- recording (secondary)
     let rec = null, chunks = [];
     $('btnRec').addEventListener('click', function () {
       const b = $('btnRec');
-      if (rec && rec.state === 'recording') { rec.stop(); b.textContent = '● Record'; b.classList.remove('danger'); return; }
-      if (!canvas.captureStream || typeof MediaRecorder === 'undefined') return;
-      chunks = []; rec = new MediaRecorder(canvas.captureStream(30));
+      if (rec && rec.state === 'recording') { rec.stop(); b.textContent = '● Rec'; b.classList.remove('danger'); return; }
+      if (!S.canvas.captureStream || typeof MediaRecorder === 'undefined') return;
+      chunks = []; rec = new MediaRecorder(S.canvas.captureStream(30));
       rec.ondataavailable = function (ev) { if (ev.data && ev.data.size) chunks.push(ev.data); };
       rec.onstop = function () {
         const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(chunks, { type: 'video/webm' }));
-        a.download = 'sdv-digital-twin.webm'; a.click();
+        a.download = 'sdv-schematic.webm'; a.click();
       };
       rec.start(); b.textContent = '■ Stop'; b.classList.add('danger');
     });
     window.addEventListener('keydown', function (e) {
-      if (e.target && (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT')) return;
-      const map = { '1': 'hero', '2': 'blueprint', '3': 'subsea', '4': 'bow', '5': 'bridge', '6': 'deck', '7': 'stern' };
-      if (map[e.key]) { setCam(map[e.key]); vessel.setXray(false); $('tXray').classList.remove('on'); }
+      if (e.target && /SELECT|INPUT|TEXTAREA/.test(e.target.tagName)) return;
+      if (e.key === ' ') { e.preventDefault(); $('btnPlay').click(); }
       else if (e.key === 'x' || e.key === 'X') $('tXray').click();
-      else if (e.key === ' ') { e.preventDefault(); $('btnPlay').click(); }
     });
 
-    // Initial authoritative sync + periodic background state sync (1.5 s)
-    syncFromBackend(true);
-    setInterval(function () {
-      if (!advanceInFlight && !playing) syncFromBackend(false);
-    }, 2000);
-
-    // ------------------------------------------------------------ main loop (smooth 60 FPS ocean + vessel + synchronized 20x clock)
-    function showFatal(msg) {
-      $('fatalMsg').textContent = msg; $('fatalHelp').textContent = 'Reload the page.';
-      $('fatal').hidden = false;
-    }
-    let tPrev = performance.now(), t = 0, failed = false, firstFrame = true;
-    function frame(now) {
-      if (failed) return;
-      requestAnimationFrame(frame);
-      try {
-        const dt = Math.min(0.05, (now - tPrev) / 1000); tPrev = now; t += dt;
-
-        // Authoritative clock stepping when playing (1 tick = 20s sim per 1.0s wall clock = 20x compression, ALIGN-T39/T40)
-        if (playing) {
-          if (!advanceInFlight && now - lastAdvanceWallMs >= 980) {
-            lastAdvanceWallMs = now;
-            const nextSimT = Math.min(1800, view.simT + 20);
-            advanceTargetSimTime(nextSimT);
-          }
-          const alpha = clamp((now - interpStartWallMs) / 980, 0, 1);
-          const smoothSimT = interpFromSimT + (interpToSimT - interpFromSimT) * alpha;
-          if (SDV.apiState.lastPayload) {
-            view = SDV.deriveFromAuthoritative(SDV.apiState.lastPayload, smoothSimT);
-          }
-        }
-
-        // camera
-        const c = rig.cur, d = rig.des, k = 1 - Math.exp(-dt * (rig.drag ? 14 : 4.5));
-        if (rig.orbit && !rig.drag) d.th += dt * 0.09;
-        ['th', 'ph', 'r', 'tx', 'ty', 'tz'].forEach(function (key) { c[key] += (d[key] - c[key]) * k; });
-        camera.position.set(
-          c.tx + c.r * Math.sin(c.ph) * Math.sin(c.th),
-          Math.max(1.2, c.ty + c.r * Math.cos(c.ph)),
-          c.tz + c.r * Math.sin(c.ph) * Math.cos(c.th)
-        );
-        camera.lookAt(c.tx, c.ty, c.tz);
-
-        // sea + ship motion
-        seaS += (view.seaState - seaS) * Math.min(1, dt * 0.6);
-        env.update({ dt: dt, t: t, camPos: camera.position, speedKn: view.speedKn, seaState: seaS });
-        const amp = env.amp(), dx = env.drift.x, dz = env.drift.y;
-        const hc = SDV.waveH(0, 0, t, amp, dx, dz), hb = SDV.waveH(24, 0, t, amp, dx, dz), hs = SDV.waveH(-24, 0, t, amp, dx, dz);
-        const hp = SDV.waveH(0, -5, t, amp, dx, dz), hst = SDV.waveH(0, 5, t, amp, dx, dz);
-        const r = vessel.root;
-        r.position.y = hc * 0.55 - 0.04;
-        r.rotation.z = Math.atan2(hb - hs, 48) * 0.65;
-        r.rotation.x = -Math.atan2(hst - hp, 10) * 0.65;
-        r.rotation.y = Math.sin(t * 0.21) * 0.005;
-        vessel.update(t, dt, {
-          speedKn: view.speedKn,
-          gen2Tripped: view.gen2Tripped,
-          g5Degraded: view.g5Degraded,
-          coolingDegraded: view.coolingDegraded,
-          g3: view.g3,
-          drone: view.drone,
-          g5AntennaPos: view.g5AntennaPos
-        });
-
-        renderer.render(scene, camera);
-        updateLabels();
-        if (firstFrame) { firstFrame = false; $('boot').classList.add('done'); SDV.running = true; }
-      } catch (err) {
-        failed = true;
-        console.error(err);
-        showFatal(String(err && err.stack || err));
-      }
-    }
-    setCam('hero', true);
-    Object.assign(rig.cur, PRESETS.hero);
-    $('btnPlay').textContent = '▶ Play';
-    renderUI();
-    requestAnimationFrame(frame);
+    // ---------------------------------------------------------------- wire tabs and start
+    const ctx = {
+      openOverlay: openOverlay, closeOverlay: closeOverlay, setGhost: setGhost, afterAction: afterAction,
+      rememberAdmission: rememberAdmission, refreshDisabled: refreshDisabled, reset: reset, pause: pause,
+      isPlaying: function () { return app.playing; }, profile: profile, flags: app.flags,
+      state: function () { return app.live && app.live.state; }
+    };
+    SDV.tabs.init(ctx);
+    SDV.jury.init(ctx);
+    SDV.app = app;
+    SDV.setConnectionState(SDV.isPreviewRequested && SDV.isPreviewRequested() ? 'PREVIEW' : 'CONNECTING');
+    setPlayBtn();
+    S.run();
+    poll(true);
+    setInterval(function () { poll(false); }, 2500);
   };
 })();

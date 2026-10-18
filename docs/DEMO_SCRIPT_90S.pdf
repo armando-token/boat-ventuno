@@ -16,147 +16,111 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 12719 >>
+<< /Length 9568 >>
 stream
 q 0.10 0.21 0.36 rg 26.00 747.97 560.00 20.03 re f Q
-BT /F2 10.70 Tf 1.00 1.00 1.00 rg 34.00 754.14 Td (90-Second Live Operator Demo Script \(DEMO_SCRIPT_90S.md\)) Tj ET
-BT /F2 8.70 Tf 0.12 0.15 0.20 rg 26.00 733.70 Td (Subject: 90-Second \(20x Time-Compressed\) Live Demonstration of sdv-resource-governor \(D1-D6 + 2D/3D Operator Interface\)) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 721.93 Td (Rehearsal Status: DEFERRED_OWNER \(Automated 90-step API playback, 2D console, and 3D vessel twin synchronization are 100%) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 711.66 Td (implemented and test-verified; live spoken human rehearsal by the project owner is explicitly marked DEFERRED_OWNER.\)) Tj ET
-BT /F2 9.50 Tf 0.11 0.24 0.44 rg 26.00 699.89 Td (1. Pre-Demo Launch Checklist \(< 30 s Setup\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 697.89 560.00 0.60 re f Q
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 36.00 684.03 Td (* Start the authoritative governor backend and 2D Operator Console:) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 672.26 Td (PYTHONPATH=src .venv/bin/python -m sdv_governor.cli serve --host 127.0.0.1 --port 8765) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 36.00 660.49 Td (* \(Optional\) Open the synchronized Three.js 3D Vessel Twin \(viz3d/serve_viz3d.py\) connected to) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 36.00 650.22 Td (http://127.0.0.1:8765/api/state.) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 36.00 638.45 Td (* Confirm initial baseline on screen: Scenario B official 4-guest configuration \(G1 + G3 + G4 + G5\), 9,560 kg total mass \(440) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 36.00 628.18 Td (kg margin vs. 10,000 kg\), 9,853.0 kg-eq stability \(2,147.0 kg-eq margin vs. 12,000 kg-eq\), G3 + G4 + G5 = 9,515 kg ~= 9.52 t,) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 36.00 617.91 Td (G1 on mast_3 \(1,500 W air\), G3 in bay1, G4 in hangar/flight_deck, G5 container in bay2, and G5 antenna on hangar_roof \(1,200 W) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 36.00 607.64 Td (air under ROOF_OUTSIDE_G4_RECOVERY_V1\).) Tj ET
-BT /F2 9.50 Tf 0.11 0.24 0.44 rg 26.00 595.87 Td (2. Second-by-Second Operator Walkthrough \(00:00 to 01:30, 20x Compression: 1 s Wall Clock = 20 s Sim Time\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 593.87 560.00 0.60 re f Q
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 558.46 36.48 31.81 re B Q
-BT /F2 8.20 Tf 1.00 1.00 1.00 rg 29.00 580.00 Td (Wall) Tj ET
-BT /F2 8.20 Tf 1.00 1.00 1.00 rg 29.00 570.73 Td (Clock) Tj ET
-BT /F2 8.20 Tf 1.00 1.00 1.00 rg 29.00 561.46 Td (Window) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 62.48 558.46 63.59 31.81 re B Q
-BT /F2 8.20 Tf 1.00 1.00 1.00 rg 65.48 580.00 Td (Sim Time) Tj ET
-BT /F2 8.20 Tf 1.00 1.00 1.00 rg 65.48 570.73 Td (\(sim_time_s\)) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 126.07 558.46 198.29 31.81 re B Q
-BT /F2 8.20 Tf 1.00 1.00 1.00 rg 129.07 580.00 Td (Operator Action in 2D Console / 3D Twin) Tj ET
-q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 324.36 558.46 261.64 31.81 re B Q
-BT /F2 8.20 Tf 1.00 1.00 1.00 rg 327.36 580.00 Td (Deterministic Governor Output & Physical Numbers to) Tj ET
-BT /F2 8.20 Tf 1.00 1.00 1.00 rg 327.36 570.73 Td (Highlight) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 489.57 36.48 68.89 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 548.19 Td (00:00 -) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 538.92 Td (00:20) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 529.65 Td (\(20 s\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 62.48 489.57 63.59 68.89 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 548.19 Td (T = 0 s) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 538.92 Td (\(Port /) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 529.65 Td (Baseline\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 126.07 489.57 198.29 68.89 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 548.19 Td (Show Scenario A Admission \(D1/D2\) panel:) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 538.92 Td (test C\(5,4\) combinations and toggle) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 529.65 Td (hangar_roof_clearance_verified. Admit) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 520.38 Td (custom civil card G6 \(420 kg\) or) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 511.11 Td (declarative G7 without code changes.) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 324.36 489.57 261.64 68.89 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 548.19 Td (Exact 3 of 5 four-guest sets exceed 10,000 kg \(10,035,) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 538.92 Td (12,070, 13,015 kg\). G1+G3+G4+G5 \(9,560 kg, 9,853.0) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 529.65 Td (kg-eq\) returns YES_IF when ROOF_OUTSIDE_G4_RECOVERY_V1) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 520.38 Td (is unverified \(blocking commit\) and commits atomically) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 511.11 Td (once verified. Initial Scenario B draw is 57.5 kW) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 501.84 Td (actual / 81.5 kW committed \(54.8 / 78.8 kW water + 2.7) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 492.57 Td (kW air\).) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 420.68 36.48 68.89 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 479.30 Td (00:20 -) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 470.03 Td (00:36) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 460.76 Td (\(16 s\)) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 62.48 420.68 63.59 68.89 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 479.30 Td (T = 0 -> 480) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 470.03 Td (s \(Min 0 to) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 460.76 Td (Min 8\)) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 126.07 420.68 198.29 68.89 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 479.30 Td (Click Play 90s \(20x\) under) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 470.03 Td (survey_primary \(or rescue_primary\).) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 460.76 Td (Watch monotonic mission clock advance to) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 451.49 Td (T = 480 s.) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 324.36 420.68 261.64 68.89 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 479.30 Td (At T = 480 s, G4 reports 18% battery \(< 20% emergency) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 470.03 Td (-> 720 s deadline, must land by T <= 1,200 s\) in 22 kn) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 460.76 Td (wind while G3 is in SURVEY_QUIET \(1.0 kW,) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 451.49 Td (forbids_deck_machinery_while_active=true\). D3) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 442.22 Td (immediately registers G4's 35.0 kW recovery/charging) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 432.95 Td (reservation \(actual / committed rises to 82.5 / 106.5) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 423.68 Td (kW, water 79.8 / 103.8 kW\).) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 342.52 36.48 78.16 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 410.41 Td (00:36 -) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 401.14 Td (00:54) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 391.87 Td (\(18 s\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 62.48 342.52 63.59 78.16 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 410.41 Td (T = 480 ->) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 401.14 Td (720 s \(Min 8) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 391.87 Td (to Min 12\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 126.07 342.52 198.29 78.16 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 410.41 Td (Observe causal D3 Acoustic Handshake and) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 401.14 Td (simultaneous D4 Generator Loss \(200 kW) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 391.87 Td (-> 100 kW\) at T = 720 s. Inject) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 382.60 Td (COOLING_LOSS_30C_40PCT \(72 kW water) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 373.33 Td (limit\).) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 324.36 342.52 261.64 78.16 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 410.41 Td (At T = 720 s, generator reserve drops to 100.0 kW.) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 401.14 Td (Committed power 106.5 kW > 100.0 kW \(LINE_A_FWD = 2.5) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 391.87 Td (/ 26.5 kW, LINE_B_AFT = 80.0 kW\) and water 103.8 kW >) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 382.60 Td (72.0 kW trigger D4 to step down G5 \(45.0 -> 8.0 kW,) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 373.33 Td (retaining 30% capability\). Committed power drops to) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 364.06 Td (69.5 kW <= 100 kW \(45.5 kW actual; LINE_B_AFT = 43.0) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 354.79 Td (kW\) and water drops to 67.5 kW <= 72.0 kW \(43.5 kW) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 345.52 Td (actual\) with 0 infeasible ticks!) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 282.90 36.48 59.62 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 332.25 Td (00:54 -) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 322.98 Td (01:12) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 313.71 Td (\(18 s\)) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 62.48 282.90 63.59 59.62 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 332.25 Td (T = 720 ->) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 322.98 Td (1,095 s \(Min) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 313.71 Td (12 to Min) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 304.44 Td (18.25\)) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 126.07 282.90 198.29 59.62 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 332.25 Td (Watch A.6 transition phases complete: G3) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 322.98 Td (ACOUSTIC_HOLD_CONFIRMED ACK \(15 s\) ->) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 313.71 Td (vessel turn/stabilize into wind \(90 s\)) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 304.44 Td (-> G4 approach/landing \(240 s\). Switch) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 295.17 Td (profile to compare rescue_primary vs.) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 285.90 Td (survey_primary.) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 324.36 282.90 261.64 59.62 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 332.25 Td (Under rescue_primary, G4 lands at T = 855 s \(345 s) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 322.98 Td (margin before 1,200 s\). Under survey_primary, G3) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 313.71 Td (completes 240 s of survey pass before ACOUSTIC_HOLD at) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 304.44 Td (T = 720 s, ACK at T = 735 s, turn complete at T = 825) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 295.17 Td (s, and G4 touchdown at T = 1,095 s \(105 s margin) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 285.90 Td (before 1,200 s\).) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 223.28 36.48 59.62 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 272.63 Td (01:12 -) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 263.36 Td (01:30) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 254.09 Td (\(18 s\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 62.48 223.28 63.59 59.62 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 272.63 Td (T = 1,095 ->) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 263.36 Td (1,800 s \(Min) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 254.09 Td (18.25 to Min) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 65.48 244.82 Td (30\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 126.07 223.28 198.29 59.62 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 272.63 Td (Toggle Scenario C \(D5\) Crew Dial \(14 / 6) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 263.36 Td (/ 0\) and trigger G5 +20% overconsumption) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 254.09 Td (\(54.0 kW = 52.8 kW water + 1.2 kW air\).) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 129.07 244.82 Td (Show URGENT_STOP \(< 1 ms\).) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 324.36 223.28 261.64 59.62 re B Q
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 272.63 Td (Crew dial shows 14 crew \(30 s confirm, 240 s deck) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 263.36 Td (clear, A' swap at T+1260 s\), 6 crew \(120 s confirm,) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 254.09 Td (600 s deck clear, A' blocked\), and 0 crew \(manual) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 244.82 Td (evolutions prohibited\). Closing summary: 91/91) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 235.55 Td (feasible ticks, 28/28 mutations rejected, Mac arm64) Tj ET
-BT /F1 8.20 Tf 0.10 0.14 0.20 rg 327.36 226.28 Td (<-> Ventuno Q aarch64 parity verified.) Tj ET
+BT /F2 10.70 Tf 1.00 1.00 1.00 rg 34.00 754.14 Td (90-Second Live Demo -- One Screen \(DEMO_SCRIPT_90S.md\)) Tj ET
+BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 733.70 Td (Order required by the brief: 90 s of Scenario B with the jury's priority file, then Scenario A with the jury's card. Everything) Tj ET
+BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 723.43 Td (runs on the laptop \(./run_demo.sh, opens http://127.0.0.1:8765/ -> single screen\). No slides. The legacy engineering console) Tj ET
+BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 713.16 Td (stays at /console/ as backup.) Tj ET
+BT /F2 9.50 Tf 0.11 0.24 0.44 rg 26.00 701.39 Td (The screen \(one view, no scrolling\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 699.39 560.00 0.60 re f Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 682.53 101.25 13.27 re B Q
+BT /F2 8.20 Tf 1.00 1.00 1.00 rg 29.00 685.53 Td (Zone) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 127.25 682.53 458.75 13.27 re B Q
+BT /F2 8.20 Tf 1.00 1.00 1.00 rg 130.25 685.53 Td (What it proves) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 659.99 101.25 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 672.26 Td (Ship schematic) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 662.99 Td (\(centre\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 127.25 659.99 458.75 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 672.26 Td (Bays 1/2, hangar, hangar roof, flight deck, mast slots M1-M3, stern ramp, labelled with occupant) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 662.99 Td (and mode \(A.3\). 3D is only the drawing; it earns nothing on its own.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 628.18 101.25 31.81 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 649.72 Td (Eight gauges \(right\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 127.25 628.18 458.75 31.81 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 649.72 Td (A.1 power \(Line A/B\), A.2 cooling C\(T\), A.3 positions and mast, A.4 mass/stability, A.5 data) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 640.45 Td (links, A.7 compute, A.8 response time. The binding class turns red. Forecast chip ? ~39 s ? WARN) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 631.18 Td (is advisory only \(C'\).) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 605.64 101.25 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 617.91 Td (Decision log \(bottom) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 608.64 Td (left\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 127.25 605.64 458.75 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 617.91 Td (One sentence per decision, from the binding constraint; the forecast advisory line sits on top.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 583.10 101.25 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 595.37 Td (Tabs \(bottom right\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 127.25 583.10 458.75 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 595.37 Td (Jury test ? A \(card, water temperature, generators, wind, sea state, port/sea\), Shocks ? D4/C,) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 586.10 Td (Priority ? D6 \(same run, two priority files side by side\).) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 560.56 101.25 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 572.83 Td (Header) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 127.25 560.56 458.75 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 572.83 Td (Live engine chip, mission clock, Golden Gate public data \(SST, wind, Hs, sea state, A' deck) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 130.25 563.56 Td (window\), Priority Survey/Rescue/Custom, Crew 14/6/0, deck clear.) Tj ET
+BT /F2 9.50 Tf 0.11 0.24 0.44 rg 26.00 546.79 Td (Script) Tj ET
+q 0.75 0.82 0.90 rg 26.00 544.79 560.00 0.60 re f Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 527.92 58.91 13.27 re B Q
+BT /F2 8.20 Tf 1.00 1.00 1.00 rg 29.00 530.92 Td (Wall clock) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 84.91 527.92 206.10 13.27 re B Q
+BT /F2 8.20 Tf 1.00 1.00 1.00 rg 87.91 530.92 Td (Action) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 291.02 527.92 294.98 13.27 re B Q
+BT /F2 8.20 Tf 1.00 1.00 1.00 rg 294.02 530.92 Td (Say / point at) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 505.38 58.91 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 517.65 Td (00:00-00:10) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 84.91 505.38 206.10 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 517.65 Td (Header: pick the jury's priority \(Survey) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 508.38 Td (or Rescue\).) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 291.02 505.38 294.98 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 517.65 Td ("Scenario B: G1+G3+G4+G5, 9.56 t of 10 t, 3 kn over a cable) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 508.38 Td (route, 24  deg C; eight gauges steady.") Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 473.57 58.91 31.81 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 495.11 Td (00:10-00:35) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 84.91 473.57 206.10 31.81 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 495.11 Td (Play 90 s Scenario B \(20x\). At T+08:00 the) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 485.84 Td (log shows the D3 decision.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 291.02 473.57 294.98 31.81 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 495.11 Td ("Drone at 18 %, wind 22 kn: land within 12 min or ditch.) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 485.84 Td (Survey primary: G3 finishes 240 s, holds at T+12:00, G4 lands) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 476.57 Td (T+18:15, cost 14 min. Decided in milliseconds \(budget 2 s\).") Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 432.49 58.91 41.08 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 463.30 Td (00:35-00:55) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 84.91 432.49 206.10 41.08 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 463.30 Td (T+12:00 genset trip: Power gauge capacity) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 454.03 Td (drops 200->100 kW, Gensets pill shows 1.) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 291.02 432.49 294.98 41.08 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 463.30 Td ("Committed 106.5 kW > 100 kW. Shed in declared order: G5 to 8) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 454.03 Td (kW low-power \(70 % capability lost\); 69.5 kW, zero infeasible) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 444.76 Td (ticks. The forecast chip only advises \(G5 feeder trend\); it) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 435.49 Td (never changes a decision.") Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 409.95 58.91 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 422.22 Td (00:55-01:10) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 84.91 409.95 206.10 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 422.22 Td (Priority ? D6 -> Run both profiles.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 291.02 409.95 294.98 22.54 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 422.22 Td ("Same code, same timeline, two ships: rescue holds G3 at) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 412.95 Td (T+08:00, lands G4 at T+14:15, survey loses 26 min.") Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 378.14 58.91 31.81 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 399.68 Td (01:10-01:30) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 84.91 378.14 206.10 31.81 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 399.68 Td (Header Crew 14 -> 6 -> 0 \(Shocks tab shows) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 390.41 Td (effect\).) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 291.02 378.14 294.98 31.81 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 399.68 Td ("14 crew: 30 s confirmation. 6: 120 s confirmation, deck) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 390.41 Td (occupied is infeasible and escalates. 0: recovery refused --) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 381.14 Td (no hands on deck.") Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 337.06 58.91 41.08 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 29.00 367.87 Td (then) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 84.91 337.06 206.10 41.08 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 367.87 Td (Jury test ? A: baseline G1+G2+G5, the) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 358.60 Td (jury's card \(catalog or Paste card) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 349.33 Td (YAML/JSON\), change one number \(water 30) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 87.91 340.06 Td ( deg C, generators 1\), Evaluate.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 291.02 337.06 294.98 41.08 re B Q
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 367.87 Td (Verdict badge + one sentence, e.g. "Yes if G2 is throttled to) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 358.60 Td (CONTINUOUS_SENSING: otherwise electrical power binds \(needs) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 349.33 Td (101.5 kW, 100 kW available\)", cheapest ways to say yes,) Tj ET
+BT /F1 8.20 Tf 0.10 0.14 0.20 rg 294.02 340.06 Td (placement, one-genset-down check, time vs 30 s budget.) Tj ET
+BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 323.29 Td (Backup: recording welcome but does not replace the live run. Physical Account \(1 page\) and Scenario C memo are handed over) Tj ET
+BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 313.02 Td (before starting.) Tj ET
 endstream
 endobj
 7 0 obj
@@ -171,9 +135,9 @@ xref
 0000000191 00000 n 
 0000000266 00000 n 
 0000000334 00000 n 
-0000013106 00000 n 
+0000009954 00000 n 
 trailer
 << /Size 8 /Root 1 0 R >>
 startxref
-13252
+10100
 %%EOF

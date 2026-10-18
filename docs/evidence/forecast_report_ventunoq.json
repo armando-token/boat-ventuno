@@ -1,0 +1,357 @@
+{
+  "schema_version": "sdv-forecast-benchmark/1.0",
+  "timestamp_utc": "2026-10-18T04:17:34.623446+00:00",
+  "git_commit": "unknown",
+  "device": "Linux/Arduino",
+  "splits_evaluated": [
+    "test",
+    "ood",
+    "control_steady_1h"
+  ],
+  "params": {
+    "alpha": 0.1,
+    "beta": 0.02,
+    "phi": 0.98,
+    "horizons_s": [
+      10,
+      20,
+      30,
+      45,
+      60
+    ],
+    "warmup_s": 20,
+    "regime_k": 4.0,
+    "conformal_q": {
+      "10": 0.01907,
+      "20": 0.02498,
+      "30": 0.0322,
+      "45": 0.04493,
+      "60": 0.05944
+    },
+    "conformal_q_hi": {
+      "10": 0.01907,
+      "20": 0.02498,
+      "30": 0.0322,
+      "45": 0.04493,
+      "60": 0.05944
+    },
+    "conformal_q_lo": {
+      "10": -0.0147,
+      "20": -0.01619,
+      "30": -0.01752,
+      "45": -0.01928,
+      "60": -0.02058
+    }
+  },
+  "results_by_split": {
+    "test": {
+      "split": "test",
+      "episodes_total": 120,
+      "episodes_with_cross": 52,
+      "episodes_breach_cross": 40,
+      "episodes_non_cross": 68,
+      "total_non_cross_hours": 11.33,
+      "mae_by_model": {
+        "B0": {
+          "MAE@10": 0.013981764646014659,
+          "MAE@20": 0.01539881057323478,
+          "MAE@30": 0.0170549758625846,
+          "MAE@45": 0.019750732015350308,
+          "MAE@60": 0.022745467437359137
+        },
+        "B1": {
+          "MAE@10": 0.07369544001631655,
+          "MAE@20": 0.07502955666752868,
+          "MAE@30": 0.07638512418239364,
+          "MAE@45": 0.07851554157979196,
+          "MAE@60": 0.08081411301017918
+        },
+        "B2": {
+          "MAE@10": 0.01688647124463251,
+          "MAE@20": 0.022968569111759676,
+          "MAE@30": 0.029103824004212294,
+          "MAE@45": 0.03864010718967525,
+          "MAE@60": 0.048438382568097814
+        },
+        "M1": {
+          "MAE@10": 0.009801895254443702,
+          "MAE@20": 0.011953035875292022,
+          "MAE@30": 0.014132906725366066,
+          "MAE@45": 0.01744363085600952,
+          "MAE@60": 0.020883013525680966
+        }
+      },
+      "ratio_mae30": 0.8287,
+      "ratio_mae30_ramp_lag": 0.7848,
+      "ratio_mae30_steady_spike": 0.8582,
+      "coverage": {
+        "coverage@10": 0.8935,
+        "coverage@20": 0.8984,
+        "coverage@30": 0.9084,
+        "coverage@45": 0.9116,
+        "coverage@60": 0.922
+      },
+      "recall_alarm": 1.0,
+      "late_alarm_rate": 0.0,
+      "lead_time_s": {
+        "median": 60.5,
+        "p10": 37.9,
+        "count": 40
+      },
+      "all_crosses": {
+        "episodes_count": 52,
+        "alarm_hits": 40,
+        "recall_alarm": 0.7692,
+        "median_lead_s": 53.0,
+        "p10_lead_s": -14.0
+      },
+      "false_alarms_per_h": 0.265,
+      "total_false_alarms": 3,
+      "latency_ms": {
+        "scope": "production ForecastObserver.on_sample + on_tick (Holt, bands, projector bisection, advisory)",
+        "p50": 0.264,
+        "p99": 2.417,
+        "max": 3.479,
+        "ticks_measured": 72000
+      },
+      "evals_per_tick_max": 8,
+      "warn_cleared_before_cross": 0
+    },
+    "ood": {
+      "split": "ood",
+      "episodes_total": 120,
+      "episodes_with_cross": 52,
+      "episodes_breach_cross": 40,
+      "episodes_non_cross": 68,
+      "total_non_cross_hours": 11.33,
+      "mae_by_model": {
+        "B0": {
+          "MAE@10": 0.058290669420144686,
+          "MAE@20": 0.08078399734383963,
+          "MAE@30": 0.10418046703088336,
+          "MAE@45": 0.14129166406005964,
+          "MAE@60": 0.1804870616073173
+        },
+        "B1": {
+          "MAE@10": 0.08515285859971183,
+          "MAE@20": 0.10791543485768285,
+          "MAE@30": 0.1314627650074801,
+          "MAE@45": 0.1685636856841301,
+          "MAE@60": 0.2077261940470543
+        },
+        "B2": {
+          "MAE@10": 0.06506869047867124,
+          "MAE@20": 0.10230638167086498,
+          "MAE@30": 0.14072898743568102,
+          "MAE@45": 0.20019599021337112,
+          "MAE@60": 0.26154805695675565
+        },
+        "M1": {
+          "MAE@10": 0.04452974033540034,
+          "MAE@20": 0.06918340969463795,
+          "MAE@30": 0.09442950854726836,
+          "MAE@45": 0.1336556298214066,
+          "MAE@60": 0.17454301548858092
+        }
+      },
+      "ratio_mae30": 0.9064,
+      "ratio_mae30_ramp_lag": 0.7249,
+      "ratio_mae30_steady_spike": 0.7455,
+      "coverage": {
+        "coverage@10": 0.4717,
+        "coverage@20": 0.5032,
+        "coverage@30": 0.5394,
+        "coverage@45": 0.5902,
+        "coverage@60": 0.6301
+      },
+      "recall_alarm": 0.95,
+      "late_alarm_rate": 0.05,
+      "lead_time_s": {
+        "median": 47.0,
+        "p10": 22.0,
+        "count": 40
+      },
+      "all_crosses": {
+        "episodes_count": 52,
+        "alarm_hits": 38,
+        "recall_alarm": 0.7308,
+        "median_lead_s": 38.5,
+        "p10_lead_s": -5.0
+      },
+      "false_alarms_per_h": 9.706,
+      "total_false_alarms": 110,
+      "latency_ms": {
+        "scope": "production ForecastObserver.on_sample + on_tick (Holt, bands, projector bisection, advisory)",
+        "p50": 0.271,
+        "p99": 2.723,
+        "max": 13.059,
+        "ticks_measured": 72000
+      },
+      "evals_per_tick_max": 8,
+      "warn_cleared_before_cross": 47
+    },
+    "control_steady_1h": {
+      "split": "control_steady_1h",
+      "episodes_total": 6,
+      "episodes_with_cross": 0,
+      "episodes_breach_cross": 0,
+      "episodes_non_cross": 6,
+      "total_non_cross_hours": 6.0,
+      "mae_by_model": {
+        "B0": {
+          "MAE@10": 0.011990162293480185,
+          "MAE@20": 0.011995008235314334,
+          "MAE@30": 0.011994946668212925,
+          "MAE@45": 0.012003450154886412,
+          "MAE@60": 0.011999113033132018
+        },
+        "B1": {
+          "MAE@10": 0.05709911979707041,
+          "MAE@20": 0.05709911979707041,
+          "MAE@30": 0.05709911979707041,
+          "MAE@45": 0.05709911979707041,
+          "MAE@60": 0.05709911979707041
+        },
+        "B2": {
+          "MAE@10": 0.013522630953436157,
+          "MAE@20": 0.01843758501762684,
+          "MAE@30": 0.023479574403499452,
+          "MAE@45": 0.03111222390585536,
+          "MAE@60": 0.03870669778189918
+        },
+        "M1": {
+          "MAE@10": 0.0069848327151310384,
+          "MAE@20": 0.007648534806047854,
+          "MAE@30": 0.008197568335576121,
+          "MAE@45": 0.008852186084711505,
+          "MAE@60": 0.009327083781215113
+        }
+      },
+      "ratio_mae30": 0.6834,
+      "ratio_mae30_ramp_lag": 1.0,
+      "ratio_mae30_steady_spike": 0.6834,
+      "coverage": {
+        "coverage@10": 0.9337,
+        "coverage@20": 0.9439,
+        "coverage@30": 0.9503,
+        "coverage@45": 0.9558,
+        "coverage@60": 0.9586
+      },
+      "recall_alarm": 1.0,
+      "late_alarm_rate": 0.0,
+      "lead_time_s": {
+        "median": 0.0,
+        "p10": 0.0,
+        "count": 0
+      },
+      "all_crosses": {
+        "episodes_count": 0,
+        "alarm_hits": 0,
+        "recall_alarm": 1.0,
+        "median_lead_s": 0.0,
+        "p10_lead_s": 0.0
+      },
+      "false_alarms_per_h": 0.0,
+      "total_false_alarms": 0,
+      "latency_ms": {
+        "scope": "production ForecastObserver.on_sample + on_tick (Holt, bands, projector bisection, advisory)",
+        "p50": 0.254,
+        "p99": 0.317,
+        "max": 4.574,
+        "ticks_measured": 21600
+      },
+      "evals_per_tick_max": 0,
+      "warn_cleared_before_cross": 0
+    }
+  },
+  "acceptance_gates": [
+    {
+      "gate_id": "G-ACC-RAMP",
+      "description": "Accuracy improvement on ramp and lag profiles",
+      "split": "test",
+      "threshold": "ratio_MAE@30 <= 0.85",
+      "measured": "0.7848",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-ACC-STEADY",
+      "description": "Accuracy non-degradation on steady and spike profiles",
+      "split": "test",
+      "threshold": "ratio_MAE@30 <= 1.05",
+      "measured": "0.8582",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-COV",
+      "description": "Conformal coverage within target 90% band (at h=30s)",
+      "split": "test",
+      "threshold": "0.85 <= coverage@30 <= 0.95",
+      "measured": "0.9084",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-RECALL",
+      "description": "Alarm recall with anticipation >= 10s on breaches",
+      "split": "test",
+      "threshold": "recall_alarm >= 0.90",
+      "measured": "1.0000",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-LEAD",
+      "description": "Alarm lead time before physical breach",
+      "split": "test",
+      "threshold": "median >= 20.0s and p10 >= 10.0s",
+      "measured": "median=60.5s, p10=37.9s",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-FA",
+      "description": "False alarm rate on non-breaching operational series",
+      "split": "test+control_steady_1h",
+      "threshold": "false_alarms_per_h <= 1.0",
+      "measured": "0.173 / h (3 WARN in 17.33 h)",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-OOD",
+      "description": "Robustness on out-of-distribution episodes (2x faster, 3x noise)",
+      "split": "ood",
+      "threshold": "recall >= 0.75 and false_alarms_per_h <= 3.0",
+      "measured": "recall=0.9500, FA=9.706/h",
+      "status": "FAIL"
+    },
+    {
+      "gate_id": "G-LAT",
+      "description": "Observer execution latency p99 per tick",
+      "split": "test",
+      "threshold": "p99_on_tick_ms <= 50.0 ms",
+      "measured": "2.417 ms (full observer tick, max evals/tick 8)",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-NI",
+      "description": "Non-interference NI-01..03 (campaign hash, payload, state)",
+      "split": "all",
+      "threshold": "selected tests green",
+      "measured": "6 passed in 4.24s",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-OFF",
+      "description": "Offline runtime ENV-INT-05 + FC-INT-06 (sockets blocked)",
+      "split": "all",
+      "threshold": "selected tests green",
+      "measured": "2 passed, 11 deselected in 1.67s",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-ENV",
+      "description": "Guarded false-open windows in 7-day backtest",
+      "split": "backtest",
+      "threshold": "false_open = 0 with guard (DERIVED)",
+      "measured": "guard DERIVED, backtest PASS, false_open_guarded={'AT_SEA_INSTALL': 0, 'G3_LAUNCH_RECOVERY': 0, 'G4_LAUNCH_RECOVERY': 0, 'VEHICLE_REPLACEMENT_AT_SEA': 0}",
+      "status": "PASS"
+    }
+  ]
+}

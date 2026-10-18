@@ -160,7 +160,7 @@ Integrates offline recorded coastal metocean series at Golden Gate Bar (`GG_BAR`
 
 ### 8.1 What It Does & Operational Workflow
 - **Public Metocean Replay & Advisory Outlook:** Injects a recorded (offline) snapshot of SST, wave height (Hs), sea state (WMO 3700) and wind into replays, and computes guarded, fail-closed operational windows over a 48 h outlook; when none exists it states why (weather or operational blockers).
-- **Predictive Advisory Forecaster (E2):** Recursively estimates normalized power level and damped trend (phi = 0.98) at 1 Hz, projecting conformal bounds across h in {10, 20, 30, 45, 60} s. When projected upper bounds exceed 110% of declared load (`ASM-FCST-OVERRUN-THRESHOLD`), a bisection search over the 8-class budget engine identifies the binding bottleneck (<= 8 evaluations; p99 full tick 0.83 ms on Mac) and issues advisory alerts before reactive shedding (benchmark median lead 60.5 s; Golden Gate replay ~37 s). `/api/forecast` is a labelled REPLAY with SIMULATED telemetry.
+- **Predictive Advisory Forecaster (E2):** Recursively estimates normalized power level and damped trend (phi = 0.98) at 1 Hz, projecting conformal bounds across h in {10, 20, 30, 45, 60} s. When projected upper bounds exceed 110% of declared load (`ASM-FCST-OVERRUN-THRESHOLD`), a bisection search over the 8-class budget engine identifies the binding bottleneck (<= 8 evaluations; p99 full tick 2.42 ms on Ventuno Q) and issues advisory alerts before reactive shedding (benchmark median lead 60.5 s; Golden Gate replay ~37 s). `/api/forecast` is a labelled REPLAY with SIMULATED telemetry.
 - **Strict Non-Interference:** The forecaster runs outside the authoritative decision core (`observer=None` by default) and never modifies governor verdicts, priority shedding, or semantic hashes (`FC-INT-01..03`).
 
 ### 8.2 CLI & Quickstart
@@ -180,7 +180,7 @@ Measured on the production observer (`docs/evidence/forecast_report_20261018.md`
 |---|---|---|---|
 | **G-NI** | Campaign hash/decisions unchanged with observer | 6 tests; `ebff0e22…` unchanged | **PASS** |
 | **G-OFF** | Offline runtime, zero network | 2 tests | **PASS** |
-| **G-LAT** | p99 observer tick <= 50 ms | 0.83 ms (Mac); see deploy log for Ventuno Q | **PASS** |
+| **G-LAT** | p99 observer tick <= 50 ms | 2.42 ms on Ventuno Q (0.83 ms Mac) | **PASS** |
 | **G-ACC-RAMP / STEADY** | ratio MAE@30 <= 0.85 / <= 1.05 | 0.785 / 0.858 | **PASS** |
 | **G-COV** | 90% band coverage in [0.85, 0.95] | 0.908 | **PASS** |
 | **G-RECALL / G-LEAD** | recall >= 0.90; lead median >= 20 s, p10 >= 10 s | 1.00; 60.5 s / 37.9 s | **PASS** |

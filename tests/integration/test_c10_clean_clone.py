@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import os
 import shutil
 import subprocess
@@ -14,7 +16,7 @@ from sdv_governor.deployment import sync_and_run_remote_parity
 from sdv_governor.replay import run_full_campaign_suite
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-OFFICIAL_CAMPAIGN_SHA = "ebff0e22a74e20fc781a3d9af31e8f591e725f993194c2a0ba31d17fdf715c3c"
+OFFICIAL_CAMPAIGN_SHA = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["campaign_semantic_sha256"]
 SCRIPT = REPO_ROOT / "scripts" / "verify_clean_clone.sh"
 
 

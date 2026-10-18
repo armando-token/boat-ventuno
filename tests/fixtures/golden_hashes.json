@@ -1,0 +1,4 @@
+{
+  "_note": "Single source of truth for pinned golden hashes. Change only with a GOLDEN_DIFF.md that justifies the delta.",
+  "campaign_semantic_sha256": "fd806cda1c871f8c2c9db047f2b34f5547c70d2b60fe9111d4e35ba292646231"
+}

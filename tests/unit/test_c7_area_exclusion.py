@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import copy
 import subprocess
 from dataclasses import replace
@@ -20,7 +22,7 @@ DATA_DIR = REPO_ROOT / "data"
 
 PINNED_B_SURVEY_HASH = "90a2ce1137b0d5729c466f2c313b143d0d189ab21ae9d13093b5d3e380b94a6d"
 PINNED_B_RESCUE_HASH = "d5b36570f0b6bf0ee068dff610a96e382a6c2192458f1cc93e31cc2fcfaf4c7a"
-PINNED_CAMPAIGN_HASH = "fd806cda1c871f8c2c9db047f2b34f5547c70d2b60fe9111d4e35ba292646231"
+PINNED_CAMPAIGN_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["campaign_semantic_sha256"]
 
 
 def _catalog():

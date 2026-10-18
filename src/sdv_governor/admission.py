@@ -7,7 +7,8 @@ import time
 from typing import Any, Dict, List, Optional, Tuple
 
 from .budgets import evaluate_eight_class_budgets
-from .explanations import build_decision_rationale
+from .explanations import build_decision_rationale, logical_reconfiguration_sentence
+from .reconfiguration import propose_logical_reconfiguration
 from .models import (
     BindingConstraintWitness,
     GuestManifest,
@@ -467,7 +468,9 @@ def evaluate_admission(
             )
             elapsed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
             rationale = build_decision_rationale("NO", candidate.guest_id, [witness], {}, [], [])
-            return _format_admission_decision(
+            logical = propose_logical_reconfiguration(candidate, state, ship_profile, catalog, priority_profile)
+            rationale += " " + logical_reconfiguration_sentence(candidate.guest_id, logical)
+            decision = _format_admission_decision(
                 verdict="NO",
                 candidate=candidate,
                 placement={},
@@ -482,6 +485,9 @@ def evaluate_admission(
                 mission_envelope=mission_envelope,
                 priority_profile=priority_profile,
             )
+            decision["alternative_action"] = "LOGICAL_RECONFIGURATION"
+            decision["logical_reconfiguration"] = logical
+            return decision
 
         a_prime_check = evaluate_a_prime_window(candidate, "AT_SEA_INSTALL", state, aug_catalog)
         if not a_prime_check["permitted"]:

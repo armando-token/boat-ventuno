@@ -382,6 +382,7 @@ class GuestManifest:
     can_buffer_offline: bool
     source_sha256: str
     derivation_metadata: Dict[str, Any] = field(default_factory=dict)
+    logical_workload: Optional[Dict[str, Any]] = None
 
     @property
     def total_mass_kg(self) -> int:

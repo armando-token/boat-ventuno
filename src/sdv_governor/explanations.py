@@ -140,3 +140,11 @@ def d2_why_rejected(witness: Dict[str, Any], occupants: Dict[str, str]) -> str:
     if occupants:
         base += "; " + ", ".join(f"{pos} already occupied by {gid}" for pos, gid in sorted(occupants.items()))
     return base
+
+
+def logical_reconfiguration_sentence(candidate_id: str, logical: Dict[str, Any]) -> str:
+    """Causal sentence for the 0-crew-at-sea NO: why the install is impossible and what software-only action is proposed."""
+    head = f"0 crew at sea: physical install of {candidate_id} impossible; "
+    if not logical.get("options"):
+        return head + "no logical reconfiguration available (" + logical.get("reason", "none feasible") + ")."
+    return head + "proposed logical reconfiguration: " + logical["options"][0]["summary"] + "."

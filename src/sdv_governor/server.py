@@ -58,6 +58,7 @@ from .scheduling import (
     evaluate_crew_regimes_comparison,
     handle_lost_or_stale_feed,
 )
+from .reconfiguration import propose_logical_reconfiguration
 from .capability_effects import (
     OWN_RADAR_POLICIES,
     check_own_radar_policy,
@@ -1672,6 +1673,81 @@ def dispatch_api_request(
                     "current_budget_snapshot": updated_snap,
                 }
                 return 200, _augment_canonical_envelope(resp, sess, updated_snap)
+
+            if method == "POST" and route == "/api/apply_logical_reconfig":
+                req = require_dict(body if body is not None else {}, "request_body")
+                require_no_unknown_keys(
+                    req,
+                    {"option_id", "state_version", "candidate_guest_id", "operator_confirmed", "priority_profile_id"},
+                    "POST /api/apply_logical_reconfig",
+                )
+                option_id = require_str(req.get("option_id", ""), "option_id")
+                req_version = require_int(req.get("state_version"), "state_version", min_value=0)
+                cand_id = require_str(req.get("candidate_guest_id", ""), "candidate_guest_id")
+                confirmed = require_bool(req.get("operator_confirmed", False), "operator_confirmed")
+                prof_id = require_str(req.get("priority_profile_id", sess.priority_profile_id), "priority_profile_id")
+                if prof_id not in profiles:
+                    raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile_id '{prof_id}'", "priority_profile_id")
+                if cand_id not in sess.session_catalog:
+                    raise StrictValidationError("UNKNOWN_ENUM", f"Unknown candidate_guest_id '{cand_id}'", "candidate_guest_id")
+                assert sess.live_state is not None
+                if req_version != sess.state_version:
+                    return 409, _augment_canonical_envelope(
+                        {
+                            "status": "STALE_STATE_VERSION",
+                            "run_id": sess.run_id,
+                            "state_version": sess.state_version,
+                            "snapshot_id": sess.snapshot_id,
+                            "result": {"status": "REJECTED", "reason": "state_version does not match the live state; reload the options"},
+                        },
+                        sess,
+                        {},
+                    )
+                if sess.live_state.crew_count == 0 and not confirmed:
+                    raise StrictValidationError(
+                        "OPERATOR_CONFIRMATION_REQUIRED",
+                        "0 crew at sea: the remote operator must confirm (operator_confirmed=true)",
+                        "operator_confirmed",
+                    )
+                proposal = propose_logical_reconfiguration(
+                    sess.session_catalog[cand_id], sess.live_state, ship_profile, sess.session_catalog, profiles[prof_id]
+                )
+                chosen = next((o for o in proposal["options"] if o["option_id"] == option_id), None)
+                if chosen is None:
+                    raise StrictValidationError("UNKNOWN_ENUM", f"option_id '{option_id}' is not a current option", "option_id")
+                for act in chosen["actions"]:
+                    if act["action_type"] == "MODE_CHANGE":
+                        sess.live_state.installed_guests[act["target"]].active_mode = act["to"]
+                sess.has_live_mutations = True
+                sess.state_version += 1
+                snap_after = sess._sync_current_executed_tick(
+                    ship_profile, f"LOGICAL_RECONFIG_{option_id}@{sess.live_state.sim_time_s}s"
+                )
+                sess.action_history.append(
+                    {
+                        "state_version": sess.state_version,
+                        "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
+                        "action": f"APPLY_LOGICAL_RECONFIG:{option_id}",
+                        "run_id": sess.run_id,
+                        "causal_sentence": chosen["summary"],
+                    }
+                )
+                resp = {
+                    "status": "OK",
+                    "run_id": sess.run_id,
+                    "state_version": sess.state_version,
+                    "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
+                    "current_budget_snapshot": snap_after,
+                    "result": {
+                        "status": "LOGICAL_RECONFIG_APPLIED",
+                        "applied_option": chosen,
+                        "causal_sentence": chosen["summary"],
+                        "budget_snapshot": snap_after,
+                    },
+                }
+                return 200, _augment_canonical_envelope(resp, sess, snap_after)
 
             if method == "POST" and route == "/api/perturb":
                 req = require_dict(body if body is not None else {}, "request_body")

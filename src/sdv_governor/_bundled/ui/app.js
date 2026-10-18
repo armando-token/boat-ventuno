@@ -271,6 +271,51 @@ function renderPlacementAlternatives(payload) {
   box.appendChild(table);
 }
 
+function renderLogicalReconfiguration(payload) {
+  const box = document.getElementById("logical-reconfig-container");
+  if (!box) return;
+  box.textContent = "";
+  const lr = payload && payload.logical_reconfiguration;
+  if (!lr) return;
+  if (!lr.options || lr.options.length === 0) {
+    box.textContent = lr.reason || "Sin reconfiguración lógica factible";
+    return;
+  }
+  const table = document.createElement("table");
+  const head = table.createTHead().insertRow();
+  ["Opción", "Cobertura", "Capacidad perdida", ""].forEach((h) => {
+    const th = document.createElement("th");
+    th.textContent = h;
+    head.appendChild(th);
+  });
+  const body = table.createTBody();
+  lr.options.forEach((o) => {
+    const row = body.insertRow();
+    [o.summary, `${Math.round(o.coverage * 100)} %`, String(o.capability_lost_elsewhere)].forEach((t) => {
+      row.insertCell().textContent = t;
+    });
+    const btn = document.createElement("button");
+    btn.textContent = "Aplicar opción";
+    btn.addEventListener("click", async () => {
+      const res = await fetch("/api/apply_logical_reconfig", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          option_id: o.option_id,
+          state_version: Number(currentStatePayload ? currentStatePayload.state_version : 0),
+          candidate_guest_id: payload.candidate_guest_id,
+          operator_confirmed: true,
+        }),
+      });
+      const out = await res.json();
+      btn.textContent = res.ok ? "Aplicada" : `Rechazada (${out.status || res.status})`;
+      btn.disabled = true;
+    });
+    row.insertCell().appendChild(btn);
+  });
+  box.appendChild(table);
+}
+
 function renderCombinationsTable(combosReport) {
   const container = document.getElementById("combinations-table-container");
   if (!container || !combosReport || !combosReport.combinations) return;
@@ -718,6 +763,7 @@ document.getElementById("btn-admit-live").addEventListener("click", async () => 
     document.getElementById("admission-result-box").textContent = JSON.stringify(payload, null, 2);
     renderGensetDownLine(payload);
     renderPlacementAlternatives(payload);
+    renderLogicalReconfiguration(payload);
     if (payload.current_budget_snapshot) {
       await fetchConsoleState(prof);
       renderEightClassBudgets(payload.current_budget_snapshot);

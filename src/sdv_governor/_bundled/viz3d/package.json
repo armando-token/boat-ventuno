@@ -1,0 +1,19 @@
+{
+  "name": "sdv-viz3d-digital-twin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ultra-Realistic 1:1 Scale 3D Digital Twin & IEC 62288 / BAM Maritime Bridge Console for Fincantieri SDV Resource Governor",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --port 5173",
+    "serve:py": "PYTHONPATH=../src ../.venv/bin/python serve_viz3d.py --port 5173"
+  },
+  "dependencies": {
+    "three": "^0.172.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

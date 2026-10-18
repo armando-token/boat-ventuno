@@ -188,3 +188,57 @@ mission_capabilities:
   wideband_spectrum_monitoring: 95.0
   surface_surveillance: 85.0
   hydrographic_survey: 15.0
+
+component_allocations:
+  FULL_SPECTRUM:
+    G5_COMPUTE_CONTAINER:
+      nominal_power_w: 43800
+      sustained_power_w: 43800
+      peak_power_w: 43800
+      cooling_water_w: 43800
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G5-COMPONENT-POWER-SPLIT"
+    G5_MAST_ANTENNA:
+      nominal_power_w: 1200
+      sustained_power_w: 1200
+      peak_power_w: 1200
+      cooling_water_w: 0
+      cooling_air_w: 1200
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G5-COMPONENT-POWER-SPLIT"
+  DEGRADED_70PCT_LOSS:
+    G5_COMPUTE_CONTAINER:
+      nominal_power_w: 7500
+      sustained_power_w: 7500
+      peak_power_w: 7500
+      cooling_water_w: 7500
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G5-COMPONENT-POWER-SPLIT"
+    G5_MAST_ANTENNA:
+      nominal_power_w: 500
+      sustained_power_w: 500
+      peak_power_w: 500
+      cooling_water_w: 0
+      cooling_air_w: 500
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G5-COMPONENT-POWER-SPLIT"
+  STANDBY:
+    G5_COMPUTE_CONTAINER:
+      nominal_power_w: 2000
+      sustained_power_w: 2000
+      peak_power_w: 2500
+      cooling_water_w: 2000
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G5-COMPONENT-POWER-SPLIT"
+    G5_MAST_ANTENNA:
+      nominal_power_w: 0
+      sustained_power_w: 0
+      peak_power_w: 0
+      cooling_water_w: 0
+      cooling_air_w: 0
+      source_kind: "ASSUMED"
+      assumption_ref: "ASM-G5-COMPONENT-POWER-SPLIT"
+

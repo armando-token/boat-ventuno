@@ -15,7 +15,7 @@ from .models import (
     canonical_json_hash,
 )
 from .placement import compute_guest_capability_score, find_feasible_placement
-from .scheduling import evaluate_a_prime_window
+from .scheduling import evaluate_a_prime_window, evaluate_roof_drone_clearance_safe
 from .ship_state import InstalledGuestState, ShipOperationalState
 
 
@@ -456,6 +456,15 @@ def evaluate_admission(
             placements=base_placement["subcomponent_positions"],
             compute_node=base_placement["compute_node"],
         )
+        eff_roof_ver = bool(
+            hangar_roof_clearance_verified or getattr(state, "hangar_roof_clearance_verified", False)
+        )
+        roof_eval = evaluate_roof_drone_clearance_safe(
+            trial_state,
+            ship_profile,
+            aug_catalog,
+            hangar_roof_clearance_verified=eff_roof_ver,
+        )
         env_eval = evaluate_mission_envelope_a10(
             candidate,
             trial_state,
@@ -465,12 +474,28 @@ def evaluate_admission(
             hangar_roof_clearance_verified=True,
         )
 
-        if env_eval["envelope_feasible"]:
+        if roof_eval.get("status") == "CONFLICT":
+            raw_rw = roof_eval.get("witness") or {
+                "resource_class": "positions",
+                "constraint_id": "hangar_roof_drone_clearance",
+                "state_label": f"T+{state.sim_time_s}s:ROOF_CLEARANCE_CONFLICT",
+                "demand": 1,
+                "capacity": 0,
+                "margin": -1,
+                "unit": "clearance",
+                "provenance": "DERIVED",
+                "detail": "hangar_roof antenna geometry conflicts with G4 VTOL recovery envelope",
+            }
+            all_binding_witnesses = [BindingConstraintWitness(**raw_rw)]
+        elif env_eval["envelope_feasible"]:
             required_conditions: List[str] = []
-            if base_placement.get("requires_hangar_roof_clearance_condition") and not hangar_roof_clearance_verified:
-                required_conditions.append(
+            if (
+                base_placement.get("requires_hangar_roof_clearance_condition") and not eff_roof_ver
+            ) or not roof_eval.get("satisfied", True):
+                req_cond = roof_eval.get("required_condition") or (
                     "Verify G4 VTOL drone rotor clearance over hangar_roof antenna (stability factor x1.2)"
                 )
+                required_conditions.append(req_cond)
             if env_eval.get("nominal_offshore_mode_conditions"):
                 required_conditions.extend(env_eval["nominal_offshore_mode_conditions"])
             if cond_excl_notes:
@@ -481,7 +506,11 @@ def evaluate_admission(
                 cond_witnesses = [
                     BindingConstraintWitness(
                         resource_class="positions" if "hangar_roof" in c else "cooling",
-                        constraint_id="conditional_admission_requirement",
+                        constraint_id=(
+                            "hangar_roof_drone_clearance"
+                            if "hangar_roof" in c
+                            else "conditional_admission_requirement"
+                        ),
                         state_label=f"T+{state.sim_time_s}s:CONDITIONED_ADMISSION",
                         demand=1,
                         capacity=1,
@@ -769,7 +798,7 @@ def evaluate_four_guest_combinations(
     mission_envelope: Dict[str, Any],
     priority_profile: PriorityProfile,
 ) -> Dict[str, Any]:
-    """Evaluate all 5 combinations of 4 official guests (G1..G5) for Scenario A & Errata verification (DAT-03)."""
+    """Evaluate all 5 combinations of 4 official guests (G1..G5) for Scenario A & Errata verification (DAT-03, ALIGN-T03)."""
     official_ids = ["G1", "G2", "G3", "G4", "G5"]
     combo_reports: List[Dict[str, Any]] = []
     exceed_10t_count = 0
@@ -793,7 +822,7 @@ def evaluate_four_guest_combinations(
         for gid in combo[:3]:
             d = evaluate_admission(
                 catalog[gid], state, ship_profile, mission_envelope, priority_profile, catalog,
-                at_port=True, allow_displacement=False
+                at_port=True, allow_displacement=False, hangar_roof_clearance_verified=True,
             )
             step_verdicts.append({"guest_id": gid, "verdict": d["verdict"]})
             if d["verdict"] in ("YES", "YES_IF") and d.get("placement"):
@@ -816,27 +845,104 @@ def evaluate_four_guest_combinations(
             catalog,
             at_port=True,
             allow_displacement=True,
+            hangar_roof_clearance_verified=True,
         )
+        fourth_decision_unverified = evaluate_admission(
+            catalog[fourth_gid],
+            state,
+            ship_profile,
+            mission_envelope,
+            priority_profile,
+            catalog,
+            at_port=True,
+            allow_displacement=True,
+            hangar_roof_clearance_verified=False,
+        )
+
+        # Compute 4-guest physical stability equivalent and slot feasibility
+        full_state, baseline_conflicts = build_baseline_state_with_installed_guests(
+            list(combo),
+            ShipOperationalState(
+                sim_time_s=0,
+                vessel_mode="PORT_OPS",
+                ship_speed_kn=0.0,
+                wind_kn=8,
+                sea_state=1,
+                seawater_temp_c=16.0,
+                power_reserve_w=200000,
+                hangar_roof_clearance_verified=True,
+            ),
+            ship_profile,
+            catalog,
+        )
+        full_snap = evaluate_eight_class_budgets(
+            ship_profile,
+            catalog,
+            full_state,
+            hangar_roof_clearance_verified=True,
+        )
+        total_stab_eq_kg = float(
+            full_snap["classes"]["mass_stability"]["local_limits"]["stability_equivalent_kg"]["actual_kg_eq"]
+        )
+        max_stab_eq_kg = float(
+            full_snap["classes"]["mass_stability"]["local_limits"]["stability_equivalent_kg"]["max_kg_eq"]
+        )
+        bay_slot_feasible = bool(full_snap["classes"]["positions"]["feasible"])
+        mast_slot_feasible = bool(full_snap["classes"]["mast"]["feasible"])
+        simultaneously_installable = bool(
+            not exceeds_10t
+            and total_stab_eq_kg <= max_stab_eq_kg
+            and bay_slot_feasible
+            and mast_slot_feasible
+            and len(baseline_conflicts) == 0
+        )
+
         combo_reports.append(
             {
                 "combination": list(combo),
                 "total_mass_kg": total_mass,
                 "exceeds_10000_kg": exceeds_10t,
                 "mass_margin_kg": 10000 - total_mass,
+                "total_stability_eq_kg": total_stab_eq_kg,
+                "stability_margin_kg_eq": round(max_stab_eq_kg - total_stab_eq_kg, 3),
+                "bay_slot_feasible": bay_slot_feasible,
+                "mast_slot_feasible": mast_slot_feasible,
+                "simultaneously_installable": simultaneously_installable,
                 "fourth_guest_id": fourth_gid,
                 "fourth_guest_verdict": fourth_decision["verdict"],
+                "fourth_guest_verdict_code": fourth_decision["verdict_code"],
+                "fourth_guest_verdict_unverified_roof": fourth_decision_unverified["verdict"],
                 "fourth_guest_binding_constraints": fourth_decision["binding_constraints"],
                 "fourth_guest_ranked_displacements": fourth_decision["ranked_displacements"],
                 "fourth_guest_required_conditions": fourth_decision.get("required_conditions", []),
+                "unverified_roof_required_conditions": fourth_decision_unverified.get("required_conditions", []),
             }
         )
 
+    g3_g4_g5_mass = sum(catalog[g].total_mass_kg for g in ("G3", "G4", "G5") if g in catalog)
     return {
         "total_combinations": len(combo_reports),
         "exceeding_10000_kg_count": exceed_10t_count,
         "errata_three_of_five_verified": exceed_10t_count == 3,
         "combinations": combo_reports,
+        "reference_three_guest_sets": {
+            "G3_G4_G5": {
+                "guests": ["G3", "G4", "G5"],
+                "total_mass_kg": g3_g4_g5_mass,
+                "total_mass_t_approx": round(g3_g4_g5_mass / 1000.0, 2),
+                "pdf_superseded_claim_t": 9.0,
+                "mass_margin_kg": 10000 - g3_g4_g5_mass,
+            }
+        },
     }
+
+
+VERDICT_CODE_MAP: Dict[str, str] = {
+    "YES": "FEASIBLE",
+    "YES_IF": "CONDITIONAL",
+    "NOT_NOW": "BLOCKED",
+    "NO": "DENIED",
+}
 
 
 def _format_admission_decision(
@@ -867,6 +973,7 @@ def _format_admission_decision(
         "decision_type": "D1_ADMISSION",
         "candidate_guest_id": candidate.guest_id,
         "verdict": verdict,
+        "verdict_code": VERDICT_CODE_MAP.get(verdict, "DENIED"),
         "binding_constraints": [w.to_dict() for w in binding_constraints],
         "placement": clean_placement,
         "ranked_displacements": ranked_displacements,
@@ -1016,19 +1123,32 @@ def apply_admission_decision_atomically(
         compute_node=compute_node,
     )
 
-    # External condition gate: never infer hangar_roof clearance from apply_yes_if=True
+    # External condition gate: verify hangar_roof clearance via evaluate_roof_drone_clearance_safe
     uses_hangar_roof = any(
         "hangar_roof" in ginst.placements.values()
         for ginst in work_state.installed_guests.values()
     )
-    if uses_hangar_roof and "G4" in work_state.installed_guests and not hangar_roof_clearance_verified:
+    clearance_eval = evaluate_roof_drone_clearance_safe(
+        work_state,
+        ship_profile,
+        aug_catalog,
+        hangar_roof_clearance_verified=hangar_roof_clearance_verified,
+    )
+    if (
+        (uses_hangar_roof and "G4" in work_state.installed_guests and not hangar_roof_clearance_verified)
+        or not clearance_eval.get("satisfied", True)
+    ):
         return {
             "applied": False,
             "reason": "UNVERIFIED_EXTERNAL_CONDITION:hangar_roof_clearance_verified",
+            "constraint_id": "hangar_roof_drone_clearance",
+            "clearance_evaluation": clearance_eval,
             "applied_plan": None,
             "displaced_guest_ids": [],
             "state": base_state,
         }
+    if uses_hangar_roof and "G4" in work_state.installed_guests and hasattr(work_state, "stamp_roof_clearance_verification"):
+        work_state.stamp_roof_clearance_verification(ship_profile)
 
     mode_adjustments: Dict[str, str] = {}
     dep_witnesses, cond_notes = check_dependency_constraints(
@@ -1126,4 +1246,5 @@ def apply_admission_decision_atomically(
         "displaced_guest_ids": displaced_ids,
         "state": work_state,
     }
+
 

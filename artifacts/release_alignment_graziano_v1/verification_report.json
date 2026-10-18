@@ -1,0 +1,15 @@
+{
+  "campaign_semantic_sha256": "7b09e01c6ed415d1c1c5a9fda4d3762efbf336956da902a5000d526bc9566c2f",
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "git_commit": "b35b157e80cab1bde6c032eaee178350e144abc6",
+  "independent_semantic_invariants_verified": true,
+  "junit_summary": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 154
+  },
+  "metrics_verified": true,
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "sdv-verification-report/1.0"
+}

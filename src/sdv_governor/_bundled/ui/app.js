@@ -2,28 +2,95 @@ let currentStatePayload = null;
 let currentTickIndex = 0;
 let playInterval = null;
 
+function setStaleBanner(isStale, reason = "") {
+  const banner = document.getElementById("stale-banner");
+  const badge = document.getElementById("badge-connection");
+  if (banner) {
+    banner.style.display = isStale ? "block" : "none";
+    if (reason) {
+      banner.textContent = `⚠ STALE / DESCONECTADO — ${reason}`;
+    }
+  }
+  if (badge) {
+    badge.textContent = isStale ? "STALE / DESCONECTADO" : "LIVE: AUTHORITATIVE_GOVERNOR";
+    badge.style.borderColor = isStale ? "#ef4444" : "#22c55e";
+    badge.style.color = isStale ? "#fecaca" : "#86efac";
+  }
+}
+
 async function fetchConsoleState(priorityProfile = "survey_primary") {
-  const res = await fetch(`/api/state?priority_profile=${encodeURIComponent(priorityProfile)}`);
-  const data = await res.json();
+  try {
+    const res = await fetch(`/api/state?priority_profile=${encodeURIComponent(priorityProfile)}`);
+    if (!res.ok) {
+      setStaleBanner(true, `HTTP ${res.status} on /api/state`);
+      return;
+    }
+    const data = await res.json();
+    if (data && data.status === "UPSTREAM_UNAVAILABLE") {
+      setStaleBanner(true, "Upstream authoritative governor unavailable");
+      return;
+    }
+    setStaleBanner(false);
+    applyAuthoritativeState(data);
+  } catch (err) {
+    setStaleBanner(true, err.message || "Network error");
+  }
+}
+
+function applyAuthoritativeState(data) {
+  if (!data) return;
   currentStatePayload = data;
+  if (typeof data.sim_time_s === "number") {
+    currentTickIndex = Math.max(0, Math.min(90, Math.round(data.sim_time_s / 20)));
+  }
   renderTopBadges(data);
-  renderCombinationsTable(data.scenario_A_combinations);
+  if (data.scenario_A_combinations) {
+    renderCombinationsTable(data.scenario_A_combinations);
+  }
+  renderCrewControls(data);
   renderTimelineTick(currentTickIndex);
 }
 
+function renderCrewControls(data) {
+  const crewCount = data.crew_count ?? (data.state && data.state.crew_count) ?? 14;
+  const crewRegime = data.crew_regime || (data.state && data.state.crew_regime) || "FULL_CREW_14";
+  const deckClear = data.deck_clear ?? (data.state && data.state.deck_clear) ?? true;
+  const badge = document.getElementById("crew-regime-badge");
+  if (badge) {
+    badge.textContent = `${crewRegime} (${crewCount}) | Deck: ${deckClear ? "CLEAR" : "FOULED"}`;
+  }
+  document.querySelectorAll("[data-crew]").forEach((btn) => {
+    const isAct = parseInt(btn.getAttribute("data-crew"), 10) === crewCount;
+    btn.classList.toggle("primary", isAct);
+  });
+  const chkDeck = document.getElementById("chk-deck-clear");
+  if (chkDeck) chkDeck.checked = Boolean(deckClear);
+}
+
 function renderTopBadges(data, activeSnapshotId = null) {
-  const host = data.doctor.local_host;
+  const host = (data.doctor && data.doctor.local_host) || {};
   const snapEl = document.getElementById("badge-snapshot");
   if (snapEl) {
     const sid = activeSnapshotId || data.snapshot_id || "SNAP_V0001";
     snapEl.textContent = `Snapshot: ${sid} (v${data.state_version || 1})`;
   }
-  document.getElementById("badge-host").textContent =
-    `Engine: ${host.hostname} (${host.system}/${host.machine}) PID=${host.pid}`;
-  document.getElementById("badge-hash").textContent =
-    `Semantic SHA-256: ${data.scenario_B_replay.semantic_sha256.slice(0, 16)}...`;
-  document.getElementById("badge-board").textContent =
-    `Standalone Ready: ${host.standalone_ready ? "PASS" : "NO"} | Code: ${host.code_sha256.slice(0, 10)}`;
+  const profShaEl = document.getElementById("badge-profile-sha256");
+  if (profShaEl) {
+    const psha = data.active_priority_profile_sha256 || "";
+    profShaEl.textContent = `Profile (${data.priority_profile_id || "survey_primary"}): ${psha ? psha.slice(0, 12) + "..." : "canonical"}`;
+  }
+  if (host.hostname) {
+    document.getElementById("badge-host").textContent =
+      `Engine: ${host.hostname} (${host.system}/${host.machine}) PID=${host.pid}`;
+  }
+  if (data.scenario_B_replay && data.scenario_B_replay.semantic_sha256) {
+    document.getElementById("badge-hash").textContent =
+      `Semantic SHA-256: ${data.scenario_B_replay.semantic_sha256.slice(0, 16)}...`;
+  }
+  if (host.code_sha256) {
+    document.getElementById("badge-board").textContent =
+      `Standalone Ready: ${host.standalone_ready ? "PASS" : "NO"} | Code: ${host.code_sha256.slice(0, 10)}`;
+  }
 }
 
 function renderEightClassBudgets(snapshot) {
@@ -36,6 +103,7 @@ function renderEightClassBudgets(snapshot) {
   const order = ["power", "cooling", "positions", "mast", "mass_stability", "data", "compute", "time"];
   for (const key of order) {
     const cls = snapshot.classes[key];
+    if (!cls) continue;
     const card = document.createElement("div");
     card.className = cls.feasible ? "res-card" : "res-card infeasible";
     card.innerHTML = `
@@ -91,7 +159,7 @@ function render2DShipLayout(snapshot) {
 }
 
 function renderTimelineTick(tickIdx) {
-  if (!currentStatePayload) return;
+  if (!currentStatePayload || !currentStatePayload.scenario_B_replay) return;
   const replay = currentStatePayload.scenario_B_replay;
   const ticks = replay.timeline_ticks;
   const clamped = Math.max(0, Math.min(ticks.length - 1, tickIdx));
@@ -115,7 +183,7 @@ function renderTimelineTick(tickIdx) {
     .join(" | ");
 
   document.getElementById("tick-status-box").innerHTML = `
-    <div><strong>Run:</strong> ${currentStatePayload.run_id || "RUN_01"} (${phaseTag}) | <strong>Snapshot:</strong> ${tickSnapshotId} | <strong>Plan Version:</strong> v${t.plan_version || 0} | <strong>Vessel Mode:</strong> ${t.vessel_mode} (${t.speed_kn ?? 3} kn, wind ${t.wind_kn ?? 14} kn, SS ${t.sea_state ?? 2}, ${t.seawater_temp_c ?? 24}°C) | <strong>Feasible:</strong> ${t.feasible ? "YES" : "NO"}</div>
+    <div><strong>Run:</strong> ${currentStatePayload.run_id || "RUN_01"} (${phaseTag}) | <strong>Snapshot:</strong> ${tickSnapshotId} | <strong>Plan Version:</strong> v${t.plan_version || 0} | <strong>Vessel Mode:</strong> ${t.vessel_mode} (${t.speed_kn ?? 3} kn, wind ${t.wind_kn ?? 14} kn, SS ${t.sea_state ?? 2}, ${t.seawater_temp_c ?? 24}°C) | <strong>Crew:</strong> ${currentStatePayload.crew_regime || "FULL_CREW_14"} | <strong>Feasible:</strong> ${t.feasible ? "YES" : "NO"}</div>
     <div><strong>Power:</strong> Actual=${t.power_actual_w} W | Firm Committed=${t.power_committed_w} W | Reserve Cap=${t.power_capacity_w} W</div>
     <div><strong>Chilled Water Cooling:</strong> Actual=${t.cooling_actual_w} W | Effective Cap=${t.cooling_capacity_w} W | <strong>Inertia:</strong> ${t.thermal_inertia_status || "NOMINAL"}</div>
     <div><strong>Active Guests:</strong> ${guestSummary}</div>
@@ -129,16 +197,20 @@ function renderTimelineTick(tickIdx) {
     render2DShipLayout(tickSnap);
   }
 
-  // Show decisions up to current tick
-  const relevantDecisions = replay.decisions.filter((d) => d.tick <= clamped);
+  // Show decisions up to current tick + canonical decision_log causal sentences
+  const relevantDecisions = (replay.decisions || []).filter((d) => d.tick <= clamped);
+  const canonicalDecisionLog = (currentStatePayload.decision_log || []).filter((d) => d.tick <= clamped);
   document.getElementById("decision-log-box").textContent = JSON.stringify(
     {
       run_id: currentStatePayload.run_id,
       tick_state: phaseTag,
       snapshot_id: tickSnapshotId,
       priority_profile_id: replay.priority_profile_id,
+      active_priority_profile_sha256: currentStatePayload.active_priority_profile_sha256,
       executed_touchdown_time_s: replay.executed_touchdown_time_s,
       semantic_sha256: replay.semantic_sha256,
+      pending_transitions: currentStatePayload.pending_transitions || [],
+      decision_log: canonicalDecisionLog,
       decisions_emitted_up_to_tick: relevantDecisions,
     },
     null,
@@ -148,6 +220,7 @@ function renderTimelineTick(tickIdx) {
 
 function renderCombinationsTable(combosReport) {
   const container = document.getElementById("combinations-table-container");
+  if (!container || !combosReport || !combosReport.combinations) return;
   const rows = combosReport.combinations
     .map(
       (c) => `
@@ -175,18 +248,208 @@ function renderCombinationsTable(combosReport) {
   `;
 }
 
+// Embedded 3D Viewport (/viz3d) toggle
+const btnToggleViz3d = document.getElementById("btn-toggle-viz3d");
+const btnCloseViz3d = document.getElementById("btn-close-viz3d");
+if (btnToggleViz3d) {
+  btnToggleViz3d.addEventListener("click", () => {
+    const panel = document.getElementById("embedded-viz3d-panel");
+    const iframe = document.getElementById("viz3d-iframe");
+    if (!panel || !iframe) return;
+    const isHidden = panel.style.display === "none";
+    panel.style.display = isHidden ? "block" : "none";
+    if (isHidden && iframe.getAttribute("src") === "about:blank") {
+      iframe.setAttribute("src", iframe.getAttribute("data-src") || "/viz3d");
+    }
+  });
+}
+if (btnCloseViz3d) {
+  btnCloseViz3d.addEventListener("click", () => {
+    const panel = document.getElementById("embedded-viz3d-panel");
+    if (panel) panel.style.display = "none";
+  });
+}
+
+// Priority Profile Switcher & Custom YAML/JSON Editor (ALIGN-T27)
 document.getElementById("select-priority").addEventListener("change", async (e) => {
   const prof = e.target.value;
-  await fetch("/api/profile", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ priority_profile_id: prof }),
-  });
-  await fetchConsoleState(prof);
+  try {
+    const res = await fetch("/api/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priority_profile_id: prof }),
+    });
+    if (!res.ok) {
+      setStaleBanner(true, `HTTP ${res.status} on /api/profile`);
+      return;
+    }
+    const payload = await res.json();
+    setStaleBanner(false);
+    applyAuthoritativeState(payload);
+  } catch (err) {
+    setStaleBanner(true, err.message || "Network error");
+  }
 });
 
-document.getElementById("timeline-slider").addEventListener("input", (e) => {
-  renderTimelineTick(parseInt(e.target.value, 10));
+const btnLoadSampleProfile = document.getElementById("btn-load-sample-profile");
+if (btnLoadSampleProfile) {
+  btnLoadSampleProfile.addEventListener("click", () => {
+    const ta = document.getElementById("textarea-custom-profile");
+    if (!ta) return;
+    ta.value = [
+      'schema_version: "sdv-priority-profile/1.0"',
+      'priority_profile_id: "CUSTOM_SAR_OVERRIDE"',
+      'name: "Custom SAR Override Priority Profile"',
+      'description: "Custom SAR-first priority profile with immediate G4 recovery turn and strict D4 shed order."',
+      "capability_weights:",
+      "  maritime_sar_rescue: 100.0",
+      "  hydrographic_survey: 85.0",
+      "  seabed_anomaly_detection: 80.0",
+      "  environmental_sensing: 70.0",
+      "  water_quality_monitoring: 65.0",
+      "  subsea_intervention: 60.0",
+      "  hull_and_cable_inspection: 55.0",
+      "  surface_surveillance: 45.0",
+      "  flight_weather_support: 50.0",
+      "  wideband_spectrum_monitoring: 30.0",
+      "  salvage_assistance: 25.0",
+      "guest_priority_rank:",
+      "  G4: 1",
+      "  G3: 2",
+      "  G1: 3",
+      "  G6: 4",
+      "  G2: 5",
+      "  G5: 6",
+      "arbitration_policy:",
+      '  survey_vs_recovery_strategy: "IMMEDIATE_FULL_SUSPENSION"',
+      "  pre_reserve_recovery_power: true",
+      "  max_acceptable_survey_pause_min: 30",
+      '  tie_break_order: "HIGHER_CAPABILITY_SCORE_THEN_LEXICOGRAPHIC"',
+      "degradation_policy:",
+      "  prefer_mode_downgrade_before_shed: true",
+      "  protect_uninterruptible_tasks: true",
+      '  shed_order_lowest_priority_first: ["G5", "G2", "G6", "G1", "G3", "G4"]',
+    ].join("\n");
+  });
+}
+
+const btnApplyCustomProfile = document.getElementById("btn-apply-custom-profile");
+if (btnApplyCustomProfile) {
+  btnApplyCustomProfile.addEventListener("click", async () => {
+    const ta = document.getElementById("textarea-custom-profile");
+    const raw = ta ? ta.value.trim() : "";
+    if (!raw) return;
+    try {
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priority_profile_yaml: raw }),
+      });
+      const payload = await res.json();
+      if (res.status === 422) {
+        document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
+        return;
+      }
+      if (!res.ok) {
+        setStaleBanner(true, `HTTP ${res.status} on /api/profile`);
+        return;
+      }
+      setStaleBanner(false);
+      const pid = payload.priority_profile_id;
+      const sel = document.getElementById("select-priority");
+      if (sel && pid) {
+        let opt = Array.from(sel.options).find((o) => o.value === pid);
+        if (!opt) {
+          opt = document.createElement("option");
+          opt.value = pid;
+          opt.textContent = `${pid} (Custom Validated Profile)`;
+          sel.appendChild(opt);
+        }
+        sel.value = pid;
+      }
+      applyAuthoritativeState(payload);
+    } catch (err) {
+      setStaleBanner(true, err.message || "Network error");
+    }
+  });
+}
+
+// Scenario C Crew Regime (14 / 6 / 0) & Deck Clear Interlock
+document.querySelectorAll("[data-crew]").forEach((btn) => {
+  btn.addEventListener("click", async () => {
+    const crewCount = parseInt(btn.getAttribute("data-crew"), 10);
+    const chkDeck = document.getElementById("chk-deck-clear");
+    const deckClear = chkDeck ? chkDeck.checked : true;
+    try {
+      const res = await fetch("/api/crew", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ crew_count: crewCount, deck_clear: deckClear }),
+      });
+      if (!res.ok) {
+        setStaleBanner(true, `HTTP ${res.status} on /api/crew`);
+        return;
+      }
+      const payload = await res.json();
+      setStaleBanner(false);
+      applyAuthoritativeState(payload);
+    } catch (err) {
+      setStaleBanner(true, err.message || "Network error");
+    }
+  });
+});
+
+const chkDeckClear = document.getElementById("chk-deck-clear");
+if (chkDeckClear) {
+  chkDeckClear.addEventListener("change", async (e) => {
+    const crewCount = (currentStatePayload && currentStatePayload.crew_count) ?? 14;
+    try {
+      const res = await fetch("/api/crew", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ crew_count: crewCount, deck_clear: e.target.checked }),
+      });
+      if (!res.ok) {
+        setStaleBanner(true, `HTTP ${res.status} on /api/crew`);
+        return;
+      }
+      const payload = await res.json();
+      setStaleBanner(false);
+      applyAuthoritativeState(payload);
+    } catch (err) {
+      setStaleBanner(true, err.message || "Network error");
+    }
+  });
+}
+
+document.getElementById("timeline-slider").addEventListener("input", async (e) => {
+  const targetIdx = parseInt(e.target.value, 10);
+  const targetSimS = targetIdx * 20;
+  if (currentStatePayload && targetSimS > (currentStatePayload.sim_time_s || 0)) {
+    const prof = document.getElementById("select-priority").value;
+    try {
+      const res = await fetch("/api/advance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target_sim_time_s: targetSimS,
+          from_sim_time_s: currentStatePayload.sim_time_s,
+          expected_state_version: currentStatePayload.state_version,
+          priority_profile_id: prof,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStaleBanner(false);
+        applyAuthoritativeState(data);
+        return;
+      }
+    } catch (err) {
+      setStaleBanner(true, err.message || "Network error");
+      return;
+    }
+  }
+  renderTimelineTick(targetIdx);
 });
 
 document.getElementById("btn-play").addEventListener("click", () => {
@@ -206,13 +469,33 @@ document.getElementById("btn-play").addEventListener("click", () => {
     const nextIdx = currentTickIndex + 1;
     const targetSimS = nextIdx * 20;
     const prof = document.getElementById("select-priority").value;
-    await fetch("/api/advance", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target_sim_time_s: targetSimS, runner_status: nextIdx >= 90 ? "COMPLETED" : "RUNNING" }),
-    });
-    currentTickIndex = nextIdx;
-    await fetchConsoleState(prof);
+    try {
+      const res = await fetch("/api/advance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target_sim_time_s: targetSimS,
+          from_sim_time_s: currentStatePayload ? currentStatePayload.sim_time_s : undefined,
+          expected_state_version: currentStatePayload ? currentStatePayload.state_version : undefined,
+          priority_profile_id: prof,
+          runner_status: nextIdx >= 90 ? "COMPLETED" : "RUNNING",
+        }),
+      });
+      if (!res.ok) {
+        setStaleBanner(true, `HTTP ${res.status} on /api/advance`);
+        clearInterval(playInterval);
+        playInterval = null;
+        return;
+      }
+      const data = await res.json();
+      setStaleBanner(false);
+      currentTickIndex = nextIdx;
+      applyAuthoritativeState(data);
+    } catch (err) {
+      setStaleBanner(true, err.message || "Network error");
+      clearInterval(playInterval);
+      playInterval = null;
+    }
   }, wallIntervalMs);
 });
 
@@ -221,11 +504,15 @@ document.getElementById("btn-pause").addEventListener("click", async () => {
     clearInterval(playInterval);
     playInterval = null;
   }
-  await fetch("/api/runner", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ delta_sim_s: 0, runner_status: "PAUSED" }),
-  });
+  try {
+    await fetch("/api/runner", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ delta_sim_s: 0, runner_status: "PAUSED" }),
+    });
+  } catch (err) {
+    setStaleBanner(true, err.message || "Network error");
+  }
 });
 
 document.getElementById("btn-reset").addEventListener("click", async () => {
@@ -234,13 +521,23 @@ document.getElementById("btn-reset").addEventListener("click", async () => {
     playInterval = null;
   }
   const prof = document.getElementById("select-priority").value;
-  await fetch("/api/reset", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ priority_profile_id: prof }),
-  });
-  currentTickIndex = 0;
-  await fetchConsoleState(prof);
+  try {
+    const res = await fetch("/api/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priority_profile_id: prof }),
+    });
+    if (!res.ok) {
+      setStaleBanner(true, `HTTP ${res.status} on /api/reset`);
+      return;
+    }
+    const data = await res.json();
+    setStaleBanner(false);
+    currentTickIndex = 0;
+    applyAuthoritativeState(data);
+  } catch (err) {
+    setStaleBanner(true, err.message || "Network error");
+  }
 });
 
 document.querySelectorAll("[data-perturb]").forEach((btn) => {
@@ -248,18 +545,27 @@ document.querySelectorAll("[data-perturb]").forEach((btn) => {
     const pType = btn.getAttribute("data-perturb");
     const prof = document.getElementById("select-priority").value;
     const targetSimS = currentTickIndex * 20;
-    const res = await fetch("/api/perturb", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        perturbation_type: pType,
-        priority_profile_id: prof,
-        sim_time_s: targetSimS,
-      }),
-    });
-    const payload = await res.json();
-    await fetchConsoleState(prof);
-    document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
+    try {
+      const res = await fetch("/api/perturb", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          perturbation_type: pType,
+          priority_profile_id: prof,
+          sim_time_s: targetSimS,
+        }),
+      });
+      if (!res.ok) {
+        setStaleBanner(true, `HTTP ${res.status} on /api/perturb`);
+        return;
+      }
+      const payload = await res.json();
+      setStaleBanner(false);
+      await fetchConsoleState(prof);
+      document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
+    } catch (err) {
+      setStaleBanner(true, err.message || "Network error");
+    }
   });
 });
 
@@ -270,35 +576,60 @@ document.getElementById("btn-admit-live").addEventListener("click", async () => 
     .map((s) => s.trim())
     .filter(Boolean);
   const candId = document.getElementById("select-candidate").value;
-  const massVal = document.getElementById("input-mass-kg").value;
-  const powerVal = document.getElementById("input-power-w").value;
   const posVal = document.getElementById("select-pos-override").value;
   const atPort = document.getElementById("chk-at-port").checked;
   const prof = document.getElementById("select-priority").value;
 
   const overrides = {};
-  if (massVal !== "") overrides.mass_kg = parseInt(massVal, 10);
-  if (powerVal !== "") overrides.nominal_power_w = parseInt(powerVal, 10);
   if (posVal !== "") overrides.preferred_position = posVal;
 
-  const res = await fetch("/api/admit_live", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      installed_guest_ids: installedIds,
-      candidate_guest_id: candId,
-      priority_profile_id: prof,
-      at_port: atPort,
-      overrides: overrides,
-    }),
-  });
-  const payload = await res.json();
-  document.getElementById("admission-result-box").textContent = JSON.stringify(payload, null, 2);
-  if (payload.current_budget_snapshot) {
-    await fetchConsoleState(prof);
-    renderEightClassBudgets(payload.current_budget_snapshot);
-    render2DShipLayout(payload.current_budget_snapshot);
+  const numericOverrideMap = [
+    ["input-mass-kg", "mass_kg"],
+    ["input-power-w", "nominal_power_w"],
+    ["input-sustained-power-w", "sustained_power_w"],
+    ["input-peak-power-w", "peak_power_w"],
+    ["input-cooling-water-w", "cooling_water_w"],
+    ["input-cooling-air-mast-w", "cooling_air_mast_w"],
+    ["input-compute-cores", "compute_cores"],
+    ["input-compute-ram-mib", "compute_ram_mib"],
+    ["input-compute-accelerators", "compute_accelerators"],
+    ["input-satcom-bps", "satcom_bps"],
+  ];
+  for (const [elId, key] of numericOverrideMap) {
+    const el = document.getElementById(elId);
+    if (el && el.value.trim() !== "") {
+      overrides[key] = Number(el.value.trim());
+    }
+  }
+
+  try {
+    const res = await fetch("/api/admit_live", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        installed_guest_ids: installedIds,
+        candidate_guest_id: candId,
+        priority_profile_id: prof,
+        at_port: atPort,
+        overrides: overrides,
+      }),
+    });
+    if (!res.ok) {
+      setStaleBanner(true, `HTTP ${res.status} on /api/admit_live`);
+      return;
+    }
+    const payload = await res.json();
+    setStaleBanner(false);
+    document.getElementById("admission-result-box").textContent = JSON.stringify(payload, null, 2);
+    if (payload.current_budget_snapshot) {
+      await fetchConsoleState(prof);
+      renderEightClassBudgets(payload.current_budget_snapshot);
+      render2DShipLayout(payload.current_budget_snapshot);
+    }
+  } catch (err) {
+    setStaleBanner(true, err.message || "Network error");
   }
 });
 
 fetchConsoleState("survey_primary");
+

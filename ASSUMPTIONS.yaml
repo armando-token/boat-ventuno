@@ -1,6 +1,6 @@
 # ASSUMPTIONS.yaml — Supuestos Explícitos, Unidades, Justificación y Referencias al Código
 schema_version: "1.0"
-updated_utc: "2026-10-17T10:00:00Z"
+updated_utc: "2026-10-17T22:45:00Z"
 
 official_sources_status:
   brief_pdf_12_pages:
@@ -9,17 +9,20 @@ official_sources_status:
     local_presence: "EXTRACTED_VERBATIM_IN_ANNEX_A_AND_B"
     extracted_specification_source: "/Users/armandosilva/DATA/Hack-Ardui/MEGAPLAN_CORRECTIVO_SDV_PARA_ANTIGRAVITY.md"
   organizer_errata:
-    source: "Organizer update transmitted in Brief Errata & Megaplan Annex B"
+    source: "Organizer clarifications GRAZIANO_B_COMPOSITION_0855 & GRAZIANO_ROOF_AND_G4_MASS_0904"
     overrides_file: "data/overrides/brief_errata.yaml"
+    clarifications_register: "data/overrides/organizer_clarifications.yaml"
     g4_hangar_mass_kg: 850
     g4_drone_mass_kg: 140
     g4_total_mass_kg: 990
+    g3_g4_g5_mass_kg: 9515
+    g1_g3_g4_g5_mass_kg: 9560
     combinations_of_four_exceeding_10t: 3
     none_of_g1_to_g5_is_safety_critical_by_design: true
 
 assumptions:
   - id: ASM-01
-    parameter: "G1..G5 detailed per-mode resource profiles and per-field provenance (field_origins)"
+    parameter: "G1..G5 detailed per-mode resource profiles, G4 990 kg errata derivation (140 kg + 850 kg), and per-field provenance (field_origins)"
     unit: "W, kg, bit/s, cores, MiB, m2"
     official_anchors:
       G1_mass_kg: 45
@@ -73,9 +76,11 @@ assumptions:
       G5_container_install_time_min: 360
       G5_antenna_install_crew: 2
       G5_antenna_install_time_min: 120
-    concretized_values: "Every official figure from Annex B is tagged with field_origins: OFFICIAL_BRIEF (or ORGANIZER_ERRATA for G4 hangar 850 kg), while compute sub-fields (compute_cores, compute_ram_mib, compute_accelerators, shared_storage_gb) and G5 water/air cooling split (43.8 kW water + 1.2 kW antenna air) are explicitly tagged ASSUMED in field_origins."
-    justification: "Resolves H06 by aligning 100% of G1..G5 parameters with Annex B and separating per-field provenance so assumed compute fields are never mislabeled OFFICIAL_BRIEF."
+    concretized_values: "Every official figure from Annex B is tagged with field_origins: OFFICIAL_BRIEF, while G4 total mass 990 kg is tagged ORGANIZER_ERRATA (GRAZIANO_ROOF_AND_G4_MASS_0904 in data/overrides/organizer_clarifications.yaml) with hangar mass 850 kg derived as 990 - 140 = 850 kg and original 900/1040 kg preserved as SUPERSEDED. Compute sub-fields (compute_cores, compute_ram_mib, compute_accelerators, shared_storage_gb) and component power/thermal splits are explicitly tagged ASSUMED."
+    justification: "Aligns 100% of G1..G5 parameters with Annex B and organizer clarifications (data/overrides/organizer_clarifications.yaml & data/overrides/brief_errata.yaml), preserving traceable derivation for 850 kg hangar mass."
     code_references:
+      - "data/overrides/organizer_clarifications.yaml"
+      - "data/overrides/brief_errata.yaml"
       - "data/guests/G1_mems_meteo.yaml"
       - "data/guests/G2_rov_inspection.yaml"
       - "data/guests/G3_auv_survey.yaml"
@@ -104,7 +109,7 @@ assumptions:
   - id: ASM-04
     parameter: "Mast air cooling vs chilled-water loop accounting and hangar_roof placement"
     unit: "W, kg, m2"
-    concretized_values: "Mast positions have no chilled-water manifold and rely on local air cooling capped at 2,000 W per position. G5's 25 kg antenna can mount on mast_3 (x3.0 stability) or hangar_roof (x1.2 stability); when mounted on hangar_roof with G4 installed, explicit drone clearance verification is required (producing YES_IF unless clearance is pre-verified)."
+    concretized_values: "Mast positions have no chilled-water manifold and rely on local air cooling capped at 2,000 W per position. G5's 25 kg antenna can mount on mast_3 (x3.0 stability) or hangar_roof (x1.2 stability) with separate air cooling domains (mast_3 and hangar_roof); when mounted on hangar_roof with G4 installed, explicit drone clearance verification is required."
     justification: "Annex A.3 and Annex B G5 card: antenna 0.3 m2, 25 kg at free mast slot or hangar roof (x1.2, check drone clearance)."
     code_references:
       - "src/sdv_governor/budgets.py"
@@ -123,18 +128,72 @@ assumptions:
   - id: ASM-06
     parameter: "Scenario B candidate evaluation, losing-mission cost formula, and separate G4 touchdown vs 20-min charging"
     unit: "seconds, minutes, utility points"
-    concretized_values: "In Scenario B (D3), G4 recovery separates the operational flight-deck approach/touchdown phase (which must complete before the 12-min / 720 s battery deadline) from the subsequent 20-min (1200 s) 35 kW hangar charging phase, followed by 10 kW post-charge operation or 2 kW standby."
-    justification: "Resolves H02 and H04: touchdown occurs within the 720 s battery emergency deadline after acoustic HOLD confirmation and ship turn into wind, before the 1200 s high-power charging cycle."
+    concretized_values: "In Scenario B (D3), G4 recovery separates the operational flight-deck approach/touchdown phase (which must complete before the 12-min / 720 s battery deadline at t=1200 s) from the subsequent 20-min (1200 s) 35 kW hangar charging phase, followed by 10 kW post-charge operation or 2 kW standby."
+    justification: "Touchdown occurs within the 720 s battery emergency deadline after acoustic HOLD confirmation and ship turn into wind, before the 1200 s high-power charging cycle."
     code_references:
       - "src/sdv_governor/arbitration.py"
       - "src/sdv_governor/replay.py"
 
   - id: ASM-07
-    parameter: "Scenario B minute-12 generator loss (200 kW -> 100 kW) official vs active-deficit variants"
+    parameter: "Scenario B 4-guest (G1+G3+G4+G5) minute-12 generator loss (200 kW -> 100 kW) vs 3-guest 105 kW unit fixture"
     unit: "W"
-    concretized_values: "In canonical Scenario B where G3 is in survey/hold (1 kW) + G4 recovery/charging (35 kW) + G5 full (45 kW), instantaneous actual load is 81 kW (<= 100 kW), whereas firm committed load including G3's 25 kW uninterruptible recharge reservation is 105 kW (> 100 kW). In scenario_B_charging_deficit_105kw, G3 is actively charging at 25 kW (uninterruptible) so instantaneous actual load is 105 kW > 100 kW."
-    justification: "Distinguishes actual draw (81 kW) from firm reserved draw (105 kW) and active charging draw (105 kW)."
+    concretized_values: "Per organizer clarification GRAZIANO_B_COMPOSITION_0855 (data/overrides/organizer_clarifications.yaml), official Scenario B installs 4 guests: G1 (1.5 kW on mast_3, LINE_A_FWD) + G3 (1 kW survey with 25 kW firm recharge reserve in bay1, LINE_A_FWD) + G4 (10 kW patrol / 35 kW recovery-charge in hangar, LINE_B_AFT) + G5 (45 kW full / 8 kW degraded in bay2 + hangar_roof, LINE_B_AFT). At t=0 actual=57.5 kW, committed=81.5 kW; with G4 35 kW reserved/active, committed=106.5 kW (> 100 kW generator-loss reserve) and actual=57.5 kW or 82.5 kW; throttling G5 to 8 kW lowers committed to 69.5 kW (<= 100 kW) and water committed to 67.5 kW (<= 72 kW at 30 °C degraded loop). Separately, scenario_B_charging_deficit_105kw is retained as an isolated 3-guest (G3+G4+G5) UNIT_FIXTURE where G3 actively charges at 25 kW for 105 kW instantaneous load."
+    justification: "Reconciles official 4-guest Scenario B (106.5 kW committed -> 69.5 kW throttled) with the isolated 3-guest 105 kW active-charging unit test fixture."
     code_references:
+      - "data/overrides/organizer_clarifications.yaml"
       - "src/sdv_governor/degradation.py"
       - "data/scenarios/scenario_B_arbitration_degradation.yaml"
+      - "data/scenarios/scenario_B_cooling_limited_30c.yaml"
       - "data/scenarios/scenario_B_charging_deficit_105kw.yaml"
+
+  - id: ASM-ROOF-G4-CLEARANCE
+    parameter: "Conditional geometric compatibility of G5 antenna on hangar_roof with G4 VTOL operations"
+    unit: "discrete installation zone policy (ROOF_OUTSIDE_G4_RECOVERY_V1)"
+    concretized_values: "Policy ROOF_OUTSIDE_G4_RECOVERY_V1 (version 1, layout VESSEL_BASELINE_LAYOUT_V1) models hangar_roof antenna mounting in zone ROOF_ANTENNA_OUTSIDE_RECOVERY_ENVELOPE outside excluded zones G4_ROTOR_DISC and G4_RECOVERY_CORRIDOR. Requires explicit installation verification tied to policy_id, layout_version, and component IDs; invalidated by ANTENNA_RELOCATION, G4_ENVELOPE_CHANGE, or LAYOUT_VERSION_CHANGE."
+    justification: "Annex B G5 card notes 'hangar roof (x1.2, check drone clearance)' and organizer clarification GRAZIANO_ROOF_AND_G4_MASS_0904 states the team must declare the assumption and enforce it in manifest, placement, admission, and runtime."
+    code_references:
+      - "data/ship/vessel_baseline.yaml"
+      - "data/overrides/organizer_clarifications.yaml"
+      - "src/sdv_governor/placement.py"
+      - "src/sdv_governor/admission.py"
+      - "src/sdv_governor/budgets.py"
+
+  - id: ASM-ROOF-AIR-2000W
+    parameter: "Local air-cooling domain capacity on hangar_roof"
+    unit: "W (2000 W)"
+    concretized_values: "Defines hangar_roof as an independent local ambient/air cooling domain with capacity_w = 2000 W (value_origin: ASSUMED), physically separate from the mast_3 air cooling domain (capacity_w = 2000 W, value_origin: OFFICIAL_BRIEF). Loads on mast_3 (G1: 1500 W) and hangar_roof (G5 antenna: 1200 W) are checked against their respective 2000 W local domain limits rather than pooled into a single 2000 W or 4000 W bucket."
+    justification: "Annex A.2/A.3 specifies 2 kW air cooling per mast position and allows G5's air-cooled antenna on hangar_roof; separating mast_3 and hangar_roof domains prevents false cross-location collisions while keeping roof capacity configurable."
+    code_references:
+      - "data/ship/vessel_baseline.yaml"
+      - "src/sdv_governor/budgets.py"
+
+  - id: ASM-G5-COMPONENT-POWER-SPLIT
+    parameter: "G5 subcomponent electrical power and thermal domain split between container and antenna"
+    unit: "W"
+    concretized_values: "In FULL_SPECTRUM (45,000 W total): G5_COMPUTE_CONTAINER draws 43,800 W electrical / 43,800 W chilled water, and G5_MAST_ANTENNA draws 1,200 W electrical / 1,200 W local air. In DEGRADED_70PCT_LOSS (8,000 W total): G5_COMPUTE_CONTAINER draws 7,500 W electrical / 7,500 W water, and G5_MAST_ANTENNA draws 500 W electrical / 500 W air. In STANDBY (2,000 W nominal, 2,500 W peak): G5_COMPUTE_CONTAINER draws 2,000 W nominal (2,500 W peak) / 2,000 W water, and G5_MAST_ANTENNA draws 0 W. When +20% perturbation (+9,000 W) is applied to G5 FULL_SPECTRUM, the 9,000 W compute overload is attributed once to G5_COMPUTE_CONTAINER (52,800 W water + 1,200 W air = 54,000 W total)."
+    justification: "Routes each G5 subcomponent's electrical draw and heat rejection to the feeder line and thermal domain of its actual placement (bay2 -> LINE_B_AFT/water; hangar_roof -> LINE_B_AFT/roof-air or mast_3 -> LINE_A_FWD/mast-air) while strictly conserving energy 1:1."
+    code_references:
+      - "data/guests/G5_edge_sigint.yaml"
+      - "src/sdv_governor/budgets.py"
+      - "src/sdv_governor/manifest.py"
+
+  - id: ASM-G4-STATION-POWER-ACCOUNTING
+    parameter: "G4 subcomponent electrical and chilled-water attribution to G4_HANGAR_STATION"
+    unit: "W"
+    concretized_values: "Across LAUNCH_RECOVERY_OPTICS (35,000 W), FLIGHT_PATROL (10,000 W), and STANDBY (2,000 W), 100% of G4 shipboard electrical draw and chilled-water heat rejection is attributed to G4_HANGAR_STATION in hangar (LINE_B_AFT, CHILLED_WATER_LOOP), while G4_DRONE_VEHICLE draws 0 W from ship feeders."
+    justification: "The airframe operates on internal battery in flight and charges/operates optical recovery gear through the hangar station on LINE_B_AFT."
+    code_references:
+      - "data/guests/G4_uav_sar.yaml"
+      - "src/sdv_governor/budgets.py"
+      - "src/sdv_governor/manifest.py"
+
+  - id: ASM-A6-INTRABAND-SPEED-3-TO-5KN
+    parameter: "Annex A.6 causal transition timing policy and 3 -> 5 kn intra-band recovery speed adjustment"
+    unit: "kn (5.0 kn target), s (60 s intra-band, 90 s course settle, 180 s inter-band/quiet, 240/600 s deck clear, 30/120 s human confirm, 780 s generator restart)"
+    concretized_values: "Sets G4 recovery target ship speed to 5.0 kn (within G4's 5-12 kn operational envelope and Annex A.6's 3-5 kn slow survey speed band), modeling the 3 -> 5 kn adjustment as a 60 s intra-band transition. Formalizes Annex A.6 reference durations in data/ship/transition_timing_policy.yaml and forbids at-sea cooling loop repair."
+    justification: "Annex A.6 defines speed bands (3-5, 10-14, 18-25 kn) and inter-band transition times (2-5 min/band) without quantifying intra-band speed adjustments; 5.0 kn with 60 s intra-band settle avoids unmodeled speed gaps and instantaneous state jumps."
+    code_references:
+      - "data/ship/transition_timing_policy.yaml"
+      - "src/sdv_governor/arbitration.py"
+      - "src/sdv_governor/replay.py"
+      - "src/sdv_governor/ship_state.py"

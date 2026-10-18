@@ -1,0 +1,115 @@
+{
+  "environment": {
+    "hostname": "MacBook-Pro-7.local",
+    "pid": 37825,
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_version": "3.13.15",
+    "wall_elapsed_ms": 391.999
+  },
+  "files": {
+    "ALIGNMENT_RESULT.md": {
+      "sha256": "d1231c28a1bed42f8146ca329b615776687abe1427d96c5f7633712a316f7bc8",
+      "size_bytes": 3401
+    },
+    "ALIGNMENT_STATUS.json": {
+      "sha256": "29098f5e0d557c50c30c84162ff4de13ce8250be99e31ad6b1fc863d6ed3addc",
+      "size_bytes": 1918
+    },
+    "admission_certificates.json": {
+      "sha256": "ce312116a99232379349d99b0a692953ce2975072d9e8f90905e4bf3cbc98bd8",
+      "size_bytes": 11448
+    },
+    "alignment_acceptance.json": {
+      "sha256": "5b0503019a56dbaa0e20c094f811fead51ec7cc4ab42469254e9f103e4863603",
+      "size_bytes": 22429
+    },
+    "arbitration_comparison.json": {
+      "sha256": "f1d919324bdb76a2a106b6ef21a5d5534970c813c0cb29ca7b04689461b8ff9f",
+      "size_bytes": 111254
+    },
+    "campaign_report.json": {
+      "sha256": "60f3d6181feba8eb5bbf8b62e66e181723fc4ee7a375ea57118bcf3b04dd09bd",
+      "size_bytes": 3651
+    },
+    "component_resource_ledger.json": {
+      "sha256": "e175f548011e4f52a3b3ded97d1a340abd32570a341f74ad63151b902538999f",
+      "size_bytes": 89745
+    },
+    "decisions.json": {
+      "sha256": "64a4acae82add3be957263f96815646abfcb8c38c776e56cc220a3687ad6ea36",
+      "size_bytes": 199354
+    },
+    "document_verification.json": {
+      "sha256": "f78039788869f618f3400cbba3635e6d05af12e9e71c963d5947f2038bab7c9c",
+      "size_bytes": 1170
+    },
+    "junit.xml": {
+      "sha256": "afceaba3ba1ff34563774a511dd3cd1efb5140a8e87465b05a557032105b5667",
+      "size_bytes": 22299
+    },
+    "metrics_summary.json": {
+      "sha256": "c33f51b23106c9fe1ab6f4b3a0584dab318b7982d23dc067098631c77cd79d5a",
+      "size_bytes": 959
+    },
+    "performance_metrics.json": {
+      "sha256": "70241d947f710f35a56a394dc6a73d22bc6837f675ba1b6c3a381c32ffc9e6d2",
+      "size_bytes": 1310
+    },
+    "remote_parity.json": {
+      "sha256": "1d1d727832fd1bf6ff0635c6e5d44af9e1aa56060c02a6377c415c56dc325812",
+      "size_bytes": 1082
+    },
+    "replay_timeline.json": {
+      "sha256": "ad30d51abf371b30548d6183b8070da4e147f7281f140c2f55ad28b427a0a837",
+      "size_bytes": 6075930
+    },
+    "requirements_matrix.csv": {
+      "sha256": "aa87000726c9368b36d1f95ac8be71336cfdb1da04284ed15f6da3d4003f1712",
+      "size_bytes": 22398
+    },
+    "source_and_assumption_refs.json": {
+      "sha256": "6d2e444c4fb24b4dd82a0c2a50eec2d384b2b54ea3b2b3ee34c72fbfd51ed610",
+      "size_bytes": 5979
+    },
+    "trace_log.jsonl": {
+      "sha256": "31ef7482d9de2ef19fefad1c4dfe40d886f95f0d9cc161b5e699207e72155ad0",
+      "size_bytes": 14498
+    },
+    "transition_policy_snapshot.json": {
+      "sha256": "ec23e6957ed4012487248d907f12954e67fbd15861b4ff541015019d097f8e29",
+      "size_bytes": 4532
+    },
+    "ui_verification/ui_state_verification.json": {
+      "sha256": "243d138c4d6473f6e6fe6e048047e5297e955ec2d71b67c951d2830803f662c4",
+      "size_bytes": 38018
+    },
+    "verification_report.json": {
+      "sha256": "7bc2ccab9564d5f73cf384b963101000b3894bf8a5f9f48c7e75bce5006e7c24",
+      "size_bytes": 479
+    }
+  },
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "git_commit": "b35b157e80cab1bde6c032eaee178350e144abc6",
+  "junit_summary": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 154
+  },
+  "metrics": {
+    "cooling_limited_semantic_sha256": "7a6bb4e76b76313cf31c1b5483483c01ab1757480e3769d6d91e83e9ccc69ba5",
+    "cooling_limited_ticks_count": 91,
+    "errata_exceed_10000_kg_count": 3,
+    "max_tick_calc_ms": 1.4479,
+    "min_tick_calc_ms": 0.0732,
+    "rescue_primary_semantic_sha256": "cda17575ab4788ccc2326318c3e19930796f651342e23865b244c370daedf49f",
+    "rescue_primary_ticks_count": 91,
+    "survey_primary_semantic_sha256": "0285ad160124342d44129cbc8f659982470ebf14af12033657dacd476ef4ab39",
+    "survey_primary_ticks_count": 91,
+    "total_decisions_count": 14
+  },
+  "run_id": "release_alignment_graziano_v1",
+  "schema_version": "1.0.0",
+  "semantic_sha256": "7b09e01c6ed415d1c1c5a9fda4d3762efbf336956da902a5000d526bc9566c2f"
+}

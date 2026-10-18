@@ -28,6 +28,61 @@
     "mass_and_stability": { "type": "object" },
     "data_links": { "type": "object" },
     "compute_rack": { "type": "object" },
-    "time_deadlines": { "type": "object" }
+    "time_deadlines": { "type": "object" },
+    "air_cooling_domains": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["capacity_w", "positions", "value_origin"],
+        "properties": {
+          "capacity_w": { "type": "integer", "minimum": 0 },
+          "positions": { "type": "array", "items": { "type": "string" } },
+          "value_origin": {
+            "type": "string",
+            "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"]
+          },
+          "source_ref": { "type": "string" },
+          "assumption_ref": { "type": "string" }
+        }
+      }
+    },
+    "roof_drone_clearance_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_id",
+        "policy_version",
+        "layout_version",
+        "constraint_id",
+        "assumption_ref",
+        "value_origin",
+        "compatibility",
+        "antenna_zone",
+        "excluded_zones",
+        "requires_installation_verification",
+        "invalidated_by"
+      ],
+      "properties": {
+        "policy_id": { "type": "string", "minLength": 1 },
+        "policy_version": { "type": "integer", "minimum": 1 },
+        "layout_version": { "type": "string", "minLength": 1 },
+        "constraint_id": { "type": "string", "minLength": 1 },
+        "assumption_ref": { "type": "string", "minLength": 1 },
+        "value_origin": {
+          "type": "string",
+          "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"]
+        },
+        "compatibility": {
+          "type": "string",
+          "enum": ["CONDITIONAL", "COMPATIBLE", "CONFLICT"]
+        },
+        "antenna_zone": { "type": "string" },
+        "excluded_zones": { "type": "array", "items": { "type": "string" } },
+        "requires_installation_verification": { "type": "boolean" },
+        "invalidated_by": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "transition_timing_policy": { "type": "object" }
   }
 }

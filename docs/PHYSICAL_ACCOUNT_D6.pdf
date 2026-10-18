@@ -1,0 +1,222 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+6 0 obj
+<< /Length 19782 >>
+stream
+q 0.10 0.21 0.36 rg 26.00 755.72 560.00 12.29 re f Q
+BT /F2 7.30 Tf 1.00 1.00 1.00 rg 34.00 759.71 Td (Physical Account \(D6\) -- 8-Class Resource Ledger, Assumption Register & Counterfactual \(1 Page\)) Tj ET
+BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 745.42 Td (1. Subcomponent Mass, Position, Stability & C\(5,4\) Combinations \(Organizer Clarifications Applied\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 743.42 560.00 0.60 re f Q
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 734.91 Td (Stability is computed per subcomponent \(x1.0 bay1/bay2, x1.2 hangar/hangar_roof/flight_deck, x3.0 mast_3\). Per GRAZIANO_B_COMPOSITION_0855 and GRAZIANO_ROOF_AND_G4_MASS_0904, G4 total mass is 990 kg \(140 kg) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 728.61 Td (vehicle + 850 kg hangar\), G3+G4+G5 = 9,515 kg ~= 9.52 t \(5.5 + 0.99 + 3.025 t\), and Scenario B installs G1+G3+G4+G5 \(9,560 kg, 440 kg mass margin; 9,853.0 kg-eq stability with G5 antenna on hangar_roof, 2,147.0) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 722.31 Td (kg-eq stability margin\). Across all C\(5,4\)=5 sets, 3 exceed 10,000 kg \({G1,G2,G3,G4}=10,035 kg, {G1,G2,G3,G5}=12,070 kg / 12,210 kg-eq, {G2,G3,G4,G5}=13,015 kg / 13,263 kg-eq\), while {G1,G2,G4,G5}=7,560 kg) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 716.01 Td (\(7,853.0 kg-eq roof / 7,898.0 kg-eq mast\) and {G1,G3,G4,G5}=9,560 kg \(9,853.0 kg-eq roof / 9,898.0 kg-eq mast\) pass mass/stability but require ROOF_OUTSIDE_G4_RECOVERY_V1 clearance on hangar_roof because G1) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 709.71 Td (\(1,500 W\) and G5 \(1,200 W\) exceed mast_3's single-slot and 2,000 W air limit \(2,700 W > 2,000 W\).) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 698.61 67.53 9.60 re B Q
+BT /F2 4.80 Tf 1.00 1.00 1.00 rg 29.00 701.61 Td (Guest ID & Role) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 93.53 698.61 202.89 9.60 re B Q
+BT /F2 4.80 Tf 1.00 1.00 1.00 rg 96.53 701.61 Td (Subcomponents, Mass & Placement) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 296.41 698.61 75.79 9.60 re B Q
+BT /F2 4.80 Tf 1.00 1.00 1.00 rg 299.41 701.61 Td (Stability \(kg-eq\)) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 372.20 698.61 213.80 9.60 re B Q
+BT /F2 4.80 Tf 1.00 1.00 1.00 rg 375.20 701.61 Td (Electrical, Water/Air Thermal & Data Envelope) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 689.01 67.53 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 692.01 Td (G1 Passive Radio/Meteo) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 93.53 689.01 202.89 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 96.53 692.01 Td (G1_MAST_SENSOR_HEAD: 45 kg -> mast_3 \(0.5 m2, Line A\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.41 689.01 75.79 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 299.41 692.01 Td (135.0 \(x3.0\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 372.20 689.01 213.80 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 375.20 692.01 Td (1.5 kW air \(mast_3 <= 2.0 kW; 0 W water\); 50 Mbps LAN, 200 kbps SATCOM) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 679.41 67.53 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 682.41 Td (G2 Ocean/Weather ROV) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 93.53 679.41 202.89 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 96.53 682.41 Td (G2_ROV_WINCH_CONTAINER_10FT: 3,500 kg -> bay2/bay1_a) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.41 679.41 75.79 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 299.41 682.41 Td (3,500.0 \(x1.0\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 372.20 679.41 213.80 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 375.20 682.41 Td (20 kW \(300 s winch\) / 6 kW cont -> water; 5 Mbps LAN, 500 kbps SATCOM) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 669.81 67.53 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 672.81 Td (G3 Seabed AUV+Cradle) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 93.53 669.81 202.89 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 96.53 672.81 Td (G3_AUV_CRADLE_BAY1_20FT: 5,500 kg -> bay1 \(Line A\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.41 669.81 75.79 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 299.41 672.81 Td (5,500.0 \(x1.0\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 372.20 669.81 213.80 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 375.20 672.81 Td (1 kW survey / 25 kW \(3,600 s\) firm charge -> water; 100 Mbps LAN) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 654.61 67.53 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 663.21 Td (G4 VTOL Drone+Hangar) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 93.53 654.61 202.89 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 96.53 663.21 Td (G4_DRONE_VEHICLE \(140 kg\) + G4_HANGAR_STATION \(850 kg\) = 990 kg ->) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 96.53 657.61 Td (hangar \(Line B\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.41 654.61 75.79 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 299.41 663.21 Td (1,188.0 \(x1.2\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 372.20 654.61 213.80 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 375.20 663.21 Td (35 kW \(1,200 s\) recovery/charge, 10 kW patrol, 2 kW standby -> water; 20) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 375.20 657.61 Td (Mbps LAN) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 639.41 67.53 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 648.01 Td (G5 Comms & Edge) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 642.41 Td (Compute) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 93.53 639.41 202.89 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 96.53 648.01 Td (G5_COMPUTE_CONTAINER \(3,000 kg -> bay2\) + G5_MAST_ANTENNA \(25 kg ->) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 96.53 642.41 Td (hangar_roof/mast_3, Line B\) = 3,025 kg) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.41 639.41 75.79 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 299.41 648.01 Td (3,030.0 roof / 3,075.0) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 299.41 642.41 Td (mast) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 372.20 639.41 213.80 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 375.20 648.01 Td (45 kW \(43.8 kW water + 1.2 kW air\) / 8 kW degraded \(7.5 kW water + 0.5 kW) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 375.20 642.41 Td (air, 30% cap\); 1 Gbps LAN, 6 Mbps SATCOM) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 629.81 67.53 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 632.81 Td (G6 Civil eDNA Sampler) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 93.53 629.81 202.89 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 96.53 632.81 Td (G6_HYDRO_SKID_10FT: 420 kg -> bay2/bay1_a \(ASSUMED, port_only=true\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 296.41 629.81 75.79 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 299.41 632.81 Td (420.0 \(x1.0\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 372.20 629.81 213.80 9.60 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 375.20 632.81 Td (4.5 kW \(1,800 s\) / 1.5 kW eco -> water; 30 Mbps LAN, 200 kbps SATCOM) Tj ET
+BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 620.01 Td (2. Mandatory Assumption Register & Code Traceability Table \(8 Assumption Families\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 618.01 560.00 0.60 re f Q
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 26.00 606.21 65.12 9.60 re B Q
+BT /F2 4.80 Tf 1.00 1.00 1.00 rg 29.00 609.21 Td (Assumption Family) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 91.12 606.21 243.05 9.60 re B Q
+BT /F2 4.80 Tf 1.00 1.00 1.00 rg 94.12 609.21 Td (Declared Rule, Units & Provenance Tag) Tj ET
+q 0.13 0.25 0.42 rg 0.72 0.78 0.86 RG 0.40 w 334.18 606.21 251.82 9.60 re B Q
+BT /F2 4.80 Tf 1.00 1.00 1.00 rg 337.18 609.21 Td (Concrete Files & Code Symbols \(file.py::symbol_name\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 585.41 65.12 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 599.61 Td (1. Provenance/mass) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 91.12 585.41 243.05 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 599.61 Td (Field-level OFFICIAL_BRIEF / ORGANIZER_ERRATA / ASSUMED; G4=990 kg \(140+850 kg\),) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 594.00 Td (G3+G4+G5=9,515 kg ~= 9.52 t, G1+G3+G4+G5=9,560 kg \(440 kg margin\), 9,853.0 kg-eq) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 588.40 Td (\(2,147.0 kg-eq margin\); G6=420 kg all ASSUMED.) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 334.18 585.41 251.82 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 599.61 Td (data/overrides/brief_errata.yaml, data/overrides/organizer_clarifications.yaml,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 594.00 Td (src/sdv_governor/manifest.py::parse_guest_manifest,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 588.40 Td (src/sdv_governor/manifest.py::load_guest_catalog) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 564.61 65.12 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 578.81 Td (2. Roof & drone) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 573.21 Td (clearance) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 91.12 564.61 243.05 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 578.81 Td (G5_MAST_ANTENNA on hangar_roof \(25 kg, 0.3 m2, x1.2\) with G4 is governed by) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 573.21 Td (ROOF_OUTSIDE_G4_RECOVERY_V1 outside G4_ROTOR_DISC/G4_RECOVERY_CORRIDOR \(YES_IF until) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 567.61 Td (verified; NO under CONFLICT policy\).) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 334.18 564.61 251.82 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 578.81 Td (data/ship/vessel_baseline.yaml, src/sdv_governor/placement.py::find_feasible_placement,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 573.21 Td (src/sdv_governor/admission.py::evaluate_admission,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 567.61 Td (src/sdv_governor/admission.py::apply_admission_decision_atomically) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 543.81 65.12 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 558.01 Td (3. Air & component) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 552.41 Td (split) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 91.12 543.81 243.05 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 558.01 Td (Component-level cooling split: mast_3 <= 2,000 W air \(OFFICIAL_BRIEF, G1=1,500 W\) and) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 552.41 Td (hangar_roof <= 2,000 W air \(ASSUMED ASM-ROOF-AIR-2000W, G5 antenna 1,200 W full / 500) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 546.81 Td (W degraded\); container 43.8 kW / 7.5 kW water.) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 334.18 543.81 251.82 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 558.01 Td (data/guests/G5_edge_sigint.yaml,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 552.41 Td (src/sdv_governor/budgets.py::evaluate_eight_class_budgets,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 546.81 Td (src/sdv_governor/models.py::SubcomponentSpec) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 523.01 65.12 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 537.21 Td (4. Power &) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 531.61 Td (feeders/reservations) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 91.12 523.01 243.05 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 537.21 Td (200 kW net payload reserve \(100 kW post-loss\); LINE_A_FWD <= 150 kW \(G1+G3\),) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 531.61 Td (LINE_B_AFT <= 150 kW \(G4+G5\); separates actual draw vs committed firm reservations \(G3) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 526.01 Td (25 kW recharge + G4 35 kW D3 recovery\).) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 334.18 523.01 251.82 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 537.21 Td (data/ship/vessel_baseline.yaml, src/sdv_governor/ship_state.py::FirmReservedLoad,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 531.61 Td (src/sdv_governor/budgets.py::evaluate_eight_class_budgets,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 526.01 Td (src/sdv_governor/degradation.py::execute_graceful_degradation) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 502.21 65.12 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 516.41 Td (5. Chilled water &) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 510.81 Td (thermal inertia) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 91.12 502.21 243.05 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 516.41 Td (Linear curve C\(T\) = 160,000 - 40,000*\(T-12\)/18 W \(160 kW at <=12 deg C, 120 kW at 30) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 510.81 Td (deg C, 72 kW with -40% loop fault\); +30 kW x 60 s \(1.8 MJ, 600 s recharge\) peak buffer) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 505.21 Td (never used for sustained \(>60 s\) loads.) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 334.18 502.21 251.82 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 516.41 Td (src/sdv_governor/budgets.py::compute_cooling_water_capacity_w,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 510.81 Td (src/sdv_governor/ship_state.py::ThermalInertiaState,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 505.21 Td (src/sdv_governor/degradation.py::evaluate_reconnection) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 475.81 65.12 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 495.61 Td (6. State & A.6) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 490.01 Td (transition timing) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 91.12 475.81 243.05 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 495.61 Td (Causal D3 chain: ACOUSTIC_HOLD cmd -> G3 ACK \(15 s nominal, [10, 60] s window\) -> 90 s) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 490.01 Td (turn/stabilize into wind -> 240 s approach/landing \(<= 1,200 s ditching deadline\); A.6) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 484.41 Td (60 s cooldown & 15 kW hysteresis.) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 334.18 475.81 251.82 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 495.61 Td (src/sdv_governor/arbitration.py::arbitrate_live_conflict,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 490.01 Td (src/sdv_governor/replay.py::_process_acoustic_hold_ack_event,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 484.41 Td (src/sdv_governor/replay.py::_apply_due_d3_milestones,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 478.81 Td (src/sdv_governor/scheduling.py::evaluate_a_prime_window) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 455.01 65.12 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 469.21 Td (7. Compute rack &) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 463.61 Td (data links) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 91.12 455.01 243.05 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 469.21 Td (4 nodes \(node_1..node_4\), 32c / 128 GiB / 1 acc each \(80% allocatable = 25c / 102,400) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 463.61 Td (MiB per node, max 3 discrete accelerators, 16 TB storage\); 10 Gbps LAN \(<=1) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 458.01 Td (Gbps/port\), SATCOM 10/6/2/0 Mbps \(W4 EMCON buffers G5\).) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 334.18 455.01 251.82 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 469.21 Td (data/ship/vessel_baseline.yaml,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 463.61 Td (src/sdv_governor/budgets.py::evaluate_eight_class_budgets,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 458.01 Td (src/sdv_governor/placement.py::find_feasible_placement) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 434.21 65.12 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 448.41 Td (8. Priorities &) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 442.81 Td (degraded capability) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 91.12 434.21 243.05 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 448.41 Td (Hard physical/safety constraints first; lexicographic mission score \(survey_primary) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 442.81 Td (lands T=1,095 s, rescue_primary lands T=855 s\); G5 step-down \(45 -> 8 kW\) retains 30%) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 94.12 437.21 Td (capability \(capability_retention_ratio=0.30\).) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 334.18 434.21 251.82 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 448.41 Td (data/priorities/survey_primary.yaml, data/priorities/rescue_primary.yaml,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 442.81 Td (src/sdv_governor/arbitration.py::_evaluate_candidate_feasibility_and_score,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 337.18 437.21 Td (src/sdv_governor/degradation.py::execute_graceful_degradation) Tj ET
+BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 424.41 Td (3. Scenario B \(G1+G3+G4+G5\) Power, Feeder, Water & Air Ledger Across Transitions) Tj ET
+q 0.75 0.82 0.90 rg 26.00 422.41 560.00 0.60 re f Q
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 36.00 413.90 Td (* Electrical Power \(actual / committed\): Initial 57.5 / 81.5 kW \(G1=1.5, G3=1.0 actual / 25.0 firm charge, G4=10.0, G5=45.0\) -> 82.5 / 106.5 kW at T=480 s when G4 35.0 kW recovery/charge is reserved -> at) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 36.00 407.60 Td (T=720 s \(100 kW generator reserve\), 106.5 kW > 100 kW triggers G5 step-down \(45.0 -> 8.0 kW\), yielding 45.5 / 69.5 kW <= 100 kW \(30.5 kW committed margin\).) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 36.00 399.80 Td (* Chilled-Water & Air Domains: Water load is 54.8 / 78.8 kW initial -> 79.8 / 103.8 kW with G4 35 kW -> 43.5 / 67.5 kW <= 72 kW after G5 step-down \(43.8 -> 7.5 kW water\), surviving 30 deg C + -40% loop loss) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 36.00 393.50 Td (\(72 kW\). Air cooling is 1,500 W on mast_3 \(G1\) + 1,200 W on hangar_roof \(G5 antenna\) = 2,700 W initial \(2,000 W after G5 step-down to 500 W roof air\).) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 36.00 385.70 Td (* Feeder Routing \(<= 150 kW/line\): LINE_A_FWD = 2.5 / 26.5 kW \(G1 1.5 kW + G3 1.0 / 25.0 kW\); LINE_B_AFT = 80.0 -> 43.0 kW \(G4 35.0 kW + G5 45.0 -> 8.0 kW\).) Tj ET
+BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 377.90 Td (4. What would change if the vessel had one single platform modification \(mast_4\)?) Tj ET
+q 0.75 0.82 0.90 rg 26.00 375.90 560.00 0.60 re f Q
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 367.40 Td (If the vessel added one second mast slot mast_4 \(<= 60 kg, <= 0.6 m2, <= 2,000 W independent forced-air cooling, x3.0 stability factor\), before vs. after solver results change as follows: for {G1, G3, G4, G5}) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 361.10 Td (\(9,560 kg\) and {G1, G2, G4, G5} \(7,560 kg\), G5_MAST_ANTENNA \(25 kg, 0.3 m2, 1,200 W air\) no longer collides with G1 \(45 kg, 0.5 m2, 1,500 W air\) on mast_3 \(2,700 W > 2,000 W\) and no longer requires hangar_roof) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 354.80 Td (placement or conditional G4 rotor-clearance verification \(ROOF_OUTSIDE_G4_RECOVERY_V1\), moving from 9,853.0 kg-eq \(hangar_roof\) to 9,898.0 kg-eq \(mast_4, 2,102.0 kg-eq margin\) with unconditional static placement) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 348.50 Td (\(YES at port; YES_IF under 14-day Mission Envelope A.10 solely for W4 EMCON offline buffering and W2/W3/W5 time-multiplexed windows\). However, mass \(10,000 kg\), bay capacities \(bay1 <= 8,000 kg, bay2 <= 4,000) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 342.20 Td (kg\), and stability \(12,000 kg-eq\) still limit the other three 4-guest combinations: {G1,G2,G3,G4} \(10,035 kg\), {G1,G2,G3,G5} \(12,070 kg, 12,210 kg-eq\), and {G2,G3,G4,G5} \(13,015 kg, 13,263 kg-eq, plus G2+G5 =) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 335.90 Td (6,500 kg > 4,000 kg in bay2\).) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000191 00000 n 
+0000000266 00000 n 
+0000000334 00000 n 
+0000020169 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+20315
+%%EOF

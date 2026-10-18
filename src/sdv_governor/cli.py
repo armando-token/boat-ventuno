@@ -35,7 +35,7 @@ from .replay import (
     run_scenario_b_replay,
 )
 from .server import serve_operator_ui
-from .ship_state import InstalledGuestState, ShipOperationalState
+from .ship_state import FirmReservedLoad, InstalledGuestState, ShipOperationalState
 
 
 def _default_repo_root() -> Path:
@@ -51,6 +51,18 @@ def _default_repo_root() -> Path:
     if (bundled_root / "data" / "guests").exists():
         return bundled_root
     return candidate_root
+
+
+def _resolve_priority_profile_path(data_dir: Path, profile_arg: str) -> Path:
+    cand = Path(profile_arg)
+    if cand.exists():
+        return cand.resolve()
+    named = data_dir / "priorities" / f"{profile_arg}.yaml"
+    if named.exists():
+        return named
+    if (data_dir / "priorities" / profile_arg).exists():
+        return data_dir / "priorities" / profile_arg
+    return named
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -71,34 +83,38 @@ def main(argv: Optional[List[str]] = None) -> int:
     p_adm = sub.add_parser("admit", help="Evaluate D1 Scenario A admission for a candidate guest (B4)")
     p_adm.add_argument("--candidate", required=True, help="Candidate guest ID (e.g., G4, G5, G6)")
     p_adm.add_argument("--installed", default="G1,G2,G3", help="Comma-separated installed guest IDs")
-    p_adm.add_argument("--profile", default="survey_primary", choices=["survey_primary", "rescue_primary"])
+    p_adm.add_argument("--profile", default="survey_primary", help="Priority profile ID or YAML path")
     p_adm.add_argument("--at-sea", action="store_true", help="Evaluate at sea instead of at port")
 
     sub.add_parser("combinations", help="Evaluate all 5 four-guest combinations of G1..G5 (Errata 3 of 5 > 10,000 kg)")
 
     p_arb = sub.add_parser("arbitrate", help="Run D3 Scenario B live arbitration under chosen priority profile (B5)")
-    p_arb.add_argument("--profile", default="survey_primary", choices=["survey_primary", "rescue_primary"])
+    p_arb.add_argument("--profile", default="survey_primary", help="Priority profile ID or YAML path")
 
     p_deg = sub.add_parser("degrade", help="Run D4 graceful degradation on a Scenario B state (B6)")
-    p_deg.add_argument("--scenario", default="scenario_B_charging_deficit_105kw.yaml")
-    p_deg.add_argument("--profile", default="survey_primary", choices=["survey_primary", "rescue_primary"])
+    p_deg.add_argument("--scenario", default="scenario_B_arbitration_degradation.yaml")
+    p_deg.add_argument("--profile", default="survey_primary", help="Priority profile ID or YAML path")
 
-    p_rep = sub.add_parser("replay", help="Run deterministic 90s Scenario B replay and print semantic hash (B5/B6)")
+    p_rep = sub.add_parser("replay", help="Run deterministic Scenario B replay and print semantic hash (B5/B6)")
     p_rep.add_argument("--scenario", default="scenario_B_arbitration_degradation.yaml")
-    p_rep.add_argument("--profile", default="survey_primary", choices=["survey_primary", "rescue_primary"])
+    p_rep.add_argument("--profile", default="survey_primary", help="Priority profile ID or YAML path")
     p_rep.add_argument("--runs", type=int, default=1, help="Number of consecutive runs to verify identical semantic_sha256")
 
     p_camp = sub.add_parser("campaign", help="Run full campaign and generate verified evidence bundle in artifacts/<run_id>")
     p_camp.add_argument("--run-id", default=None, help="Explicit run ID (default: timestamped run_YYYYMMDD_HHMMSS)")
+    p_camp.add_argument("--output-dir", type=Path, default=None, help="Output base directory (default: artifacts)")
     p_camp.add_argument("--junit-xml", type=Path, default=None, help="Path to pytest JUnit XML report to include")
     p_camp.add_argument("--with-remote-parity", action="store_true", help="Include remote Linux board parity run")
+    p_camp.add_argument("--ssh-target", default="ardu", help="SSH host alias for remote Linux board parity")
 
     p_ver = sub.add_parser("verify-evidence", help="Verify an evidence bundle fail-closed (B8)")
-    p_ver.add_argument("bundle_dir", type=Path, help="Path to artifacts/<run_id> directory")
+    p_ver.add_argument("bundle_dir", nargs="?", type=Path, default=None, help="Path to artifacts/<run_id> directory")
+    p_ver.add_argument("--bundle-dir", dest="bundle_dir_opt", type=Path, default=None, help="Path to artifacts/<run_id> directory")
     p_ver.add_argument("--run-mutations", action="store_true", help="Also run adversarial mutations in a scratch folder")
 
     p_dep = sub.add_parser("deploy-board", help="Sync codebase to remote Linux board and verify semantic parity (B1/B11)")
     p_dep.add_argument("--ssh-target", default="ardu")
+    p_dep.add_argument("--run-id", default=None, help="Optional run identifier for remote parity")
 
     p_ui = sub.add_parser("serve-ui", aliases=["serve"], help="Start single-screen 2D operator console HTTP server (B10)")
     p_ui.add_argument("--host", default="127.0.0.1")
@@ -146,7 +162,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0 if rep["errata_three_of_five_verified"] else 1
 
     if args.command == "admit":
-        prof = load_priority_profile(data_dir / "priorities" / f"{args.profile}.yaml")
+        prof = load_priority_profile(_resolve_priority_profile_path(data_dir, args.profile))
         base_state = ShipOperationalState(
             tick_seq=0,
             sim_time_s=0,
@@ -179,7 +195,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0
 
     if args.command == "arbitrate":
-        prof = load_priority_profile(data_dir / "priorities" / f"{args.profile}.yaml")
+        prof = load_priority_profile(_resolve_priority_profile_path(data_dir, args.profile))
         scen = load_yaml_file(data_dir / "scenarios" / "scenario_B_arbitration_degradation.yaml")
         state = build_initial_state_from_scenario(scen, catalog)
         state.sim_time_s = 480
@@ -188,22 +204,45 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0
 
     if args.command == "degrade":
-        prof = load_priority_profile(data_dir / "priorities" / f"{args.profile}.yaml")
-        scen = load_yaml_file(data_dir / "scenarios" / args.scenario)
+        prof = load_priority_profile(_resolve_priority_profile_path(data_dir, args.profile))
+        scen_path = Path(args.scenario)
+        if not scen_path.exists():
+            scen_path = data_dir / "scenarios" / args.scenario
+        scen = load_yaml_file(scen_path)
         state = build_initial_state_from_scenario(scen, catalog)
         if "COOLING" in scen.get("scenario_id", ""):
             state.seawater_temp_c = 30.0
             state.cooling_loop_degraded = True
         else:
+            state.sim_time_s = 720
             state.power_reserve_w = 100000
+            if "G3" in state.installed_guests and scen.get("scenario_id") == "SCENARIO_B_ARBITRATION_DEGRADATION":
+                state.installed_guests["G3"].active_mode = "HOLD_ACOUSTIC"
+            if (
+                "G4" in state.installed_guests
+                and state.installed_guests["G4"].active_mode == "FLIGHT_PATROL"
+                and not any(fl.guest_id == "G4" for fl in state.firm_reserved_loads)
+            ):
+                state.firm_reserved_loads.append(
+                    FirmReservedLoad(
+                        reservation_id="D3_PLAN_V1_G4_RECOVERY_35KW",
+                        guest_id="G4",
+                        reserved_mode="LAUNCH_RECOVERY_OPTICS",
+                        reserved_power_w=35000,
+                        reason="Planned G4 35 kW recovery approach + 20-min hangar charge",
+                    )
+                )
         res = execute_graceful_degradation(state, ship_profile, prof, catalog)
         res_out = {k: v for k, v in res.items() if k != "resulting_state"}
         print(json.dumps(res_out, indent=2, sort_keys=True))
         return 0
 
     if args.command == "replay":
-        prof = load_priority_profile(data_dir / "priorities" / f"{args.profile}.yaml")
-        scen = load_yaml_file(data_dir / "scenarios" / args.scenario)
+        prof = load_priority_profile(_resolve_priority_profile_path(data_dir, args.profile))
+        scen_path = Path(args.scenario)
+        if not scen_path.exists():
+            scen_path = data_dir / "scenarios" / args.scenario
+        scen = load_yaml_file(scen_path)
         hashes: List[str] = []
         last_res: Dict[str, Any] = {}
         for _ in range(max(1, args.runs)):
@@ -225,9 +264,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         camp = run_full_campaign_suite(root)
         parity_data = None
         if args.with_remote_parity:
-            parity_data = sync_and_run_remote_parity(root)
+            parity_data = sync_and_run_remote_parity(root, ssh_target=args.ssh_target)
+        junit_src = args.junit_xml
+        if junit_src is None and (root / "artifacts" / "validation_alignment_local" / "junit.xml").exists():
+            junit_src = root / "artifacts" / "validation_alignment_local" / "junit.xml"
         bundle_dir = generate_evidence_bundle(
-            root, run_id, camp, junit_xml_source=args.junit_xml, remote_parity_data=parity_data
+            root, run_id, camp, junit_xml_source=junit_src, remote_parity_data=parity_data
         )
         ok, errs, ver_rep = verify_evidence_bundle(bundle_dir)
         print(json.dumps({
@@ -241,16 +283,19 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0 if ok else 1
 
     if args.command == "verify-evidence":
-        ok, errs, ver_rep = verify_evidence_bundle(args.bundle_dir)
+        target_bundle_dir = args.bundle_dir_opt or args.bundle_dir
+        if target_bundle_dir is None:
+            raise ValueError("Must provide bundle_dir positional argument or --bundle-dir")
+        ok, errs, ver_rep = verify_evidence_bundle(target_bundle_dir)
         out: Dict[str, Any] = {
-            "bundle_dir": str(args.bundle_dir),
+            "bundle_dir": str(target_bundle_dir),
             "verified": ok,
             "errors": errs,
             "summary": ver_rep,
         }
         if args.run_mutations and ok:
             mut_rep = run_adversarial_mutation_suite(
-                args.bundle_dir, args.bundle_dir.parent / "_scratch_mutations"
+                target_bundle_dir, target_bundle_dir.parent / "_scratch_mutations"
             )
             out["adversarial_mutations"] = mut_rep
             ok = ok and mut_rep["all_rejected"]

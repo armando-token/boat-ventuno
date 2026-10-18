@@ -1,0 +1,544 @@
+/* ==========================================================================
+   viz3d/styles.css
+   Sistema de Diseño Marítimo conforme a IEC 62288:2021 (Paletas Day / Dusk / Night),
+   IEC 62923 (Bridge Alert Management - BAM), IMO S-Mode e ISO 14726.
+   ========================================================================== */
+
+:root,
+body[data-iec-palette="dusk"] {
+  --bg-bridge: #070d14;
+  --bg-panel: rgba(11, 19, 30, 0.86);
+  --bg-card: rgba(17, 29, 45, 0.9);
+  --border-panel: rgba(56, 189, 248, 0.24);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-nav: #38bdf8;
+  --bam-alarm: #ef4444;
+  --bam-warning: #f59e0b;
+  --bam-caution: #fde047;
+  --bam-ok: #10b981;
+  --iso-chilled-water: #06b6d4;
+  --iso-power-bus: #f97316;
+}
+
+body[data-iec-palette="day"] {
+  --bg-bridge: #cbd5e1;
+  --bg-panel: rgba(241, 245, 249, 0.92);
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --border-panel: rgba(15, 23, 42, 0.24);
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+  --accent-nav: #0284c7;
+  --bam-alarm: #dc2626;
+  --bam-warning: #d97706;
+  --bam-caution: #ca8a04;
+  --bam-ok: #059669;
+}
+
+body[data-iec-palette="night"] {
+  --bg-bridge: #040202;
+  --bg-panel: rgba(14, 6, 6, 0.92);
+  --bg-card: rgba(24, 9, 9, 0.94);
+  --border-panel: rgba(220, 38, 38, 0.35);
+  --text-primary: #fca5a5;
+  --text-secondary: #f87171;
+  --text-muted: #b91c1c;
+  --accent-nav: #ef4444;
+  --bam-alarm: #ff2e2e;
+  --bam-warning: #fb923c;
+  --bam-caution: #facc15;
+  --bam-ok: #dc2626;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-bridge);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  user-select: none;
+}
+
+.mono {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* Lienzo 3D a pantalla completa */
+#viewport-3d-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+#viewport-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Superposición opcional del plano oficial de 60m para verificación de escala 1:1 */
+#blueprint-overlay {
+  position: fixed;
+  inset: 60px 330px 140px 330px;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#blueprint-overlay.visible {
+  opacity: 0.42;
+}
+
+#blueprint-overlay img {
+  max-width: 92%;
+  max-height: 92%;
+  border: 1px dashed var(--accent-nav);
+  border-radius: 6px;
+}
+
+/* Layout HUD de Puente Marítimo (S-Mode) */
+.bridge-hud {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  display: grid;
+  grid-template-rows: 46px 1fr 142px;
+  grid-template-columns: 325px 1fr 345px;
+  gap: 8px;
+  padding: 6px 8px;
+}
+
+.hud-interactive {
+  pointer-events: auto;
+  background: var(--bg-panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-panel);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* 1. Barra Superior S-Mode (IMO MSC.1/Circ.1609) */
+.smode-topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  gap: 10px;
+}
+
+.smode-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.smode-title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: var(--accent-nav);
+}
+
+.smode-sub {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+}
+
+.conning-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.conning-pill {
+  background: var(--bg-card);
+  border: 1px solid var(--border-panel);
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.conning-pill strong {
+  color: var(--accent-nav);
+}
+
+.bridge-mode-badge {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 10.5px;
+  background: rgba(16, 185, 129, 0.18);
+  color: var(--bam-ok);
+  border: 1px solid var(--bam-ok);
+}
+
+.bridge-mode-badge.offline {
+  background: rgba(245, 158, 11, 0.18);
+  color: var(--bam-warning);
+  border-color: var(--bam-warning);
+}
+
+.smode-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Botones estándar de puente */
+.btn-bridge {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-panel);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-bridge:hover {
+  border-color: var(--accent-nav);
+  background: rgba(56, 189, 248, 0.16);
+}
+
+.btn-bridge.active {
+  background: var(--accent-nav);
+  color: #030712;
+  border-color: var(--accent-nav);
+}
+
+.btn-bridge.warn {
+  border-color: rgba(245, 158, 11, 0.55);
+  color: var(--bam-warning);
+}
+
+.btn-bridge.danger {
+  border-color: rgba(239, 68, 68, 0.65);
+  color: var(--bam-alarm);
+}
+
+/* 2. Columna Izquierda: Unifilar PMS (IEC 60617) + Lazo Térmico ISO 14726 + Topología */
+.left-dock {
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.dock-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--accent-nav);
+  border-bottom: 1px solid var(--border-panel);
+  padding-bottom: 3px;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pms-diagram {
+  background: var(--bg-card);
+  border: 1px solid var(--border-panel);
+  border-radius: 4px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.genset-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.genset-box {
+  border: 1px solid var(--bam-ok);
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 4px;
+  padding: 4px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.genset-box.tripped {
+  border-color: var(--bam-alarm);
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--bam-alarm);
+  animation: bam-flash 1s infinite;
+}
+
+.genset-box.standby {
+  border-color: var(--text-muted);
+  background: rgba(100, 116, 139, 0.12);
+  color: var(--text-secondary);
+}
+
+.bus-bar-line {
+  height: 5px;
+  background: linear-gradient(90deg, var(--iso-power-bus), #facc15);
+  border-radius: 3px;
+  position: relative;
+}
+
+.power-lines-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.line-box {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid var(--border-panel);
+  border-radius: 3px;
+  padding: 4px 6px;
+  font-size: 10px;
+}
+
+.meter-bar {
+  height: 6px;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.meter-fill {
+  height: 100%;
+  background: var(--bam-ok);
+  transition: width 0.25s ease;
+}
+
+.meter-fill.warn {
+  background: var(--bam-warning);
+}
+
+.meter-fill.danger {
+  background: var(--bam-alarm);
+}
+
+/* Selector de Cámaras y Capas 3D en el centro flotante */
+.center-overlay {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px;
+}
+
+.camera-bar {
+  pointer-events: auto;
+  align-self: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-panel);
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
+.telemetry-floating-banner {
+  pointer-events: auto;
+  align-self: center;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-panel);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 11px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+/* 3. Columna Derecha: BAM Alert List (IEC 62923) + Perturbaciones D4 + Admisión D1 */
+.right-dock {
+  grid-column: 3 / 4;
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.bam-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 135px;
+  overflow-y: auto;
+}
+
+.bam-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  border-left: 4px solid var(--bam-ok);
+  background: var(--bg-card);
+}
+
+.bam-item.alarm {
+  border-left-color: var(--bam-alarm);
+  background: rgba(239, 68, 68, 0.16);
+}
+
+.bam-item.alarm.unacked {
+  animation: bam-flash 0.9s infinite;
+}
+
+.bam-item.warning {
+  border-left-color: var(--bam-warning);
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.bam-item.caution {
+  border-left-color: var(--bam-caution);
+  background: rgba(250, 204, 21, 0.12);
+}
+
+@keyframes bam-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.perturb-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.admission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-card);
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-panel);
+}
+
+.admission-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.admission-row select,
+.admission-row input[type="text"],
+.admission-row input[type="number"] {
+  background: var(--bg-bridge);
+  color: var(--text-primary);
+  border: 1px solid var(--border-panel);
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 10.5px;
+  width: 155px;
+}
+
+.verdict-box {
+  font-size: 10.5px;
+  padding: 4px 6px;
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid var(--border-panel);
+  max-height: 76px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+/* 4. Consola Inferior: Los 8 Recursos Físicos (1 Hz) + Scrubber de Escenario B (90s = 20x) */
+.bottom-console {
+  grid-column: 1 / -1;
+  grid-row: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px 10px;
+  gap: 6px;
+}
+
+.eight-classes-strip {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+.res-gauge-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-panel);
+  border-radius: 4px;
+  padding: 5px 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.res-gauge-card.infeasible {
+  border-color: var(--bam-alarm);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.res-gauge-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 10.5px;
+  text-transform: uppercase;
+}
+
+.res-gauge-values {
+  font-size: 10px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.timeline-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-panel);
+}
+
+.timeline-bar input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent-nav);
+  cursor: pointer;
+}

@@ -43,6 +43,7 @@ include = ["sdv_governor*"]
   "_bundled/data/**/*",
   "_bundled/schemas/*",
   "_bundled/ui/**/*",
+  "_bundled/viz3d/**/*",
 ]
 
 [tool.pytest.ini_options]

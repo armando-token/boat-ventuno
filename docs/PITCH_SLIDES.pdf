@@ -4,7 +4,7 @@
 << /Type /Catalog /Pages 2 0 R >>
 endobj
 2 0 obj
-<< /Type /Pages /Kids [7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R] /Count 8 >>
+<< /Type /Pages /Kids [7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R 23 0 R 25 0 R] /Count 10 >>
 endobj
 3 0 obj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
@@ -16,21 +16,22 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 1784 >>
+<< /Length 1991 >>
 stream
 q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
 q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
-BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj ET
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
 BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 1: Executive Overview -- Deterministic Physics First) Tj ET
-BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 1 / 8) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Mission: Govern admission, placement, live arbitration, and graceful degradation across 8 coupled) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 651.00 Td (physical resource classes \(power, cooling, positions, mast, mass_stability, data, compute, time\) on a) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 636.50 Td (Software-Defined Vessel.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 617.50 Td (* Core Principle: Hard physical and life/vehicle safety limits are satisfied first; mission capability) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 603.00 Td (score, free margin, and displacement cost are optimized second. No priority weight can ever override a) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 588.50 Td (hard physical limit or drone ditching deadline.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 569.50 Td (* Zero Opaque Runtime AI: 100% deterministic, inspectable math \(exact cooling curve, integer) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 555.00 Td (Watts/kg/bps, parameterized witness explanations, 1 Hz internal simulation stepping\).) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 1 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Mission: Govern admission \(D1\), physical placement \(D2\), live conflict arbitration \(D3\), graceful) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 651.00 Td (degradation \(D4\), multi-crew scheduling \(D5: 14/6/0\), and fail-closed physical accounting \(D6\) across 8) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 636.50 Td (coupled physical resource classes \(power, cooling, positions, mast, mass_stability, data, compute,) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 622.00 Td (time\) on a 72 m Software-Defined Vessel.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 603.00 Td (* Core Principle: Hard physical and life/vehicle safety limits are satisfied first; mission capability) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 588.50 Td (score, free margin, and displacement cost are optimized second. No priority weight can ever override a) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 574.00 Td (hard physical limit or drone ditching deadline.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 555.00 Td (* Zero Opaque Runtime AI: 100% deterministic, inspectable math \(exact cooling curve, component-level) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 540.50 Td (power/water/air splits, parameterized witness explanations, 1 Hz internal simulation stepping\).) Tj ET
 q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
 BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
 endstream
@@ -39,13 +40,13 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
 endobj
 8 0 obj
-<< /Length 2044 >>
+<< /Length 2114 >>
 stream
 q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
 q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
-BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj ET
-BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 2: Fail-Closed Validation & Defeating Legacy Defects) Tj ET
-BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 2 / 8) Tj ET
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 2: Fail-Closed Validation & Declarative Guest Ontology \(D1\)) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 2 / 10) Tj ET
 BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Strict Schema & Type Discipline \(B2, F3, H06, H13, R2, R4\):) Tj ET
 BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* Rejects NaN, Infinity, negative or zero budgets, booleans used as numbers \(True != 1\), string) Tj ET
 BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (booleans \("false"\), unknown YAML/HTTP JSON fields \(UNKNOWN_FIELD\), dependency cycles, and invalid) Tj ET
@@ -53,9 +54,9 @@ BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 617.50 Td (cooling coupling \(cooling_wa
 BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (* Reproduces and defeats all 10 adversarial input flaws \(resource_engine_repro.json\) and all 28) Tj ET
 BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (verifier mutation classes \(false_accepts = 0\).) Tj ET
 BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 565.00 Td (* Six Declarative Guest Cards \(G1-G6\) with Field-Level Provenance:) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 546.00 Td (* Official G1 \(45 kg, 1.5 kW air\), G2 \(3,500 kg, 20/6 kW\), G3 \(5,500 kg, 25/1 kW\), G4 \(140+850 = 990) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 531.50 Td (kg per errata, 35/10/2 kW\), G5 \(3,000+25 = 3,025 kg, 45/8 kW\), plus custom civil card G6 \(420 kg,) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 517.00 Td (port_only=true, all fields ASSUMED\).) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 546.00 Td (* Official G1 \(45 kg, 1.5 kW air on mast_3\), G2 \(3,500 kg, 20/6 kW\), G3 \(5,500 kg, 25/1 kW\), G4) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 531.50 Td (\(140+850 = 990 kg per GRAZIANO_ROOF_AND_G4_MASS_0904, 35/10/2 kW\), G5 \(3,000+25 = 3,025 kg, 45/8 kW\),) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 517.00 Td (plus custom civil card G6 \(420 kg, port_only=true, all fields ASSUMED\) and zero-code dynamic G7.) Tj ET
 q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
 BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
 endstream
@@ -64,24 +65,24 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
 endobj
 10 0 obj
-<< /Length 2140 >>
+<< /Length 2232 >>
 stream
 q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
 q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
-BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj ET
-BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 3: Scenario A \(D1\) -- 8-Class Admission & Errata Proof) Tj ET
-BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 3 / 8) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Organizer Errata Verified \(DAT-02, DAT-03\):) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* With G4 = 990 kg, exactly 3 of 5 four-guest combinations exceed 10,000 kg: {G1,G2,G3,G4}=10,035 kg,) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td ({G1,G2,G3,G5}=12,070 kg, {G2,G3,G4,G5}=13,015 kg.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 613.00 Td (* The 2 mass-feasible sets {G1,G2,G4,G5}=7,560 kg and {G1,G3,G4,G5}=9,560 kg prove that passing mass) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (does not imply passing placement: G5's antenna collides with G1 on mast_3 \(1.5+1.2=2.7 kW > 2.0 kW) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (air\) and with G4 drone clearance on hangar_roof!) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 565.00 Td (* Single Platform Modification Counterfactual \(R6.1\):) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 546.00 Td (* Adding a second guest mast slot mast_4 \(<= 60 kg, <= 2.0 kW air\) eliminates the G1/G5 mast collision) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 531.50 Td (and G4 roof clearance conflict for {G1,G2,G4,G5} and {G1,G3,G4,G5}, leaving only standard Mission) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 517.00 Td (Envelope A.10 operational mode scheduling \(G5 offline buffering in W4 EMCON and G2/G3/G4) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 502.50 Td (time-multiplexed deck/acoustic windows\).) Tj ET
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 3: Scenario A \(D1/D2\) -- 8-Class Admission, Roof Clearance & Errata Proof) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 3 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Organizer Clarifications Verified \(GRAZIANO_B_COMPOSITION_0855, GRAZIANO_ROOF_AND_G4_MASS_0904\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* With G4 = 990 kg, G3+G4+G5 = 9,515 kg ~= 9.52 t and G1+G3+G4+G5 = 9,560 kg \(440 kg mass margin,) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (9,853.0 kg-eq stability with G5 antenna on hangar_roof, 2,147.0 kg-eq margin\).) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 613.00 Td (* Across C\(5,4\)=5 sets, 3 exceed 10,000 kg \({G1,G2,G3,G4}=10,035 kg, {G1,G2,G3,G5}=12,070 kg,) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td ({G2,G3,G4,G5}=13,015 kg\), while {G1,G2,G4,G5}=7,560 kg and {G1,G3,G4,G5}=9,560 kg require) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (G5_MAST_ANTENNA on hangar_roof under conditional policy ROOF_OUTSIDE_G4_RECOVERY_V1 \(YES_IF until) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 569.50 Td (verified; NO under CONFLICT policy\).) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 550.50 Td (* Single Platform Modification Counterfactual \(mast_4\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 531.50 Td (* Adding mast_4 \(<= 60 kg, <= 0.6 m2, <= 2,000 W air\) separates G1 \(1,500 W on mast_3\) and G5 antenna) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 517.00 Td (\(1,200 W on mast_4, 9,898.0 kg-eq\), removing the roof-clearance condition while mass/bays/stability) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 502.50 Td (still block the other three 4-guest sets.) Tj ET
 q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
 BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
 endstream
@@ -90,25 +91,24 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 10 0 R >>
 endobj
 12 0 obj
-<< /Length 2353 >>
+<< /Length 2175 >>
 stream
 q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
 q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
-BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj ET
-BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 4: Scenario B \(D3\) -- Live Arbitration & Causal Acoustic Handshake) Tj ET
-BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 4 / 8) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* The Conflict: G3 AUV is executing a 40 min quiet acoustic survey \(SURVEY_QUIET, 1 kW, 3 kn\) when G4) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 651.00 Td (UAV reports 18% battery \(< 20% emergency -> 12 min / 720 s max endurance\) requiring a turn into 22 kn) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 636.50 Td (wind and 35 kW recovery/charging power.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 617.50 Td (* Causal Command-ACK & Precondition Verification \(R1.1, R1.2\):) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (* D3 approval at T=480 s immediately registers a firm 35 kW reservation \(D3_PLAN_V1_G4_RECOVERY\) for) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (G4 recovery/charging.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 565.00 Td (* Turning into the wind requires a verified ACOUSTIC_HOLD_CONFIRMED ACK from guest_id='G3' matching) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 550.50 Td (the active command_id and plan_version, plus power_reserve_w >= 35 kW and deck_clear=True.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 531.50 Td (* rescue_primary: Issues ACOUSTIC_HOLD at T=480 s, receives ACK at T=495 s, turns into wind, and lands) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 517.00 Td (G4 at T=855 s \(345 s margin before T=1,200 s deadline\).) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 498.00 Td (* survey_primary: Completes 240 s of survey pass, issues ACOUSTIC_HOLD at T=720 s, receives ACK at) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 483.50 Td (T=735 s, turns into wind, and lands G4 at T=1,095 s \(105 s margin before T=1,200 s deadline\).) Tj ET
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 4: Scenario B \(D3\) -- Installed G1+G3+G4+G5 & Causal Acoustic Handshake) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 4 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Active 4-Guest Set \(G1+G3+G4+G5\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* G1 on mast_3 \(45 kg, 1.5 kW air, LINE_A_FWD\), G3 in bay1 \(5,500 kg, 1.0 kW survey / 25.0 kW firm) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (charge, LINE_A_FWD\), G4 in hangar/flight_deck \(990 kg, 10.0 kW patrol / 35.0 kW recovery, LINE_B_AFT\),) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 617.50 Td (G5 container in bay2 + antenna on hangar_roof \(3,025 kg, 45.0 kW = 43.8 kW water + 1.2 kW roof air,) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 603.00 Td (LINE_B_AFT\). G2 is not installed in Scenario B.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 584.00 Td (* Causal Command-ACK & A.6 Transition Timing:) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 565.00 Td (* At T=480 s, G4 reports 18% battery \(720 s deadline -> T <= 1,200 s\) and D3 reserves 35.0 kW \(82.5 /) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 550.50 Td (106.5 kW actual/committed\).) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 531.50 Td (* Turning into 22 kn wind requires verified ACOUSTIC_HOLD_CONFIRMED ACK from G3 \(15 s nominal, [10,) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 517.00 Td (60] s window\), 90 s turn/stabilization into wind, and 240 s approach/landing: rescue_primary lands at) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 502.50 Td (T=855 s \(345 s margin\); survey_primary lands at T=1,095 s \(105 s margin\).) Tj ET
 q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
 BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
 endstream
@@ -117,22 +117,22 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 12 0 R >>
 endobj
 14 0 obj
-<< /Length 1955 >>
+<< /Length 2010 >>
 stream
 q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
 q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
-BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj ET
-BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 5: Scenario B \(D4\) -- Graceful Degradation & Zero Infeasible Ticks) Tj ET
-BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 5 / 8) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Honest Power vs. Thermal Accounting \(DEG-01..05, R1.1\):) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* When generator reserve drops from 200 kW to 100 kW at T=720 s, firm committed power including G3's) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (25 kW turnaround recharge reservation and G4's 35 kW D3 recovery reservation is 25 + 35 + 45 = 105 kW) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 617.50 Td (> 100 kW \(5 kW firm deficit\).) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (* Under both survey_primary and rescue_primary, D4 immediately steps down G5 \(45 kW -> 8 kW) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (DEGRADED_70PCT_LOSS\) at T=720 s, reducing committed power to 68 kW <= 100 kW \(32 kW free margin\) and) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 569.50 Td (guaranteeing 0 infeasible ticks \(91/91 feasible\) across the entire mission!) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 550.50 Td (* At 30 deg C seawater with -40% cooling loop loss \(72 kW thermal capacity vs 100 kW power\),) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 536.00 Td (chilled-water cooling binds first \(79.8 kW > 72 kW\) and steps down G5 \(79.8 kW -> 43.5 kW\).) Tj ET
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 5: Scenario B \(D4\) -- Graceful Degradation, Feeders & Water/Air Split) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 5 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Component-Level Power, Feeder & Thermal Ledger \(G1+G3+G4+G5\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* Electrical Power \(actual / committed\): 57.5 / 81.5 kW initial -> 82.5 / 106.5 kW with G4 35 kW) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (reservation -> when generator reserve drops 200 kW -> 100 kW at T=720 s, 106.5 kW > 100 kW \(6.5 kW) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 617.50 Td (committed deficit\) triggers G5 step-down \(45.0 -> 8.0 kW\), yielding 45.5 / 69.5 kW <= 100 kW \(30.5 kW) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 603.00 Td (committed margin\) and 0 infeasible ticks \(91/91\)!) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (* Chilled-Water & Air Domains: Water load goes 54.8 / 78.8 kW -> 79.8 / 103.8 kW -> 43.5 / 67.5 kW <=) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 569.50 Td (72 kW after G5 step-down \(43.8 -> 7.5 kW water\), surviving 30 deg C + -40% loop loss \(72 kW\). Air) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 555.00 Td (cooling is 1,500 W \(mast_3\) + 1,200 W \(hangar_roof\) = 2,700 W \(2,000 W degraded\).) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 536.00 Td (* Feeder Routing \(<= 150 kW/line\): LINE_A_FWD = 2.5 / 26.5 kW; LINE_B_AFT = 80.0 -> 43.0 kW.) Tj ET
 q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
 BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
 endstream
@@ -141,22 +141,23 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 14 0 R >>
 endobj
 16 0 obj
-<< /Length 1903 >>
+<< /Length 1999 >>
 stream
 q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
 q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
-BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj ET
-BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 6: Scenario C -- Crew Regimes \(14 / 6 / 0\) & Resilience) Tj ET
-BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 6 / 8) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Crew Regime & Deck Clearance Enforcement \(CRW-01..03, R3, R6.2\):) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* 14 Crew: 9 deck crew -> G3 \(4 crew\) and G4 \(3 crew\) at-sea vehicle replacement permitted in A') Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (window \(4-8 kn, wind <= 20 kn, SS <= 3\). Simultaneous G2 winch \(0-5 kn\) + G4 flight ops \(5-12 kn into) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 617.50 Td (wind, touching only at 5.0 kn\) remain forbidden by Annex A.5 deck_clear and conflicting) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 603.00 Td (heading/station-keeping rules.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (* 6 Crew: 2 deck crew -> serialized manual launch/recovery \(G2 or G4\) permitted with 60-180 s watch) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 569.50 Td (handover; at-sea vehicle replacement \(min_crew >= 3\) blocked.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 550.50 Td (* 0 Crew: Zero physical installations or manual deck evolutions at sea \(CRW-02\); G6 \(420 kg > 250 kg,) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 536.00 Td (bay install\) is port_only=True across all regimes.) Tj ET
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 6: Scenario C \(D5\) -- Crew Regimes \(14 / 6 / 0\) & Implicit Timing Rules) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 6 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Concrete Implicit Rule \(Trigger -> Effect -> Confirmation\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* Urgent safety actions \(STOP, HOLD, SECURE <= 200 ms, < 1 ms measured\) execute autonomously across 14) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (/ 6 / 0.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 613.00 Td (* Non-urgent confirmation & flight-deck clearing scale with crew dial: 14 crew \(9 deck avail, 30 s) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (confirm, 240 s deck clear; A' replacement permitted at T+1260 s\), 6 crew \(2 deck avail, 120 s confirm,) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (600 s deck clear; A' replacement blocked\), 0 crew \(0 avail; software mode changes automated, manual) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 569.50 Td (evolutions and occupied-deck recovery PROHIBITED\).) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 550.50 Td (* Component-Split Overconsumption \(+20% G5, ?6.5\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 531.50 Td (* If G5 surges +20% to 54.0 kW electrical \(52.8 kW water + 1.2 kW roof air\), D4 immediately throttles) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 517.00 Td (G5 to 8.0 kW \(7.5 kW water + 0.5 kW air\).) Tj ET
 q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
 BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
 endstream
@@ -165,20 +166,20 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 16 0 R >>
 endobj
 18 0 obj
-<< /Length 1595 >>
+<< /Length 1642 >>
 stream
 q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
 q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
-BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj ET
-BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 7: Dual-Platform Architecture & Live Ventuno Q Parity) Tj ET
-BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 7 / 8) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Decoupled Laptop + Edge Board Execution \(B1, DEP-01..03\):) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* MacBook Pro \(arm64, Python 3.13.15\): Full test suite, 1 Hz event-driven simulator, 90 s \(20x\)) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (compressed demo, and stateful 2D operator console \(http://127.0.0.1:8765\).) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 613.00 Td (* Arduino Ventuno Q \(training06, Qualcomm Dragonwing IQ8 aarch64, 16 GB RAM, Ubuntu 24.04.4\): Live SSH) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (deployment at /home/arduino/sdv-resource-governor.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 579.50 Td (* Bit-for-Bit Semantic Parity: Identical campaign_semantic_sha256 verified across arm64 macOS and live) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 565.00 Td (aarch64 Ventuno Q \(training06\).) Tj ET
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 7: Physical Account \(D6\) -- 8 Assumption Families & Code Traceability) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 7 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Complete 1-Page Physical Account \(docs/PHYSICAL_ACCOUNT_D6.pdf\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* Maps all 8 assumption families \(Provenance/mass, Roof & drone clearance, Air & component split,) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (Power & feeders/reservations, Chilled water & thermal inertia, State & A.6 transition timing, Compute) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 617.50 Td (rack & data links, Priorities & degraded capability\) to exact YAML files and file.py::symbol_name) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 603.00 Td (functions.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 584.00 Td (* Enforces 4 physical compute nodes \(node_1..node_4, 32c / 128 GiB / 1 acc each; 80% allocatable = 25c) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 569.50 Td (/ 102.4 GiB per node, 3 assignable discrete accelerators across cluster\).) Tj ET
 q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
 BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
 endstream
@@ -187,22 +188,18 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 18 0 R >>
 endobj
 20 0 obj
-<< /Length 1887 >>
+<< /Length 1411 >>
 stream
 q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
 q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
-BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(8 Slides\)) Tj ET
-BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 8: Single-Screen 2D Operator Console & Fail-Closed Evidence) Tj ET
-BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 8 / 8) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Stateful Single-Screen 2D Operator Console \(B10, H12, R2, R5\):) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* Persistent GovernorSession \(session_catalog, manifest_registry, snapshot_id, state_version\),) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (per-tick 8-class budget and 2D vessel topology synchronization, 90 s \(1000 ms/tick = 20x\) Scenario B) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 617.50 Td (playback, perturbation injector, and live Scenario A guest card editor.) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 598.50 Td (* Fail-Closed Evidence Verifier \(B8, H05, R4\):) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 579.50 Td (* Recomputes all summary metrics and semantic hashes from raw JSON logs, verifies all acceptance) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 565.00 Td (criteria <testcase> nodes in tests.* with portable requirements_matrix.csv, cross-checks git_commit) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 550.50 Td (and environment, enforces <= 200 ms tick deadlines, and rejects 28 / 28 adversarial mutations) Tj ET
-BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 536.00 Td (\(false_accepts = 0\).) Tj ET
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 8: Operator Interface -- Synchronized 2D Console & 3D Vessel Twin) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 8 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Authoritative Shared Session \(server.py + ui/ + viz3d/\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* Both the single-screen 2D Operator Console \(http://127.0.0.1:8765\) and the Three.js 3D Vessel Twin) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (\(viz3d/\) bind to the same GovernorSession \(/api/state, /api/advance, /api/perturb, /api/admit_live\).) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 613.00 Td (* Zero Silent Synthetic Fallback: If the backend disconnects in live mode, the 3D Twin displays an) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (explicit STALE / DESCONECTADO banner rather than fabricating synthetic telemetry.) Tj ET
 q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
 BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
 endstream
@@ -210,32 +207,84 @@ endobj
 21 0 obj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 20 0 R >>
 endobj
+22 0 obj
+<< /Length 1619 >>
+stream
+q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
+q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 9: Dual-Platform Architecture & Live Ventuno Q Parity) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 9 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* Decoupled Laptop + Edge Board Execution \(B1, DEP-01..03\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* MacBook Pro \(arm64, Python 3.13.15\): Full test suite, 1 Hz event-driven simulator, 90 s \(20x\)) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (compressed demo, and 2D/3D Operator Interface.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 613.00 Td (* Arduino Ventuno Q \(training06, Qualcomm QCS8300 Monza aarch64, 14 GiB RAM, Ubuntu 24.04.4\): Live SSH) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (deployment at /home/arduino/sdv-resource-governor.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 579.50 Td (* Bit-for-Bit Semantic Parity: Identical campaign_semantic_sha256 verified across arm64 macOS and live) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 565.00 Td (aarch64 Ventuno Q, with 28 / 28 adversarial mutations rejected \(false_accepts = 0\).) Tj ET
+q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
+BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
+endstream
+endobj
+23 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 22 0 R >>
+endobj
+24 0 obj
+<< /Length 2023 >>
+stream
+q 0.99 0.99 1.00 rg 0.76 0.82 0.89 RG 0.80 w 24.00 32.00 564.00 728.00 re B Q
+q 0.10 0.21 0.36 rg 24.00 698.00 564.00 62.00 re f Q
+BT /F1 8.50 Tf 0.76 0.85 0.96 rg 38.00 738.00 Td (SDV Resource Governor -- Technical Pitch Deck \(10 Slides\)) Tj ET
+BT /F2 13.00 Tf 1.00 1.00 1.00 rg 38.00 714.00 Td (Slide 10: 90-Second Demo Script & Honest Operational Boundaries) Tj ET
+BT /F2 8.50 Tf 0.90 0.95 1.00 rg 520.00 738.00 Td (Slide 10 / 10) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 665.50 Td (* 90-Second \(20x\) Compressed Mission Walkthrough \(docs/DEMO_SCRIPT_90S.md\):) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 646.50 Td (* 0-20 s: Port Admission \(G1+G3+G4+G5 = 9,560 kg, 9,853 kg-eq, ROOF_OUTSIDE_G4_RECOVERY_V1 verified\) +) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 632.00 Td (zero-code G7.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 613.00 Td (* 20-55 s: Live Scenario B D3 arbitration \(T=480 s G4 18% battery -> G3 ACOUSTIC_HOLD ACK -> turn into) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 598.50 Td (wind -> 855 s / 1,095 s touchdown\).) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 579.50 Td (* 55-90 s: T=720 s generator loss \(106.5 -> 69.5 kW power, 103.8 -> 67.5 kW <= 72 kW water via G5) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 565.00 Td (step-down\) + 14/6/0 crew dial.) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 46.00 546.00 Td (* Explicit Rehearsal & Boundary Disclosure:) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 527.00 Td (* Software command dispatch is < 1 ms \(<= 200 ms budget\); physical breaker/winch/turning durations) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 512.50 Td (follow Annex A.6; live human spoken 90-second rehearsal status is explicitly recorded as) Tj ET
+BT /F1 10.20 Tf 0.12 0.15 0.20 rg 54.00 498.00 Td (DEFERRED_OWNER.) Tj ET
+q 0.93 0.95 0.98 rg 24.00 32.00 564.00 18.00 re f Q
+BT /F1 7.20 Tf 0.30 0.36 0.45 rg 38.00 38.00 Td (sdv-resource-governor | Deterministic 8-Class Physical Resource Governor \(MacBook Pro arm64 + Ventuno Q aarch64\)) Tj ET
+endstream
+endobj
+25 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 24 0 R >>
+endobj
 xref
-0 22
+0 26
 0000000000 65535 f 
 0000000015 00000 n 
 0000000064 00000 n 
-0000000169 00000 n 
-0000000239 00000 n 
-0000000314 00000 n 
-0000000382 00000 n 
-0000002218 00000 n 
-0000002364 00000 n 
-0000004460 00000 n 
-0000004606 00000 n 
-0000006799 00000 n 
-0000006947 00000 n 
-0000009353 00000 n 
-0000009501 00000 n 
-0000011509 00000 n 
-0000011657 00000 n 
-0000013613 00000 n 
-0000013761 00000 n 
-0000015409 00000 n 
-0000015557 00000 n 
-0000017497 00000 n 
+0000000184 00000 n 
+0000000254 00000 n 
+0000000329 00000 n 
+0000000397 00000 n 
+0000002440 00000 n 
+0000002586 00000 n 
+0000004752 00000 n 
+0000004898 00000 n 
+0000007183 00000 n 
+0000007331 00000 n 
+0000009559 00000 n 
+0000009707 00000 n 
+0000011770 00000 n 
+0000011918 00000 n 
+0000013970 00000 n 
+0000014118 00000 n 
+0000015813 00000 n 
+0000015961 00000 n 
+0000017425 00000 n 
+0000017573 00000 n 
+0000019245 00000 n 
+0000019393 00000 n 
+0000021469 00000 n 
 trailer
-<< /Size 22 /Root 1 0 R >>
+<< /Size 26 /Root 1 0 R >>
 startxref
-17645
+21617
 %%EOF

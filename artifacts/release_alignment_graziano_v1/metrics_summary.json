@@ -1,0 +1,25 @@
+{
+  "generated_at_utc": "2026-10-17T23:52:31Z",
+  "git_commit": "b35b157e80cab1bde6c032eaee178350e144abc6",
+  "metrics": {
+    "cooling_limited_semantic_sha256": "7a6bb4e76b76313cf31c1b5483483c01ab1757480e3769d6d91e83e9ccc69ba5",
+    "cooling_limited_ticks_count": 91,
+    "errata_exceed_10000_kg_count": 3,
+    "max_tick_calc_ms": 1.4479,
+    "min_tick_calc_ms": 0.0732,
+    "rescue_primary_semantic_sha256": "cda17575ab4788ccc2326318c3e19930796f651342e23865b244c370daedf49f",
+    "rescue_primary_ticks_count": 91,
+    "survey_primary_semantic_sha256": "0285ad160124342d44129cbc8f659982470ebf14af12033657dacd476ef4ab39",
+    "survey_primary_ticks_count": 91,
+    "total_decisions_count": 14
+  },
+  "run_id": "release_alignment_graziano_v1",
+  "runtime_telemetry": {
+    "hostname": "MacBook-Pro-7.local",
+    "pid": 37825,
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_version": "3.13.15",
+    "wall_elapsed_ms": 391.999
+  }
+}

@@ -175,3 +175,22 @@ def test_forecast_view_is_real_replay_and_labelled() -> None:
     warns = [a for a in view["alerts"] if a["state"] == "WARN"]
     assert warns, "replay of the recorded G5 ramp must raise at least one WARN"
     assert all(a["h_star_s"] <= 60 for a in warns)
+
+
+def test_no_window_reason_names_operational_blockers() -> None:
+    timeline = [
+        {
+            "sim_time_s": i * 3600,
+            "permitted": False,
+            "sea_state": 2,
+            "raw_wave_hs_m": 0.5,
+            "raw_wind_kn": 8.0,
+            "limits": {"max_sea_state": 4, "max_wind_kn": 25.0},
+            "guard": {"wind_kn": 1.0, "wave_hs_m": 0.1, "sst_c": 0.1, "status": "DERIVED"},
+            "reasons": ["Active guest G3 (SURVEY_QUIET) forbids deck machinery"] + (["wind 28 kn > max 25 kn"] if i % 2 else []),
+        }
+        for i in range(4)
+    ]
+    reason = describe_no_window(timeline, min_duration_s=900)["reason"]
+    assert "blocking in all 4 closed step(s): Active guest G3 (SURVEY_QUIET)" in reason
+    assert "wind 28 kn" not in reason

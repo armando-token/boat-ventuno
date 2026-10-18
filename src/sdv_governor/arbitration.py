@@ -24,6 +24,78 @@ from .scheduling import (
 from .ship_state import ShipOperationalState
 
 
+def build_g3_g4_conflict(catalog: Dict[str, GuestManifest]) -> Dict[str, Any]:
+    """Derive the G3-vs-G4 ship-state conflict directly from both manifests (Scenario B, D3)."""
+    g3 = catalog["G3"].ship_state_constraints
+    g4 = catalog["G4"].ship_state_constraints
+    reason = next(
+        (
+            str(r.get("reason"))
+            for r in catalog["G3"].dependencies.conditional_excludes
+            if r.get("other_guest_id") == "G4"
+        ),
+        "",
+    )
+    speed_overlap = not (
+        g3.max_speed_kn_for_operation < g4.min_speed_kn_for_operation
+        or g4.max_speed_kn_for_operation < g3.min_speed_kn_for_operation
+    )
+    conditions = [
+        {
+            "condition": "ship_speed_kn",
+            "G3_requires": [g3.min_speed_kn_for_operation, g3.max_speed_kn_for_operation],
+            "G4_requires": [g4.min_speed_kn_for_operation, g4.max_speed_kn_for_operation],
+            "compatible": speed_overlap,
+        },
+        {
+            "condition": "heading",
+            "G3_requires": "steady survey track",
+            "G4_requires": "into wind" if g4.requires_heading_into_wind_for_launch_recovery else "any",
+            "compatible": not g4.requires_heading_into_wind_for_launch_recovery,
+        },
+        {
+            "condition": "deck_machinery",
+            "G3_requires": "forbidden" if g3.forbids_deck_machinery_while_active else "allowed",
+            "G4_requires": "active" if g4.uses_deck_machinery else "not used",
+            "compatible": not (g3.forbids_deck_machinery_while_active and g4.uses_deck_machinery),
+        },
+    ]
+    return {
+        "guests": ["G3", "G4"],
+        "g3_mode": "SURVEY_QUIET",
+        "g4_modes": ["RECOVERY_APPROACH", "LAUNCH_RECOVERY_OPTICS"],
+        "incompatible_conditions": [c for c in conditions if not c["compatible"]],
+        "manifest_reason": reason,
+    }
+
+
+def build_captain_sentence(arb: Dict[str, Any]) -> str:
+    """One sentence a captain can read: hard constraint, winner, cost to the loser and the drone risk."""
+    prof = arb.get("priority_profile_id")
+    deadline = arb.get("hard_touchdown_deadline_s")
+    pct = arb.get("uav_battery_pct")
+    if arb.get("verdict") != "YES":
+        bw = (arb.get("binding_constraints") or [{}])[0]
+        return (
+            f"Under {prof}, no safe plan recovers G4 (battery {pct}%, deadline T+{deadline}s) because "
+            f"{bw.get('resource_class', 'unknown')}/{bw.get('constraint_id', 'unknown')} binds "
+            f"({bw.get('detail', 'no detail')}), so the governor refuses and escalates to the captain."
+        )
+    cost = arb.get("losing_mission_cost", {})
+    if cost.get("survey_segment_preserved_s", 0) > 0:
+        g3_action = (
+            f"lets G3 finish {cost['survey_segment_preserved_s']}s of its waypoint and holds it at T+{arb.get('hold_cmd_time_s')}s"
+        )
+    else:
+        g3_action = f"holds G3 immediately at T+{arb.get('hold_cmd_time_s')}s"
+    return (
+        f"G4 battery {pct}% forces touchdown by T+{deadline}s, so under {prof} the governor {g3_action}, "
+        f"lands G4 at T+{arb.get('touchdown_time_s')}s with {deadline - arb.get('touchdown_time_s')}s battery margin, "
+        f"and G3 loses {cost.get('total_survey_interruption_min')} min of survey "
+        f"({cost.get('survey_segment_aborted_s')}s of leg to re-run)."
+    )
+
+
 def _evaluate_candidate_feasibility_and_score(
     *,
     candidate_id: str,
@@ -524,7 +596,7 @@ def arbitrate_live_conflict(
             (c for c in evaluated_candidates if c["candidate_id"] == "CAND_IMMEDIATE_RECOVERY_TURN"),
             evaluated_candidates[0],
         )
-        return {
+        result = {
             "decision_type": "D3_LIVE_ARBITRATION",
             "verdict": "NO",
             "verdict_code": "DENIED",
@@ -565,15 +637,18 @@ def arbitrate_live_conflict(
             "action_sequence": [],
             "losing_mission_cost": primary_failed["losing_mission_cost"],
             "tie_break_rule": priority_profile.tie_break_order,
-            "rationale": (
+            "rationale_detail": (
                 f"D3 Arbitration INFEASIBLE (verdict=NO) under profile={priority_profile.priority_profile_id}: "
                 f"no candidate plan satisfies hard physical/weather/deck/roof/budget constraints."
             ),
+            "conflict": build_g3_g4_conflict(catalog),
             "calculation_elapsed_ms": elapsed_ms,
             "within_2s_deadline": elapsed_ms <= 2000.0,
             "priority_profile_sha256": priority_profile.source_sha256,
             "state_hash_before": canonical_json_hash(state.to_snapshot_dict()),
         }
+        result["rationale"] = build_captain_sentence(result)
+        return result
 
     # Sort feasible candidates deterministically using utility_score and priority_profile.tie_break_order
     if priority_profile.tie_break_order == "LOWER_DISPLACEMENT_COST_THEN_LEXICOGRAPHIC":
@@ -653,7 +728,7 @@ def arbitrate_live_conflict(
     )
 
     elapsed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
-    rationale = (
+    rationale_detail = (
         f"D3 Arbitration under profile={priority_profile.priority_profile_id} selected candidate={winner['candidate_id']} "
         f"(utility_score={winner['utility_score']}): G4 battery={uav_battery_pct}% (<20%) imposes hard landing deadline T+{hard_deadline_s}s. "
         f"Issued ACOUSTIC_HOLD to G3 at T+{hold_cmd_time_s}s, confirmed at T+{hold_ack_time_s}s ({handshake_s}s acoustic latency), "
@@ -664,7 +739,7 @@ def arbitrate_live_conflict(
         f"aborted_segment={losing_cost['survey_segment_aborted_s']}s."
     )
 
-    return {
+    result = {
         "decision_type": "D3_LIVE_ARBITRATION",
         "verdict": "YES",
         "verdict_code": "FEASIBLE",
@@ -715,9 +790,12 @@ def arbitrate_live_conflict(
         "action_sequence": action_sequence,
         "losing_mission_cost": losing_cost,
         "tie_break_rule": priority_profile.tie_break_order,
-        "rationale": rationale,
+        "rationale_detail": rationale_detail,
+        "conflict": build_g3_g4_conflict(catalog),
         "calculation_elapsed_ms": elapsed_ms,
         "within_2s_deadline": elapsed_ms <= 2000.0,
         "priority_profile_sha256": priority_profile.source_sha256,
         "state_hash_before": canonical_json_hash(state.to_snapshot_dict()),
     }
+    result["rationale"] = build_captain_sentence(result)
+    return result

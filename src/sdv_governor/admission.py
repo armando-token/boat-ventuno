@@ -193,6 +193,7 @@ def evaluate_mission_envelope_a10(
     restricted_windows: List[Dict[str, str]] = []
     envelope_binding_witnesses: List[Dict[str, Any]] = []
     nominal_offshore_mode_conditions: List[str] = []
+    nominal_offshore_condition_classes: Dict[str, str] = {}
     envelope_feasible = True
 
     for w in windows:
@@ -288,9 +289,10 @@ def evaluate_mission_envelope_a10(
                     }
                 )
                 if not is_degraded_or_heavy_window:
-                    nominal_offshore_mode_conditions.append(
-                        f"Window {wid} requires {candidate.guest_id} mode step-down to {cond_mode_used}"
-                    )
+                    cond_txt = f"Window {wid} requires {candidate.guest_id} mode step-down to {cond_mode_used}"
+                    nominal_offshore_mode_conditions.append(cond_txt)
+                    failing = sorted({str(bw["resource_class"]) for bw in snap["binding_witnesses"]})
+                    nominal_offshore_condition_classes[cond_txt] = "+".join(failing) if failing else "unknown"
                 snap = snap_cond
             else:
                 envelope_feasible = False
@@ -317,6 +319,7 @@ def evaluate_mission_envelope_a10(
         "envelope_id": mission_envelope.get("envelope_id", "A10_14DAY_OFFSHORE_ENVELOPE"),
         "envelope_feasible": envelope_feasible,
         "nominal_offshore_mode_conditions": nominal_offshore_mode_conditions,
+        "nominal_offshore_condition_classes": nominal_offshore_condition_classes,
         "envelope_binding_witnesses": envelope_binding_witnesses,
         "conditioned": len(restricted_windows) > 0,
         "restricted_windows": restricted_windows,
@@ -503,9 +506,20 @@ def evaluate_admission(
 
             elapsed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
             if required_conditions:
+                cond_classes = env_eval.get("nominal_offshore_condition_classes", {})
+
+                def _condition_class(c: str) -> str:
+                    if "hangar_roof" in c:
+                        return "positions"
+                    if c in cond_classes:
+                        return cond_classes[c]
+                    if c in cond_excl_notes:
+                        return "dependencies"
+                    return "unknown"
+
                 cond_witnesses = [
                     BindingConstraintWitness(
-                        resource_class="positions" if "hangar_roof" in c else "cooling",
+                        resource_class=_condition_class(c),
                         constraint_id=(
                             "hangar_roof_drone_clearance"
                             if "hangar_roof" in c

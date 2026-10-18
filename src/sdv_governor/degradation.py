@@ -9,6 +9,84 @@ from .budgets import evaluate_eight_class_budgets, is_mode_protected
 from .models import GuestManifest, PriorityProfile
 from .ship_state import ShipOperationalState
 
+# Ship-side support of a vehicle that is in the water / in the air must never be powered off automatically:
+# the AUV would lose its acoustic link and the UAV its LOS control/recovery link.
+DEPLOYED_VEHICLE_MODES: Dict[str, frozenset] = {
+    "G3": frozenset({"SURVEY_QUIET", "HOLD_ACOUSTIC"}),
+    "G4": frozenset({"FLIGHT_PATROL", "RECOVERY_APPROACH", "LAUNCH_RECOVERY_OPTICS"}),
+}
+
+
+def _guest_impacts(
+    before: ShipOperationalState,
+    after: ShipOperationalState,
+    catalog: Dict[str, GuestManifest],
+    protected_reasons: Dict[str, str],
+) -> List[Dict[str, Any]]:
+    """What every installed guest keeps or loses after D4 (Scenario B min-12 requirement)."""
+    impacts: List[Dict[str, Any]] = []
+    for gid in sorted(before.installed_guests):
+        b = before.installed_guests[gid]
+        a = after.installed_guests[gid]
+        man = catalog[gid]
+        b_spec = man.modes[b.active_mode]
+        a_spec = man.modes[a.active_mode]
+        retention_after = a_spec.capability_retention_ratio if a.powered_on else 0.0
+        retention_before = b_spec.capability_retention_ratio if b.powered_on else 0.0
+        if not a.powered_on and b.powered_on:
+            loses = "100% of its capability (powered off, stays installed)"
+        elif a.active_mode != b.active_mode:
+            loses = (
+                f"{round((retention_before - retention_after) * 100)}% of its capability "
+                f"({b.active_mode} -> {a.active_mode})"
+            )
+        else:
+            loses = "nothing"
+        impacts.append(
+            {
+                "guest_id": gid,
+                "mode_before": b.active_mode if b.powered_on else "POWERED_OFF",
+                "mode_after": a.active_mode if a.powered_on else "POWERED_OFF",
+                "power_before_w": b_spec.sustained_power_w if b.powered_on else 0,
+                "power_after_w": a_spec.sustained_power_w if a.powered_on else 0,
+                "capability_retention_after": retention_after,
+                "loses": loses,
+                "protected_reason": protected_reasons.get(gid),
+            }
+        )
+    return impacts
+
+
+def _degradation_sentence(
+    priority_profile: PriorityProfile,
+    deficit: Dict[str, Any],
+    impacts: List[Dict[str, Any]],
+    infeasible: bool,
+) -> str:
+    cause = []
+    if deficit["power_committed_deficit_w"] > 0 or deficit["power_actual_deficit_w"] > 0:
+        cause.append(
+            f"power {deficit['initial_power_committed_w'] / 1000:.1f} kW committed > {deficit['power_capacity_w'] / 1000:.1f} kW"
+        )
+    if deficit["cooling_committed_deficit_w"] > 0 or deficit["cooling_actual_deficit_w"] > 0:
+        cause.append(
+            f"cooling {deficit['initial_cooling_committed_w'] / 1000:.1f} kW committed > {deficit['cooling_capacity_w'] / 1000:.1f} kW"
+        )
+    cause_txt = " and ".join(cause) if cause else "no budget deficit"
+    losers = [f"{i['guest_id']} loses {i['loses']}" for i in impacts if i["loses"] != "nothing"]
+    keepers = [
+        f"{i['guest_id']} keeps {i['mode_after']}" + (f" ({i['protected_reason']})" if i["protected_reason"] else "")
+        for i in impacts
+        if i["loses"] == "nothing"
+    ]
+    outcome = "protected loads still exceed capacity, captain must decide" if infeasible else "budget restored"
+    return (
+        f"Under {priority_profile.priority_profile_id} with {cause_txt}, the governor sheds in order "
+        f"{'>'.join(priority_profile.shed_order_lowest_priority_first)}: "
+        f"{'; '.join(losers) if losers else 'no guest loses anything'}; "
+        f"{'; '.join(keepers) if keepers else 'no guest is untouched'} -> {outcome}."
+    )
+
 
 def execute_graceful_degradation(
     state: ShipOperationalState,
@@ -58,6 +136,7 @@ def execute_graceful_degradation(
     }
 
     first_shed_ms: Optional[float] = None
+    protected_reasons: Dict[str, str] = {}
 
     def _needs_mitigation(snap: Dict[str, Any]) -> bool:
         return (
@@ -81,16 +160,18 @@ def execute_graceful_degradation(
 
             # Do not step down G3 while it is in HOLD_ACOUSTIC for an active D3 recovery plan
             if gid == "G3" and ginst.active_mode == "HOLD_ACOUSTIC":
+                protected_reasons[gid] = "AUV submerged in acoustic HOLD for the D3 recovery plan"
                 continue
 
             # Non-overridable protection check (H09, DEG-01, DEG-04)
-            is_prot, _ = is_mode_protected(
+            is_prot, prot_reason = is_mode_protected(
                 manifest,
                 cur_mode_spec,
                 mode_elapsed_s=ginst.mode_elapsed_s,
                 battery_pct=ginst.battery_pct,
             )
             if is_prot:
+                protected_reasons[gid] = prot_reason
                 continue
 
             # Find lower-power operational modes
@@ -199,19 +280,26 @@ def execute_graceful_degradation(
             manifest = catalog[gid]
             cur_mode_spec = manifest.modes[ginst.active_mode]
 
+            if ginst.active_mode in DEPLOYED_VEHICLE_MODES.get(gid, frozenset()):
+                protected_reasons[gid] = f"vehicle deployed ({ginst.active_mode}); powering off would cut its link"
+                continue
+
             # Non-overridable protection check (H09, DEG-01, DEG-04)
-            is_prot, _ = is_mode_protected(
+            is_prot, prot_reason = is_mode_protected(
                 manifest,
                 cur_mode_spec,
                 mode_elapsed_s=ginst.mode_elapsed_s,
                 battery_pct=ginst.battery_pct,
             )
             if is_prot:
+                protected_reasons[gid] = prot_reason
                 continue
 
             prev_mode = ginst.active_mode
             prev_spec = manifest.modes[prev_mode]
             ginst.powered_on = False
+            released = [r for r in work_state.firm_reserved_loads if r.guest_id == gid]
+            work_state.firm_reserved_loads = [r for r in work_state.firm_reserved_loads if r.guest_id != gid]
             ginst.last_transition_time_s = work_state.sim_time_s
             if first_shed_ms is None:
                 first_shed_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
@@ -224,6 +312,7 @@ def execute_graceful_degradation(
                 "from_mode": prev_mode,
                 "to_mode": "POWERED_OFF_PHYSICAL_INSTALLED",
                 "power_saved_w": prev_spec.sustained_power_w,
+                "released_reservation_ids": [r.reservation_id for r in released],
                 "cooling_water_saved_w": prev_spec.cooling_water_w,
                 "cooling_air_saved_w": prev_spec.cooling_air_mast_w,
                 "capability_retention_ratio": 0.0,
@@ -264,9 +353,14 @@ def execute_graceful_degradation(
             }
         )
 
+    guest_impacts = _guest_impacts(state, work_state, catalog, protected_reasons)
+    rationale = _degradation_sentence(priority_profile, initial_deficit_summary, guest_impacts, infeasible_protected)
+
     return {
         "decision_type": "D4_GRACEFUL_DEGRADATION",
         "status": status_code,
+        "rationale": rationale,
+        "guest_impacts": guest_impacts,
         "verdict": "NO" if infeasible_protected else "YES",
         "infeasible_protected_load": infeasible_protected,
         "priority_profile_id": priority_profile.priority_profile_id,

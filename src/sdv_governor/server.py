@@ -519,15 +519,18 @@ class GovernorSession:
                 }
             )
         for dec in replay_decisions or self.executed_decisions:
-            d_type = dec.get("decision_type", "TIMELINE_DECISION")
+            # Replay decisions are shaped {"phase", "tick", "sim_time_s", "decision": {...}};
+            # legacy entries may still carry {"decision_type", "details"}.
+            d_type = dec.get("phase") or dec.get("decision_type") or "TIMELINE_DECISION"
             t_sim = dec.get("sim_time_s", 0)
-            details = dec.get("details", {})
-            c_sent = dec.get("causal_sentence")
+            details = dec.get("decision") or dec.get("details") or {}
+            c_sent = dec.get("causal_sentence") or details.get("rationale")
             if not c_sent:
-                if d_type == "D3_SURVEY_VS_UAV_RECOVERY_ARBITRATION":
+                if "hold_cmd_time_s" in details or "touchdown_time_s" in details:
                     c_sent = (
                         f"t={t_sim}s [{d_type}]: {details.get('verdict', 'ARBITRATED')} "
-                        f"(G3 paused at t={details.get('planned_g3_pause_time_s')}s, G4 touchdown at t={details.get('planned_touchdown_time_s')}s)."
+                        f"(G3 HOLD commanded at t={details.get('hold_cmd_time_s')}s, "
+                        f"G4 touchdown at t={details.get('touchdown_time_s')}s)."
                     )
                 else:
                     actions = details.get("actions_taken", [])
@@ -535,13 +538,15 @@ class GovernorSession:
                         first_a = actions[0]
                         c_sent = (
                             f"t={t_sim}s [{d_type}]: {first_a.get('action', 'STEP_DOWN')} on {first_a.get('guest_id', '')} "
-                            f"({first_a.get('from_mode', '')} -> {first_a.get('to_mode', '')}) -> {details.get('status', 'RECOVERED')}."
+                            f"({first_a.get('from_mode', '')} -> {first_a.get('to_mode', '')}) -> "
+                            f"{details.get('status', 'UNKNOWN')}."
                         )
                     else:
-                        c_sent = f"t={t_sim}s [{d_type}]: status={details.get('status', 'OK')}."
+                        c_sent = f"t={t_sim}s [{d_type}]: {details.get('verdict') or details.get('status') or 'no action required'}."
             entries.append(
                 {
                     "type": d_type,
+                    "tick": dec.get("tick", t_sim),
                     "sim_time_s": t_sim,
                     "causal_sentence": c_sent,
                     "details": details,
@@ -1719,9 +1724,9 @@ def dispatch_api_request(
                     uav_approach_margin_s=app_m_s,
                     remaining_survey_waypoint_s=rem_wp_s,
                 )
-                c_sent = (
+                c_sent = arb.get("rationale") or (
                     f"Arbitration under '{prof_id}' -> {arb.get('verdict')}: "
-                    f"G3 paused at t={arb.get('planned_g3_pause_time_s')}s, G4 touchdown at t={arb.get('planned_touchdown_time_s')}s."
+                    f"G3 HOLD commanded at t={arb.get('hold_cmd_time_s')}s, G4 touchdown at t={arb.get('touchdown_time_s')}s."
                 )
                 arb["causal_sentence"] = c_sent
                 sess.state_version += 1

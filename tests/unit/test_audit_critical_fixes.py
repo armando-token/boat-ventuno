@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 from pathlib import Path
+from http.server import ThreadingHTTPServer
+from threading import Thread
+from unittest.mock import patch
+from urllib.request import urlopen
 
 from sdv_governor.admission import evaluate_four_guest_combinations
 from sdv_governor.arbitration import arbitrate_live_conflict
 from sdv_governor.manifest import load_guest_catalog, load_priority_profile, validate_mission_envelope
 from sdv_governor.replay import build_initial_state_from_scenario, load_yaml_file, run_scenario_b_replay
-from sdv_governor.server import GovernorSession
+from sdv_governor.server import GovernorSession, serve_operator_ui
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = REPO_ROOT / "data"
@@ -39,6 +43,29 @@ def test_civil_g5_catalog_and_nominal_temperature_match_bundle() -> None:
         schema = (root / "schemas" / "guest_manifest.schema.json").read_text(encoding="utf-8")
         assert '"EMERGENCY_COMMS_EDGE_COMPUTE"' in schema
     assert "foredeck_sar_mount:" in (REPO_ROOT / "viz3d" / "spec" / "vessel_spec.yaml").read_text()
+
+
+def test_3d_entry_redirect_preserves_relative_asset_resolution() -> None:
+    with patch("sdv_governor.server.ThreadingHTTPServer") as factory:
+        serve_operator_ui(REPO_ROOT)
+    handler = factory.call_args.args[1]
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    worker = Thread(target=httpd.serve_forever, daemon=True)
+    worker.start()
+    base = f"http://127.0.0.1:{httpd.server_port}"
+    try:
+        with urlopen(base + "/viz3d", timeout=5) as response:
+            assert response.url == base + "/viz3d/"
+            assert b'css/app.css' in response.read()
+        with urlopen(base + "/viz3d/css/app.css", timeout=5) as response:
+            assert response.status == 200
+            assert "text/css" in response.headers["Content-Type"]
+        with urlopen(base + "/viz3d/app_standalone.js", timeout=5) as response:
+            assert response.status == 200
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+        worker.join(timeout=5)
 
 
 def test_d1_scenario_b_conditional_witness_names_real_binding_class() -> None:

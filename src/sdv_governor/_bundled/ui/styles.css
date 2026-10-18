@@ -576,3 +576,202 @@ body {
 }
 
 
+
+/* Jury-readable result cards & decision timeline (admission / decision log) */
+.rich-output {
+  white-space: normal;
+  font-family: inherit;
+  font-size: 12px;
+  max-height: 420px;
+}
+
+.result-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #0d1526;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.rc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.rc-meta {
+  color: var(--muted);
+}
+
+.rc-meta strong {
+  color: var(--text);
+}
+
+.rc-headline {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #f8fafc;
+  margin: 4px 0 6px;
+}
+
+.rc-rationale {
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.rc-section {
+  margin-top: 6px;
+}
+
+.rc-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 6px 0 3px;
+}
+
+.rc-list {
+  padding-left: 18px;
+}
+
+.rc-list li {
+  margin: 2px 0;
+}
+
+.rc-dim {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.rc-ok {
+  color: #86efac;
+}
+
+.rc-bad {
+  color: #fca5a5;
+}
+
+.verdict-badge {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  vertical-align: middle;
+}
+
+.verdict-big {
+  font-size: 20px;
+  padding: 4px 14px;
+  border-width: 2px;
+}
+
+.verdict-yes {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.verdict-yesif {
+  color: #fcd34d;
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.verdict-no {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.18);
+}
+
+.verdict-notnow {
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.18);
+}
+
+.verdict-neutral {
+  color: #cbd5e1;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.timeline-summary {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.timeline {
+  list-style: none;
+  border-left: 2px solid var(--border);
+  margin-left: 4px;
+  padding-left: 10px;
+}
+
+.timeline-item {
+  margin: 0 0 8px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -15px;
+  top: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.timeline-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.timeline-time {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.timeline-type {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.timeline-sentence {
+  color: var(--text);
+  margin-top: 1px;
+}
+
+.timeline-empty {
+  color: var(--muted);
+}
+
+.raw-json {
+  margin-top: 6px;
+}
+
+.raw-json summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.raw-json-pre {
+  font-family: var(--mono);
+  font-size: 10px;
+  white-space: pre-wrap;
+  max-height: 240px;
+  overflow-y: auto;
+  color: #94a3b8;
+  margin-top: 4px;
+}

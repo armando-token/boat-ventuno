@@ -16,13 +16,13 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 14336 >>
+<< /Length 14430 >>
 stream
 q 0.10 0.21 0.36 rg 26.00 747.97 560.00 20.03 re f Q
 BT /F2 10.70 Tf 1.00 1.00 1.00 rg 34.00 754.14 Td (SDV Resource Governor \(sdv-resource-governor\)) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 733.70 Td (Run the demo \(one command\): ./run_demo.sh opens the operator console at http://127.0.0.1:8765 \(creates .venv and installs on) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 723.43 Td (first run\). The same governor runs on the Arduino Ventuno Q \(http://10.0.0.130:8765, trusted LAN only: the console is) Tj ET
-BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 713.16 Td (unauthenticated\).) Tj ET
+BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 733.70 Td (Run the demo \(one command\): ./run_demo.sh opens the single operator screen at http://127.0.0.1:8765/ \(ship schematic, eight) Tj ET
+BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 723.43 Td (gauges, decision log, jury test; legacy console at /console/\) \(creates .venv and installs on first run\). The same governor runs) Tj ET
+BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 713.16 Td (on the Arduino Ventuno Q \(http://10.0.0.130:8765, trusted LAN only: the console is unauthenticated\).) Tj ET
 BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 701.39 Td (A deterministic resource governor for the 60-70 m reference vessel: it owns the eight Annex A budgets and decides admission) Tj ET
 BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 691.12 Td (\(D1\), placement \(D2\), right of way \(D3\) and degradation \(D4\), treats crew \(D5: 14 / 6 / 0\) as a setting, and keeps every assumed) Tj ET
 BT /F1 8.70 Tf 0.12 0.15 0.20 rg 26.00 680.85 Td (number in the Physical Account \(D6\). Every verdict names its binding constraint in one sentence built from the witness that) Tj ET
@@ -46,7 +46,7 @@ BT /F3 9.60 Tf 0.14 0.18 0.26 rg 32.00 519.88 Td (|  -> verdict + binding class 
 BT /F3 9.60 Tf 0.14 0.18 0.26 rg 32.00 509.70 Td (+-------------------------------------------+-------------------------------------------+) Tj ET
 BT /F3 9.60 Tf 0.14 0.18 0.26 rg 32.00 499.52 Td (                                            v) Tj ET
 BT /F3 9.60 Tf 0.14 0.18 0.26 rg 32.00 489.34 Td (+---------------------------------------------------------------------------------------+) Tj ET
-BT /F3 9.60 Tf 0.14 0.18 0.26 rg 32.00 479.16 Td (| server.py: one authoritative session -> 2D console \(ui/\) and 3D twin \(viz3d/\)         |) Tj ET
+BT /F3 9.60 Tf 0.14 0.18 0.26 rg 32.00 479.16 Td (| server.py: one authoritative session -> single screen \(viz3d/\), console \(ui/\)         |) Tj ET
 BT /F3 9.60 Tf 0.14 0.18 0.26 rg 32.00 468.98 Td (| forecast/: advisory only, never changes a verdict                                     |) Tj ET
 BT /F3 9.60 Tf 0.14 0.18 0.26 rg 32.00 458.80 Td (+---------------------------------------------------------------------------------------+) Tj ET
 BT /F2 9.50 Tf 0.11 0.24 0.44 rg 26.00 441.53 Td (2. Deliverables, Objectives & Scope \(D1-D6\)) Tj ET
@@ -292,11 +292,11 @@ xref
 0000000197 00000 n 
 0000000272 00000 n 
 0000000340 00000 n 
-0000014729 00000 n 
-0000014875 00000 n 
-0000025093 00000 n 
+0000014823 00000 n 
+0000014969 00000 n 
+0000025187 00000 n 
 trailer
 << /Size 10 /Root 1 0 R >>
 startxref
-25239
+25333
 %%EOF

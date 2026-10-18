@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import copy
+import functools
 import hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 import json
 import mimetypes
 from pathlib import Path
 import threading
+import time
 from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import parse_qs, urlparse
 import yaml
@@ -19,6 +21,7 @@ from .admission import (
     evaluate_admission,
     evaluate_four_guest_combinations,
 )
+from .acoustic import evaluate_acoustic_link
 from .arbitration import arbitrate_live_conflict
 from .budgets import compute_cooling_water_capacity_w, evaluate_eight_class_budgets
 from .degradation import (
@@ -57,7 +60,14 @@ from .scheduling import (
     evaluate_crew_regimes_comparison,
     handle_lost_or_stale_feed,
 )
-from .ship_state import InstalledGuestState, ShipOperationalState
+from .reconfiguration import propose_logical_reconfiguration
+from .capability_effects import (
+    OWN_RADAR_POLICIES,
+    check_own_radar_policy,
+    effective_capability_retention,
+    own_radar_transmitting,
+)
+from .ship_state import FirmReservedLoad, InstalledGuestState, ShipOperationalState
 
 
 CREW_COUNT_TO_REGIME: Dict[int, Tuple[str, int]] = {
@@ -89,6 +99,96 @@ def _format_witness_causal_sentence(
     if fallback_reason:
         return f"{prefix}: {fallback_reason}."
     return f"{prefix}."
+
+
+ACOUSTIC_PERTURBATIONS = frozenset({"WATER_COLUMN_LAYERED", "ACOUSTIC_LINK_LOSS", "ACOUSTIC_LINK_RESTORED"})
+
+
+def _replan_d3_after_link_change(
+    sess: "GovernorSession",
+    ship_profile: Dict[str, Any],
+    priority_profile: Any,
+) -> Optional[Dict[str, Any]]:
+    """Re-arbitrate the live D3 plan when the acoustic link changes before G3 is confirmed on HOLD (A.5)."""
+    dec = sess.active_arb_decision
+    state = sess.live_state
+    assert state is not None
+    if (
+        dec is None
+        or dec.get("verdict") != "YES"
+        or "HOLD_ACK" in sess.fired_d3_milestones
+        or "TURN_INTO_WIND" in sess.fired_d3_milestones
+        or any(k.startswith("PLAN_INVALIDATED") for k in sess.fired_d3_milestones)
+    ):
+        return None
+    now = int(state.sim_time_s)
+    deadline = int(dec["hard_touchdown_deadline_s"])
+    stab = int(dec.get("planned_stabilized_time_s", dec["stabilized_time_s"]))
+    touch = int(dec.get("planned_touchdown_time_s", dec["touchdown_time_s"]))
+    hold_cmd = int(dec.get("planned_hold_cmd_time_s", dec["hold_cmd_time_s"]))
+    course_settle = int(dec.get("course_settle_s", 90))
+    t0 = time.perf_counter()
+    arb = arbitrate_live_conflict(
+        state.clone(),
+        ship_profile,
+        priority_profile,
+        sess.session_catalog,
+        uav_battery_pct=float(dec.get("uav_battery_pct", 18.0)),
+        uav_max_endurance_s=max(1, deadline - now),
+        uav_approach_margin_s=max(0, touch - stab) + course_settle,
+        remaining_survey_waypoint_s=max(0, hold_cmd - now),
+    )
+    elapsed_ms = round((time.perf_counter() - t0) * 1000.0, 3)
+    sess.active_plan_version += 1
+    sess.fired_d3_milestones.clear()
+    state.pending_commands.pop("G3", None)
+    sem = dict(arb)
+    sem.pop("calculation_elapsed_ms", None)
+    sem["plan_version"] = sess.active_plan_version
+    if sem.get("verdict") == "YES":
+        sem["planned_hold_cmd_time_s"] = int(sem["hold_cmd_time_s"])
+        sem["planned_hold_ack_time_s"] = int(sem["hold_ack_time_s"])
+        sem["planned_turn_into_wind_time_s"] = int(sem["turn_into_wind_time_s"])
+        sem["planned_stabilized_time_s"] = int(sem["stabilized_time_s"])
+        sem["planned_touchdown_time_s"] = int(sem["touchdown_time_s"])
+        sem["planned_charging_complete_time_s"] = int(sem["charging_complete_time_s"])
+        g4_inst = state.installed_guests.get("G4")
+        if g4_inst is not None and g4_inst.powered_on:
+            state.firm_reserved_loads = [fl for fl in state.firm_reserved_loads if fl.guest_id != "G4"] + [
+                FirmReservedLoad(
+                    reservation_id=f"D3_PLAN_V{sess.active_plan_version}_G4_RECOVERY",
+                    guest_id="G4",
+                    reserved_mode="LAUNCH_RECOVERY_OPTICS",
+                    reserved_power_w=35000,
+                    reason="D3 committed UAV recovery approach and 20-min hangar charge (35 kW)",
+                )
+            ]
+        for k in (
+            "executed_hold_cmd_time_s",
+            "executed_hold_ack_time_s",
+            "executed_turn_into_wind_time_s",
+            "executed_stabilized_time_s",
+            "executed_touchdown_time_s",
+            "executed_charging_complete_time_s",
+        ):
+            sem[k] = None
+    else:
+        state.firm_reserved_loads = [
+            fl for fl in state.firm_reserved_loads if not fl.reservation_id.startswith("D3_PLAN_")
+        ]
+        sess.executed_touchdown_time_s = None
+    sess.active_arb_decision = sem
+    sess.executed_decisions.append(
+        {
+            "phase": "D3_ARBITRATION",
+            "tick": now // 20,
+            "sim_time_s": now,
+            "event_time_s": now,
+            "plan_version": sess.active_plan_version,
+            "decision": sem,
+        }
+    )
+    return {"arbitration": sem, "elapsed_ms": elapsed_ms}
 
 
 def _apply_crew_and_deck_updates(
@@ -846,6 +946,29 @@ def _validate_custom_profile_domain(
             )
 
 
+@functools.lru_cache(maxsize=8)
+def _own_radar_profile(repo_root_str: str) -> Dict[str, Any]:
+    raw = validate_ship_profile(load_yaml_file(Path(repo_root_str) / "data" / "ship" / "vessel_baseline.yaml"))
+    return {"own_radar": raw.get("own_radar")}
+
+
+def _capability_effects_by_guest(sess: GovernorSession) -> Dict[str, List[str]]:
+    """Environmental capability effects per installed guest (C6), for the UI badge."""
+    state = sess.live_state
+    if state is None:
+        return {}
+    profile = _own_radar_profile(str(sess.repo_root))
+    out: Dict[str, List[str]] = {}
+    for gid, inst in sorted(state.installed_guests.items()):
+        man = sess.session_catalog.get(gid)
+        if man is None or not inst.powered_on:
+            continue
+        _, causes = effective_capability_retention(man, inst, state, profile)
+        if causes:
+            out[gid] = list(causes)
+    return out
+
+
 def _augment_canonical_envelope(
     payload: Dict[str, Any],
     sess: GovernorSession,
@@ -864,6 +987,7 @@ def _augment_canonical_envelope(
     payload["connection_state"] = "LIVE"
     payload["source"] = "AUTHORITATIVE_GOVERNOR"
     payload["state"] = state_dict
+    payload["state"]["capability_effects"] = _capability_effects_by_guest(sess)
     payload["budgets"] = budget_snap
     payload["pending_transitions"] = pending_trans
     payload["decision_log"] = sess.build_decision_log(replay_decisions)
@@ -1642,6 +1766,81 @@ def dispatch_api_request(
                 }
                 return 200, _augment_canonical_envelope(resp, sess, updated_snap)
 
+            if method == "POST" and route == "/api/apply_logical_reconfig":
+                req = require_dict(body if body is not None else {}, "request_body")
+                require_no_unknown_keys(
+                    req,
+                    {"option_id", "state_version", "candidate_guest_id", "operator_confirmed", "priority_profile_id"},
+                    "POST /api/apply_logical_reconfig",
+                )
+                option_id = require_str(req.get("option_id", ""), "option_id")
+                req_version = require_int(req.get("state_version"), "state_version", min_value=0)
+                cand_id = require_str(req.get("candidate_guest_id", ""), "candidate_guest_id")
+                confirmed = require_bool(req.get("operator_confirmed", False), "operator_confirmed")
+                prof_id = require_str(req.get("priority_profile_id", sess.priority_profile_id), "priority_profile_id")
+                if prof_id not in profiles:
+                    raise StrictValidationError("UNKNOWN_ENUM", f"Unknown priority_profile_id '{prof_id}'", "priority_profile_id")
+                if cand_id not in sess.session_catalog:
+                    raise StrictValidationError("UNKNOWN_ENUM", f"Unknown candidate_guest_id '{cand_id}'", "candidate_guest_id")
+                assert sess.live_state is not None
+                if req_version != sess.state_version:
+                    return 409, _augment_canonical_envelope(
+                        {
+                            "status": "STALE_STATE_VERSION",
+                            "run_id": sess.run_id,
+                            "state_version": sess.state_version,
+                            "snapshot_id": sess.snapshot_id,
+                            "result": {"status": "REJECTED", "reason": "state_version does not match the live state; reload the options"},
+                        },
+                        sess,
+                        {},
+                    )
+                if sess.live_state.crew_count == 0 and not confirmed:
+                    raise StrictValidationError(
+                        "OPERATOR_CONFIRMATION_REQUIRED",
+                        "0 crew at sea: the remote operator must confirm (operator_confirmed=true)",
+                        "operator_confirmed",
+                    )
+                proposal = propose_logical_reconfiguration(
+                    sess.session_catalog[cand_id], sess.live_state, ship_profile, sess.session_catalog, profiles[prof_id]
+                )
+                chosen = next((o for o in proposal["options"] if o["option_id"] == option_id), None)
+                if chosen is None:
+                    raise StrictValidationError("UNKNOWN_ENUM", f"option_id '{option_id}' is not a current option", "option_id")
+                for act in chosen["actions"]:
+                    if act["action_type"] == "MODE_CHANGE":
+                        sess.live_state.installed_guests[act["target"]].active_mode = act["to"]
+                sess.has_live_mutations = True
+                sess.state_version += 1
+                snap_after = sess._sync_current_executed_tick(
+                    ship_profile, f"LOGICAL_RECONFIG_{option_id}@{sess.live_state.sim_time_s}s"
+                )
+                sess.action_history.append(
+                    {
+                        "state_version": sess.state_version,
+                        "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
+                        "action": f"APPLY_LOGICAL_RECONFIG:{option_id}",
+                        "run_id": sess.run_id,
+                        "causal_sentence": chosen["summary"],
+                    }
+                )
+                resp = {
+                    "status": "OK",
+                    "run_id": sess.run_id,
+                    "state_version": sess.state_version,
+                    "snapshot_id": sess.snapshot_id,
+                    "sim_time_s": sess.live_state.sim_time_s,
+                    "current_budget_snapshot": snap_after,
+                    "result": {
+                        "status": "LOGICAL_RECONFIG_APPLIED",
+                        "applied_option": chosen,
+                        "causal_sentence": chosen["summary"],
+                        "budget_snapshot": snap_after,
+                    },
+                }
+                return 200, _augment_canonical_envelope(resp, sess, snap_after)
+
             if method == "POST" and route == "/api/perturb":
                 req = require_dict(body if body is not None else {}, "request_body")
                 require_no_unknown_keys(
@@ -1658,6 +1857,7 @@ def dispatch_api_request(
                         "sim_time_s",
                         "crew_count",
                         "deck_clear",
+                        "value",
                     },
                     "POST /api/perturb",
                 )
@@ -1711,6 +1911,129 @@ def dispatch_api_request(
                             "crew_regime": sess.live_state.crew_regime,
                             "available_crew": sess.live_state.available_crew,
                             "deck_clear": sess.live_state.deck_clear,
+                            "causal_sentence": c_sent,
+                            "budget_snapshot": snap_after,
+                        },
+                    }
+                    return 200, _augment_canonical_envelope(resp, sess, snap_after)
+
+                if perturbation in ACOUSTIC_PERTURBATIONS:
+                    if perturbation == "WATER_COLUMN_LAYERED":
+                        if "value" not in req:
+                            raise StrictValidationError("MISSING_FIELD", "WATER_COLUMN_LAYERED requires boolean 'value'", "value")
+                        layered = require_bool(req["value"], "value")
+                        sess.live_state.water_column_layered = layered
+                        sess.live_state.water_column_layered_provenance = "OPERATOR_INPUT" if layered else "ASSUMED"
+                        tag = f"WATER_COLUMN_LAYERED_{'ON' if layered else 'OFF'}"
+                    elif "value" in req:
+                        raise StrictValidationError("UNKNOWN_FIELD", f"'value' is not accepted for {perturbation}", "value")
+                    else:
+                        sess.live_state.acoustic_link_forced_down = perturbation == "ACOUSTIC_LINK_LOSS"
+                        tag = perturbation
+                    sess.has_live_mutations = True
+                    sess.state_version += 1
+                    link_status = evaluate_acoustic_link(sess.live_state, sess.session_catalog)
+                    replan = _replan_d3_after_link_change(sess, ship_profile, priority_profile)
+                    snap_after = sess._sync_current_executed_tick(
+                        ship_profile, f"LIVE_PERTURBATION_{tag}@{sess.live_state.sim_time_s}s"
+                    )
+                    c_sent = (
+                        f"Acoustic link {'available' if link_status.available else 'UNAVAILABLE'}"
+                        + (f" ({', '.join(link_status.causes)})" if link_status.causes else "")
+                        + (
+                            f"; G3 hold re-planned (plan v{sess.active_plan_version}): "
+                            f"{replan['arbitration'].get('rationale')}"
+                            if replan is not None
+                            else "."
+                        )
+                    )
+                    sess.action_history.append(
+                        {
+                            "state_version": sess.state_version,
+                            "snapshot_id": sess.snapshot_id,
+                            "sim_time_s": sess.live_state.sim_time_s,
+                            "action": f"PERTURB:{perturbation}",
+                            "run_id": sess.run_id,
+                            "causal_sentence": c_sent,
+                        }
+                    )
+                    result = {
+                        "status": "ACOUSTIC_LINK_UPDATED",
+                        "acoustic_link_status": link_status.to_dict(),
+                        "water_column_layered": sess.live_state.water_column_layered,
+                        "replanned": replan is not None,
+                        "replan_elapsed_ms": replan["elapsed_ms"] if replan is not None else None,
+                        "arbitration": replan["arbitration"] if replan is not None else None,
+                        "causal_sentence": c_sent,
+                        "budget_snapshot": snap_after,
+                    }
+                    resp = {
+                        "status": "OK",
+                        "run_id": sess.run_id,
+                        "state_version": sess.state_version,
+                        "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
+                        "perturbation": perturbation,
+                        "current_budget_snapshot": snap_after,
+                        "result": result,
+                    }
+                    return 200, _augment_canonical_envelope(resp, sess, snap_after)
+
+                if perturbation == "OWN_RADAR_POLICY":
+                    policy = require_str(req.get("value", ""), "value", allowed_enum=set(OWN_RADAR_POLICIES))
+                    witness = check_own_radar_policy(policy, sess.live_state)
+                    if witness is not None:
+                        return 200, _augment_canonical_envelope(
+                            {
+                                "status": "REJECTED",
+                                "run_id": sess.run_id,
+                                "state_version": sess.state_version,
+                                "snapshot_id": sess.snapshot_id,
+                                "perturbation": perturbation,
+                                "result": {
+                                    "status": "OWN_RADAR_POLICY_REJECTED",
+                                    "own_radar_policy": sess.live_state.own_radar_policy,
+                                    "binding_witness": witness.to_dict(),
+                                    "causal_sentence": witness.detail,
+                                },
+                            },
+                            sess,
+                            {},
+                        )
+                    sess.live_state.own_radar_policy = policy
+                    sess.has_live_mutations = True
+                    sess.state_version += 1
+                    snap_after = sess._sync_current_executed_tick(
+                        ship_profile,
+                        f"LIVE_PERTURBATION_OWN_RADAR_{policy}@{sess.live_state.sim_time_s}s",
+                    )
+                    c_sent = (
+                        "Own radar silenced by bridge decision: guests on exposed positions recover full capability."
+                        if policy == "QUIET_RADIO"
+                        else "Own radar transmitting: capable guests on exposed positions lose capability (G1 -30%)."
+                    )
+                    sess.action_history.append(
+                        {
+                            "state_version": sess.state_version,
+                            "snapshot_id": sess.snapshot_id,
+                            "sim_time_s": sess.live_state.sim_time_s,
+                            "action": f"PERTURB:{perturbation}:{policy}",
+                            "run_id": sess.run_id,
+                            "causal_sentence": c_sent,
+                        }
+                    )
+                    resp = {
+                        "status": "OK",
+                        "run_id": sess.run_id,
+                        "state_version": sess.state_version,
+                        "snapshot_id": sess.snapshot_id,
+                        "sim_time_s": sess.live_state.sim_time_s,
+                        "perturbation": perturbation,
+                        "current_budget_snapshot": snap_after,
+                        "result": {
+                            "status": "OWN_RADAR_POLICY_UPDATED",
+                            "own_radar_policy": policy,
+                            "own_radar_transmitting": own_radar_transmitting(sess.live_state),
                             "causal_sentence": c_sent,
                             "budget_snapshot": snap_after,
                         },

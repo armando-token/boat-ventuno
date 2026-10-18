@@ -85,6 +85,7 @@ modes:
     forbids_emcon_silence: false
     requires_deck_clear: false
     requires_quiet_acoustic_state: false
+    requires_acoustic_command_link: true
     capability_retention_ratio: 0.45
     value_origin: "OFFICIAL_BRIEF"
     field_origins:
@@ -189,6 +190,7 @@ ship_state_constraints:
   forbids_deck_machinery_while_active: true
   uses_deck_machinery: false
   requires_stern_ramp_free: true
+  launch_recovery_area: stern_ramp
   acoustic_hold_handshake_min_s: 10
   acoustic_hold_handshake_max_s: 60
   acoustic_hold_default_s: 15

@@ -197,6 +197,12 @@ air_cooling_domains:
     value_origin: "ASSUMED"
     assumption_ref: "ASM-ROOF-AIR-2000W"
 
+own_radar:
+  # ASSUMED (ASSUMPTIONS.yaml::OWN_RADAR_EXPOSED_POSITIONS): the FIXED_SHIP_NAV_RADAR sits on mast_1 and the hangar roof shares the superstructure
+  exposed_positions: ["mast_1", "mast_2", "mast_3", "hangar_roof"]
+  value_origin: "ASSUMED"
+  assumption_ref: "OWN_RADAR_EXPOSED_POSITIONS"
+
 roof_drone_clearance_policy:
   policy_id: "ROOF_OUTSIDE_G4_RECOVERY_V1"
   policy_version: 1

@@ -47,6 +47,16 @@
         }
       }
     },
+    "own_radar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exposed_positions", "value_origin", "assumption_ref"],
+      "properties": {
+        "exposed_positions": { "type": "array", "items": { "type": "string" } },
+        "value_origin": { "type": "string", "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"] },
+        "assumption_ref": { "type": "string" }
+      }
+    },
     "roof_drone_clearance_policy": {
       "type": "object",
       "additionalProperties": false,

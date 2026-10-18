@@ -52,4 +52,6 @@ pythonpath = ["src"]
 addopts = "-ra -q"
 markers = [
     "perf: performance and latency budget verification tests (PERF-01..06)",
+    "board: touches the remote Linux board over SSH (enable with --run-board or SDV_RUN_BOARD=1)",
+    "release_local: needs local gitignored release artefacts (FINAL_STATUS.md, CLOSURE_STATUS_V2.json)",
 ]

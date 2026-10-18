@@ -48,6 +48,35 @@
       "minProperties": 1,
       "additionalProperties": { "type": "number", "minimum": 0.0, "maximum": 100.0 }
     },
+    "logical_workload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["description", "compute", "satcom_bps", "capability_fraction", "provenance"],
+      "properties": {
+        "description": { "type": "string", "minLength": 1 },
+        "compute": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["cores", "memory_gib", "accelerators"],
+          "properties": {
+            "cores": { "type": "integer", "minimum": 1 },
+            "memory_gib": { "type": "integer", "minimum": 1 },
+            "accelerators": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "satcom_bps": { "type": "integer", "minimum": 0 },
+        "capability_fraction": { "type": "number", "minimum": 0.01, "maximum": 1.0 },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["compute", "capability_fraction"],
+          "properties": {
+            "compute": { "type": "string", "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"] },
+            "capability_fraction": { "type": "string", "enum": ["OFFICIAL_BRIEF", "ORGANIZER_ERRATA", "ASSUMED"] }
+          }
+        }
+      }
+    },
     "subcomponents": {
       "type": "array",
       "minItems": 1,
@@ -175,6 +204,7 @@
           "forbids_emcon_silence": { "type": "boolean" },
           "requires_deck_clear": { "type": "boolean" },
           "requires_quiet_acoustic_state": { "type": "boolean" },
+          "requires_acoustic_command_link": { "type": "boolean" },
           "capability_retention_ratio": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
           "value_origin": {
             "type": "string",
@@ -270,7 +300,8 @@
         "low_battery_threshold_pct": { "type": ["number", "null"], "minimum": 1.0, "maximum": 100.0 },
         "emergency_landing_deadline_s": { "type": ["integer", "null"], "minimum": 1 },
         "max_flight_endurance_min": { "type": ["integer", "null"], "minimum": 1 },
-        "radar_tx_degradation_ratio": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+        "radar_tx_degradation_ratio": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "launch_recovery_area": { "type": "string", "enum": ["flight_deck", "stern_ramp", "none"] }
       }
     },
     "dependencies": {

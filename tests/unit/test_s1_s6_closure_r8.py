@@ -581,6 +581,14 @@ def test_r8_t18_all_seven_schemas_and_bundled_assets_consistent() -> None:
     assert "is_prediction" in bundled_js
 
 
+_LOCAL_RELEASE_FILES = (REPO_ROOT / "FINAL_STATUS.md", REPO_ROOT / "CLOSURE_STATUS_V2.json")
+
+
+@pytest.mark.release_local
+@pytest.mark.skipif(
+    not all(f.exists() for f in _LOCAL_RELEASE_FILES),
+    reason="local release artefact (gitignored)",
+)
 def test_r8_t19_final_status_matrix_and_release_s6_manifest_coherent() -> None:
     """T19 (R8-F06): FINAL_STATUS.md, CLOSURE_STATUS_V2.json, requirements_matrix.csv, and release_s6/release_s6_patch1 are 100% coherent."""
     final_status = (REPO_ROOT / "FINAL_STATUS.md").read_text(encoding="utf-8")

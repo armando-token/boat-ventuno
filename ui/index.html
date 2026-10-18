@@ -127,6 +127,10 @@
         <label class="checkbox-label">
           <input type="checkbox" id="chk-deck-clear" checked /> Deck Clear
         </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="chk-quiet-radio" /> Quiet radio (≥6 crew)
+        </label>
+        <span class="small-note" id="own-radar-badge"></span>
       </div>
     </section>
 
@@ -172,6 +176,8 @@
         <button class="btn warn" data-perturb="COOLING_LOSS_30C_40PCT">D4: Cooling 30°C + 40% Loop Loss (72 kW)</button>
         <button class="btn warn" data-perturb="GUEST_OVERCONSUMPTION_20PCT">ROB-02: G5 +20% Overconsumption (54 kW)</button>
         <button class="btn warn" data-perturb="LOST_SEAWATER_TEMP_FEED">ROB-03: Lost Seawater Temp Feed</button>
+        <button class="btn warn" id="btn-layered-toggle" type="button" aria-pressed="false">Agua estratificada (A.5): OFF</button>
+        <span id="acoustic-link-indicator" class="mono">Enlace acústico G3: OK</span>
         <button class="btn danger" data-perturb="URGENT_HOLD">ROB-04: Urgent HOLD G3 (≤200 ms)</button>
         <button class="btn danger" data-perturb="URGENT_STOP">ROB-04: Urgent STOP G3 (≤200 ms)</button>
       </div>
@@ -246,6 +252,9 @@
         </label>
         <button id="btn-admit-live" class="btn primary full-width">Evaluate Live Admission (D1)</button>
       </div>
+      <div id="genset-down-line" class="small-note" style="font-weight:700"></div>
+      <div id="placement-alternatives-container" class="small-note"></div>
+      <div id="logical-reconfig-container" class="small-note"></div>
       <pre class="console-output" id="admission-result-box">Click "Evaluate Live Admission (D1)" to run the solver on the live card...</pre>
 
       <div class="panel-header mt-12">

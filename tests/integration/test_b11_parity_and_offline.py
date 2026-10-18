@@ -8,6 +8,8 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
+
 from sdv_governor.deployment import run_doctor, sync_and_run_remote_parity
 from sdv_governor.replay import run_full_campaign_suite
 
@@ -41,6 +43,7 @@ def test_run_02_offline_subprocess_execution() -> None:
     assert "OFFLINE_OK:" in proc.stdout
 
 
+@pytest.mark.board
 def test_dep_02_remote_board_execution() -> None:
     """DEP-02: Doctor and board deployment runner report either PASS (with real remote PID/arch/hash) or BLOCKED_CONNECTION cleanly."""
     doc = run_doctor(REPO_ROOT, ssh_target="ardu", probe_remote=True)
@@ -53,6 +56,7 @@ def test_dep_02_remote_board_execution() -> None:
     assert "remote_linux_edge_board_ssh" in hw_inv
 
 
+@pytest.mark.board
 def test_dep_03_mac_board_semantic_parity() -> None:
     """DEP-03: Deterministic campaign produces identical semantic SHA-256 across processes (and on remote Linux board when reachable)."""
     camp_1 = run_full_campaign_suite(REPO_ROOT)

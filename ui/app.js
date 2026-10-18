@@ -569,6 +569,43 @@ document.querySelectorAll("[data-perturb]").forEach((btn) => {
   });
 });
 
+let waterLayered = false;
+document.getElementById("btn-layered-toggle").addEventListener("click", async () => {
+  const prof = document.getElementById("select-priority").value;
+  const nextValue = !waterLayered;
+  try {
+    const res = await fetch("/api/perturb", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        perturbation_type: "WATER_COLUMN_LAYERED",
+        value: nextValue,
+        priority_profile_id: prof,
+        sim_time_s: currentTickIndex * 20,
+      }),
+    });
+    if (!res.ok) {
+      setStaleBanner(true, `HTTP ${res.status} on /api/perturb`);
+      return;
+    }
+    const payload = await res.json();
+    setStaleBanner(false);
+    waterLayered = nextValue;
+    const toggle = document.getElementById("btn-layered-toggle");
+    toggle.textContent = `Agua estratificada (A.5): ${waterLayered ? "ON" : "OFF"}`;
+    toggle.setAttribute("aria-pressed", waterLayered ? "true" : "false");
+    const link = (payload.result || {}).acoustic_link_status || {};
+    const causes = Array.isArray(link.causes) ? link.causes.join(", ") : "";
+    document.getElementById("acoustic-link-indicator").textContent = link.available
+      ? "Enlace acústico G3: OK"
+      : `Enlace acústico G3: CAÍDO (${causes}) — hold autónomo por timeout`;
+    await fetchConsoleState(prof);
+    document.getElementById("decision-log-box").textContent = JSON.stringify(payload, null, 2);
+  } catch (err) {
+    setStaleBanner(true, err.message || "Network error");
+  }
+});
+
 document.getElementById("btn-admit-live").addEventListener("click", async () => {
   const installedIds = document
     .getElementById("input-installed")

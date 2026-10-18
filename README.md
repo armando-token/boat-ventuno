@@ -134,6 +134,10 @@ mission_capabilities: {hydro_sampling_value: 20.0}
 manifest = parse_guest_manifest(raw)
 ```
 
+If the new card launches or recovers a craft, set `ship_state_constraints.launch_recovery_area` to `flight_deck` or `stern_ramp` (default `none`). The flight deck ↔ stern ramp exclusion (Annex A.3) is then inherited from the `mutually_exclusive_with_*` flags of `data/ship/vessel_baseline.yaml` (`areas.py`); asymmetric flags are rejected at load time (fail-closed).
+
+If a mode needs the acoustic command link (G3 `HOLD_ACOUSTIC`), set `requires_acoustic_command_link: true` on it. The link (`acoustic.py`, `data/ship/acoustic_link_policy.yaml`) is down under layered water (`water_column_layered`, scenario/operator input, ASSUMED), own-ship manoeuvre or deck machinery; the governor then plans G3 to hold autonomously after the 120 s lost-link timeout (ASSUMED) instead of assuming a 15 s ACK.
+
 ---
 
 ## 6. Explicit Limitations & Honest Operational Boundaries
@@ -178,7 +182,7 @@ Measured on the production observer (`docs/evidence/forecast_report_20261018.md`
 
 | Gate | Requirement | Measured | Status |
 |---|---|---|---|
-| **G-NI** | Campaign hash/decisions unchanged with observer | 6 tests; `ebff0e22…` unchanged | **PASS** |
+| **G-NI** | Campaign hash/decisions unchanged with observer | 6 tests; `fd806cda…` (C2: +2 layered-water variant entries; official B hashes unchanged) | **PASS** |
 | **G-OFF** | Offline runtime, zero network | 2 tests | **PASS** |
 | **G-LAT** | p99 observer tick <= 50 ms | 2.42 ms on Ventuno Q (0.83 ms Mac) | **PASS** |
 | **G-ACC-RAMP / STEADY** | ratio MAE@30 <= 0.85 / <= 1.05 | 0.785 / 0.858 | **PASS** |

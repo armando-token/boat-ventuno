@@ -64,7 +64,7 @@ Measured by `tools/bench_forecast.py --split both` on the **production** `Foreca
 
 | Gate ID | Requirement | Split | Measured | Status |
 |---|---|---|---|---|
-| **G-NI** | Campaign decisions/hash unchanged with observer | pytest non-interference | 6 tests green; `ebff0e22…` unchanged | **PASS** |
+| **G-NI** | Campaign decisions/hash unchanged with observer | pytest non-interference | 6 tests green; `fd806cda…` (C2: +2 layered-water variant entries; official B hashes unchanged) | **PASS** |
 | **G-OFF** | Offline runtime, zero network | pytest `-k offline` | 2 tests green | **PASS** |
 | **G-LAT** | p99 full observer tick $\le 50$ ms | test | p99 = 2.42 ms on Ventuno Q (0.83 ms Mac), $\le 8$ evals/tick | **PASS** |
 | **G-ACC-RAMP** | ratio MAE@30 $\le 0.85$ | test | 0.785 | **PASS** |

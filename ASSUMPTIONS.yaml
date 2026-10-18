@@ -368,3 +368,40 @@ assumptions:
     justification: "Real high-rate sub-second per-guest naval telemetry is unavailable in hackathon conditions; deterministic declared synthetic telemetry provides reproducible validation without misrepresenting simulated traces as field measurements."
     code_references:
       - "src/sdv_governor/forecast/telemetry.py"
+
+  - id: ACOUSTIC_LAYERED_DEFAULT
+    parameter: "Water-column layering default (Annex A.5: layered water breaks the acoustic link)"
+    unit: "boolean"
+    concretized_values: "false (ASSUMED). Layering is a scenario/operator input (initial_state.water_column_layered, /api/perturb WATER_COLUMN_LAYERED); a true value stamped by a scenario carries provenance SCENARIO_INPUT, by the operator OPERATOR_INPUT."
+    provenance: "ASSUMED"
+    justification: "The E1 public dataset has no vertical temperature profile, so layering cannot be derived from data; the default keeps official Scenario B hashes unchanged."
+    code_references:
+      - "src/sdv_governor/acoustic.py::evaluate_acoustic_link"
+      - "src/sdv_governor/ship_state.py::ShipOperationalState.water_column_layered"
+    tests:
+      - "tests/unit/test_c2_acoustic_link.py::test_ch_c2_03_official_b_hashes_identical"
+
+  - id: G3_LOST_LINK_TIMEOUT_S
+    parameter: "Time G3 waits without an acoustic command before holding autonomously when the link is down"
+    unit: "s"
+    concretized_values: 120
+    provenance: "ASSUMED"
+    justification: "The brief gives a 10-60 s handshake for a working link but nothing for a lost link; 2x the 60 s upper latency bound is used as a conservative timeout. Real value depends on the AUV vendor."
+    code_references:
+      - "data/ship/acoustic_link_policy.yaml::g3_lost_link_behaviour.timeout_s"
+      - "src/sdv_governor/arbitration.py::arbitrate_live_conflict"
+      - "src/sdv_governor/replay.py::_apply_due_d3_milestones"
+    tests:
+      - "tests/unit/test_c2_acoustic_link.py::test_ch_c2_04_layered_water_lost_link_hold"
+
+  - id: G3_LOST_LINK_ACTION
+    parameter: "G3 behaviour on lost acoustic command link"
+    unit: "enum"
+    concretized_values: "AUTONOMOUS_HOLD_LOITER"
+    provenance: "ASSUMED"
+    justification: "Common AUV practice (loiter/hold on comms timeout); not stated in the brief. No ACK is synthesized for it; the turn into wind starts only after the timeout."
+    code_references:
+      - "data/ship/acoustic_link_policy.yaml::g3_lost_link_behaviour.action"
+      - "src/sdv_governor/replay.py::_apply_due_d3_milestones"
+    tests:
+      - "tests/unit/test_c2_acoustic_link.py::test_ch_c2_08_link_loss_and_restore_events"

@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import yaml
 
 from . import budgets as _budgets_mod
+from .areas import active_area_operations, exclusive_areas, partner_areas
 from .budgets import evaluate_eight_class_budgets
 from .models import BindingConstraintWitness, GuestManifest, StrictValidationError
 from .ship_state import ShipOperationalState
@@ -455,13 +456,21 @@ def evaluate_a_prime_window(
             reasons.append("flight_deck_not_clear: state.deck_clear is False or deck_clear_verified is False (Annex A.5/A.6)")
 
     # 2. Stern ramp & flight deck exclusivity check (Annex A.5)
-    if sc.requires_stern_ramp_free or guest.guest_id in ("G3", "G4"):
+    if sc.requires_stern_ramp_free or sc.launch_recovery_area in exclusive_areas(ship_profile):
         for other_gid, other_inst in state.installed_guests.items():
             if other_gid == guest.guest_id:
                 continue
             for _, pos in other_inst.placements.items():
                 if pos == "stern_ramp":
                     reasons.append(f"stern_ramp occupied by {other_gid} (Annex A.5 exclusivity)")
+    if operation_type == "LAUNCH_RECOVERY" and sc.launch_recovery_area != "none":
+        active_ops = active_area_operations(state, catalog)
+        for partner in partner_areas(sc.launch_recovery_area, ship_profile):
+            other_gid = active_ops.get(partner)
+            if other_gid is not None and other_gid != guest.guest_id:
+                reasons.append(
+                    f"area_mutual_exclusion: {sc.launch_recovery_area} blocked while {other_gid} operates on {partner} (Annex A.5 exclusivity)"
+                )
 
     # 3. Check if any active guest forbids deck machinery (e.g. G3 in SURVEY_QUIET)
     if operation_type != "SURVEY_START":

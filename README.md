@@ -32,6 +32,11 @@
 > [!TIP]
 > **Try it in one command:** `./run_demo.sh` → open `http://127.0.0.1:8765/`. One operator screen shows the ship, the eight Annex A gauges, the decision log and the jury test. Press **Play** for the 90 s Scenario B mission, or hand the engine any guest card under **Jury · A**. No network, no mocks: the screen calls the real engine.
 
+<p align="center">
+  <img src="assets/one_screen.jpg" alt="The single operator screen at T+12:20 of Scenario B: ship with zone callouts, eight Annex A gauges, decision log and scrubber with event chips" width="100%" />
+  <br/><sub>The operator screen at T+12:20 of Scenario B: the genset trip has just forced the D4 step-down of G5, and every line in the log comes from the engine.</sub>
+</p>
+
 ## Scope coverage at a glance
 
 | Brief requirement | Status | Where to verify |

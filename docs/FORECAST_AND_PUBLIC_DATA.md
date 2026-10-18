@@ -61,7 +61,7 @@ Measured by `tools/bench_forecast.py --split both` on the **production** `Foreca
 
 | Gate ID | Requirement | Split | Measured | Status |
 |---|---|---|---|---|
-| **G-NI** | Campaign decisions/hash unchanged with observer | pytest non-interference | 6 tests green; `3a0aa7f6…` (scope fixes C2–C6; artifacts/merge_scope/GOLDEN_DIFF.md) | **PASS** |
+| **G-NI** | Campaign decisions/hash unchanged with observer | pytest non-interference | 6 tests green; `ab2eb619…` (scope audit 2; artifacts/scope_audit_2/GOLDEN_DIFF.md) | **PASS** |
 | **G-OFF** | Offline runtime, zero network | pytest `-k offline` | 2 tests green | **PASS** |
 | **G-LAT** | p99 full observer tick <= 50 ms | test | p99 = 2.68 ms on Ventuno Q (0.91 ms Mac), <= 8 evals/tick (<= 16 in OOD mode) | **PASS** |
 | **G-ACC-RAMP** | ratio MAE@30 <= 0.85 | test | 0.785 | **PASS** |

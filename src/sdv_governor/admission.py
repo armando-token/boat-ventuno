@@ -15,7 +15,7 @@ from .models import (
     canonical_json_hash,
 )
 from .capability_effects import effective_capability_retention
-from .placement import compute_guest_capability_score, find_feasible_placement
+from .placement import D2_REPORT_KEYS, compute_guest_capability_score, find_feasible_placement
 from .scheduling import evaluate_a_prime_window, evaluate_roof_drone_clearance_safe
 from .ship_state import InstalledGuestState, ShipOperationalState
 
@@ -699,6 +699,7 @@ def evaluate_admission(
 
     # 4. Direct placement or Mission Envelope failed -> if allow_displacement=True, search for valid displacements (YES_IF)
     ranked_displacements: List[Dict[str, Any]] = []
+    d2_by_drop: Dict[Tuple[str, ...], Dict[str, Any]] = {}
     installed_ids = sorted(state.installed_guests.keys())
     cand_score = compute_guest_capability_score(candidate, candidate.default_mode, priority_profile)
 
@@ -734,6 +735,7 @@ def evaluate_admission(
                 )
                 if not sub_place["feasible"]:
                     continue
+                d2_by_drop[tuple(drop_tuple)] = {k: sub_place[k] for k in D2_REPORT_KEYS if k in sub_place}
 
                 # Also verify the 14-day Mission Envelope A.10 on the post-displacement state (H01)!
                 env_trial = sub_state.clone()
@@ -811,7 +813,10 @@ def evaluate_admission(
     if ranked_displacements:
         top_disp = ranked_displacements[0]
         cap_lost = top_disp["capability_lost_breakdown"]
-        placement_out = top_disp["resulting_placement"]
+        placement_out = {
+            **top_disp["resulting_placement"],
+            **d2_by_drop.get(tuple(top_disp["displace_guest_ids"]), {}),
+        }
         cond_avail = top_disp.get("conditioned_availability", {"conditioned": False, "restricted_windows": []})
         rationale = build_decision_rationale(
             "YES_IF",
@@ -1098,6 +1103,9 @@ def _format_admission_decision(
             "subcomponent_positions": placement.get("subcomponent_positions"),
             "compute_node": placement.get("compute_node"),
         }
+        for key in ("objective_id", "sort_key_fields", "chosen_key", "evaluated_count"):
+            if key in placement:
+                clean_placement[key] = placement[key]
     return {
         "decision_type": "D1_ADMISSION",
         "candidate_guest_id": candidate.guest_id,
@@ -1105,6 +1113,8 @@ def _format_admission_decision(
         "verdict_code": VERDICT_CODE_MAP.get(verdict, "DENIED"),
         "binding_constraints": [w.to_dict() for w in binding_constraints],
         "placement": clean_placement,
+        "placement_alternatives": list(placement.get("placement_alternatives", [])) if placement else [],
+        "rejected_placements": list(placement.get("rejected_placements", [])) if placement else [],
         "ranked_displacements": ranked_displacements,
         "capability_lost": capability_lost,
         "required_conditions": required_conditions or [],

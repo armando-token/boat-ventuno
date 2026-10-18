@@ -164,7 +164,7 @@ def test_env_int_04_inv5_envelope_intact_14_day_judged_at_30c(env_suite_setup: D
     assert g6_admission["verdict"] in ("YES", "YES_IF", "NO")
     # Verify official campaign hash remains unaffected
     campaign = run_full_campaign_suite(REPO_ROOT)
-    assert campaign["campaign_semantic_sha256"] == "feda2501801265be52e055381e6ffeb57d5fd5c108f4f9c4da8ce47306468316"
+    assert campaign["campaign_semantic_sha256"] == "eda98c784d116531ad3e31860a1fe2c5186236839cf6a07883dba2c79b361071"
 
 
 def test_env_int_05_inv4_offline_socket_blocked(monkeypatch: pytest.MonkeyPatch) -> None:

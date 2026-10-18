@@ -401,6 +401,17 @@ assumptions:
       - "src/sdv_governor/manifest.py::validate_ship_profile"
     test: "tests/unit/test_ch_c6_own_radar.py"
 
+  - id: D2_SCARCITY_WEIGHTS
+    parameter: "Scarcity weight of each position slot in the D2 objective D2_LEXICOGRAPHIC_V2"
+    unit: "dimensionless weight"
+    concretized_values: "mast_1/2/3 = 3; hangar_roof, bay1, bay2, flight_deck, stern_ramp = 2; bay1_a, bay1_b, hangar = 1; rack = 0. Plan B (owner gate F6-G unavailable): scarcity is the 4th key component (after roof_cond_rank, pref_penalty, retention), so it only breaks ties and official placements are unchanged."
+    provenance: "ASSUMED"
+    justification: "The brief (A.3) calls the mast the scarcest resource aboard; the numeric weights are ours. Margin bucket (0.5%) is DERIVED from the eight-class budget snapshot."
+    code_references:
+      - "src/sdv_governor/placement.py::D2_SCARCITY_WEIGHTS"
+      - "src/sdv_governor/placement.py::find_feasible_placement"
+    test: "tests/unit/test_ch_c4_placement_alternatives.py"
+
   - id: QUIET_RADIO_MIN_CREW
     parameter: "Minimum crew aboard to accept QUIET_RADIO (radar off)"
     unit: "crew"

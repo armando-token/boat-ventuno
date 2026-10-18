@@ -1,11 +1,14 @@
 <!-- pdf-ignore-start -->
-<p align="center">
-  <img src="assets/sdv_governor_banner.svg" alt="SDV Resource Governor: a deterministic resource governor for the Fincantieri 60-70 m reference vessel" width="100%" />
-</p>
+<h1 align="center">SDV Resource Governor</h1>
 
 <p align="center">
   <strong>Fincantieri Software-Defined Vessel Challenge · San Francisco 2026</strong><br/>
   A deterministic, explainable resource governor that decides what a 60-70 m vessel can host, where, and who yields when the ship runs short. Every verdict names its binding constraint.
+</p>
+
+<p align="center">
+  <img src="assets/one_screen.jpg" alt="The single operator screen at T+12:20 of Scenario B: ship with zone callouts, eight Annex A gauges, decision log and scrubber with event chips" width="100%" />
+  <br/><sub>The operator screen at T+12:20 of Scenario B: the genset trip has just forced the D4 step-down of G5, and every line in the log comes from the engine.</sub>
 </p>
 
 <p align="center">
@@ -31,11 +34,6 @@
 
 > [!TIP]
 > **Try it in one command:** `./run_demo.sh` → open `http://127.0.0.1:8765/`. One operator screen shows the ship, the eight Annex A gauges, the decision log and the jury test. Press **Play** for the 90 s Scenario B mission, or hand the engine any guest card under **Jury · A**. No network, no mocks: the screen calls the real engine.
-
-<p align="center">
-  <img src="assets/one_screen.jpg" alt="The single operator screen at T+12:20 of Scenario B: ship with zone callouts, eight Annex A gauges, decision log and scrubber with event chips" width="100%" />
-  <br/><sub>The operator screen at T+12:20 of Scenario B: the genset trip has just forced the D4 step-down of G5, and every line in the log comes from the engine.</sub>
-</p>
 
 ## Scope coverage at a glance
 
@@ -223,7 +221,7 @@ Recorded Golden Gate metocean data (Open-Meteo, NOAA NDBC 46237) drive SST, sea 
 ```text
 sdv-resource-governor/
 ├── assets/
-│   └── sdv_governor_banner.svg          # Vector hero banner & vessel telemetry overview
+│   └── one_screen.jpg                   # Operator screen hero capture at T+12:20 of Scenario B
 ├── data/
 │   ├── environment/golden_gate/         # Frozen NOAA NDBC (46237/46026/FTPC1) + Open-Meteo snapshot
 │   ├── forecast/holt_params.yaml        # Calibrated damped Holt & split-conformal quantiles

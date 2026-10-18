@@ -1,67 +1,71 @@
 <!-- pdf-ignore-start -->
 <p align="center">
-  <img src="assets/sdv_governor_banner.svg" alt="SDV Resource Governor — Deterministic 8-Class Physical Resource Governor & 3D Naval Digital Twin" width="100%" />
-</p>
-
-<h1 align="center">SDV Resource Governor (<code>sdv-resource-governor</code>)</h1>
-
-<p align="center">
-  <strong>Fincantieri Software-Defined Vessel (SDV) Challenge · San Francisco 2026</strong><br/>
-  Deterministic 8-Class Physical Resource Governor, 3D Naval Digital Twin, Recorded Golden Gate Metocean Outlook &amp; Conformal Consumption Observer — verified bit-for-bit on macOS (<code>arm64</code>) and Arduino Ventuno Q (<code>aarch64</code>).
+  <img src="assets/sdv_governor_banner.svg" alt="SDV Resource Governor: a deterministic resource governor for the Fincantieri 60-70 m reference vessel" width="100%" />
 </p>
 
 <p align="center">
-  <a href="docs/PHYSICAL_ACCOUNT.pdf"><img src="https://img.shields.io/badge/Physical_Account_(D6)-1--Page_PDF-0B3C5D?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Physical Account PDF" /></a>
-  <a href="docs/MEMO_SCENARIO_C.pdf"><img src="https://img.shields.io/badge/Scenario_C_Memo_(D5)-PDF-185394?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Scenario C Memo PDF" /></a>
-  <a href="docs/PITCH_SLIDES.pdf"><img src="https://img.shields.io/badge/Pitch_Deck-8_Slides_PDF-0F172A?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Pitch Deck PDF" /></a>
-  <a href="docs/FORECAST_AND_PUBLIC_DATA.pdf"><img src="https://img.shields.io/badge/Golden_Gate_&_Forecast-PDF-00599C?style=for-the-badge&logo=noaa&logoColor=white" alt="Forecast and Public Data PDF" /></a>
-  <a href="docs/DEMO_SCRIPT_90S.pdf"><img src="https://img.shields.io/badge/90s_Live_Demo-Script_PDF-0B7A3E?style=for-the-badge" alt="90s Demo Script PDF" /></a>
+  <strong>Fincantieri Software-Defined Vessel Challenge · San Francisco 2026</strong><br/>
+  A deterministic, explainable resource governor that decides what a 60-70 m vessel can host, where, and who yields when the ship runs short. Every verdict names its binding constraint.
 </p>
 
 <p align="center">
-  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.11_%7C_3.12_%7C_3.13-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11 | 3.12 | 3.13" /></a>
-  <a href="https://www.arduino.cc/"><img src="https://img.shields.io/badge/Target_Hardware-Arduino_Ventuno_Q_(aarch64)-00878F?style=flat-square&logo=arduino&logoColor=white" alt="Arduino Ventuno Q" /></a>
-  <a href="tests/"><img src="https://img.shields.io/badge/Automated_Tests-280%2B_Passed_(100%25)-2EA043?style=flat-square&logo=pytest&logoColor=white" alt="Automated Tests" /></a>
-  <a href="src/sdv_governor/evidence.py"><img src="https://img.shields.io/badge/Adversarial_Mutations-37%2F37_Rejected-E11D48?style=flat-square&logo=securityscorecard&logoColor=white" alt="Adversarial Mutations" /></a>
-  <a href="viz3d/"><img src="https://img.shields.io/badge/3D_Digital_Twin-Three.js_r147_(Offline)-000000?style=flat-square&logo=threedotjs&logoColor=white" alt="Three.js r147 Offline" /></a>
-  <a href="data/environment/golden_gate/"><img src="https://img.shields.io/badge/Metocean_Data-NOAA_NDBC_%2B_Open--Meteo-0284C7?style=flat-square" alt="NOAA NDBC + Open-Meteo" /></a>
-  <a href="src/sdv_governor/forecast/"><img src="https://img.shields.io/badge/Forecast_Observer-Damped_Holt_%2B_Conformal_(11%2F11_PASS)-10B981?style=flat-square" alt="Conformal Forecast" /></a>
-  <a href="PROVENANCE.md"><img src="https://img.shields.io/badge/Runtime-100%25_Air--Gapped_Offline-6366F1?style=flat-square" alt="100% Air-Gapped Offline" /></a>
-  <a href="BACKGROUND_IP.md"><img src="https://img.shields.io/badge/IP_Status-Hackathon_Evaluation_(All_Rights_Reserved)-1E293B?style=flat-square" alt="Hackathon Evaluation Only" /></a>
+  <a href="tests/"><img src="https://img.shields.io/badge/tests-300%2B_passing-2EA043?style=flat-square&logo=pytest&logoColor=white" alt="300+ tests passing" /></a>
+  <a href="src/sdv_governor/evidence.py"><img src="https://img.shields.io/badge/evidence_mutations-37%2F37_rejected-E11D48?style=flat-square" alt="37/37 evidence mutations rejected" /></a>
+  <a href="#6-explicit-limitations--honest-operational-boundaries"><img src="https://img.shields.io/badge/safety_check-%3C_1_ms-F59E0B?style=flat-square" alt="Safety check under 1 ms" /></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.11_%7C_3.12_%7C_3.13-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11 to 3.13" /></a>
+  <a href="docs/DEPLOYMENT_AND_BOM.md"><img src="https://img.shields.io/badge/runs_on-macOS_arm64_%C2%B7_Arduino_Ventuno_Q-00878F?style=flat-square&logo=arduino&logoColor=white" alt="Runs on macOS arm64 and Arduino Ventuno Q" /></a>
+  <a href="PROVENANCE.md"><img src="https://img.shields.io/badge/runtime-fully_offline-6366F1?style=flat-square" alt="Fully offline runtime" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-hackathon_evaluation-1E293B?style=flat-square" alt="Hackathon evaluation licence" /></a>
 </p>
 
 <p align="center">
-  <a href="#-jury--reviewer-deliverables-index"><strong>Jury Deliverables</strong></a> ·
+  <a href="#scope-coverage-at-a-glance"><strong>Scope coverage</strong></a> ·
   <a href="#1-architecture-diagram--data-flow">Architecture</a> ·
-  <a href="#2-deliverables-objectives--scope-d1-d6">Scope (D1–D6)</a> ·
+  <a href="#2-deliverables-objectives--scope-d1-d6">D1–D6</a> ·
   <a href="#3-quickstart-offline--5-minutes">Quickstart</a> ·
-  <a href="#4-eight-class-resource-model">8-Class Budgets</a> ·
-  <a href="#5-adding-a-7th-guest-card-without-touching-code">7th Guest Card</a> ·
-  <a href="#8-public-data--forecasting-advisory">Golden Gate &amp; Forecast</a> ·
-  <a href="#9-repository-structure">Repository Tree</a>
+  <a href="#4-eight-class-resource-model">Eight budgets</a> ·
+  <a href="#5-adding-a-7th-guest-card-without-touching-code">7th guest card</a> ·
+  <a href="#6-explicit-limitations--honest-operational-boundaries">Limitations</a> ·
+  <a href="#9-repository-structure">Repository</a>
 </p>
 
----
+> [!TIP]
+> **Try it in one command:** `./run_demo.sh` → open `http://127.0.0.1:8765/`. One operator screen shows the ship, the eight Annex A gauges, the decision log and the jury test. Press **Play** for the 90 s Scenario B mission, or hand the engine any guest card under **Jury · A**. No network, no mocks: the screen calls the real engine.
 
-## 📋 Jury & Reviewer Deliverables Index
+## Scope coverage at a glance
 
-> [!IMPORTANT]
-> **One-Command Live Operator Screen (`<= 1.5 s` end-to-end SLA):**  
-> Run `./run_demo.sh` from the repository root to launch the unified single-screen operator console (`http://127.0.0.1:8765/`) featuring the interactive 3D Naval Digital Twin, 2D Bay/Mast/Rack schematic, 8-class budget gauges, Crew `14 / 6 / 0` dial, priority profile switcher, live Jury Card YAML/JSON tester, Golden Gate metocean strip, and single-sentence causal decision log.
+| Brief requirement | Status | Where to verify |
+|---|---|---|
+| **D1 ·** Admission in ≤ 30 s: `YES` / `YES_IF` / `NOT_NOW` / `NO` with binding constraint, one-genset-down check | ✅ Delivered | [`admission.py`](src/sdv_governor/admission.py) · Jury · A tab · [§2](#2-deliverables-objectives--scope-d1-d6) |
+| **D2 ·** Placement with declared objective and ranked alternatives | ✅ Delivered | [`placement.py`](src/sdv_governor/placement.py) · `placement_alternatives` / `rejected_placements` |
+| **D3 ·** Right of way in ≤ 2 s under two priority profiles | ✅ Delivered | [`arbitration.py`](src/sdv_governor/arbitration.py) · [`data/priorities/`](data/priorities/) · Priority · D6 tab |
+| **D4 ·** Graceful degradation: step down before shedding | ✅ Delivered | [`degradation.py`](src/sdv_governor/degradation.py) · genset trip at T+12:00 in Scenario B |
+| **D5 ·** Crew as a setting (14 / 6 / 0), Scenario C memo ≤ 2 pages | ✅ Delivered | [`MEMO_SCENARIO_C.pdf`](docs/MEMO_SCENARIO_C.pdf) · Crew · C tab |
+| **D6 ·** Physical Account: every assumed number traced to code | ✅ Delivered | [`PHYSICAL_ACCOUNT.pdf`](docs/PHYSICAL_ACCOUNT.pdf) · [`ASSUMPTIONS.yaml`](ASSUMPTIONS.yaml) |
+| Guest manifest schema, five brief cards plus one of our own | ✅ Delivered | [`guest_manifest.schema.json`](schemas/guest_manifest.schema.json) · [`data/guests/`](data/guests/) (G1–G5 + G6) |
+| A new guest card admitted without code changes | ✅ Delivered | [`docs/examples/G7_xbt_launcher.yaml`](docs/examples/G7_xbt_launcher.yaml) · [§5](#5-adding-a-7th-guest-card-without-touching-code) |
+| Runnable with one command; decision engine not mocked | ✅ Delivered | [`run_demo.sh`](run_demo.sh) · [§3](#3-quickstart-offline--5-minutes) |
+| README ≤ 3 pages: architecture, objectives, limitations, one more week | ✅ Delivered | [`README.pdf`](README.pdf) · [§1](#1-architecture-diagram--data-flow), [§6](#6-explicit-limitations--honest-operational-boundaries), [§7](#7-what-we-would-do-with-one-more-week) |
+| Live demo: 90 s of Scenario B, then Scenario A with the jury's card | ✅ Delivered | [`DEMO_SCRIPT_90S.pdf`](docs/DEMO_SCRIPT_90S.pdf) |
+| Same engine on the target edge board, bit-for-bit | ✅ Verified | [`DEPLOYMENT_AND_BOM.pdf`](docs/DEPLOYMENT_AND_BOM.pdf) · `sdv-governor deploy-board` |
+| Public metocean data and an advisory forecast that never overrides a verdict | ➕ Beyond scope | [`FORECAST_AND_PUBLIC_DATA.pdf`](docs/FORECAST_AND_PUBLIC_DATA.pdf) · [§8](#8-public-data--forecasting-advisory) |
 
-| Deliverable | Document / Artifact | Page / Gate Status | Primary Code Modules |
-|---|---|---|---|
-| **D1 — Admission (`<= 30 s`)** | [`src/sdv_governor/admission.py`](src/sdv_governor/admission.py) · [`reconfiguration.py`](src/sdv_governor/reconfiguration.py) | `YES` / `YES_IF` / `NOT_NOW` / `NO` + 1-genset-down check + 0-crew logical reconfig | `admission.py`, `budgets.py`, `env_windows.py` |
-| **D2 — Placement (`D2_LEXICOGRAPHIC_V2`)** | [`src/sdv_governor/placement.py`](src/sdv_governor/placement.py) | Ranked `placement_alternatives` (top 5) + `rejected_placements` with binding witness | `placement.py`, `budgets.py` |
-| **D3 — Right of Way (`<= 2 s`)** | [`src/sdv_governor/arbitration.py`](src/sdv_governor/arbitration.py) · [`acoustic.py`](src/sdv_governor/acoustic.py) | `survey_primary` (`T+1095 s`) vs `rescue_primary` (`T+855 s`), A.6 causal transitions | `arbitration.py`, `scheduling.py`, `acoustic.py` |
-| **D4 — Graceful Degradation (`<= 5 s`)** | [`src/sdv_governor/degradation.py`](src/sdv_governor/degradation.py) | Step-down before shedding (`106.5 -> 69.5 kW`); protects airborne/submerged/critical loads | `degradation.py`, `replay.py` |
-| **D5 — Crew as a Setting (`14 / 6 / 0`)** | **[`docs/MEMO_SCENARIO_C.pdf`](docs/MEMO_SCENARIO_C.pdf)** ([Markdown](docs/MEMO_SCENARIO_C.md)) | **Strictly <= 2 pages** · One explicit flight-deck rule across Crew `14 / 6 / 0` | `scheduling.py`, `arbitration.py`, `reconfiguration.py` |
-| **D6 — Physical Account (Annex C)** | **[`docs/PHYSICAL_ACCOUNT.pdf`](docs/PHYSICAL_ACCOUNT.pdf)** ([Markdown](docs/PHYSICAL_ACCOUNT.md)) | **Strictly 1 page** · All 8 assumption families traced to `file.py::symbol` + `mast_4` counterfactual | `ASSUMPTIONS.yaml`, `budgets.py`, `evidence.py` |
-| **E1 & E2 — Golden Gate & Forecast** | **[`docs/FORECAST_AND_PUBLIC_DATA.pdf`](docs/FORECAST_AND_PUBLIC_DATA.pdf)** ([Markdown](docs/FORECAST_AND_PUBLIC_DATA.md)) | **Strictly <= 2 pages** · 11/11 Benchmark Gates PASS · Strict non-interference (`G-NI`) | `envdata.py`, `env_windows.py`, `forecast/*` |
-| **Technical Pitch Deck** | **[`docs/PITCH_SLIDES.pdf`](docs/PITCH_SLIDES.pdf)** ([Markdown](docs/PITCH_SLIDES.md)) | **8 Visual Slides** (`<= 10 pages`) | `pdf_export.py` |
-| **90-Second Live Demo Script** | **[`docs/DEMO_SCRIPT_90S.pdf`](docs/DEMO_SCRIPT_90S.pdf)** ([Markdown](docs/DEMO_SCRIPT_90S.md)) | **Strictly <= 2 pages** · Step-by-step operator runbook | `run_demo.sh`, `server.py`, `viz3d/` |
-| **Hardware Deployment & BOM** | **[`docs/DEPLOYMENT_AND_BOM.pdf`](docs/DEPLOYMENT_AND_BOM.pdf)** ([Markdown](docs/DEPLOYMENT_AND_BOM.md)) | **Strictly <= 2 pages** · Mac `arm64` <-> Arduino Ventuno Q `aarch64` parity | `deployment.py`, `hardware_inventory.json` |
-| **Provenance, AI & SBOM** | [`PROVENANCE.md`](PROVENANCE.md) · [`AI_USE_DISCLOSURE.md`](AI_USE_DISCLOSURE.md) · [`THIRD_PARTY_COMPONENTS.csv`](THIRD_PARTY_COMPONENTS.csv) | Audited compliance & licensing | `requirements_matrix.csv` |
+<details>
+<summary><strong>All documents and supporting material</strong></summary>
+
+| Document | Format | Limit |
+|---|---|---|
+| Physical Account (D6) | [PDF](docs/PHYSICAL_ACCOUNT.pdf) · [Markdown](docs/PHYSICAL_ACCOUNT.md) | 1 page |
+| Scenario C memo (D5) | [PDF](docs/MEMO_SCENARIO_C.pdf) · [Markdown](docs/MEMO_SCENARIO_C.md) | ≤ 2 pages |
+| This README | [PDF](README.pdf) | ≤ 3 pages |
+| 90-second demo script | [PDF](docs/DEMO_SCRIPT_90S.pdf) · [Markdown](docs/DEMO_SCRIPT_90S.md) | 1 page |
+| Golden Gate data and forecast | [PDF](docs/FORECAST_AND_PUBLIC_DATA.pdf) · [Markdown](docs/FORECAST_AND_PUBLIC_DATA.md) | ≤ 2 pages |
+| Hardware deployment and BOM | [PDF](docs/DEPLOYMENT_AND_BOM.pdf) · [Markdown](docs/DEPLOYMENT_AND_BOM.md) | ≤ 2 pages |
+| Slides (optional, for the finals) | [PDF](docs/PITCH_SLIDES.pdf) · [Markdown](docs/PITCH_SLIDES.md) | ≤ 10 slides |
+| Provenance, AI use and third-party components | [PROVENANCE.md](PROVENANCE.md) · [AI_USE_DISCLOSURE.md](AI_USE_DISCLOSURE.md) · [THIRD_PARTY_COMPONENTS.csv](THIRD_PARTY_COMPONENTS.csv) | — |
+| Security notes | [SECURITY.md](SECURITY.md) | — |
+
+</details>
 
 ---
 <!-- pdf-ignore-end -->
@@ -144,7 +148,7 @@ flowchart TB
 | **D3** | Right of way in 2 s (mandatory) | Max `utility_score` = priority-weighted survey continuity + priority-weighted landing margin, subject to the hard G4 < 20 % battery deadline; tie-break declared in the priority file. | `arbitration.py`: `survey_primary` lands G4 at T+1095 s (105 s margin, G3 loses 14 min); `rescue_primary` at T+855 s (345 s margin, G3 loses 26 min). |
 | **D4** | Degradation (addressed) | Restore power/cooling feasibility with least capability lost: step down before shedding, in the priority file's order; never shed safety-critical, uninterruptible, airborne or submerged guests. | `degradation.py`: genset trip at T=720 s, committed 106.5 > 100 kW, G5 45 -> 8 kW; rationale states what every guest keeps or loses. |
 | **D5** | Crew as a setting (memo) | One rule, "nobody on the flight deck during recovery", with crew-dependent confirmation (30 / 120 s / none) and deck clearing (240 / 600 s / impossible). | `scheduling.py`, `arbitration.py`; `docs/MEMO_SCENARIO_C.pdf`. |
-| **D6** | Physical Account | Every assumed number traceable to the code that uses it. | `docs/PHYSICAL_ACCOUNT.pdf`, `ASSUMPTIONS.yaml`, evidence verifier (28 mutations, 0 false accepts). |
+| **D6** | Physical Account | Every assumed number traceable to the code that uses it. | `docs/PHYSICAL_ACCOUNT.pdf`, `ASSUMPTIONS.yaml`, evidence verifier (37 mutations, 0 false accepts). |
 
 ## 3. Quickstart (offline, < 5 minutes)
 
@@ -251,7 +255,7 @@ sdv-resource-governor/
 │   └── _bundled/                        # Byte-for-byte air-gapped wheel mirror
 ├── viz3d/                               # Unified single-screen 3D Naval Digital Twin (Three.js r147 offline)
 ├── ui/                                  # Classic 2D operator console (/console/)
-├── tests/                               # 280+ unit, integration, adversarial & performance tests
+├── tests/                               # 300+ unit, integration, adversarial & performance tests
 ├── ASSUMPTIONS.yaml                     # Machine-readable registry of every assumed physical parameter
 ├── PROVENANCE.md & AI_USE_DISCLOSURE.md # Provenance, licensing & AI use disclosure
 └── run_demo.sh                          # One-command bootstrap & live server launcher
@@ -263,7 +267,7 @@ sdv-resource-governor/
 
 | Metric / Verification Gate | Apple MacBook Pro (`arm64`, Python 3.13) | Arduino Ventuno Q (`aarch64`, Python 3.12) | Status |
 |---|---|---|---|
-| **Automated Test Suite (`pytest`)** | `280+ passed (100%)` | `280+ passed (100%)` | **PASS** |
+| **Automated Test Suite (`pytest`)** | `300+ passed` | `300+ passed` | **PASS** |
 | **Adversarial Verifier (`--run-mutations`)** | `37 / 37 mutations rejected (0 false accepts)` | `37 / 37 mutations rejected (0 false accepts)` | **PASS** |
 | **Scenario B `survey_primary` Semantic SHA-256** | Bit-for-bit identical | Bit-for-bit identical | **PASS** |
 | **Scenario B `rescue_primary` Semantic SHA-256** | Bit-for-bit identical | Bit-for-bit identical | **PASS** |

@@ -60,13 +60,13 @@
     <rect x="0" y="42" width="540" height="2" fill="url(#accentLine)" />
 
     <text x="0" y="68" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13">
-      Owns all eight Annex A vessel budgets for the 60–70 m reference ship. Decides Admission (D1),
+      Owns the eight Annex A budgets of the 60–70 m reference vessel and decides
     </text>
     <text x="0" y="87" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13">
-      Placement (D2), Right of Way (D3) &amp; Graceful Degradation (D4) with Crew 14/6/0 (D5) and full
+      admission (D1), placement (D2), right of way (D3) and degradation (D4), with
     </text>
     <text x="0" y="106" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13">
-      Physical Account traceability (D6) — every verdict backed by a single-sentence physical witness.
+      crew as a setting (D5) and every assumed number in the Physical Account (D6).
     </text>
 
     <!-- D1..D6 Pill Grid -->
@@ -93,7 +93,7 @@
     <!-- Bottom Metrics Strip -->
     <g transform="translate(0, 214)" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11">
       <rect x="0" y="0" width="542" height="36" rx="8" fill="#091323" stroke="#1E3A5F" stroke-width="1" />
-      <text x="14" y="22" fill="#10B981" font-weight="700">✓ 280+ Tests PASS</text>
+      <text x="14" y="22" fill="#10B981" font-weight="700">✓ 300+ tests pass</text>
       <text x="142" y="22" fill="#475569">|</text>
       <text x="156" y="22" fill="#38BDF8" font-weight="700">✓ 37/37 Mutations Rejected</text>
       <text x="342" y="22" fill="#475569">|</text>
@@ -109,7 +109,7 @@
 
     <!-- Waterline & Sea Surface -->
     <line x1="20" y1="192" x2="520" y2="192" stroke="#0284C7" stroke-width="1" stroke-dasharray="5,4" />
-    <text x="415" y="206" fill="#0284C7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9">SST 16.3°C · C(T) 150.4 kW</text>
+    <text x="20" y="218" fill="#0284C7" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9">SST 16.3°C · C(T) 150.4 kW</text>
 
     <!-- Ship Hull Silhouette -->
     <path d="M 48 184 L 78 202 L 452 202 L 502 162 L 380 162 L 368 144 L 160 144 L 146 162 L 48 162 Z" fill="url(#hullGrad)" stroke="#38BDF8" stroke-width="1.6" />
@@ -123,7 +123,7 @@
 
     <!-- Mast 3 Callout (G1) -->
     <rect x="382" y="44" width="136" height="32" rx="5" fill="#0C223B" stroke="#00F0FF" stroke-width="1" />
-    <text x="390" y="58" fill="#00F0FF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" font-weight="700">MAST_3 · G1 NAV/EO</text>
+    <text x="390" y="58" fill="#00F0FF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="9.5" font-weight="700">MAST_3 · G1 METEO</text>
     <text x="390" y="70" fill="#94A3B8" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="8.5">45 kg · 1.5 kW Air</text>
 
     <!-- Hangar & Hangar Roof (G4 Station + G5 Antenna) -->

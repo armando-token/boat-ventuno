@@ -1,0 +1,93 @@
+{
+  "anchor_utc": "2026-10-18T03:00:00Z",
+  "fetched_utc": "2026-10-18T03:09:54Z",
+  "normalized_sha256": "45183e72a0643fab92a13922a8ded2ab7ab71146e7db03ee871c483ae886ce92",
+  "points": {
+    "GG_BAR": {
+      "grid": [
+        37.791664,
+        -122.62499
+      ],
+      "req": [
+        37.788,
+        -122.634
+      ]
+    },
+    "GG_BRIDGE": {
+      "grid": [
+        37.791664,
+        -122.45833
+      ],
+      "req": [
+        37.8199,
+        -122.4783
+      ]
+    }
+  },
+  "schema_version": "sdv-env-snapshot/1.0",
+  "selection_rule": "anchor = hora UTC completa anterior a fetched_utc; sin elecci\u00f3n manual",
+  "site_id": "golden_gate",
+  "sources": [
+    {
+      "attribution": "Weather data by Open-Meteo.com",
+      "bytes": 12404,
+      "generationtime_ms": 0.4616975784301758,
+      "id": "openmeteo_marine_GG_BAR",
+      "license": "CC BY 4.0",
+      "provenance": "DERIVED",
+      "sha256": "0ee7b7d0ff63c7a570466fcbf51281c7073751bcfa5d89efa003d67bb2eb0d8f",
+      "url": "https://marine-api.open-meteo.com/v1/marine?latitude=37.788&longitude=-122.634&hourly=sea_surface_temperature,wave_height,wave_period,wave_direction,wind_wave_height,swell_wave_height&current=sea_surface_temperature,wave_height&past_days=7&forecast_days=3&timezone=UTC&cell_selection=sea"
+    },
+    {
+      "attribution": "Weather data by Open-Meteo.com",
+      "bytes": 10406,
+      "generationtime_ms": 6.704807281494141,
+      "id": "openmeteo_forecast_GG_BAR",
+      "license": "CC BY 4.0",
+      "provenance": "DERIVED",
+      "sha256": "ca43be82d80c5f4051f82a9ee134fd4e498f8d1a9cfeef4e64e1331ebf90de1d",
+      "url": "https://api.open-meteo.com/v1/forecast?latitude=37.788&longitude=-122.634&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility&current=wind_speed_10m,wind_gusts_10m,wind_direction_10m&wind_speed_unit=kn&past_days=7&forecast_days=3&timezone=UTC"
+    },
+    {
+      "attribution": "Weather data by Open-Meteo.com",
+      "bytes": 12407,
+      "generationtime_ms": 0.5290508270263672,
+      "id": "openmeteo_marine_GG_BRIDGE",
+      "license": "CC BY 4.0",
+      "provenance": "DERIVED",
+      "sha256": "aca14fb055e8e3be2e719287c97a7202c3938283be6e360b0c684eaf1ead0fea",
+      "url": "https://marine-api.open-meteo.com/v1/marine?latitude=37.8199&longitude=-122.4783&hourly=sea_surface_temperature,wave_height,wave_period,wave_direction,wind_wave_height,swell_wave_height&current=sea_surface_temperature,wave_height&past_days=7&forecast_days=3&timezone=UTC&cell_selection=sea"
+    },
+    {
+      "attribution": "NOAA National Data Buoy Center (Station 46237)",
+      "bytes": 67962,
+      "generationtime_ms": null,
+      "id": "ndbc_46237",
+      "license": "Public Domain (US Government work)",
+      "provenance": "MEASURED",
+      "sha256": "31dad15f105cdc32768b9f78fbb6268d4c45c80ec0355f68ca9df7eac0ab2435",
+      "url": "https://www.ndbc.noaa.gov/data/realtime2/46237.txt"
+    },
+    {
+      "attribution": "NOAA National Data Buoy Center (Station 46026)",
+      "bytes": 600848,
+      "generationtime_ms": null,
+      "id": "ndbc_46026",
+      "license": "Public Domain (US Government work)",
+      "provenance": "MEASURED",
+      "sha256": "6da6e967cf718b913d4544bd20add114bddbc71b4884fae26baa15cd4afc1273",
+      "url": "https://www.ndbc.noaa.gov/data/realtime2/46026.txt"
+    },
+    {
+      "attribution": "NOAA National Data Buoy Center (Station FTPC1)",
+      "bytes": 1008056,
+      "generationtime_ms": null,
+      "id": "ndbc_FTPC1",
+      "license": "Public Domain (US Government work)",
+      "provenance": "MEASURED",
+      "sha256": "05e88d4881a99b1861ae319646f3021856d8e81652bac62a8a17ad012cf47287",
+      "url": "https://www.ndbc.noaa.gov/data/realtime2/FTPC1.txt"
+    }
+  ],
+  "tool_version": "1.0.0"
+}

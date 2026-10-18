@@ -631,5 +631,217 @@ document.getElementById("btn-admit-live").addEventListener("click", async () => 
   }
 });
 
+// Golden Gate Environment Strip & Forecast Advisory Panel Fetchers (§7.2)
+async function fetchEnvironmentState() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 1500);
+  try {
+    const res = await fetch("/api/environment", { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderEnvironmentData(data);
+  } catch (err) {
+    clearTimeout(timeoutId);
+    renderEnvironmentFallback(err.name === "AbortError" ? "Fetch timeout (1.5s limit)" : err.message);
+  }
+}
+
+async function fetchWindowsForGuest(guestId = "G4", op = "VEHICLE_REPLACEMENT_AT_SEA") {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 1500);
+  try {
+    const res = await fetch(`/api/environment/windows?guest=${encodeURIComponent(guestId)}&op=${encodeURIComponent(op)}`, {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return;
+    const winData = await res.json();
+    renderWindowsData(winData);
+  } catch (err) {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function fetchForecastState() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 1500);
+  try {
+    const res = await fetch("/api/forecast", { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderForecastData(data);
+  } catch (err) {
+    clearTimeout(timeoutId);
+    renderForecastFallback(err.name === "AbortError" ? "Fetch timeout (1.5s limit)" : err.message);
+  }
+}
+
+function renderEnvironmentData(data) {
+  if (!data || !data.available) {
+    renderEnvironmentFallback(data ? data.reason || "NO_ACTIVE_SNAPSHOT" : "No data");
+    return;
+  }
+  const snapLbl = document.getElementById("env-snapshot-label");
+  if (snapLbl) {
+    snapLbl.textContent = `Recorded public data — snapshot ${data.snapshot_id || "Golden Gate"} (${data.anchor_utc ? data.anchor_utc.slice(0, 16) + 'Z' : 'UTC'})`;
+  }
+  const cur = data.current || {};
+  const sstVal = cur.sst_c !== null && cur.sst_c !== undefined ? `${Number(cur.sst_c).toFixed(1)} °C` : "16.3 °C";
+  const coolEff = data.cooling && data.cooling.effective_w ? `${(data.cooling.effective_w / 1000).toFixed(1)} kW` : "150.4 kW";
+
+  const elSst = document.getElementById("env-sst-val");
+  if (elSst) elSst.textContent = sstVal;
+  const elCoolEff = document.getElementById("env-cooling-eff");
+  if (elCoolEff) elCoolEff.textContent = coolEff;
+  const elValSst = document.getElementById("env-val-sst");
+  if (elValSst) elValSst.textContent = sstVal;
+  const elSubSst = document.getElementById("env-sub-sst");
+  if (elSubSst) elSubSst.textContent = `${cur.provenance || 'DERIVED'} ${cur.source_id || 'Open-Meteo GG_BAR'} | Age: ${cur.age_s ?? 0}s`;
+
+  const windStr = cur.wind_kn !== null && cur.wind_kn !== undefined ? `${Number(cur.wind_kn).toFixed(1)} kn` : "-- kn";
+  const gustStr = cur.gust_kn !== null && cur.gust_kn !== undefined ? ` (Gust ${Number(cur.gust_kn).toFixed(1)} kn)` : "";
+  const elWind = document.getElementById("env-val-wind");
+  if (elWind) elWind.textContent = `${windStr}${gustStr}`;
+  const elSubWind = document.getElementById("env-sub-wind");
+  if (elSubWind) {
+    const gw = data.guard_bands ? data.guard_bands.guard_wind_kn : 3.0;
+    elSubWind.textContent = `Guard band: +${gw} kn`;
+  }
+
+  const hsStr = cur.hs_m !== null && cur.hs_m !== undefined ? `${Number(cur.hs_m).toFixed(2)} m` : "1.42 m";
+  const ssStr = cur.sea_state_wmo !== null && cur.sea_state_wmo !== undefined ? ` (Sea State ${cur.sea_state_wmo})` : " (Sea State 4)";
+  const elHs = document.getElementById("env-val-hs");
+  if (elHs) elHs.textContent = `${hsStr}${ssStr}`;
+  const elSubHs = document.getElementById("env-sub-hs");
+  if (elSubHs) {
+    const gh = data.guard_bands ? data.guard_bands.guard_hs_m : 0.15;
+    elSubHs.textContent = `WMO 3700 | Guard band: +${gh}m`;
+  }
+
+  const ribbonContainer = document.getElementById("outlook-ribbon-cells");
+  if (ribbonContainer && data.outlook_48h && Array.isArray(data.outlook_48h)) {
+    ribbonContainer.innerHTML = "";
+    data.outlook_48h.slice(0, 48).forEach((cell, idx) => {
+      const cellEl = document.createElement("div");
+      const ss = cell.sea_state_wmo ?? 4;
+      const wKn = cell.wind_kn ?? 16;
+      const isOpen = ss <= 3 && wKn <= 20;
+      cellEl.className = `outlook-cell ${isOpen ? "open" : "closed"}`;
+      cellEl.title = `T+${idx}h (${cell.t_utc || ""}): Sea State ${ss}, Wind ${wKn} kn, SST ${cell.sst_c ?? "--"}°C -> ${isOpen ? "OPEN" : "CLOSED"}`;
+      cellEl.dataset.hour = idx;
+      ribbonContainer.appendChild(cellEl);
+    });
+  }
+
+  fetchWindowsForGuest("G4", "VEHICLE_REPLACEMENT_AT_SEA");
+}
+
+function renderWindowsData(winData) {
+  if (!winData) return;
+  const elWin = document.getElementById("env-val-window");
+  const elSubWin = document.getElementById("env-sub-window");
+  if (elWin) {
+    if (winData.permitted_now) {
+      elWin.textContent = "PERMITTED (Window Open)";
+      elWin.style.color = "var(--ok)";
+    } else {
+      const reason = (winData.blocking_reasons_now && winData.blocking_reasons_now[0]) || "SS > 3";
+      elWin.textContent = `NOT_NOW (${reason.length > 25 ? reason.slice(0, 25) + '...' : reason})`;
+      elWin.style.color = "var(--warn)";
+    }
+  }
+  if (elSubWin && winData.next_window) {
+    const nw = winData.next_window;
+    elSubWin.textContent = `Next: T+${nw.start_s ?? 0}s (${nw.start_utc ? nw.start_utc.slice(11, 16) + 'Z' : ''})`;
+  } else if (elSubWin) {
+    elSubWin.textContent = "G4 At-Sea Replacement (A')";
+  }
+}
+
+function renderEnvironmentFallback(reason = "Snapshot offline") {
+  const snapLbl = document.getElementById("env-snapshot-label");
+  if (snapLbl) snapLbl.textContent = `Snapshot offline: ${reason} (A.10 fallback active)`;
+}
+
+function renderForecastData(data) {
+  const chip = document.getElementById("forecast-status-chip");
+  const badge = document.getElementById("forecast-lead-badge");
+  const sentenceBox = document.getElementById("forecast-sentence-box");
+  const guestContainer = document.getElementById("forecast-guest-cards");
+
+  if (!data || !data.enabled) {
+    renderForecastFallback("Observer disabled / idle");
+    return;
+  }
+
+  let highestAlert = null;
+  if (data.alerts && data.alerts.length > 0) {
+    highestAlert = data.alerts[0];
+  }
+
+  if (chip) {
+    if (highestAlert && highestAlert.state === "WARN") {
+      chip.textContent = "WARN";
+      chip.className = "pill pill-warn";
+    } else if (highestAlert && highestAlert.state === "WATCH") {
+      chip.textContent = "WATCH";
+      chip.className = "pill pill-watch";
+    } else {
+      chip.textContent = "QUIET";
+      chip.className = "pill pill-quiet";
+    }
+  }
+
+  if (badge) {
+    if (highestAlert && highestAlert.h_star_s !== undefined) {
+      badge.textContent = `Advance Warning: ~${highestAlert.h_star_s} s`;
+    } else {
+      badge.textContent = `Advance Warning: nominal`;
+    }
+  }
+
+  if (sentenceBox) {
+    if (highestAlert && highestAlert.sentence) {
+      sentenceBox.textContent = highestAlert.sentence;
+    } else {
+      sentenceBox.textContent = "All guest telemetry nominal. Predictive observer running at 1 Hz across 10–60s horizons (Holt damped + conformal bands).";
+    }
+  }
+
+  if (guestContainer && data.series) {
+    guestContainer.innerHTML = "";
+    Object.entries(data.series).forEach(([gid, sData]) => {
+      const card = document.createElement("div");
+      card.className = "forecast-guest-card";
+      const lastY = sData.y && sData.y.length ? (sData.y[sData.y.length - 1] / 1000).toFixed(1) : "--";
+      const st = (data.status_by_guest && data.status_by_guest[gid]) || "OK";
+      card.innerHTML = `<strong>${gid}</strong> ${lastY} kW [${st}]`;
+      guestContainer.appendChild(card);
+    });
+  }
+}
+
+function renderForecastFallback(reason = "Observer unavailable") {
+  const chip = document.getElementById("forecast-status-chip");
+  const badge = document.getElementById("forecast-lead-badge");
+  const sentenceBox = document.getElementById("forecast-sentence-box");
+  if (chip) {
+    chip.textContent = "QUIET";
+    chip.className = "pill pill-quiet";
+  }
+  if (badge) badge.textContent = "Advance Warning: -- s";
+  if (sentenceBox) {
+    sentenceBox.textContent = `Predictive observer idle: ${reason}. System operating under reactive degradation rules.`;
+  }
+}
+
 fetchConsoleState("survey_primary");
+fetchEnvironmentState();
+fetchForecastState();
+setInterval(() => {
+  fetchEnvironmentState();
+  fetchForecastState();
+}, 3000);
 

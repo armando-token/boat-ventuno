@@ -17,12 +17,15 @@
         "STRESS_TEST",
         "STRESS_VARIANT",
         "UNIT_FIXTURE",
-        "HISTORICAL"
+        "HISTORICAL",
+        "PUBLIC_DATA_REPLAY"
       ]
     },
     "seed": { "type": "integer" },
     "initial_state": { "type": "object" },
     "events": { "type": "array" },
+    "environment_profile": { "type": "object" },
+    "observer_telemetry": { "type": "object" },
     "description": { "type": "string" },
     "notes": { "type": "string" },
     "purpose": { "type": "string" }

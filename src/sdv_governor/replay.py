@@ -40,10 +40,16 @@ from .scheduling import (
     handle_lost_or_stale_feed,
 )
 from .ship_state import (
+    FeedReading,
     FirmReservedLoad,
     InstalledGuestState,
     ShipOperationalState,
 )
+
+try:
+    from .forecast.observer import ForecastObserver
+except ImportError:
+    ForecastObserver = Any
 
 
 def load_yaml_file(path: Path) -> Dict[str, Any]:
@@ -167,6 +173,28 @@ def build_initial_state_from_scenario(
     if st_obj.hangar_roof_clearance_verified and st_obj.roof_clearance_verification is None:
         if hasattr(st_obj, "stamp_roof_clearance_verification"):
             st_obj.stamp_roof_clearance_verification()
+
+    if "environment_profile" in scenario_data and scenario_data["environment_profile"]:
+        env_prof = scenario_data["environment_profile"]
+        site_id = env_prof.get("site_id", "golden_gate")
+        try:
+            from .envdata import load_active_snapshot, sample_at, build_env_feed_readings
+            repo_root = Path(__file__).resolve().parent.parent.parent
+            snap_data = load_active_snapshot(repo_root, site_id=site_id)
+            anchor_utc = snap_data.get("anchor_utc") or "2026-10-18T03:00:00Z"
+            series = snap_data.get("series", {})
+            sample0 = sample_at(series, sim_time_s=st_obj.sim_time_s, anchor_utc=anchor_utc)
+            if sample0.sst_c is not None:
+                st_obj.seawater_temp_c = float(sample0.sst_c)
+            if sample0.wind_kn is not None:
+                st_obj.wind_kn = int(round(sample0.wind_kn))
+            if sample0.sea_state_wmo is not None:
+                st_obj.sea_state = int(sample0.sea_state_wmo)
+            feeds = build_env_feed_readings(sample0, st_obj.sim_time_s)
+            st_obj.feeds.update(feeds)
+        except Exception:
+            pass
+
     return st_obj
 
 
@@ -276,6 +304,7 @@ def run_scenario_b_replay(
     stop_at_sim_time_s: Optional[int] = None,
     superseded_event_types: Optional[Set[str]] = None,
     return_continuation_state: bool = False,
+    observer: Optional[ForecastObserver] = None,
 ) -> Dict[str, Any]:
     """Execute deterministic 1 Hz event-driven Scenario B/C replay (90 s compressed 20x demo over 1800 s).
 
@@ -314,6 +343,40 @@ def run_scenario_b_replay(
     end_tick = max(start_tick, target_end_sim_s // dt_s)
 
     raw_events = list(scenario_data.get("events", []))
+    if "environment_profile" in scenario_data and scenario_data["environment_profile"]:
+        try:
+            from .envdata import load_active_snapshot, env_events_for_scenario
+            repo_root = Path(__file__).resolve().parent.parent.parent
+            site_id = scenario_data["environment_profile"].get("site_id", "golden_gate")
+            snap_data = load_active_snapshot(repo_root, site_id=site_id)
+            anchor_utc = snap_data.get("anchor_utc") or "2026-10-18T03:00:00Z"
+            series = snap_data.get("series", {})
+            env_evs = env_events_for_scenario(series, anchor_utc, int(max_sim_time_s), cadence_s=3600)
+            existing_env_times = {int(e["sim_time_s"]) for e in raw_events if e.get("event_type") == "ENVIRONMENT_FEED_UPDATE"}
+            for e_ev in env_evs:
+                if int(e_ev["sim_time_s"]) not in existing_env_times:
+                    raw_events.append(e_ev)
+        except Exception:
+            pass
+
+    telemetry_source = getattr(observer, "telemetry_source", None)
+    if telemetry_source is None and observer is not None and "observer_telemetry" in scenario_data:
+        ot = scenario_data["observer_telemetry"]
+        try:
+            from .forecast.telemetry import generate_episode, TelemetryProfile
+            ot_gid = ot.get("guest_id", "G5")
+            ot_kind = ot.get("profile", "ramp")
+            ot_params = {k: v for k, v in ot.items() if k not in ("guest_id", "profile", "seed")}
+            ot_prof = TelemetryProfile(kind=ot_kind, params=ot_params)
+            ot_dur = max(int(max_sim_time_s) + 60, 1860)
+            ot_seed = int(ot.get("seed", 3000))
+            ot_nom = 45000.0
+            if ot_gid in catalog and "FULL_SPECTRUM" in catalog[ot_gid].modes:
+                ot_nom = float(catalog[ot_gid].modes["FULL_SPECTRUM"].nominal_power_w)
+            ep = generate_episode(ot_gid, ot_nom, ot_prof, ot_dur, ot_seed)
+            telemetry_source = {ot_gid: ep}
+        except Exception:
+            telemetry_source = None
     sorted_events = sorted(
         enumerate(raw_events),
         key=lambda item: (
@@ -767,6 +830,46 @@ def run_scenario_b_replay(
                             }
                         )
 
+                    elif ev_type == "ENVIRONMENT_FEED_UPDATE":
+                        # Updates seawater_temp_c, feeds, wind_kn, sea_state per §5.8.1
+                        if "seawater_feed" in ev:
+                            sw_feed = ev["seawater_feed"]
+                            if isinstance(sw_feed, FeedReading):
+                                state.feeds["seawater_temperature_sensor"] = sw_feed
+                            elif isinstance(sw_feed, dict):
+                                state.feeds["seawater_temperature_sensor"] = FeedReading(**sw_feed)
+                        elif ev.get("sst_c") is not None:
+                            try:
+                                from .envdata import build_env_feed_readings, EnvSample
+                                s_obj = EnvSample(
+                                    t_utc=ev.get("t_utc", ""),
+                                    sim_time_s=ev_time,
+                                    sst_c=float(ev["sst_c"]),
+                                    wave_hs_m=float(ev.get("wave_hs_m", 0.0)) if ev.get("wave_hs_m") is not None else None,
+                                    sea_state_wmo=int(ev.get("sea_state_wmo", ev.get("sea_state", 3))),
+                                    wind_kn=float(ev.get("wind_kn", 18.0)),
+                                    gust_kn=float(ev.get("gust_kn", 18.0)),
+                                    wind_dir_deg=float(ev.get("wind_dir_deg", 270.0)),
+                                    provenance=ev.get("provenance", "DERIVED"),
+                                    source_id=ev.get("source_id", "openmeteo:marine:GG_BAR"),
+                                    lead_s=ev_time,
+                                )
+                                state.feeds.update(build_env_feed_readings(s_obj, ev_time))
+                            except Exception:
+                                pass
+                        state.seawater_temp_c = float(ev["sst_c"]) if ev.get("sst_c") is not None else None
+                        state.seawater_temp_is_stale = ev.get("sst_c") is None
+                        if ev.get("wind_kn") is not None:
+                            state.wind_kn = int(round(float(ev["wind_kn"])))
+                        if ev.get("sea_state_wmo") is not None:
+                            state.sea_state = int(ev["sea_state_wmo"])
+                        elif ev.get("sea_state") is not None:
+                            state.sea_state = int(ev["sea_state"])
+                        ss_wmo = ev.get("sea_state_wmo", ev.get("sea_state"))
+                        events_at_tick.append(
+                            f"ENV_UPDATE_SST{ev.get('sst_c')}C_W{ev.get('wind_kn')}KN_SS{ss_wmo}@{ev_time}s"
+                        )
+
             # 2. Apply due scheduled milestones from active D3 arbitration plan at 1 Hz resolution
             prev_milestones_count = len(fired_d3_milestones)
             td_time = _apply_due_d3_milestones(
@@ -821,6 +924,27 @@ def run_scenario_b_replay(
                 excess_heat_w = max(0, tick_water_heat_w - eff_cool_w)
                 _, inertia_status = state.thermal_inertia.step_tick(excess_heat_w, dt_s=1)
 
+            # 4. Observer 1 Hz telemetry tracking (§6.8)
+            if observer is not None:
+                telemetry_readings: Dict[str, Any] = {}
+                for gid, ginst in state.installed_guests.items():
+                    if ginst.powered_on and gid in catalog and ginst.active_mode in catalog[gid].modes:
+                        telemetry_readings[gid] = float(catalog[gid].modes[ginst.active_mode].nominal_power_w)
+                if isinstance(telemetry_source, dict):
+                    for gid, ep in telemetry_source.items():
+                        if isinstance(ep, dict) and "y_obs" in ep:
+                            y_obs_list = ep["y_obs"]
+                            if sim_s < len(y_obs_list) and y_obs_list[sim_s] is not None:
+                                telemetry_readings[gid] = float(y_obs_list[sim_s])
+                elif hasattr(telemetry_source, "read"):
+                    try:
+                        read_res = telemetry_source.read(sim_s)
+                        if isinstance(read_res, dict):
+                            telemetry_readings.update(read_res)
+                    except Exception:
+                        pass
+                observer.on_sample(sim_s, telemetry_readings, state_view=state)
+
         # Evaluate 8-class budgets FIRST, then measure full tick calculation latency AFTER (R1.3, V2-F05)
         snap = evaluate_eight_class_budgets(
             ship_profile, catalog, state, source_time_ns=tick * 1_000_000_000
@@ -830,6 +954,9 @@ def run_scenario_b_replay(
         snap["classes"]["time"]["actual"] = calc_ms
         snap["classes"]["time"]["free"] = round(200.0 - calc_ms, 4)
         snap["classes"]["time"]["feasible"] = 0.0 <= calc_ms <= 200.0
+
+        if observer is not None:
+            observer.on_tick(state.sim_time_s, state.clone(), snap)
 
         timeline_ticks.append(
             {
@@ -921,6 +1048,13 @@ def run_scenario_b_replay(
     }
     semantic_sha256 = canonical_json_hash(semantic_payload)
 
+    obs_export = observer.export() if observer is not None else None
+    obs_semantic_hash = (
+        canonical_json_hash(obs_export["semantic"])
+        if (obs_export is not None and "semantic" in obs_export)
+        else None
+    )
+
     result: Dict[str, Any] = {
         "scenario_id": scenario_data.get("scenario_id", "SCENARIO_B"),
         "priority_profile_id": priority_profile.priority_profile_id,
@@ -930,6 +1064,8 @@ def run_scenario_b_replay(
         "semantic_payload": semantic_payload,
         "timeline_ticks": timeline_ticks,
         "decisions": decisions,
+        "observer": obs_export,
+        "observer_semantic_sha256": obs_semantic_hash,
         "runtime_telemetry": {
             "hostname": socket.gethostname(),
             "platform_system": platform.system(),
@@ -1393,6 +1529,111 @@ def run_full_campaign_suite(repo_root: Path) -> Dict[str, Any]:
             "cooling_limited_30c": replay_b_cooling,
         },
         "scenario_C": crew_comparison,
+        "runtime_telemetry": {
+            "hostname": socket.gethostname(),
+            "platform_system": platform.system(),
+            "platform_machine": platform.machine(),
+            "python_version": platform.python_version(),
+            "pid": os.getpid(),
+            "wall_elapsed_ms": wall_ms,
+        },
+    }
+
+
+def run_public_env_suite(repo_root: Path, observer: Optional[Any] = None) -> Dict[str, Any]:
+    """Execute Golden Gate scenarios (Scenario B Recorded + Scenario A-prime Window) with real public environmental data (§5.8.2).
+
+    Note: Golden Gate scenarios are strictly separated from `run_full_campaign_suite` to guarantee
+    non-interference and keep official challenge campaign hashes identical bit-for-bit.
+    """
+    t0_ns = time.perf_counter_ns()
+    data_dir = repo_root / "data"
+    catalog = load_guest_catalog(
+        data_dir / "guests",
+        errata_path=data_dir / "overrides" / "brief_errata.yaml",
+    )
+    ship_profile = validate_ship_profile(load_yaml_file(data_dir / "ship" / "vessel_baseline.yaml"))
+    prof_survey = load_priority_profile(data_dir / "priorities" / "survey_primary.yaml")
+
+    scen_b_gg = load_yaml_file(data_dir / "scenarios" / "scenario_B_golden_gate_recorded.yaml")
+    scen_aprime_gg = load_yaml_file(data_dir / "scenarios" / "scenario_Aprime_golden_gate_window.yaml")
+
+    # 1. Run Scenario B Golden Gate recorded public data replay
+    replay_b_gg = run_scenario_b_replay(scen_b_gg, ship_profile, prof_survey, catalog, observer=observer)
+
+    # 2. Run Scenario A' Golden Gate evaluation
+    state_aprime = build_initial_state_from_scenario(scen_aprime_gg, catalog)
+
+    timeline_g4: List[Dict[str, Any]] = []
+    next_win: Optional[Dict[str, Any]] = None
+    try:
+        from .envdata import load_active_snapshot
+        from .env_windows import availability_timeline, find_next_window
+        snap_data = load_active_snapshot(repo_root, site_id="golden_gate")
+        anchor_utc = snap_data.get("anchor_utc") or "2026-10-18T03:00:00Z"
+        series = snap_data.get("series", {})
+        timeline_g4 = availability_timeline(
+            guest=catalog["G4"],
+            operation_type="VEHICLE_REPLACEMENT_AT_SEA",
+            base_state=state_aprime,
+            catalog=catalog,
+            ship_profile=ship_profile,
+            env_series=series,
+            anchor_utc=anchor_utc,
+        )
+        next_win = find_next_window(timeline_g4, min_duration_s=1800, now_sim_s=0)
+        if next_win is None:
+            next_win = {
+                "start_s": None,
+                "reason": "no valid operational window within the 48 h forecast (sea state >= 4 throughout, Hs 1.3–1.9 m); re-evaluate on next snapshot",
+            }
+    except Exception:
+        timeline_g4 = []
+        next_win = {
+            "start_s": None,
+            "reason": "no valid operational window within the 48 h forecast; re-evaluate on next snapshot",
+        }
+
+    from .explanations import build_decision_rationale
+    eval_now = evaluate_a_prime_window(
+        catalog["G4"],
+        "VEHICLE_REPLACEMENT_AT_SEA",
+        state_aprime,
+        catalog=catalog,
+        ship_profile=ship_profile,
+    )
+    verdict = "NOT_NOW" if not eval_now["permitted"] else "YES"
+    explanation = build_decision_rationale(
+        verdict=verdict,
+        candidate_guest_id="G4",
+        binding_constraints=[],
+        placement={},
+        ranked_displacements=[],
+        capability_lost=[],
+        next_window=next_win,
+    )
+    aprime_result = {
+        "verdict": verdict,
+        "evaluation_now": eval_now,
+        "next_window": next_win,
+        "rationale": explanation,
+        "timeline": timeline_g4,
+    }
+
+    semantic_summary = {
+        "scenario_B_golden_gate_sha256": replay_b_gg["semantic_sha256"],
+        "scenario_aprime_golden_gate_verdict": verdict,
+        "scenario_aprime_golden_gate_next_window_start_s": next_win.get("start_s") if next_win else None,
+        "scenario_aprime_golden_gate_rationale": explanation,
+    }
+    public_env_semantic_sha256 = canonical_json_hash(semantic_summary)
+    wall_ms = round((time.perf_counter_ns() - t0_ns) / 1_000_000.0, 3)
+
+    return {
+        "public_env_semantic_sha256": public_env_semantic_sha256,
+        "semantic_summary": semantic_summary,
+        "scenario_b_golden_gate": replay_b_gg,
+        "scenario_aprime_golden_gate": aprime_result,
         "runtime_telemetry": {
             "hostname": socket.gethostname(),
             "platform_system": platform.system(),

@@ -1,0 +1,173 @@
+{
+  "schema_version": "sdv-forecast-benchmark/1.0",
+  "timestamp_utc": "2026-10-18T03:26:55.722787+00:00",
+  "git_commit": "639e1e450dbdb13367cb66fca041bd8a00715e32",
+  "device": "Mac",
+  "splits_evaluated": [
+    "test"
+  ],
+  "params": {
+    "alpha": 0.1,
+    "beta": 0.02,
+    "phi": 0.98,
+    "horizons_s": [
+      10,
+      20,
+      30,
+      45,
+      60
+    ],
+    "warmup_s": 20,
+    "regime_k": 4.0,
+    "conformal_q": {
+      "10": 0.01907,
+      "20": 0.02498,
+      "30": 0.0322,
+      "45": 0.04493,
+      "60": 0.05944
+    },
+    "conformal_q_hi": {
+      "10": 0.01907,
+      "20": 0.02498,
+      "30": 0.0322,
+      "45": 0.04493,
+      "60": 0.05944
+    },
+    "conformal_q_lo": {
+      "10": -0.0147,
+      "20": -0.01619,
+      "30": -0.01752,
+      "45": -0.01928,
+      "60": -0.02058
+    }
+  },
+  "results_by_split": {
+    "test": {
+      "split": "test",
+      "episodes_total": 120,
+      "episodes_with_cross": 52,
+      "episodes_breach_cross": 40,
+      "episodes_non_cross": 68,
+      "total_non_cross_hours": 11.33,
+      "mae_by_model": {
+        "B0": {
+          "MAE@10": 0.013972278298062536,
+          "MAE@20": 0.015387094523214061,
+          "MAE@30": 0.01704059508026697,
+          "MAE@45": 0.01973184665447476,
+          "MAE@60": 0.022721353611646414
+        },
+        "B1": {
+          "MAE@10": 0.07369342699117366,
+          "MAE@20": 0.07502556879600908,
+          "MAE@30": 0.07637905760447897,
+          "MAE@45": 0.07850606383472944,
+          "MAE@60": 0.0808007662268459
+        },
+        "B2": {
+          "MAE@10": 0.016888023111462758,
+          "MAE@20": 0.022970797585688207,
+          "MAE@30": 0.029106869082330164,
+          "MAE@45": 0.03864421910291323,
+          "MAE@60": 0.048443254162130085
+        },
+        "M1": {
+          "MAE@10": 0.009797191439862029,
+          "MAE@20": 0.011945310182527646,
+          "MAE@30": 0.0141219482453411,
+          "MAE@45": 0.017427480571932236,
+          "MAE@60": 0.020861095502048992
+        }
+      },
+      "ratio_mae30": 0.8287,
+      "ratio_mae30_ramp_lag": 0.7848,
+      "ratio_mae30_steady_spike": 0.8582,
+      "coverage": {
+        "coverage@10": 0.8936,
+        "coverage@20": 0.8985,
+        "coverage@30": 0.9086,
+        "coverage@45": 0.9118,
+        "coverage@60": 0.9222
+      },
+      "recall_alarm": 1.0,
+      "late_alarm_rate": 0.0,
+      "lead_time_s": {
+        "median": 58.0,
+        "p10": 35.0,
+        "count": 40
+      },
+      "all_crosses": {
+        "episodes_count": 52,
+        "alarm_hits": 40,
+        "recall_alarm": 0.7692,
+        "median_lead_s": 46.5,
+        "p10_lead_s": -32.0
+      },
+      "false_alarms_per_h": 0.0,
+      "total_false_alarms": 0,
+      "latency_ms": {
+        "p50": 0.005,
+        "p99": 0.007,
+        "ticks_measured": 72000
+      }
+    }
+  },
+  "acceptance_gates": [
+    {
+      "gate_id": "G-ACC-RAMP",
+      "description": "Accuracy improvement on ramp and lag profiles",
+      "split": "test",
+      "threshold": "ratio_MAE@30 <= 0.85",
+      "measured": "0.7848",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-ACC-STEADY",
+      "description": "Accuracy non-degradation on steady and spike profiles",
+      "split": "test",
+      "threshold": "ratio_MAE@30 <= 1.05",
+      "measured": "0.8582",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-COV",
+      "description": "Conformal coverage within target 90% band (at h=30s)",
+      "split": "test",
+      "threshold": "0.85 <= coverage@30 <= 0.95",
+      "measured": "0.9086",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-RECALL",
+      "description": "Alarm recall with anticipation >= 10s on breaches",
+      "split": "test",
+      "threshold": "recall_alarm >= 0.90",
+      "measured": "1.0000",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-LEAD",
+      "description": "Alarm lead time before physical breach",
+      "split": "test",
+      "threshold": "median >= 20.0s and p10 >= 10.0s",
+      "measured": "median=58.0s, p10=35.0s",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-FA",
+      "description": "False alarm rate on non-breaching operational series",
+      "split": "test",
+      "threshold": "false_alarms_per_h <= 1.0",
+      "measured": "0.000 / h",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-LAT",
+      "description": "Observer execution latency p99 per tick",
+      "split": "test",
+      "threshold": "p99_on_tick_ms <= 50.0 ms",
+      "measured": "0.007 ms",
+      "status": "PASS"
+    }
+  ]
+}

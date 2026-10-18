@@ -45,3 +45,19 @@ To guarantee full compliance with the Challenge Data Use Authorization (Brief p.
    - **Factory / Pre-Installed Board System Images & Containers**: Qualcomm/Foundries factory Docker/system caches on `training06` (`/var/lib/docker` / system image layers) and pre-existing user directories outside our repository contain historical model artifacts from prior board users or earlier hackathon experiments, specifically `/home/arduino/sdv-change-review-pilot/models/jeff-sdv-q8_0.gguf` (GGUF weights) and `/home/arduino/aegis-q-uno/assets/models/*.onnx` (synthetic/YOLOX ONNX files from retired V1–V4).
    - **Historical Mentions in Pre-Event Planning Docs**: As recorded in `handoff_sdv_20261016_232300/PROVENANCE.md` §5, pre-event research notes mentioned Qwen, Gemma, and YOLO in comparative tables, and a legacy pilot directory (`sdv-change-review-pilot`) existed on the board prior to `sdv-resource-governor`.
    - **Strict Isolation**: `sdv-resource-governor` operates strictly inside `/Users/armandosilva/DATA/Hack-Ardui/sdv-resource-governor` (Mac) and `/home/arduino/sdv-resource-governor` (board) and never reads, mounts, or invokes any external `.gguf` or `.onnx` files.
+
+---
+
+## 5. Public Metocean Data & Synthetic Telemetry Provenance
+
+| Source / Component | License & Terms | Endpoint / Station | Purpose & Isolation | Code Dependencies |
+|---|---|---|---|---|
+| **Open-Meteo Marine Weather API** | CC BY 4.0 (Attribution: *"Weather data by Open-Meteo.com"*); Terms: free non-commercial tier (`https://open-meteo.com/en/terms`) | `https://marine-api.open-meteo.com/v1/marine` and `https://api.open-meteo.com/v1/forecast` (`lat=37.788, lon=-122.634`, Golden Gate Bar `GG_BAR`) | Offline captured snapshot of hourly SST, significant wave height (Hs), wave direction, and 10 m wind. Model resolution is ~0.08 deg (~8 km); provider disclaimer explicitly acknowledged: *"computed at 0.08 deg resolution ... Accuracy at coastal areas is limited. This is not suitable for coastal navigation"*. Positioned at `GG_BAR` seaward of the bridge and validated against physical buoy 46237 with empirical guard bands. ZERO runtime network calls. | **ZERO new code dependencies** (offline fetch uses standard library `urllib.request`). |
+| **NOAA NDBC Buoy Network** | Public Domain (U.S. Government Work) | Moored oceanographic buoy stations `46237` (San Francisco Bar), `46026` (18NM West of SF), `FTPC1` (Fort Point) via `https://www.ndbc.noaa.gov/data/realtime2/` | Physical ground-truth oceanographic observations used offline for empirical backtesting and guard-band derivation (`ASM-ENV-GUARD-DEFAULT`). ZERO runtime network calls. | **ZERO new code dependencies** (standard library only). |
+| **Seeded Synthetic Telemetry** | Internal Project Asset (`data/forecast/`) | Deterministic PRNG (`random.Random(seed)`) anchored to nominal guest YAML manifests | Synthesizes reproducible 1 Hz guest electrical power traces for evaluating advisory Holt-Winters forecaster and conformal intervals. Labeled `SIMULATED`; purely advisory; zero influence on governor decisions. | **ZERO new code dependencies** (Python standard library `random`, `math`, `typing`). |
+
+### Public Data Capture & Verification Policy
+1. **Network Boundary**: Public data acquisition is restricted entirely to `tools/fetch_public_env.py` (executed once offline on developer workstation). Neither `tools/` nor any networking code is deployed to the target board (`training06` / `ardu`).
+2. **Schema & Integrity**: All recorded metocean series are validated against `schemas/environment_series.schema.json` and cryptographically tracked via SHA-256 hashes in `manifest.json`.
+3. **Fail-Closed Offline Runtime**: If environment data is missing, expired, or invalid, the governor falls back safely to conservative design baselines (30 deg C seawater, `ASM-ENV-TTL`).
+

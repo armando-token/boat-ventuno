@@ -197,3 +197,174 @@ assumptions:
       - "src/sdv_governor/arbitration.py"
       - "src/sdv_governor/replay.py"
       - "src/sdv_governor/ship_state.py"
+
+  - id: ASM-ENV-UNITS
+    parameter: "Meteorological and oceanographic unit conversions (m/s -> kn, m, deg C)"
+    unit: "kn = m/s * 1.943844; m; deg C"
+    concretized_values: "Converts NOAA NDBC wind speeds and gusts from m/s to knots using exact conversion factor 1.943844. Retains seawater temperature in degrees Celsius (deg C) and wave heights (significant wave height Hs) in meters."
+    justification: "NDBC buoys publish raw observations in SI units (m/s), whereas naval vessel operational envelopes and guest cards express limits in knots (kn)."
+    code_references:
+      - "tools/fetch_public_env.py"
+      - "src/sdv_governor/envdata.py"
+
+  - id: ASM-ENV-SEASTATE-WMO3700
+    parameter: "Conversion from significant wave height (Hs) to WMO Code Table 3700 sea state scale"
+    unit: "discrete code 0-9"
+    concretized_values: "Maps significant wave height Hs (m) to discrete sea state code using WMO 3700 upper-inclusive thresholds: 0 (0 m), 1 (<= 0.1 m), 2 (<= 0.5 m), 3 (<= 1.25 m), 4 (<= 2.5 m), 5 (<= 4.0 m), 6 (<= 6.0 m), 7 (<= 9.0 m), 8 (<= 14.0 m), 9 (> 14.0 m). Sea state is always derived freshly from interpolated Hs, never linearly interpolated across discrete codes."
+    justification: "Ship operational envelopes and candidate guest cards restrict launch/recovery by discrete sea state codes. Deriving sea state directly from physical Hs preserves physical validity and avoids fractional or jump artifacts."
+    code_references:
+      - "src/sdv_governor/envdata.py"
+
+  - id: ASM-ENV-INTERP
+    parameter: "Linear temporal interpolation of hourly metocean series to 1 Hz simulation resolution"
+    unit: "1 Hz (1 s time step)"
+    concretized_values: "Performs continuous linear interpolation between adjacent hourly public snapshot records for sea surface temperature (SST), sustained wind speed, wind gust, and wave height (Hs). Derived discrete metrics (sea state) are evaluated from the interpolated continuous values at every second."
+    justification: "Public coastal model forecasts and buoy feeds report at 1-hour resolution, while the SDV Governor execution and telemetry clock operate at 1 Hz."
+    code_references:
+      - "src/sdv_governor/envdata.py"
+
+  - id: ASM-ENV-WIND-SUSTAINED
+    parameter: "10-meter sustained wind velocity convention for operational envelope checks"
+    unit: "kn (knots)"
+    concretized_values: "The operational wind constraint (wind_kn) evaluates against 10-meter sustained wind speed (wind_speed_10m). Peak wind gusts (wind_gusts_10m) are reported as advisory alerts and integrated into empirical guard bands rather than directly tripping sustained limits."
+    justification: "Naval envelope cards define operational ceilings (e.g. 25 kn, 35 kn) in terms of sustained maritime wind, while transient gusts are accommodated via empirical safety guard bands."
+    code_references:
+      - "src/sdv_governor/envdata.py"
+      - "src/sdv_governor/env_windows.py"
+
+  - id: ASM-ENV-WIND-INT
+    parameter: "Integer casting and rounding of wind speed in ship operational state"
+    unit: "kn (integer)"
+    concretized_values: "ShipOperationalState defines wind_kn as an integer. Guard bands and gust allowances are applied to the continuous floating-point wind value before final integer rounding (round-half-up), guaranteeing that fractional safety margins are never truncated."
+    justification: "Maintains backward compatibility with integer-typed ShipOperationalState while preventing optimistic rounding errors."
+    code_references:
+      - "src/sdv_governor/envdata.py"
+      - "src/sdv_governor/ship_state.py"
+
+  - id: ASM-ENV-VALIDITY
+    parameter: "Maximum forward validity horizon of public metocean coastal forecast"
+    unit: "hours (lead <= 48 h)"
+    concretized_values: "Metocean forecast outlook queries are restricted to a maximum lead time of 48 hours from the snapshot issue timestamp (issue_utc). Inquiries beyond 48 hours are rejected as UNAVAILABLE."
+    justification: "Coastal mesoscale atmospheric and ocean wave models exhibit rapidly declining skill beyond 48 hours; a strict fail-closed cutoff prevents ungrounded operational commitments."
+    code_references:
+      - "src/sdv_governor/envdata.py"
+
+  - id: ASM-ENV-TTL
+    parameter: "Environmental feed time-to-live (TTL) and stale fallback in live replay"
+    unit: "ms (5,400,000 ms = 90 min)"
+    concretized_values: "Feed readings carry a time-to-live of 5,400,000 ms (90 minutes, corresponding to the 1-hour public sampling interval plus a 30-minute grace window). If no fresh feed update is delivered before expiration, the governor transitions to STALE and falls back to the worst-case 30 deg C seawater baseline."
+    justification: "Prevents reliance on obsolete maritime conditions and preserves safety-critical conservative defaults."
+    code_references:
+      - "src/sdv_governor/envdata.py"
+      - "src/sdv_governor/replay.py"
+
+  - id: ASM-ENV-ANCHOR
+    parameter: "Scenario time-zero anchor mapping to absolute UTC timestamp"
+    unit: "ISO 8601 UTC timestamp string"
+    concretized_values: "Simulation time sim_time_s = 0 is anchored to an explicit absolute UTC timestamp (anchor_utc) defined in the scenario. Operational logs and advisory sentences format elapsed time as T+s accompanied by absolute UTC time in parentheses."
+    justification: "Enables reproducible synchronization between relative simulation seconds and historical public weather records."
+    code_references:
+      - "src/sdv_governor/envdata.py"
+      - "src/sdv_governor/scenarios.py"
+
+  - id: ASM-ENV-POINT
+    parameter: "Representative geographic point for vessel operating area (Golden Gate Bar)"
+    unit: "WGS84 decimal degrees (lat 37.788, lon -122.634)"
+    concretized_values: "Models vessel operations at geographic point GG_BAR (Golden Gate Bar, seaward of the Golden Gate Bridge), co-located with NOAA NDBC buoy 46237. Spatial advection between grid cells is not modeled."
+    justification: "Open-Meteo Marine operates on an ~8 km coastal grid that lacks skill inside San Francisco Bay; anchoring at GG_BAR provides deep-water marine model data directly verifiable against physical buoy 46237."
+    code_references:
+      - "tools/fetch_public_env.py"
+      - "src/sdv_governor/envdata.py"
+
+  - id: ASM-ENV-SPEED-ASSUMED
+    parameter: "Assumed ship speed for advisory operational window searching"
+    unit: "kn (knots)"
+    concretized_values: "When calculating future operational windows for candidate guests without an active navigation plan, the vessel speed is assumed to be the midpoint of the candidate guest's allowable speed envelope."
+    justification: "Enables advisory feasibility evaluation over future forecast hours without fabricating unverified voyage plans."
+    code_references:
+      - "src/sdv_governor/env_windows.py"
+
+  - id: ASM-ENV-MINWIN
+    parameter: "Default minimum required operational window duration"
+    unit: "s (1800 s = 30 min default)"
+    concretized_values: "Advisory window searches enforce a default continuous feasible duration of 1800 s (30 min), unless overridden by specific guest operation cards (e.g. G4 recovery = 900 s, G4 charging = 1200 s)."
+    justification: "Prevents short transient weather calms from being declared viable when marine evolutions require sustained safe execution."
+    code_references:
+      - "src/sdv_governor/env_windows.py"
+
+  - id: ASM-ENV-GUARD-DEFAULT
+    parameter: "Conservative fallback guard bands for insufficient validation pairs"
+    unit: "wind +5 kn, wave_hs +0.5 m, SST +1.0 deg C"
+    concretized_values: "If backtesting between Open-Meteo model data and NDBC observations yields fewer than 72 valid pairs (3 days), conservative default guard bands of +5 kn (wind), +0.5 m (Hs), and +1.0 deg C (SST) are applied and flagged as INSUFFICIENT_PAIRS."
+    justification: "Fail-closed safety policy guarantees that uncalibrated model uncertainty widens protective margins rather than permitting optimistic admissions."
+    code_references:
+      - "tools/backtest_public_env.py"
+      - "src/sdv_governor/envdata.py"
+
+  - id: ASM-FCST-WARMUP
+    parameter: "Initial warmup filter duration for Holt-Winters predictive observer"
+    unit: "samples / s (20 valid 1 Hz samples = 20 s)"
+    concretized_values: "Filter state initializes with level l_0 = z_0 and trend b_0 = 0. During the first 20 valid 1 Hz samples, observer status is WARMUP and all advisory overrun warnings are suppressed."
+    justification: "Prevents false-alarm spikes while the recursive exponential smoothing filters initialize and stabilize."
+    code_references:
+      - "src/sdv_governor/forecast/holt.py"
+      - "src/sdv_governor/forecast/observer.py"
+
+  - id: ASM-FCST-MODE-RESET
+    parameter: "State reset of Holt forecaster upon guest operational mode transition"
+    unit: "s (20 s reset warmup)"
+    concretized_values: "Upon an operational mode change reported by the governor, the forecaster resets its state to current measured power (l = z_t, b = 0) and enters a 20 s WARMUP phase."
+    justification: "Mode switches cause intentional discrete step changes in electrical and thermal demand; resetting trend prevents old mode inertia from distorting the new operational regime."
+    code_references:
+      - "src/sdv_governor/forecast/holt.py"
+      - "src/sdv_governor/forecast/observer.py"
+
+  - id: ASM-FCST-STALE
+    parameter: "Telemetry gap handling and conformal band inflation for brief dropouts"
+    unit: "s (telemetry gap > 3 s and <= 10 s)"
+    concretized_values: "If guest telemetry is interrupted for more than 3 s (up to 10 s), observer status transitions to STALE, conformal prediction bands are inflated by a factor of 1.5x, and new advisory alarms are inhibited."
+    justification: "Temporary telemetry dropouts increase estimation variance; inflating uncertainty bounds reflects reduced confidence without triggering spurious alarms."
+    code_references:
+      - "src/sdv_governor/forecast/observer.py"
+
+  - id: ASM-FCST-UNAVAIL
+    parameter: "Telemetry loss disconnect and forecast suppression after prolonged gap"
+    unit: "s (telemetry gap > 10 s)"
+    concretized_values: "If no valid telemetry sample is received for more than 10 s, forecaster status transitions to UNAVAILABLE, forecasts are suppressed, and the system reports 'no reliable forecast'."
+    justification: "Extrapolating high-rate time-series projections past 10 seconds of missing observations is ungrounded and unsafe."
+    code_references:
+      - "src/sdv_governor/forecast/observer.py"
+
+  - id: ASM-FCST-REGIME
+    parameter: "Unannounced regime break detection and fast re-adaptation"
+    unit: "samples / sigma (3 consecutive samples > 4 * sigma_ewm; 10 s short warmup)"
+    concretized_values: "If one-step prediction residuals satisfy |z_t - z_hat_{t|t-1}| > 4 * sigma_ewm across 3 consecutive samples, a REGIME_BREAK is declared, triggering an immediate trend reset and a short 10 s warmup."
+    justification: "Detects unannounced hardware anomalies or unscheduled subcomponent activations, adapting rapidly rather than slowly dragging lagging trends."
+    code_references:
+      - "src/sdv_governor/forecast/holt.py"
+      - "src/sdv_governor/forecast/observer.py"
+
+  - id: ASM-FCST-OVERRUN-THRESHOLD
+    parameter: "Percentage threshold for advisory overconsumption early warning"
+    unit: "ratio (1.10 = 110% of declared power)"
+    concretized_values: "An advisory warning is emitted when projected upper conformal bound y_hi(h) exceeds 1.10 * declared_w. (Distinguished from reactive degradation handler which acts on measured > declared)."
+    justification: "Setting an explicit 110% advisory threshold filters normal sensor noise and transient ripple, ensuring advisory alerts provide high-confidence early warnings."
+    code_references:
+      - "src/sdv_governor/forecast/advisory.py"
+      - "src/sdv_governor/forecast/params.py"
+
+  - id: ASM-FCST-CACHE
+    parameter: "Physical budget projection and bisection solver memoization"
+    unit: "ratio (1% = 0.01 relative change threshold)"
+    concretized_values: "Full 8-class budget re-evaluations and bisection searches are skipped if the upper forecast bound y_hi has not shifted by more than 1% since the previous evaluation."
+    justification: "Restricts per-tick forecast overhead on embedded hardware (Arduino Ventuno Q) to well under 10 ms."
+    code_references:
+      - "src/sdv_governor/forecast/projector.py"
+
+  - id: ASM-FCST-SYNTHETIC-TELEMETRY
+    parameter: "Declared deterministic synthetic guest telemetry generation"
+    unit: "W (1 Hz, seeded PRNG)"
+    concretized_values: "Guest power telemetry is synthesized at 1 Hz using Python stdlib random.Random(seed) anchored to declared mode nominal power, card-specified peak envelopes, and explicit perturbation profiles. Explicitly labeled SIMULATED; purely advisory; zero influence on governor decisions."
+    justification: "Real high-rate sub-second per-guest naval telemetry is unavailable in hackathon conditions; deterministic declared synthetic telemetry provides reproducible validation without misrepresenting simulated traces as field measurements."
+    code_references:
+      - "src/sdv_governor/forecast/telemetry.py"

@@ -189,6 +189,19 @@ mission_capabilities:
   surface_surveillance: 85.0
   hydrographic_survey: 15.0
 
+# Annex B G5: "at sea only logical: new analytics workload". Software-only variant on the existing compute rack.
+logical_workload:
+  description: "Analytics workload on the existing compute rack, no hardware"
+  compute:
+    cores: 4            # DERIVED from G5 DEGRADED_70PCT_LOSS compute_cores
+    memory_gib: 16      # DERIVED from G5 DEGRADED_70PCT_LOSS compute_ram_mib (16384)
+    accelerators: 0
+  satcom_bps: 0
+  capability_fraction: 0.3   # ASSUMED; equals the capability G5 keeps in DEGRADED_70PCT_LOSS (70% loss, OFFICIAL_BRIEF)
+  provenance:
+    compute: "ASSUMED"            # sized from G5 DEGRADED_70PCT_LOSS (4 cores, 16 GiB)
+    capability_fraction: "ASSUMED"
+
 component_allocations:
   FULL_SPECTRUM:
     G5_COMPUTE_CONTAINER:

@@ -405,3 +405,78 @@ assumptions:
       - "src/sdv_governor/replay.py::_apply_due_d3_milestones"
     tests:
       - "tests/unit/test_c2_acoustic_link.py::test_ch_c2_08_link_loss_and_restore_events"
+
+  - id: SINGLE_GENSET_LOSS_WINDOW
+    parameter: "Envelope window that represents the loss of one generator (Scenario A: 'holds with one genset down')"
+    unit: "window_id"
+    concretized_values: "DEGRADED_GEN_LOSS_100KW_30C (reserve 200 kW -> 100 kW, 30 C water), flagged in data/ship/mission_envelope_a10.yaml with represents: SINGLE_GENSET_LOSS; detection is by flag, never by window name. The envelope fails closed if no such window exists."
+    provenance: "DERIVED"
+    justification: "Scenario B min 12 reserves ~100 kW after one generator trips; Scenario A asks explicitly whether the verdict holds in that state."
+    code_references:
+      - "src/sdv_governor/admission.py::evaluate_mission_envelope_a10"
+      - "src/sdv_governor/manifest.py::validate_mission_envelope"
+    test: "tests/unit/test_ch_c5_one_genset_down.py"
+
+  - id: OWN_RADAR_ON_AT_SEA
+    parameter: "Own ship radar transmits whenever the vessel is at sea (not in port, not under EMCON silence, not under QUIET_RADIO)"
+    unit: "boolean policy"
+    concretized_values: "true by default (own_radar_policy TRANSMIT); G1 radar_tx_degradation_ratio 0.30 (official Annex B G1 'RADAR_DEGRADED_30PCT') applies to G1 on exposed positions."
+    provenance: "ASSUMED"
+    justification: "Annex B says G1 loses 30% when the ship radar is transmitting nearby; navigation at sea requires the radar, so transmission is the safe default."
+    code_references:
+      - "src/sdv_governor/capability_effects.py::own_radar_transmitting"
+    test: "tests/unit/test_ch_c6_own_radar.py"
+
+  - id: OWN_RADAR_EXPOSED_POSITIONS
+    parameter: "Positions affected by own-radar transmission"
+    unit: "position names"
+    concretized_values: "mast_1, mast_2, mast_3, hangar_roof (data/ship/vessel_baseline.yaml::own_radar.exposed_positions); bays, hangar, flight deck and stern ramp are not exposed."
+    provenance: "ASSUMED"
+    justification: "No official layout gives antenna geometry; the radar sits on the mast, so mast and roof positions share its field. Replace with the real geometry when available."
+    code_references:
+      - "src/sdv_governor/capability_effects.py::effective_capability_retention"
+      - "src/sdv_governor/manifest.py::validate_ship_profile"
+    test: "tests/unit/test_ch_c6_own_radar.py"
+
+  - id: D2_SCARCITY_WEIGHTS
+    parameter: "Scarcity weight of each position slot in the D2 objective D2_LEXICOGRAPHIC_V2"
+    unit: "dimensionless weight"
+    concretized_values: "mast_1/2/3 = 3; hangar_roof, bay1, bay2, flight_deck, stern_ramp = 2; bay1_a, bay1_b, hangar = 1; rack = 0. Plan B (owner gate F6-G unavailable): scarcity is the 4th key component (after roof_cond_rank, pref_penalty, retention), so it only breaks ties and official placements are unchanged."
+    provenance: "ASSUMED"
+    justification: "The brief (A.3) calls the mast the scarcest resource aboard; the numeric weights are ours. Margin bucket (0.5%) is DERIVED from the eight-class budget snapshot."
+    code_references:
+      - "src/sdv_governor/placement.py::D2_SCARCITY_WEIGHTS"
+      - "src/sdv_governor/placement.py::find_feasible_placement"
+    test: "tests/unit/test_ch_c4_placement_alternatives.py"
+
+  - id: QUIET_RADIO_MIN_CREW
+    parameter: "Minimum crew aboard to accept QUIET_RADIO (radar off)"
+    unit: "crew"
+    concretized_values: "6 (REDUCED_CREW_6 regime); below it QUIET_RADIO is rejected with a witness and the radar is treated as transmitting."
+    provenance: "ASSUMED"
+    justification: "Silencing the radar removes collision-avoidance sensing; it needs a bridge watch with visual lookout and AIS."
+    code_references:
+      - "src/sdv_governor/capability_effects.py::check_own_radar_policy"
+      - "src/sdv_governor/server.py::handle_api_request"
+    test: "tests/unit/test_ch_c6_own_radar.py"
+
+  - id: LOGICAL_RECONFIG_MIN_COVERAGE
+    parameter: "Minimum share of the candidate's capability that a logical reconfiguration must recover to be proposed"
+    unit: "fraction of the candidate's summed mission capability"
+    concretized_values: "0.10; below it the proposal is NONE_FEASIBLE with a reason. Compute-only options assume the rack is already powered, so no extra power or heat is modelled (no per-core power figure in the data)."
+    provenance: "ASSUMED"
+    justification: "Avoids proposing actions that recover a negligible share; the number is ours, not from the brief."
+    code_references:
+      - "src/sdv_governor/reconfiguration.py::MIN_COVERAGE"
+    test: "tests/unit/test_ch_c3_logical_reconfig.py"
+
+  - id: G5_LOGICAL_WORKLOAD_COMPUTE
+    parameter: "Compute and capability of the G5 software-only analytics workload (Annex B: at sea only logical)"
+    unit: "cores, GiB, accelerators, fraction"
+    concretized_values: "4 cores, 16 GiB, 0 accelerators, 0 satcom; capability_fraction 0.30 (data/guests/G5_emergency_comms_edge.yaml::logical_workload)."
+    provenance: "ASSUMED"
+    justification: "Sized from G5 DEGRADED_70PCT_LOSS (4 cores, 16384 MiB, 30% retention); the brief gives no workload size."
+    code_references:
+      - "src/sdv_governor/manifest.py::_parse_logical_workload"
+      - "src/sdv_governor/reconfiguration.py::propose_logical_reconfiguration"
+    test: "tests/unit/test_ch_c3_logical_reconfig.py"

@@ -59,6 +59,7 @@ envelope_states:
 
   - state_id: "DEGRADED_GEN_LOSS_100KW_30C"
     description: "Fallo de un generador (reserva cae de 200 kW a 100 kW) con agua a 30 °C"
+    represents: "SINGLE_GENSET_LOSS"  # DERIVED: Scenario B min 12 "reserve ~100 kW"; Scenario A asks if it holds with one genset down
     is_pier_only: false
     seawater_temp_c: 30.0
     vessel_mode: "DEGRADED_POWER"

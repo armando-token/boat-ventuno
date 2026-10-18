@@ -31,10 +31,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # Golden pinned hashes before forecast work (Megaplan F0, NI-01)
 PINNED_CAMPAIGN_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["campaign_semantic_sha256"]
-PINNED_B_SURVEY_HASH = "90a2ce1137b0d5729c466f2c313b143d0d189ab21ae9d13093b5d3e380b94a6d"
-PINNED_B_RESCUE_HASH = "d5b36570f0b6bf0ee068dff610a96e382a6c2192458f1cc93e31cc2fcfaf4c7a"
-PINNED_B_COOLING_HASH = "d4638ec023aef2f484f700b24ae314b7f7d0261456ee697b5b35e9ae332ec5ae"
-PINNED_C_CREW_HASH = "7ed9a261dc4f200bc92b33a8203551cc0b00eab1b4e56c894fc8576b1471a4d9"
+PINNED_B_SURVEY_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["scenario_B_survey_primary_sha256"]
+PINNED_B_RESCUE_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["scenario_B_rescue_primary_sha256"]
+PINNED_B_COOLING_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["scenario_B_cooling_limited_sha256"]
+PINNED_C_CREW_HASH = json.loads((Path(__file__).resolve().parents[1] / "fixtures" / "golden_hashes.json").read_text())["scenario_C_crew_regimes_sha256"]
 
 
 @pytest.fixture(scope="module")

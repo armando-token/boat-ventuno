@@ -1225,6 +1225,7 @@ def validate_ship_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
         "roof_drone_clearance_policy",
         "layout_version",
         "transition_timing_policy",
+        "own_radar",
     }
     require_dict(
         raw,
@@ -1256,6 +1257,20 @@ def validate_ship_profile(raw: Dict[str, Any]) -> Dict[str, Any]:
             require_int(dom_spec[cap_key], f"{dp}.{cap_key}", min_value=0)
             if "value_origin" in dom_spec:
                 require_str(dom_spec["value_origin"], f"{dp}.value_origin", allowed_enum=VALID_VALUE_ORIGINS)
+
+    if "own_radar" in raw and raw["own_radar"] is not None:
+        orad = require_dict(
+            raw["own_radar"],
+            "ship_profile.own_radar",
+            required_keys={"exposed_positions", "value_origin", "assumption_ref"},
+            allowed_keys={"exposed_positions", "value_origin", "assumption_ref"},
+        )
+        require_str(orad["value_origin"], "ship_profile.own_radar.value_origin", allowed_enum=VALID_VALUE_ORIGINS)
+        require_str(orad["assumption_ref"], "ship_profile.own_radar.assumption_ref")
+        if not isinstance(orad["exposed_positions"], list):
+            raise StrictValidationError("TYPE_ERROR", "exposed_positions must be a list", "ship_profile.own_radar.exposed_positions")
+        for i, pos in enumerate(orad["exposed_positions"]):
+            require_str(pos, f"ship_profile.own_radar.exposed_positions[{i}]", allowed_enum=VALID_POSITIONS)
 
     if "roof_drone_clearance_policy" in raw and raw["roof_drone_clearance_policy"] is not None:
         rcp = require_dict(raw["roof_drone_clearance_policy"], "ship_profile.roof_drone_clearance_policy")

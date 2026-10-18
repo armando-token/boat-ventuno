@@ -379,3 +379,35 @@ assumptions:
       - "src/sdv_governor/admission.py::evaluate_mission_envelope_a10"
       - "src/sdv_governor/manifest.py::validate_mission_envelope"
     test: "tests/unit/test_ch_c5_one_genset_down.py"
+
+  - id: OWN_RADAR_ON_AT_SEA
+    parameter: "Own ship radar transmits whenever the vessel is at sea (not in port, not under EMCON silence, not under QUIET_RADIO)"
+    unit: "boolean policy"
+    concretized_values: "true by default (own_radar_policy TRANSMIT); G1 radar_tx_degradation_ratio 0.30 (official Annex B G1 'RADAR_DEGRADED_30PCT') applies to G1 on exposed positions."
+    provenance: "ASSUMED"
+    justification: "Annex B says G1 loses 30% when the ship radar is transmitting nearby; navigation at sea requires the radar, so transmission is the safe default."
+    code_references:
+      - "src/sdv_governor/capability_effects.py::own_radar_transmitting"
+    test: "tests/unit/test_ch_c6_own_radar.py"
+
+  - id: OWN_RADAR_EXPOSED_POSITIONS
+    parameter: "Positions affected by own-radar transmission"
+    unit: "position names"
+    concretized_values: "mast_1, mast_2, mast_3, hangar_roof (data/ship/vessel_baseline.yaml::own_radar.exposed_positions); bays, hangar, flight deck and stern ramp are not exposed."
+    provenance: "ASSUMED"
+    justification: "No official layout gives antenna geometry; the radar sits on the mast, so mast and roof positions share its field. Replace with the real geometry when available."
+    code_references:
+      - "src/sdv_governor/capability_effects.py::effective_capability_retention"
+      - "src/sdv_governor/manifest.py::validate_ship_profile"
+    test: "tests/unit/test_ch_c6_own_radar.py"
+
+  - id: QUIET_RADIO_MIN_CREW
+    parameter: "Minimum crew aboard to accept QUIET_RADIO (radar off)"
+    unit: "crew"
+    concretized_values: "6 (REDUCED_CREW_6 regime); below it QUIET_RADIO is rejected with a witness and the radar is treated as transmitting."
+    provenance: "ASSUMED"
+    justification: "Silencing the radar removes collision-avoidance sensing; it needs a bridge watch with visual lookout and AIS."
+    code_references:
+      - "src/sdv_governor/capability_effects.py::check_own_radar_policy"
+      - "src/sdv_governor/server.py::handle_api_request"
+    test: "tests/unit/test_ch_c6_own_radar.py"

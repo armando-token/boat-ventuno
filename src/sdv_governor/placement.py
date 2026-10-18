@@ -19,9 +19,13 @@ def compute_guest_capability_score(
     guest: GuestManifest,
     mode_name: str,
     priority_profile: PriorityProfile,
+    retention_override: Optional[float] = None,
 ) -> float:
-    """Compute weighted mission capability score for `guest` operating in `mode_name` under `priority_profile`."""
-    retention = guest.modes[mode_name].capability_retention_ratio
+    """Compute weighted mission capability score for `guest` operating in `mode_name` under `priority_profile`.
+
+    `retention_override` carries the retention after environmental effects (C6) when the caller knows the placement.
+    """
+    retention = guest.modes[mode_name].capability_retention_ratio if retention_override is None else retention_override
     raw_score = 0.0
     for cap_key, cap_val in guest.mission_capabilities.items():
         weight = priority_profile.capability_weights.get(cap_key, 10.0)

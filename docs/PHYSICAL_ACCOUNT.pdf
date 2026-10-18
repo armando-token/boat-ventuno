@@ -16,7 +16,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 26188 >>
+<< /Length 27950 >>
 stream
 q 0.10 0.21 0.36 rg 26.00 755.72 560.00 12.29 re f Q
 BT /F2 7.30 Tf 1.00 1.00 1.00 rg 34.00 759.71 Td (Physical Account \(D6\) -- Annex C: every number we assumed, narrowed or overrode, and where the code uses it) Tj ET
@@ -307,15 +307,36 @@ BT /F1 4.80 Tf 0.10 0.14 0.20 rg 331.30 377.42 Td (kW \(DERIVED\)) Tj ET
 q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 420.66 363.22 165.34 26.40 re B Q
 BT /F1 4.80 Tf 0.10 0.14 0.20 rg 423.66 383.02 Td (ASSUMPTIONS.yaml::SINGLE_GENSET_LOSS_WINDOW,) Tj ET
 BT /F1 4.80 Tf 0.10 0.14 0.20 rg 423.66 377.42 Td (admission.py::evaluate_mission_envelope_a10) Tj ET
-BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 353.42 Td (Scenario B ledger \(G1+G3+G4+G5, actual / committed\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 351.42 560.00 0.60 re f Q
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 342.91 Td (Power 57.5 / 81.5 kW -> 82.5 / 106.5 kW at T=480 s \(G4 35 kW reserved\) -> genset trip at T=720 s: 106.5 > 100 kW -> G5 45 -> 8 kW -> 45.5 / 69.5 kW. Water 103.8 -> 67.5 kW committed \(<= 72 kW even with loop loss) Tj ET
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 336.61 Td (at 30 C\). Air: mast_3 1,500 W \(G1\) + roof 1,200 -> 500 W \(G5\). Only two 4-guest sets pass mass; {G1,G2,G3,G4} = 10,035 kg fails.) Tj ET
-BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 328.81 Td (What would change if the vessel had one single platform modification \(mast_4\)?) Tj ET
-q 0.75 0.82 0.90 rg 26.00 326.81 560.00 0.60 re f Q
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 318.31 Td (Closing question: we would add one more guest mast slot, mast_4 \(+1 slot: <= 60 kg, <= 0.6 m2, +2,000 W forced air\). Today G1 \(1,500 W\) and the G5 antenna \(1,200 W\) cannot share mast_3 \(2,700 W > 2,000 W\), so) Tj ET
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 312.01 Td (the antenna goes on the hangar roof and every G4 recovery depends on a roof-clearance condition. With mast_4 the antenna moves off the roof \(9,853 -> 9,898 kg-eq, still 2,102 kg-eq margin\), the drone conflict) Tj ET
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 305.71 Td (disappears and D1/D3 lose a conditional rule. It does not fix mass: {G1,G2,G3,G4} \(10,035 kg\), {G1,G2,G3,G5} and {G2,G3,G4,G5} still fail. The same gain applies to {G1,G2,G4,G5} \(7,853 -> 7,898 kg-eq\).) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 336.82 36.41 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 356.62 Td (Own radar) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 351.02 Td (vs G1) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 345.42 Td (\(Scenario) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 339.82 Td (B\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 62.41 336.82 78.24 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 65.41 356.62 Td (Does the ship radar) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 65.41 351.02 Td (degrade G1 at sea?) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 140.65 336.82 187.65 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 143.65 356.62 Td (At sea, with the radar transmitting, G1 on mast_1..3/hangar_roof) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 143.65 351.02 Td (delivers 70% \(Annex B RADAR_DEGRADED_30PCT\); none in port, under) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 143.65 345.42 Td (EMCON or with QUIET_RADIO \(needs >= 6 crew\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 328.30 336.82 92.36 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 331.30 356.62 Td (Annex B G1 -30% \(OFFICIAL\);) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 331.30 351.02 Td (radar on at sea, exposed) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 331.30 345.42 Td (positions, 6-crew rule) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 331.30 339.82 Td (\(ASSUMED\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 420.66 336.82 165.34 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 423.66 356.62 Td (ASSUMPTIONS.yaml::OWN_RADAR_ON_AT_SEA,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 423.66 351.02 Td (OWN_RADAR_EXPOSED_POSITIONS, QUIET_RADIO_MIN_CREW,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 423.66 345.42 Td (capability_effects.py) Tj ET
+BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 327.02 Td (Scenario B ledger \(G1+G3+G4+G5, actual / committed\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 325.02 560.00 0.60 re f Q
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 316.51 Td (Power 57.5 / 81.5 kW -> 82.5 / 106.5 kW at T=480 s \(G4 35 kW reserved\) -> genset trip at T=720 s: 106.5 > 100 kW -> G5 45 -> 8 kW -> 45.5 / 69.5 kW. Water 103.8 -> 67.5 kW committed \(<= 72 kW even with loop loss) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 310.21 Td (at 30 C\). Air: mast_3 1,500 W \(G1\) + roof 1,200 -> 500 W \(G5\). Only two 4-guest sets pass mass; {G1,G2,G3,G4} = 10,035 kg fails.) Tj ET
+BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 302.41 Td (What would change if the vessel had one single platform modification \(mast_4\)?) Tj ET
+q 0.75 0.82 0.90 rg 26.00 300.41 560.00 0.60 re f Q
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 291.91 Td (Closing question: we would add one more guest mast slot, mast_4 \(+1 slot: <= 60 kg, <= 0.6 m2, +2,000 W forced air\). Today G1 \(1,500 W\) and the G5 antenna \(1,200 W\) cannot share mast_3 \(2,700 W > 2,000 W\), so) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 285.61 Td (the antenna goes on the hangar roof and every G4 recovery depends on a roof-clearance condition. With mast_4 the antenna moves off the roof \(9,853 -> 9,898 kg-eq, still 2,102 kg-eq margin\), the drone conflict) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 279.31 Td (disappears and D1/D3 lose a conditional rule. It does not fix mass: {G1,G2,G3,G4} \(10,035 kg\), {G1,G2,G3,G5} and {G2,G3,G4,G5} still fail. The same gain applies to {G1,G2,G4,G5} \(7,853 -> 7,898 kg-eq\).) Tj ET
 endstream
 endobj
 7 0 obj
@@ -330,9 +351,9 @@ xref
 0000000191 00000 n 
 0000000266 00000 n 
 0000000334 00000 n 
-0000026575 00000 n 
+0000028337 00000 n 
 trailer
 << /Size 8 /Root 1 0 R >>
 startxref
-26721
+28483
 %%EOF

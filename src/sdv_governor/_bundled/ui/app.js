@@ -48,6 +48,7 @@ function applyAuthoritativeState(data) {
     renderCombinationsTable(data.scenario_A_combinations);
   }
   renderCrewControls(data);
+  renderOwnRadarBadge(data);
   renderTimelineTick(currentTickIndex);
 }
 
@@ -417,6 +418,46 @@ document.querySelectorAll("[data-crew]").forEach((btn) => {
     }
   });
 });
+
+const chkQuietRadio = document.getElementById("chk-quiet-radio");
+
+function renderOwnRadarBadge(payload) {
+  const badge = document.getElementById("own-radar-badge");
+  const st = payload && payload.state;
+  if (chkQuietRadio && st) chkQuietRadio.checked = st.own_radar_policy === "QUIET_RADIO";
+  if (!badge || !st) return;
+  const g1 = st.capability_effects && st.capability_effects.G1;
+  const hit = Array.isArray(g1) && g1.includes("OWN_RADAR_TX_NEARBY");
+  badge.textContent = hit ? "📡 −30 % radar (G1: radar propio transmitiendo)" : "";
+}
+
+if (chkQuietRadio) {
+  chkQuietRadio.addEventListener("change", async (e) => {
+    const value = e.target.checked ? "QUIET_RADIO" : "TRANSMIT";
+    try {
+      const res = await fetch("/api/perturb", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ perturbation_type: "OWN_RADAR_POLICY", value }),
+      });
+      if (!res.ok) {
+        setStaleBanner(true, `HTTP ${res.status} on /api/perturb`);
+        return;
+      }
+      const payload = await res.json();
+      setStaleBanner(false);
+      if (payload.status === "REJECTED") {
+        e.target.checked = false;
+        const badge = document.getElementById("own-radar-badge");
+        if (badge) badge.textContent = payload.result.causal_sentence;
+        return;
+      }
+      applyAuthoritativeState(payload);
+    } catch (err) {
+      setStaleBanner(true, err.message || "Network error");
+    }
+  });
+}
 
 const chkDeckClear = document.getElementById("chk-deck-clear");
 if (chkDeckClear) {

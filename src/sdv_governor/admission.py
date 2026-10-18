@@ -160,6 +160,81 @@ def check_dependency_constraints(
     return witnesses, cond_notes
 
 
+SINGLE_GENSET_LOSS = "SINGLE_GENSET_LOSS"
+
+
+def _genset_down_sentence(report: Dict[str, Any]) -> str:
+    head = (
+        f"With one genset down ({report['power_reserve_w'] / 1000.0:g} kW reserve, "
+        f"{report['seawater_temp_c']:g} \u00b0C water) "
+    )
+    if report["holds"] == "YES":
+        return head + "the verdict holds without changes."
+    if report["holds"] == "YES_WITH_STEP_DOWN":
+        steps = ", ".join(
+            f"{sd['guest_id']} steps down to {sd['to_mode']}" for sd in report["required_step_downs"]
+        )
+        return head + f"the verdict holds only if {steps}."
+    return head + f"the verdict does NOT hold (binding class: {report['binding_class']})."
+
+
+def _modes_step_down_diff(
+    before: ShipOperationalState, after: ShipOperationalState, aug_catalog: Dict[str, GuestManifest]
+) -> List[Dict[str, Any]]:
+    steps: List[Dict[str, Any]] = []
+    for gid in sorted(before.installed_guests):
+        m_from = before.installed_guests[gid].active_mode
+        m_to = after.installed_guests[gid].active_mode
+        if m_from == m_to:
+            continue
+        g_man = aug_catalog[gid]
+        r_from = g_man.modes[m_from].capability_retention_ratio
+        r_to = g_man.modes[m_to].capability_retention_ratio
+        caps = ", ".join(sorted(g_man.mission_capabilities.keys())) or "none"
+        steps.append(
+            {
+                "guest_id": gid,
+                "from_mode": m_from,
+                "to_mode": m_to,
+                "capability_lost": f"{caps} (retention {r_from:.2f} -> {r_to:.2f})",
+            }
+        )
+    return steps
+
+
+def _minimize_step_downs(
+    before: ShipOperationalState,
+    stepped: ShipOperationalState,
+    ship_profile: Dict[str, Any],
+    aug_catalog: Dict[str, GuestManifest],
+    hangar_roof_clearance_verified: bool,
+) -> ShipOperationalState:
+    """Greedily restore original modes (largest capability loss first, then guest_id) while the window stays feasible."""
+    work = stepped.clone()
+
+    def _loss(gid: str) -> float:
+        g_man = aug_catalog[gid]
+        return (
+            g_man.modes[before.installed_guests[gid].active_mode].capability_retention_ratio
+            - g_man.modes[stepped.installed_guests[gid].active_mode].capability_retention_ratio
+        )
+
+    changed = [
+        gid
+        for gid in before.installed_guests
+        if before.installed_guests[gid].active_mode != stepped.installed_guests[gid].active_mode
+    ]
+    for gid in sorted(changed, key=lambda g: (-_loss(g), g)):
+        trial = work.clone()
+        trial.installed_guests[gid].active_mode = before.installed_guests[gid].active_mode
+        snap = evaluate_eight_class_budgets(
+            ship_profile, aug_catalog, trial, hangar_roof_clearance_verified=hangar_roof_clearance_verified
+        )
+        if snap["feasible"]:
+            work = trial
+    return work
+
+
 def evaluate_mission_envelope_a10(
     candidate: GuestManifest,
     trial_state: ShipOperationalState,
@@ -195,6 +270,7 @@ def evaluate_mission_envelope_a10(
     nominal_offshore_mode_conditions: List[str] = []
     nominal_offshore_condition_classes: Dict[str, str] = {}
     envelope_feasible = True
+    one_genset_down: Optional[Dict[str, Any]] = None
 
     for w in windows:
         wid = w.get("state_id", w.get("window_id", "UNKNOWN_WINDOW"))
@@ -247,6 +323,11 @@ def evaluate_mission_envelope_a10(
 
         window_passed = snap["feasible"]
         conditioned_for_window = False
+        is_genset_window = w.get("represents") == SINGLE_GENSET_LOSS
+        genset_binding_class: Optional[str] = None
+        if is_genset_window and not window_passed and snap["binding_witnesses"]:
+            genset_binding_class = str(snap["binding_witnesses"][0]["resource_class"])
+        genset_step_downs: List[Dict[str, Any]] = []
 
         if not window_passed:
             # Try stepping down candidate (and, in degraded contingency windows, other non-protected guests)
@@ -281,6 +362,11 @@ def evaluate_mission_envelope_a10(
             if snap_cond["feasible"]:
                 window_passed = True
                 conditioned_for_window = True
+                if is_genset_window:
+                    min_state = _minimize_step_downs(
+                        w_state, cond_state, ship_profile, aug_catalog, hangar_roof_clearance_verified
+                    )
+                    genset_step_downs = _modes_step_down_diff(w_state, min_state, aug_catalog)
                 cond_mode_used = cond_state.installed_guests[candidate.guest_id].active_mode
                 restricted_windows.append(
                     {
@@ -300,6 +386,19 @@ def evaluate_mission_envelope_a10(
                     bw_copy = dict(bw)
                     bw_copy["state_label"] = f"ENVELOPE:{wid}"
                     envelope_binding_witnesses.append(bw_copy)
+
+        if is_genset_window:
+            one_genset_down = {
+                "window_id": wid,
+                "power_reserve_w": w_state.power_reserve_w,
+                "seawater_temp_c": w_state.seawater_temp_c,
+                "holds": (
+                    "NO" if not window_passed else ("YES_WITH_STEP_DOWN" if conditioned_for_window else "YES")
+                ),
+                "required_step_downs": genset_step_downs,
+                "binding_class": genset_binding_class,
+            }
+            one_genset_down["sentence"] = _genset_down_sentence(one_genset_down)
 
         window_reports.append(
             {
@@ -324,6 +423,7 @@ def evaluate_mission_envelope_a10(
         "conditioned": len(restricted_windows) > 0,
         "restricted_windows": restricted_windows,
         "window_evaluations": window_reports,
+        "one_genset_down": one_genset_down,
     }
 
 
@@ -926,6 +1026,7 @@ def evaluate_four_guest_combinations(
                 "fourth_guest_verdict": fourth_decision["verdict"],
                 "fourth_guest_verdict_code": fourth_decision["verdict_code"],
                 "fourth_guest_verdict_unverified_roof": fourth_decision_unverified["verdict"],
+                "fourth_guest_one_genset_down_holds": (fourth_decision.get("one_genset_down") or {}).get("holds"),
                 "fourth_guest_binding_constraints": fourth_decision["binding_constraints"],
                 "fourth_guest_ranked_displacements": fourth_decision["ranked_displacements"],
                 "fourth_guest_required_conditions": fourth_decision.get("required_conditions", []),
@@ -994,6 +1095,7 @@ def _format_admission_decision(
         "capability_lost": capability_lost,
         "required_conditions": required_conditions or [],
         "conditioned_availability": conditioned_availability,
+        "one_genset_down": conditioned_availability.get("one_genset_down"),
         "next_window": next_window,
         "rationale": rationale,
         "calculation_elapsed_ms": elapsed_ms,

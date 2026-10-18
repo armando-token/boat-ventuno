@@ -1315,6 +1315,14 @@ def validate_mission_envelope(raw: Dict[str, Any]) -> Dict[str, Any]:
         require_bool(st["cooling_loop_degraded"], f"{p}.cooling_loop_degraded")
         require_int(st["satcom_available_bps"], f"{p}.satcom_available_bps", min_value=0)
         require_bool(st["emcon_silence"], f"{p}.emcon_silence")
+        if "represents" in st:
+            require_str(st["represents"], f"{p}.represents", allowed_enum={"SINGLE_GENSET_LOSS"})
+    if not any(st.get("represents") == "SINGLE_GENSET_LOSS" and not st["is_pier_only"] for st in states):
+        raise StrictValidationError(
+            "MISSING_SINGLE_GENSET_LOSS_WINDOW",
+            "mission envelope must declare a non-pier window with represents: SINGLE_GENSET_LOSS (Scenario A: holds with one genset down)",
+            "mission_envelope.envelope_states",
+        )
     return raw
 
 

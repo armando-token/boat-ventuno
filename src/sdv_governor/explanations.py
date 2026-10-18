@@ -23,6 +23,9 @@ def build_decision_rationale(
     binding constraint changes, the explanation text changes automatically (ADM-08).
     """
     parts: List[str] = [f"Verdict={verdict} for candidate={candidate_guest_id}."]
+    genset_down = (conditioned_availability or {}).get("one_genset_down")
+    if genset_down:
+        parts.append(str(genset_down["sentence"]))
 
     if verdict == "YES":
         pos_map = placement.get("subcomponent_positions", {})

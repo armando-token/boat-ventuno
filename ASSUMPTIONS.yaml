@@ -368,3 +368,14 @@ assumptions:
     justification: "Real high-rate sub-second per-guest naval telemetry is unavailable in hackathon conditions; deterministic declared synthetic telemetry provides reproducible validation without misrepresenting simulated traces as field measurements."
     code_references:
       - "src/sdv_governor/forecast/telemetry.py"
+
+  - id: SINGLE_GENSET_LOSS_WINDOW
+    parameter: "Envelope window that represents the loss of one generator (Scenario A: 'holds with one genset down')"
+    unit: "window_id"
+    concretized_values: "DEGRADED_GEN_LOSS_100KW_30C (reserve 200 kW -> 100 kW, 30 C water), flagged in data/ship/mission_envelope_a10.yaml with represents: SINGLE_GENSET_LOSS; detection is by flag, never by window name. The envelope fails closed if no such window exists."
+    provenance: "DERIVED"
+    justification: "Scenario B min 12 reserves ~100 kW after one generator trips; Scenario A asks explicitly whether the verdict holds in that state."
+    code_references:
+      - "src/sdv_governor/admission.py::evaluate_mission_envelope_a10"
+      - "src/sdv_governor/manifest.py::validate_mission_envelope"
+    test: "tests/unit/test_ch_c5_one_genset_down.py"

@@ -218,6 +218,23 @@ function renderTimelineTick(tickIdx) {
   );
 }
 
+const GENSET_DOWN_LABELS = {
+  YES: "SE MANTIENE",
+  YES_WITH_STEP_DOWN: "SE MANTIENE CON BAJADA DE MODO",
+  NO: "NO SE MANTIENE",
+};
+
+function gensetDownLabel(holds) {
+  return Object.prototype.hasOwnProperty.call(GENSET_DOWN_LABELS, holds) ? GENSET_DOWN_LABELS[holds] : "n/d";
+}
+
+function renderGensetDownLine(payload) {
+  const el = document.getElementById("genset-down-line");
+  if (!el) return;
+  const g = payload && payload.one_genset_down;
+  el.textContent = g ? `⚡ Un generador caído: ${gensetDownLabel(g.holds)}. ${g.sentence}` : "";
+}
+
 function renderCombinationsTable(combosReport) {
   const container = document.getElementById("combinations-table-container");
   if (!container || !combosReport || !combosReport.combinations) return;
@@ -229,6 +246,7 @@ function renderCombinationsTable(combosReport) {
         <td>${c.total_mass_kg} kg</td>
         <td style="color:${c.exceeds_10000_kg ? "#f59e0b" : "#22c55e"}">${c.exceeds_10000_kg ? "YES (>10t)" : "NO (≤10t)"}</td>
         <td>4th (${c.fourth_guest_id}): <strong>${c.fourth_guest_verdict}</strong></td>
+        <td>⚡ ${gensetDownLabel(c.fourth_guest_one_genset_down_holds)}</td>
       </tr>`
     )
     .join("");
@@ -241,6 +259,7 @@ function renderCombinationsTable(combosReport) {
           <th>Mass (G4=990kg)</th>
           <th>&gt;10,000 kg?</th>
           <th>Sequential D1 Verdict</th>
+          <th>One genset down</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -621,6 +640,7 @@ document.getElementById("btn-admit-live").addEventListener("click", async () => 
     const payload = await res.json();
     setStaleBanner(false);
     document.getElementById("admission-result-box").textContent = JSON.stringify(payload, null, 2);
+    renderGensetDownLine(payload);
     if (payload.current_budget_snapshot) {
       await fetchConsoleState(prof);
       renderEightClassBudgets(payload.current_budget_snapshot);

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, List, Optional
 from .models import BindingConstraintWitness
 
@@ -196,6 +197,7 @@ def plain_headline(
         detail = str(w.get("detail") or "").split(";")[0].strip()
         if "=" in detail or "_" in detail.split(" ")[0]:
             detail = ""
+        detail = re.sub(r"\[([^\]]*)\]", lambda m: m.group(1).replace("'", ""), detail)
         nums = ""
         if w.get("unit") not in ("window", "port_call", "flag", "condition", "") and w.get("capacity") is not None:
             nums = f" (needs {_fmt_qty(w.get('demand'), w.get('unit', ''))}, {_fmt_qty(w.get('capacity'), w.get('unit', ''))} available)"

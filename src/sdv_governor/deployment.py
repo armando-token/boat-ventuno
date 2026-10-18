@@ -195,6 +195,11 @@ def sync_and_run_remote_parity(
         for rel in ("data/guests", "src/sdv_governor/_bundled/data/guests")
         if (repo_root / rel).is_dir()
     }
+    # Stale modules left on the board also change code_sha256, so prune them too.
+    source_inventory = sorted(
+        p.relative_to(repo_root / "src" / "sdv_governor").as_posix()
+        for p in (repo_root / "src" / "sdv_governor").rglob("*.py")
+    )
 
     # Execute remote campaign and capture JSON output
     remote_py_snippet = (
@@ -208,6 +213,12 @@ def sync_and_run_remote_parity(
         "        if path.name not in expected_names:\n"
         "            path.unlink()\n"
         "            removed_stale_guest_manifests.append(str(path.relative_to(root)))\n"
+        f"expected_py = set({source_inventory!r})\n"
+        "pkg = root / 'src' / 'sdv_governor'\n"
+        "for path in sorted(pkg.rglob('*.py')):\n"
+        "    if path.relative_to(pkg).as_posix() not in expected_py:\n"
+        "        path.unlink()\n"
+        "        removed_stale_guest_manifests.append(str(path.relative_to(root)))\n"
         "camp = run_full_campaign_suite(root); "
         "out = {"
         "'removed_stale_guest_manifests': removed_stale_guest_manifests, "

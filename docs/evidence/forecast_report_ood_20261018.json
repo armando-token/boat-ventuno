@@ -1,0 +1,133 @@
+{
+  "schema_version": "sdv-forecast-benchmark/1.0",
+  "timestamp_utc": "2026-10-18T03:27:00.702947+00:00",
+  "git_commit": "639e1e450dbdb13367cb66fca041bd8a00715e32",
+  "device": "Mac",
+  "splits_evaluated": [
+    "ood"
+  ],
+  "params": {
+    "alpha": 0.1,
+    "beta": 0.02,
+    "phi": 0.98,
+    "horizons_s": [
+      10,
+      20,
+      30,
+      45,
+      60
+    ],
+    "warmup_s": 20,
+    "regime_k": 4.0,
+    "conformal_q": {
+      "10": 0.01907,
+      "20": 0.02498,
+      "30": 0.0322,
+      "45": 0.04493,
+      "60": 0.05944
+    },
+    "conformal_q_hi": {
+      "10": 0.01907,
+      "20": 0.02498,
+      "30": 0.0322,
+      "45": 0.04493,
+      "60": 0.05944
+    },
+    "conformal_q_lo": {
+      "10": -0.0147,
+      "20": -0.01619,
+      "30": -0.01752,
+      "45": -0.01928,
+      "60": -0.02058
+    }
+  },
+  "results_by_split": {
+    "ood": {
+      "split": "ood",
+      "episodes_total": 120,
+      "episodes_with_cross": 52,
+      "episodes_breach_cross": 40,
+      "episodes_non_cross": 68,
+      "total_non_cross_hours": 11.33,
+      "mae_by_model": {
+        "B0": {
+          "MAE@10": 0.05822363966353647,
+          "MAE@20": 0.08063377904011135,
+          "MAE@30": 0.1039406712794335,
+          "MAE@45": 0.14090350315850922,
+          "MAE@60": 0.17994932048481946
+        },
+        "B1": {
+          "MAE@10": 0.08495402222806904,
+          "MAE@20": 0.1076300657823127,
+          "MAE@30": 0.13108479163885764,
+          "MAE@45": 0.16803349660895134,
+          "MAE@60": 0.20704565638633146
+        },
+        "B2": {
+          "MAE@10": 0.06521776651633451,
+          "MAE@20": 0.10246808869432257,
+          "MAE@30": 0.1408906217830432,
+          "MAE@45": 0.20034876061628135,
+          "MAE@60": 0.26168080524269316
+        },
+        "M1": {
+          "MAE@10": 0.044481752513263605,
+          "MAE@20": 0.06905081237765459,
+          "MAE@30": 0.09420622874622729,
+          "MAE@45": 0.1332802832975215,
+          "MAE@60": 0.17401250339627178
+        }
+      },
+      "ratio_mae30": 0.9063,
+      "ratio_mae30_ramp_lag": 0.7249,
+      "ratio_mae30_steady_spike": 0.7455,
+      "coverage": {
+        "coverage@10": 0.4711,
+        "coverage@20": 0.5027,
+        "coverage@30": 0.5389,
+        "coverage@45": 0.5902,
+        "coverage@60": 0.63
+      },
+      "recall_alarm": 0.95,
+      "late_alarm_rate": 0.05,
+      "lead_time_s": {
+        "median": 40.0,
+        "p10": 13.0,
+        "count": 40
+      },
+      "all_crosses": {
+        "episodes_count": 52,
+        "alarm_hits": 39,
+        "recall_alarm": 0.75,
+        "median_lead_s": 36.5,
+        "p10_lead_s": -14.0
+      },
+      "false_alarms_per_h": 2.471,
+      "total_false_alarms": 28,
+      "latency_ms": {
+        "p50": 0.005,
+        "p99": 0.008,
+        "ticks_measured": 72000
+      }
+    }
+  },
+  "acceptance_gates": [
+    {
+      "gate_id": "G-OOD",
+      "description": "Robustness on out-of-distribution episodes (2x faster, 3x noise)",
+      "split": "ood",
+      "threshold": "recall >= 0.75 and false_alarms_per_h <= 3.0",
+      "measured": "recall=0.9500, FA=2.471/h",
+      "status": "PASS"
+    },
+    {
+      "gate_id": "G-LAT",
+      "description": "Observer execution latency p99 per tick",
+      "split": "ood",
+      "threshold": "p99_on_tick_ms <= 50.0 ms",
+      "measured": "0.008 ms",
+      "status": "PASS"
+    }
+  ]
+}

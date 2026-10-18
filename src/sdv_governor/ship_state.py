@@ -25,9 +25,9 @@ class FeedReading:
     def validate(self) -> None:
         require_str(self.provenance, f"feed.{self.feed_id}.provenance", allowed_enum=VALID_PROVENANCE_LABELS)
         if self.provenance == "MEASURED":
-            if not self.source_id or self.source_id in ("constant", "literal", "config"):
+            if not self.source_id or self.source_id in ("constant", "literal", "config", "synthetic", "simulated", "virtual") or "synthetic" in self.source_id.lower():
                 raise StrictValidationError(
-                    "PROVENANCE_VIOLATION",
+                    "MEASURED_WITHOUT_PHYSICAL_SOURCE_ID",
                     f"Feed '{self.feed_id}' labelled MEASURED must originate from a physical sensor source_id, not '{self.source_id}'",
                     f"feed.{self.feed_id}",
                 )
@@ -259,7 +259,10 @@ class ShipOperationalState:
         if self.seawater_temp_is_stale or self.seawater_temp_c is None:
             return 30.0, "UNAVAILABLE:CONSERVATIVE_30C_FALLBACK"
         if "seawater_temperature_sensor" in self.feeds:
-            val, prov, status = self.feeds["seawater_temperature_sensor"].effective_value()
+            feed = self.feeds["seawater_temperature_sensor"]
+            if feed.is_stale:
+                return 30.0, "UNAVAILABLE:CONSERVATIVE_30C_FALLBACK"
+            val, prov, status = feed.effective_value()
             if val is not None:
                 return float(val), f"{prov}:{status}"
             return 30.0, "UNAVAILABLE:CONSERVATIVE_30C_FALLBACK"

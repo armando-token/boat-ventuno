@@ -363,3 +363,216 @@ body {
   gap: 6px;
 }
 
+/* Golden Gate Environment Strip & Forecast Advisory Panel (§7.2) */
+.env-strip {
+  background: #111a2d;
+  border-color: #1e3a5f;
+}
+
+.env-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.env-snapshot-badge {
+  background: #0f2744;
+  border-color: #38bdf8;
+  color: #7dd3fc;
+  font-weight: 600;
+}
+
+.env-cooling-callout {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.env-cooling-callout span {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.env-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.env-metric-card {
+  background: #0b1322;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.env-metric-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+}
+
+.env-metric-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--mono);
+}
+
+.env-metric-sub {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.outlook-container {
+  background: #0b1322;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  margin-top: 8px;
+}
+
+.outlook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.outlook-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.legend-dot.open, .outlook-cell.open {
+  background: var(--ok);
+}
+
+.legend-dot.closed, .outlook-cell.closed {
+  background: var(--danger);
+}
+
+.legend-dot.unavail, .outlook-cell.unavail {
+  background: #475569;
+}
+
+.outlook-ribbon {
+  display: grid;
+  grid-template-columns: repeat(48, 1fr);
+  gap: 2px;
+  height: 20px;
+}
+
+.outlook-cell {
+  border-radius: 2px;
+  cursor: pointer;
+  transition: transform 0.1s;
+  position: relative;
+}
+
+.outlook-cell:hover {
+  transform: scaleY(1.25);
+  outline: 1px solid #fff;
+  z-index: 10;
+}
+
+.outlook-cell.next-window {
+  box-shadow: 0 0 0 1.5px #38bdf8;
+}
+
+/* Forecast Advisory Panel */
+.forecast-panel {
+  background: #151e31;
+  border-color: #293d62;
+}
+
+.forecast-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pill-quiet {
+  background: #14532d;
+  color: #86efac;
+}
+
+.pill-watch {
+  background: #713f12;
+  color: #fde047;
+}
+
+.pill-warn {
+  background: #7f1d1d;
+  color: #fca5a5;
+  animation: pulse-warn 1.5s infinite;
+}
+
+.pill-suppressed {
+  background: #334155;
+  color: #94a3b8;
+}
+
+@keyframes pulse-warn {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.forecast-content-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1.6fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.forecast-sentence-box {
+  background: #080d18;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #e2e8f0;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+}
+
+.forecast-guest-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.forecast-guest-card {
+  background: #080d18;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.forecast-guest-card strong {
+  color: var(--accent);
+  display: block;
+}
+
+

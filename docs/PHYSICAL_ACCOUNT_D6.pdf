@@ -16,7 +16,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier >>
 endobj
 6 0 obj
-<< /Length 23390 >>
+<< /Length 24255 >>
 stream
 q 0.10 0.21 0.36 rg 26.00 755.72 560.00 12.29 re f Q
 BT /F2 7.30 Tf 1.00 1.00 1.00 rg 34.00 759.71 Td (Physical Account \(D6\) -- Annex C: every number we assumed, narrowed or overrode, and where the code uses it) Tj ET
@@ -120,169 +120,180 @@ q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 608.82 33.73 15.20 re B Q
 BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 617.42 Td (Heat) Tj ET
 BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 611.82 Td (rejection) Tj ET
 q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 608.82 78.64 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 617.42 Td (Air-cooled domains) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 617.42 Td (Cooling \(live\)) Tj ET
 q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 608.82 188.61 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 617.42 Td (mast_3 2,000 W \(brief\); hangar_roof 2,000 W \(ASM-ROOF-AIR-2000W\);) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 611.82 Td (G5 antenna 1,200 W full / 500 W degraded) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 617.42 Td (SST real Open-Meteo GG_BAR -> C\(T\)) Tj ET
 q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 608.82 92.84 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 617.42 Td (Brief gives no roof air limit;) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 611.82 Td (we copy the mast one) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 617.42 Td (admision 14 dias sigue a 30  deg C) Tj ET
 q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 608.82 166.19 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 617.42 Td (vessel_baseline.yaml:194-198, G5_emergency_comms_edge.yaml) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 576.82 33.73 32.00 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 602.22 Td (Positions) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 576.82 78.64 32.00 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 602.22 Td (Bay-sharing rule; mast) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 596.62 Td (eligibility; roof vs drone) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 576.82 188.61 32.00 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 602.22 Td (bay1 splits into bay1_a/bay1_b; bay2 alone 4,000 kg; flight deck) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 596.62 Td (and stern ramp exclusive; only mast_3 free; G5 antenna on roof) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 591.01 Td (allowed only under ROOF_OUTSIDE_G4_RECOVERY_V1 \(conditional,) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 585.41 Td (enforced: unverified/invalidated stamp -> D1 YES_IF, D3 refuses) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 579.81 Td (every recovery plan\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 576.82 92.84 32.00 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 602.22 Td (Graziano: declare the) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 596.62 Td (roof/drone conflict or an) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 591.01 Td (enforced condition; we enforce) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 576.82 166.19 32.00 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 602.22 Td (vessel_baseline.yaml:51-80,200-211, budgets.py:97) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 596.62 Td (evaluate_roof_drone_clearance, scheduling.py:187) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 591.01 Td (evaluate_roof_drone_clearance_safe,) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 585.41 Td (arbitration.py::_evaluate_candidate_feasibility_and_score,) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 579.81 Td (replay.py::_apply_due_d3_milestones) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 556.02 33.73 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 570.22 Td (Positions) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 556.02 78.64 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 570.22 Td (Stern-ramp override) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 564.62 Td (\(narrowed brief\)) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 556.02 188.61 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 570.22 Td (ramp craft 5,000 kg, cradle-assisted 5,500 kg) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 556.02 92.84 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 570.22 Td (Brief 5 t; +500 kg only with) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 564.62 Td (the cradle, declared as an) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 559.01 Td (override) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 556.02 166.19 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 570.22 Td (vessel_baseline.yaml:106-107, budgets.py:839) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 535.22 33.73 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 549.42 Td (Mass /) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 543.82 Td (stability) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 535.22 78.64 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 549.42 Td (Multipliers; margin kept) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 535.22 188.61 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 549.42 Td (deck/bays x1.0, hangar/roof/deck x1.2, mast x3.0; limits 10,000 kg) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 543.82 Td (and 12,000 kg-eq, 0 kg extra margin \(Scenario B keeps 440 kg /) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 538.22 Td (2,147 kg-eq\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 535.22 92.84 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 549.42 Td (Brief limits used as hard) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 543.82 Td (lines; no hidden buffer) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 535.22 166.19 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 549.42 Td (vessel_baseline.yaml:125-130, budgets.py:976-1001) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 514.42 33.73 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 528.62 Td (Data) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 523.02 Td (links) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 514.42 78.64 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 528.62 Td (SATCOM availability; EMCON) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 514.42 188.61 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 528.62 Td (8 Mbit/s nominal, 6 cruise, 4 hot survey, 2 degraded, floor 1) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 523.02 Td (Mbit/s \(below brief 2 -> stricter\), 0 in EMCON) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 514.42 92.84 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 528.62 Td (Brief: shared 2-8 Mbit/s, 70-95) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 523.02 Td (% availability; we budget the) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 517.42 Td (low end per window) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 514.42 166.19 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 528.62 Td (mission_envelope_a10.yaml, vessel_baseline.yaml:136-139,) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 523.02 Td (budgets.py:1015) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 499.22 33.73 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 507.82 Td (Data) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 502.22 Td (links) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 499.22 78.64 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 507.82 Td (Acoustic drop model \(G3\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 499.22 188.61 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 507.82 Td (HOLD handshake 10-60 s, 15 s nominal; no ACK by 60 s -> plan) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 502.22 Td (escalated, ship does not turn) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 499.22 92.84 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 507.82 Td (Brief A.5: acoustic 10-60 s) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 502.22 Td (latency) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 499.22 166.19 15.20 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 507.82 Td (vessel_baseline.yaml:185-186, replay.py:1047,) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 502.22 Td (G3_auv_survey.yaml) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 478.42 33.73 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 492.62 Td (State) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 487.02 Td (transitions) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 478.42 78.64 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 492.62 Td (Time to go quiet;) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 487.02 Td (course/speed; time to) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 481.42 Td (clear deck per crew) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 478.42 188.61 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 492.62 Td (quiet 180 s; settle into wind 90 s; recovery at 5 kn; deck clear) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 487.02 Td (240 s \(14\) / 600 s \(6\) / forbidden \(0\)) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 478.42 92.84 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 492.62 Td (A.6 ranges, mid values chosen) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 478.42 166.19 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 492.62 Td (scheduling.py:15-30 DEFAULT_TRANSITION_TIMING_POLICY) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 452.02 33.73 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 471.82 Td (Compute /) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 466.22 Td (response) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 460.62 Td (time) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 452.02 78.64 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 471.82 Td (Per-guest allocation;) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 466.22 Td (solver budget and timeout) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 452.02 188.61 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 471.82 Td (4 nodes x 80 % allocatable; least-loaded node; no solver timeout:) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 466.22 Td (exhaustive search \(6 D3 candidates, all displacement sets\)) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 460.62 Td (measured against 30 s / 2 s / 5 s / 60 s and flagged if exceeded) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 455.02 Td (\(measured: ms\)) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 452.02 92.84 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 471.82 Td (Small search space -> exact) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 466.22 Td (answer, deadlines checked every) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 460.62 Td (run) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 452.02 166.19 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 471.82 Td (vessel_baseline.yaml:145,) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 466.22 Td (placement.py::find_feasible_placement, admission.py:1000,) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 460.62 Td (arbitration.py:646,796, degradation.py:374-375) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 425.62 33.73 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 445.42 Td (Mission) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 439.82 Td (priorities) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 434.22 Td (/ crew) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 425.62 78.64 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 445.42 Td (Weights per mission;) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 439.82 Td (confirmation delays;) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 434.22 Td (actions forbidden at 0) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 425.62 188.61 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 445.42 Td (survey_primary / rescue_primary weights and shed order; D3 utility) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 439.82 Td (= survey continuity + 2.2 x landing margin; confirm 30 s \(14\) /) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 434.22 Td (120 s \(6\) / automated \(0\); at 0 crew: no deck clearing, no) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 428.62 Td (physical install) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 425.62 92.84 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 445.42 Td (Swappable file decides; safety) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 439.82 Td (constraints are never weighed) Tj ET
-q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 425.62 166.19 26.40 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 445.42 Td (data/priorities/*.yaml, arbitration.py:447,) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 439.82 Td (scheduling.py:25-30, admission.py:358) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 404.82 33.73 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 419.02 Td (Anything) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 413.42 Td (else) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 404.82 78.64 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 419.02 Td (Guest behaviour beyond the) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 413.42 Td (card) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 404.82 188.61 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 419.02 Td (G4 draws 0 W from the ship while flying, all via hangar station;) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 413.42 Td (airborne G4 / submerged G3 never shed by D4; G5 power split) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 407.82 Td (container/antenna; G6 card \(420 kg\) invented) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 404.82 92.84 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 419.02 Td (Cards silent on these) Tj ET
-q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 404.82 166.19 20.80 re B Q
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 419.02 Td (ASSUMPTIONS.yaml, degradation.py:14) Tj ET
-BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 413.42 Td (DEPLOYED_VEHICLE_MODES, G6_*.yaml) Tj ET
-BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 395.02 Td (Scenario B ledger \(G1+G3+G4+G5, actual / committed\)) Tj ET
-q 0.75 0.82 0.90 rg 26.00 393.02 560.00 0.60 re f Q
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 384.51 Td (Power 57.5 / 81.5 kW -> 82.5 / 106.5 kW at T=480 s \(G4 35 kW reserved\) -> genset trip at T=720 s: 106.5 > 100 kW -> G5 45 -> 8 kW -> 45.5 / 69.5 kW. Water 103.8 -> 67.5 kW committed \(<= 72 kW even with loop loss) Tj ET
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 378.21 Td (at 30 C\). Air: mast_3 1,500 W \(G1\) + roof 1,200 -> 500 W \(G5\). Only two 4-guest sets pass mass; {G1,G2,G3,G4} = 10,035 kg fails.) Tj ET
-BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 370.41 Td (What would change if the vessel had one single platform modification \(mast_4\)?) Tj ET
-q 0.75 0.82 0.90 rg 26.00 368.41 560.00 0.60 re f Q
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 359.91 Td (Closing question: we would add one more guest mast slot, mast_4 \(+1 slot: <= 60 kg, <= 0.6 m2, +2,000 W forced air\). Today G1 \(1,500 W\) and the G5 antenna \(1,200 W\) cannot share mast_3 \(2,700 W > 2,000 W\), so) Tj ET
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 353.61 Td (the antenna goes on the hangar roof and every G4 recovery depends on a roof-clearance condition. With mast_4 the antenna moves off the roof \(9,853 -> 9,898 kg-eq, still 2,102 kg-eq margin\), the drone conflict) Tj ET
-BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 347.31 Td (disappears and D1/D3 lose a conditional rule. It does not fix mass: {G1,G2,G3,G4} \(10,035 kg\), {G1,G2,G3,G5} and {G2,G3,G4,G5} still fail. The same gain applies to {G1,G2,G4,G5} \(7,853 -> 7,898 kg-eq\).) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 617.42 Td (envdata.py, budgets.py:54) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 593.62 33.73 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 602.22 Td (Heat) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 596.62 Td (rejection) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 593.62 78.64 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 602.22 Td (Air-cooled domains) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 593.62 188.61 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 602.22 Td (mast_3 2,000 W \(brief\); hangar_roof 2,000 W \(ASM-ROOF-AIR-2000W\);) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 596.62 Td (G5 antenna 1,200 W full / 500 W degraded) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 593.62 92.84 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 602.22 Td (Brief gives no roof air limit;) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 596.62 Td (we copy the mast one) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 593.62 166.19 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 602.22 Td (vessel_baseline.yaml:194-198, G5_emergency_comms_edge.yaml) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 561.62 33.73 32.00 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 587.01 Td (Positions) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 561.62 78.64 32.00 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 587.01 Td (Bay-sharing rule; mast) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 581.41 Td (eligibility; roof vs drone) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 561.62 188.61 32.00 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 587.01 Td (bay1 splits into bay1_a/bay1_b; bay2 alone 4,000 kg; flight deck) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 581.41 Td (and stern ramp exclusive; only mast_3 free; G5 antenna on roof) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 575.81 Td (allowed only under ROOF_OUTSIDE_G4_RECOVERY_V1 \(conditional,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 570.21 Td (enforced: unverified/invalidated stamp -> D1 YES_IF, D3 refuses) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 564.61 Td (every recovery plan\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 561.62 92.84 32.00 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 587.01 Td (Graziano: declare the) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 581.41 Td (roof/drone conflict or an) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 575.81 Td (enforced condition; we enforce) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 561.62 166.19 32.00 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 587.01 Td (vessel_baseline.yaml:51-80,200-211, budgets.py:97) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 581.41 Td (evaluate_roof_drone_clearance, scheduling.py:187) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 575.81 Td (evaluate_roof_drone_clearance_safe,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 570.21 Td (arbitration.py::_evaluate_candidate_feasibility_and_score,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 564.61 Td (replay.py::_apply_due_d3_milestones) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 540.82 33.73 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 555.01 Td (Positions) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 540.82 78.64 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 555.01 Td (Stern-ramp override) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 549.41 Td (\(narrowed brief\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 540.82 188.61 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 555.01 Td (ramp craft 5,000 kg, cradle-assisted 5,500 kg) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 540.82 92.84 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 555.01 Td (Brief 5 t; +500 kg only with) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 549.41 Td (the cradle, declared as an) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 543.81 Td (override) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 540.82 166.19 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 555.01 Td (vessel_baseline.yaml:106-107, budgets.py:839) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 520.02 33.73 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 534.22 Td (Mass /) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 528.62 Td (stability) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 520.02 78.64 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 534.22 Td (Multipliers; margin kept) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 520.02 188.61 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 534.22 Td (deck/bays x1.0, hangar/roof/deck x1.2, mast x3.0; limits 10,000 kg) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 528.62 Td (and 12,000 kg-eq, 0 kg extra margin \(Scenario B keeps 440 kg /) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 523.01 Td (2,147 kg-eq\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 520.02 92.84 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 534.22 Td (Brief limits used as hard) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 528.62 Td (lines; no hidden buffer) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 520.02 166.19 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 534.22 Td (vessel_baseline.yaml:125-130, budgets.py:976-1001) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 499.22 33.73 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 513.42 Td (Data) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 507.82 Td (links) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 499.22 78.64 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 513.42 Td (SATCOM availability; EMCON) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 499.22 188.61 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 513.42 Td (8 Mbit/s nominal, 6 cruise, 4 hot survey, 2 degraded, floor 1) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 507.82 Td (Mbit/s \(below brief 2 -> stricter\), 0 in EMCON) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 499.22 92.84 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 513.42 Td (Brief: shared 2-8 Mbit/s, 70-95) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 507.82 Td (% availability; we budget the) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 502.22 Td (low end per window) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 499.22 166.19 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 513.42 Td (mission_envelope_a10.yaml, vessel_baseline.yaml:136-139,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 507.82 Td (budgets.py:1015) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 484.02 33.73 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 492.62 Td (Data) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 487.02 Td (links) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 484.02 78.64 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 492.62 Td (Acoustic drop model \(G3\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 484.02 188.61 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 492.62 Td (HOLD handshake 10-60 s, 15 s nominal; no ACK by 60 s -> plan) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 487.02 Td (escalated, ship does not turn) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 484.02 92.84 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 492.62 Td (Brief A.5: acoustic 10-60 s) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 487.02 Td (latency) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 484.02 166.19 15.20 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 492.62 Td (vessel_baseline.yaml:185-186, replay.py:1047,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 487.02 Td (G3_auv_survey.yaml) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 463.22 33.73 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 477.42 Td (State) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 471.82 Td (transitions) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 463.22 78.64 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 477.42 Td (Time to go quiet;) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 471.82 Td (course/speed; time to) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 466.22 Td (clear deck per crew) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 463.22 188.61 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 477.42 Td (quiet 180 s; settle into wind 90 s; recovery at 5 kn; deck clear) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 471.82 Td (240 s \(14\) / 600 s \(6\) / forbidden \(0\)) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 463.22 92.84 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 477.42 Td (A.6 ranges, mid values chosen) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 463.22 166.19 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 477.42 Td (scheduling.py:15-30 DEFAULT_TRANSITION_TIMING_POLICY) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 436.82 33.73 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 456.62 Td (Compute /) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 451.02 Td (response) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 445.42 Td (time) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 436.82 78.64 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 456.62 Td (Per-guest allocation;) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 451.02 Td (solver budget and timeout) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 436.82 188.61 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 456.62 Td (4 nodes x 80 % allocatable; least-loaded node; no solver timeout:) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 451.02 Td (exhaustive search \(6 D3 candidates, all displacement sets\)) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 445.42 Td (measured against 30 s / 2 s / 5 s / 60 s and flagged if exceeded) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 439.81 Td (\(measured: ms\)) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 436.82 92.84 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 456.62 Td (Small search space -> exact) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 451.02 Td (answer, deadlines checked every) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 445.42 Td (run) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 436.82 166.19 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 456.62 Td (vessel_baseline.yaml:145,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 451.02 Td (placement.py::find_feasible_placement, admission.py:1000,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 445.42 Td (arbitration.py:646,796, degradation.py:374-375) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 410.42 33.73 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 430.22 Td (Mission) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 424.62 Td (priorities) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 419.02 Td (/ crew) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 410.42 78.64 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 430.22 Td (Weights per mission;) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 424.62 Td (confirmation delays;) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 419.02 Td (actions forbidden at 0) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 410.42 188.61 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 430.22 Td (survey_primary / rescue_primary weights and shed order; D3 utility) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 424.62 Td (= survey continuity + 2.2 x landing margin; confirm 30 s \(14\) /) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 419.02 Td (120 s \(6\) / automated \(0\); at 0 crew: no deck clearing, no) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 413.42 Td (physical install) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 410.42 92.84 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 430.22 Td (Swappable file decides; safety) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 424.62 Td (constraints are never weighed) Tj ET
+q 0.95 0.97 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 410.42 166.19 26.40 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 430.22 Td (data/priorities/*.yaml, arbitration.py:447,) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 424.62 Td (scheduling.py:25-30, admission.py:358) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 26.00 389.62 33.73 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 403.82 Td (Anything) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 29.00 398.22 Td (else) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 59.73 389.62 78.64 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 403.82 Td (Guest behaviour beyond the) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 62.73 398.22 Td (card) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 138.37 389.62 188.61 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 403.82 Td (G4 draws 0 W from the ship while flying, all via hangar station;) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 398.22 Td (airborne G4 / submerged G3 never shed by D4; G5 power split) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 141.37 392.62 Td (container/antenna; G6 card \(420 kg\) invented) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 326.98 389.62 92.84 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 329.98 403.82 Td (Cards silent on these) Tj ET
+q 1.00 1.00 1.00 rg 0.72 0.78 0.86 RG 0.40 w 419.81 389.62 166.19 20.80 re B Q
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 403.82 Td (ASSUMPTIONS.yaml, degradation.py:14) Tj ET
+BT /F1 4.80 Tf 0.10 0.14 0.20 rg 422.81 398.22 Td (DEPLOYED_VEHICLE_MODES, G6_*.yaml) Tj ET
+BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 379.82 Td (Scenario B ledger \(G1+G3+G4+G5, actual / committed\)) Tj ET
+q 0.75 0.82 0.90 rg 26.00 377.82 560.00 0.60 re f Q
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 369.31 Td (Power 57.5 / 81.5 kW -> 82.5 / 106.5 kW at T=480 s \(G4 35 kW reserved\) -> genset trip at T=720 s: 106.5 > 100 kW -> G5 45 -> 8 kW -> 45.5 / 69.5 kW. Water 103.8 -> 67.5 kW committed \(<= 72 kW even with loop loss) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 363.01 Td (at 30 C\). Air: mast_3 1,500 W \(G1\) + roof 1,200 -> 500 W \(G5\). Only two 4-guest sets pass mass; {G1,G2,G3,G4} = 10,035 kg fails.) Tj ET
+BT /F2 6.10 Tf 0.11 0.24 0.44 rg 26.00 355.21 Td (What would change if the vessel had one single platform modification \(mast_4\)?) Tj ET
+q 0.75 0.82 0.90 rg 26.00 353.21 560.00 0.60 re f Q
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 344.71 Td (Closing question: we would add one more guest mast slot, mast_4 \(+1 slot: <= 60 kg, <= 0.6 m2, +2,000 W forced air\). Today G1 \(1,500 W\) and the G5 antenna \(1,200 W\) cannot share mast_3 \(2,700 W > 2,000 W\), so) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 338.41 Td (the antenna goes on the hangar roof and every G4 recovery depends on a roof-clearance condition. With mast_4 the antenna moves off the roof \(9,853 -> 9,898 kg-eq, still 2,102 kg-eq margin\), the drone conflict) Tj ET
+BT /F1 5.30 Tf 0.12 0.15 0.20 rg 26.00 332.11 Td (disappears and D1/D3 lose a conditional rule. It does not fix mass: {G1,G2,G3,G4} \(10,035 kg\), {G1,G2,G3,G5} and {G2,G3,G4,G5} still fail. The same gain applies to {G1,G2,G4,G5} \(7,853 -> 7,898 kg-eq\).) Tj ET
 endstream
 endobj
 7 0 obj
@@ -297,9 +308,9 @@ xref
 0000000191 00000 n 
 0000000266 00000 n 
 0000000334 00000 n 
-0000023777 00000 n 
+0000024642 00000 n 
 trailer
 << /Size 8 /Root 1 0 R >>
 startxref
-23923
+24788
 %%EOF

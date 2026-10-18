@@ -50,3 +50,6 @@ include = ["sdv_governor*"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-ra -q"
+markers = [
+    "perf: performance and latency budget verification tests (PERF-01..06)",
+]

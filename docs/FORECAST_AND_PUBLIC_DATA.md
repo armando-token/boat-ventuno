@@ -60,13 +60,13 @@ $$\hat{Y}_{t+h|t} = \left[\hat{y}_{t+h|t} + \text{declared\_w} \cdot q_h^{lo}, \
 
 ## 3. Pre-Registered Acceptance Gates & Empirical Results
 
-Measured by `tools/bench_forecast.py --split both` on the **production** `ForecastObserver` (`on_sample` + `on_tick`), commit `c6c1052`, macOS arm64. Disjoint seeds: `train` 1000--1239, `calib` 2000--2079, `test` 3000--3119, `ood` 4000--4119, `control_steady_1h` 5000--5005. Full output: `docs/evidence/forecast_report_20261018.{md,json}`. Thresholds were not changed.
+Measured by `tools/bench_forecast.py --split both` on the **production** `ForecastObserver` (`on_sample` + `on_tick`), commit `c6c1052`, macOS arm64. Disjoint seeds: `train` 1000--1239, `calib` 2000--2079, `test` 3000--3119, `ood` 4000--4119, `control_steady_1h` 5000--5005. Full output: `docs/evidence/forecast_report_20261018.{md,json}`. Re-run on the Arduino Ventuno Q (aarch64, same `code_sha256` c2408f6f… as Mac, verified by `deploy-board`): identical metrics, G-LAT p99 2.42 ms (`forecast_report_ventunoq.{md,json}`; `git_commit` reads `unknown` because the board copy has no `.git`). Thresholds were not changed.
 
 | Gate ID | Requirement | Split | Measured | Status |
 |---|---|---|---|---|
 | **G-NI** | Campaign decisions/hash unchanged with observer | pytest non-interference | 6 tests green; `ebff0e22…` unchanged | **PASS** |
 | **G-OFF** | Offline runtime, zero network | pytest `-k offline` | 2 tests green | **PASS** |
-| **G-LAT** | p99 full observer tick $\le 50$ ms | test | p99 = 0.83 ms (Mac), $\le 8$ engine evals/tick | **PASS** |
+| **G-LAT** | p99 full observer tick $\le 50$ ms | test | p99 = 2.42 ms on Ventuno Q (0.83 ms Mac), $\le 8$ evals/tick | **PASS** |
 | **G-ACC-RAMP** | ratio MAE@30 $\le 0.85$ | test | 0.785 | **PASS** |
 | **G-ACC-STEADY** | ratio MAE@30 $\le 1.05$ | test | 0.858 | **PASS** |
 | **G-COV** | 90% band coverage in [0.85, 0.95] | test | 0.908 | **PASS** |
@@ -98,4 +98,4 @@ Guarded windows from the base state show **no G4 window in the 48 h outlook**: `
 2. **Coastal Model Resolution & Empirical Guard Bands:** Open-Meteo is a coastal model product at ~8 km resolution; validated against NDBC 46237/46026/FTPC1 over 7 days (169 hourly pairs); guard bands are the derived 90% error quantiles: +7.34 kn wind, +0.24 m $H_s$, +0.51 deg C SST (`guard_bands.json`, status DERIVED). Without the guard the backtest gives 20 false-open hours; with it, 0.
 3. **Synthetic Telemetry & Advisory Non-Interference:** Consumption telemetry is synthetic (seeded); `/api/forecast` is a labelled replay. The forecaster is advisory and never changes the governor's decision.
 4. **Thermal Baseline Adherence:** At Golden Gate SST (~16 deg C), cooling is not the binding constraint; 14-day admission is still judged at 30 deg C design worst-case.
-5. **Known weakness:** G-OOD fails (9.7 false WARN / h on out-of-distribution profiles); G-LAT is measured on Mac in this report and re-measured on the Ventuno Q at deploy.
+5. **Known weakness:** G-OOD fails (9.7 false WARN / h on out-of-distribution profiles); G-LAT on the Ventuno Q is 2.42 ms p99, far below 50 ms.

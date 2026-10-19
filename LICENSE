@@ -1,23 +1,33 @@
-PROPRIETARY & HACKATHON EVALUATION NOTICE
-=========================================
+PROPRIETARY SOFTWARE & ALL RIGHTS RESERVED NOTICE
+=================================================
 
 Copyright (c) 2026 Armando Silva. All Rights Reserved.
 
-1. Scope of Evaluation Grant
-   This repository (`sdv-resource-governor`) is made accessible solely for jury
-   inspection, technical verification, and evaluation as part of the Fincantieri
-   Software-Defined Vessel (SDV) Challenge (San Francisco, October 16–18, 2026),
-   subject to the Official Event Terms (Articles 6 and 11) and the declarations in
-   `BACKGROUND_IP.md` and `PROVENANCE.md`.
+1. Ownership & Intellectual Property (Official Event Terms Art. 11.1 & 11.2)
+   All Foreground IP and Background IP in this repository (`sdv-resource-governor` /
+   `boat-ventuno`), including the deterministic 8-class resource governor engine,
+   JSON schemas, verification suite, and 3D operator digital twin, are the exclusive
+   proprietary property of Armando Silva.
 
-2. No Open-Source Grant Prior to Official Award Resolution
-   Except as expressly provided in the Official Event Terms between the participant
-   and the event organizers/sponsors, no license (whether MIT, Apache, GPL, or
-   otherwise) is granted to any third party to copy, redistribute, sublicense, or
-   commercially exploit this software or its documentation prior to a formal
-   post-event licensing decision by the copyright holder.
+2. Scope of Public Visibility & Evaluation Grant (Art. 6, Art. 11.4 & Art. 11.8)
+   This repository is published in source-visible form solely for:
+   (a) public portfolio showcase and technical verification of the 2nd Place winning
+       project (Solo Builder) at the Fincantieri Maritime Dual-Use Hackathon (MDUH),
+       Track 3: Software-Defined Vessel (San Francisco, October 16–18, 2026); and
+   (b) internal non-commercial evaluation by the Challenge Partner and Event Organisers
+       strictly within the bounds and duration of Article 11.4 of the Official Event
+       Terms and the declarations in `BACKGROUND_IP.md` and `PROVENANCE.md`.
 
-3. Third-Party & Public Data Components
-   Third-party libraries and public metocean datasets included or referenced in
-   this repository remain governed by their respective licenses as documented in
+3. No Open-Source License or Commercial Rights Granted (Art. 11.4 & Art. 11.6)
+   No open-source or permissive license (whether MIT, Apache, BSD, GPL, or otherwise)
+   is granted. Except as expressly permitted by mandatory law or Article 11.4 of the
+   Official Event Terms, no person or entity may copy, modify, redistribute, host,
+   sublicense, deploy in production, incorporate into third-party products or services,
+   or commercially exploit any part of this software or documentation without a
+   separate, prior written agreement signed by the copyright holder.
+
+4. Third-Party & Public Data Components
+   Third-party libraries and public metocean datasets referenced or bundled in this
+   repository remain governed by their respective licenses as documented in
    `THIRD_PARTY_COMPONENTS.csv` and `PROVENANCE.md`.
+

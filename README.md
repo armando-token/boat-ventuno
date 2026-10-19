@@ -1,8 +1,9 @@
 <!-- pdf-ignore-start -->
-<h1 align="center">SDV Resource Governor</h1>
+<h1 align="center">🥈 SDV Resource Governor</h1>
 
 <p align="center">
-  <strong>Fincantieri Software-Defined Vessel Challenge · San Francisco 2026</strong><br/>
+  <strong>🥈 2nd Place Winner (Solo Builder · 1-Person Team) — <a href="https://luma.com/mvcg9eyw">Fincantieri Maritime Dual-Use Hackathon · San Francisco 2026</a></strong><br/>
+  <sub>Track 3: Software-Defined Vessel · Powered by Fincantieri, Mind the Bridge, Silicon Mountain &amp; Qualcomm</sub><br/><br/>
   A deterministic, explainable resource governor that decides what a 60-70 m vessel can host, where, and who yields when the ship runs short. Every verdict names its binding constraint.
 </p>
 
@@ -12,13 +13,14 @@
 </p>
 
 <p align="center">
+  <a href="https://luma.com/mvcg9eyw"><img src="https://img.shields.io/badge/%F0%9F%A5%88_2nd_Place_Winner_(Solo_Builder)-Fincantieri_Hackathon_SF_2026-CBD5E1?style=flat-square&labelColor=0F172A" alt="2nd Place Winner (Solo Builder) - Fincantieri Maritime Dual-Use Hackathon SF 2026" /></a>
   <a href="tests/"><img src="https://img.shields.io/badge/tests-300%2B_passing-2EA043?style=flat-square&logo=pytest&logoColor=white" alt="300+ tests passing" /></a>
   <a href="src/sdv_governor/evidence.py"><img src="https://img.shields.io/badge/evidence_mutations-37%2F37_rejected-E11D48?style=flat-square" alt="37/37 evidence mutations rejected" /></a>
   <a href="#6-explicit-limitations--honest-operational-boundaries"><img src="https://img.shields.io/badge/safety_check-%3C_1_ms-F59E0B?style=flat-square" alt="Safety check under 1 ms" /></a>
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.11_%7C_3.12_%7C_3.13-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11 to 3.13" /></a>
   <a href="docs/DEPLOYMENT_AND_BOM.md"><img src="https://img.shields.io/badge/runs_on-macOS_arm64_%C2%B7_Arduino_Ventuno_Q-00878F?style=flat-square&logo=arduino&logoColor=white" alt="Runs on macOS arm64 and Arduino Ventuno Q" /></a>
   <a href="PROVENANCE.md"><img src="https://img.shields.io/badge/runtime-fully_offline-6366F1?style=flat-square" alt="Fully offline runtime" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-hackathon_evaluation-1E293B?style=flat-square" alt="Hackathon evaluation licence" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-All_Rights_Reserved-1E293B?style=flat-square" alt="All Rights Reserved (Proprietary)" /></a>
 </p>
 
 <p align="center">

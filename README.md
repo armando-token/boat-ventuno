@@ -20,7 +20,7 @@
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.11_%7C_3.12_%7C_3.13-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.11 to 3.13" /></a>
   <a href="docs/DEPLOYMENT_AND_BOM.md"><img src="https://img.shields.io/badge/runs_on-macOS_arm64_%C2%B7_Arduino_Ventuno_Q-00878F?style=flat-square&logo=arduino&logoColor=white" alt="Runs on macOS arm64 and Arduino Ventuno Q" /></a>
   <a href="PROVENANCE.md"><img src="https://img.shields.io/badge/runtime-fully_offline-6366F1?style=flat-square" alt="Fully offline runtime" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-All_Rights_Reserved-1E293B?style=flat-square" alt="All Rights Reserved (Proprietary)" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2EA043?style=flat-square" alt="MIT License" /></a>
 </p>
 
 <p align="center">

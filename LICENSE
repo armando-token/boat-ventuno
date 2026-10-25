@@ -1,33 +1,21 @@
-PROPRIETARY SOFTWARE & ALL RIGHTS RESERVED NOTICE
-=================================================
+MIT License
 
-Copyright (c) 2026 Armando Silva. All Rights Reserved.
+Copyright (c) 2026 Armando Silva
 
-1. Ownership & Intellectual Property (Official Event Terms Art. 11.1 & 11.2)
-   All Foreground IP and Background IP in this repository (`sdv-resource-governor` /
-   `boat-ventuno`), including the deterministic 8-class resource governor engine,
-   JSON schemas, verification suite, and 3D operator digital twin, are the exclusive
-   proprietary property of Armando Silva.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-2. Scope of Public Visibility & Evaluation Grant (Art. 6, Art. 11.4 & Art. 11.8)
-   This repository is published in source-visible form solely for:
-   (a) public portfolio showcase and technical verification of the 2nd Place winning
-       project (Solo Builder) at the Fincantieri Maritime Dual-Use Hackathon (MDUH),
-       Track 3: Software-Defined Vessel (San Francisco, October 16–18, 2026); and
-   (b) internal non-commercial evaluation by the Challenge Partner and Event Organisers
-       strictly within the bounds and duration of Article 11.4 of the Official Event
-       Terms and the declarations in `BACKGROUND_IP.md` and `PROVENANCE.md`.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-3. No Open-Source License or Commercial Rights Granted (Art. 11.4 & Art. 11.6)
-   No open-source or permissive license (whether MIT, Apache, BSD, GPL, or otherwise)
-   is granted. Except as expressly permitted by mandatory law or Article 11.4 of the
-   Official Event Terms, no person or entity may copy, modify, redistribute, host,
-   sublicense, deploy in production, incorporate into third-party products or services,
-   or commercially exploit any part of this software or documentation without a
-   separate, prior written agreement signed by the copyright holder.
-
-4. Third-Party & Public Data Components
-   Third-party libraries and public metocean datasets referenced or bundled in this
-   repository remain governed by their respective licenses as documented in
-   `THIRD_PARTY_COMPONENTS.csv` and `PROVENANCE.md`.
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

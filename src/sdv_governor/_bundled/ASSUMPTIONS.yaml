@@ -7,7 +7,7 @@ official_sources_status:
     expected_filename: "[n3 DMM] Software-Defined-Vessel_SHORT..pdf"
     expected_sha256: "0d254ddd547beead36731a82748421b49c45edaba64adacd7683b9a404875646"
     local_presence: "EXTRACTED_VERBATIM_IN_ANNEX_A_AND_B"
-    extracted_specification_source: "/Users/armandosilva/DATA/Hack-Ardui/MEGAPLAN_CORRECTIVO_SDV_PARA_ANTIGRAVITY.md"
+    extracted_specification_source: "~/DATA/Hack-Ardui/MEGAPLAN_CORRECTIVO_SDV_PARA_ANTIGRAVITY.md"
   organizer_errata:
     source: "Organizer clarifications GRAZIANO_B_COMPOSITION_0855 & GRAZIANO_ROOF_AND_G4_MASS_0904"
     overrides_file: "data/overrides/brief_errata.yaml"
